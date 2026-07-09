@@ -133,8 +133,8 @@
       '<section class="hero">' +
         '<div class="hero-inner reveal">' +
           '<div class="hero-eyebrow">' + ic("cap") + " " + esc(CFG.programName) + "</div>" +
-          "<h1>Learn the G Pen lineup. <span class=\"gold\">Get certified.</span> Earn discounts.</h1>" +
-          "<p class=\"hero-sub\">Jump into any product course free — watch the how-to videos, learn the specs, and get the talking points. Want the badge? Pass a quick quiz to get certified and unlock <strong>25% off</strong> gpen.com (or <strong>35% off</strong> for all " + total + ").</p>" +
+          "<h1>Become a <span class=\"gold\">Certified G</span>.</h1>" +
+          "<p class=\"hero-sub\">Explore any product course free — watch the how-to videos, learn the specs, and get the talking points. Want the badge? Pass a quick quiz to get certified and unlock <strong>25% off</strong> gpen.com — or go full <strong>Certified G</strong> for <strong>35% off</strong>.</p>" +
           '<div class="hero-cta">' +
             '<button class="btn xl" id="browse-btn">Browse courses ' + ic("arrow") + "</button>" +
             '<a class="btn xl ghost-dark" href="#/about">About G Pen</a>' +
@@ -779,8 +779,18 @@
         (a.collaborations ? '<div class="about-block"><h2>Iconic collaborations</h2><p class="lead">G Pen has partnered with some of the biggest names in music and cannabis:</p><div class="collabs">' +
           a.collaborations.map(function (c) { return '<span class="collab">' + esc(c) + "</span>"; }).join("") + "</div></div>" : "") +
         (a.globalReach ? '<div class="about-block glob"><h2>A global brand</h2><p>' + esc(a.globalReach) + "</p></div>" : "") +
+        (a.social ? '<div class="about-block"><h2>Join the movement</h2>' +
+          (a.socialPitch ? '<p class="lead">' + esc(a.socialPitch) + "</p>" : "") +
+          '<div class="social-grid">' + a.social.map(function (sc) {
+            return '<a class="social-card" href="' + esc(sc.url) + '" target="_blank" rel="noopener">' +
+              '<span class="soc-net">' + esc(sc.network) + "</span>" +
+              (sc.stat ? '<span class="soc-stat">' + esc(sc.stat) + "</span>" : "") +
+              '<span class="soc-label">' + esc(sc.label || "") + "</span>" +
+              '<span class="soc-handle">' + esc(sc.handle) + " " + ic("arrow") + "</span>" +
+            "</a>";
+          }).join("") + "</div></div>" : "") +
         '<div class="about-close">' + ic("tag") + "<p>" + esc(a.closing || "") + "</p></div>" +
-        '<a class="btn xl center-btn" href="#/' + (e ? "dashboard" : "enroll") + '">' + (e ? "Back to my courses" : "Start training") + " " + ic("arrow") + "</a>" +
+        '<a class="btn xl center-btn" href="#/">' + (e ? "Back to my courses" : "Browse courses") + " " + ic("arrow") + "</a>" +
       "</section>" + footer();
     revealOnScroll();
   }
