@@ -554,6 +554,30 @@ h1, h2, h3, h4 { margin: 0; line-height: 1.08; letter-spacing: -.02em; }
 }
 @media (prefers-reduced-motion: reduce) { .ring.celebrate { animation: none; } }
 
+/* =============================== INTERACTIVE ========================== */
+.sticky-cta {
+  position: fixed; left: 50%; bottom: 18px; transform: translate(-50%, 160%); z-index: 60;
+  display: inline-flex; align-items: center; gap: 8px; background: var(--gold-bright); color: #1a1509;
+  font-family: var(--font); font-weight: 800; font-size: 15px; padding: 13px 22px; border: 0; border-radius: 999px;
+  box-shadow: 0 12px 34px rgba(0,0,0,.3); cursor: pointer; opacity: 0; white-space: nowrap;
+  transition: transform .32s cubic-bezier(.2,.8,.2,1), opacity .3s, box-shadow .2s;
+  max-width: calc(100vw - 24px);
+}
+.sticky-cta.show { transform: translate(-50%, 0); opacity: 1; }
+.sticky-cta:hover { box-shadow: 0 14px 40px rgba(0,0,0,.36); }
+.sticky-cta b { font-weight: 900; }
+.sticky-cta svg { width: 18px; height: 18px; }
+
+.quiz-streak { float: right; display: inline-flex; align-items: center; gap: 4px; color: var(--ember); font-weight: 800; text-transform: none; letter-spacing: 0; animation: streak-in .3s ease; }
+.quiz-streak svg { width: 15px; height: 15px; }
+.streak-pop { display: inline-flex; align-items: center; gap: 3px; color: var(--ember); font-weight: 900; animation: streak-in .3s ease; }
+.streak-pop svg { width: 14px; height: 14px; }
+@keyframes streak-in { from { transform: scale(.7); opacity: 0; } to { transform: scale(1); opacity: 1; } }
+
+.cert { animation: cert-reveal .7s cubic-bezier(.2,.8,.2,1) both; }
+@keyframes cert-reveal { from { opacity: 0; transform: translateY(18px) scale(.96); } to { opacity: 1; transform: none; } }
+@media (prefers-reduced-motion: reduce) { .cert, .quiz-streak, .streak-pop { animation: none; } }
+
 /* =============================== RESPONSIVE ============================= */
 @media (min-width: 680px) {
   .why-grid { grid-template-columns: repeat(2, 1fr); }

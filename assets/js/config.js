@@ -43,6 +43,16 @@ window.TRAINING_CONFIG = {
     // e.g. perCourse: { "dash-ii": { code: "DASH2PRO", label: "...", note: "..." } }
     perCourse: {},
   },
+
+  /* >>> COMPLETION REPORTING <<<
+     Paste a webhook URL here to log every certification (who / which store /
+     which product / score) to a Google Sheet, Airtable, or Zapier/Make.
+     Leave "" to disable (nothing is sent; progress still saves on-device).
+     Two-minute setup instructions are in REPORTING.md. No API keys live in
+     this file — you only paste a webhook URL, so it's safe on a public site. */
+  reporting: {
+    url: "",          // e.g. "https://script.google.com/macros/s/AKfyc.../exec"
+  },
 };
 
 /* -----------------------------------------------------------------------------
@@ -61,4 +71,26 @@ window.issueRewardCode = function (type, ctx) {
   if (type === "master") return Object.assign({ type: "master" }, d.master);
   var perCourse = (ctx && ctx.courseSlug && d.perCourse[ctx.courseSlug]) || d.course;
   return Object.assign({ type: "course" }, perCourse);
+};
+
+/* -----------------------------------------------------------------------------
+   COMPLETION REPORTING — the single, isolated send point.
+   Called on every certification with an event object:
+     { type:"course"|"master", name, email, store, product, score, certId, date }
+   Fire-and-forget POST (mode:"no-cors") so it never blocks the UI and needs no
+   CORS setup on the receiver. To change destinations, only edit reporting.url
+   in the config above (or swap this body). See REPORTING.md.
+   --------------------------------------------------------------------------- */
+window.reportCompletion = function (event) {
+  var cfg = (window.TRAINING_CONFIG && window.TRAINING_CONFIG.reporting) || {};
+  if (!cfg.url) return; // reporting disabled — no-op
+  try {
+    fetch(cfg.url, {
+      method: "POST",
+      mode: "no-cors",
+      keepalive: true,
+      headers: { "Content-Type": "text/plain;charset=utf-8" },
+      body: JSON.stringify(Object.assign({ sentAt: new Date().toISOString() }, event)),
+    });
+  } catch (e) { /* best-effort; progress is also stored on-device */ }
 };

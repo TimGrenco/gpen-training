@@ -14,6 +14,7 @@
   var COURSES = window.GPEN_COURSES || [];
   var app = $("#app");
   var pendingCelebrate = false; // set when a new cert is earned → ring pulses on next home view
+  var stickyHandler = null;     // scroll handler for the course "get certified" nudge
 
   function esc(s) { return String(s == null ? "" : s).replace(/[&<>"']/g, function (m) { return ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" })[m]; }); }
   function courseBySlug(slug) { return COURSES.filter(function (c) { return c.slug === slug; })[0]; }
@@ -348,12 +349,31 @@
 
         secHead(++n, "Get certified") +
         '<div id="quiz-zone"></div>' +
-      "</section>" + footer();
+      "</section>" +
+      (rec && rec.passed ? "" : '<button class="sticky-cta" id="sticky-cta">' + ic("cap") + " Get certified · <b>25% off</b></button>") +
+      footer();
 
     bindVideos();
     bindFaq();
     renderQuizIntro(c);
+    bindStickyCta();
     revealOnScroll();
+  }
+  function bindStickyCta() {
+    if (stickyHandler) { window.removeEventListener("scroll", stickyHandler); stickyHandler = null; }
+    var scta = $("#sticky-cta"); if (!scta) return;
+    scta.addEventListener("click", function () { scrollToId("quiz-zone"); });
+    var qz = $("#quiz-zone");
+    // Scroll-based (reliable everywhere): show once past the hero, hide when the
+    // certify section is on screen.
+    stickyHandler = function () {
+      var cta = $("#sticky-cta"); if (!cta) return;
+      var qzTop = qz ? qz.getBoundingClientRect().top : 1e9;
+      cta.classList.toggle("show", window.scrollY > 220 && qzTop > window.innerHeight - 100);
+    };
+    window.addEventListener("scroll", stickyHandler, { passive: true });
+    stickyHandler();
+    setTimeout(stickyHandler, 500);
   }
   function secHead(n, t) { return '<div class="sec-h big"><span class="sec-n">' + n + "</span><h2>" + t + "</h2></div>"; }
   function galleryHTML(c) {
@@ -470,7 +490,7 @@
   }
   function runQuiz(c) {
     var order = c.quiz.map(function (_, i) { return i; });
-    var i = 0, answers = [], zone = $("#quiz-zone");
+    var i = 0, answers = [], streak = 0, zone = $("#quiz-zone");
     step();
     zone.scrollIntoView({ behavior: "smooth", block: "start" });
 
@@ -478,7 +498,8 @@
       var q = c.quiz[order[i]];
       zone.innerHTML = '<div class="quiz">' +
         '<div class="quiz-bar"><div class="quiz-bar-fill" style="width:' + Math.round((i / c.quiz.length) * 100) + '%"></div></div>' +
-        '<div class="quiz-count">Question ' + (i + 1) + " of " + c.quiz.length + "</div>" +
+        '<div class="quiz-count">Question ' + (i + 1) + " of " + c.quiz.length +
+          (streak >= 2 ? '<span class="quiz-streak">' + ic("fire") + " " + streak + " in a row</span>" : "") + "</div>" +
         '<div class="quiz-q">' + esc(q.q) + "</div>" +
         '<div class="quiz-choices">' + q.choices.map(function (ch, ci) {
           return '<button class="choice" data-ci="' + ci + '"><span class="ch-key">' + String.fromCharCode(65 + ci) + "</span><span>" + esc(ch) + "</span></button>";
@@ -492,6 +513,7 @@
       if (answers[i] != null) return;
       answers[i] = ci;
       var correct = ci === q.answer;
+      streak = correct ? streak + 1 : 0;
       $$(".choice", zone).forEach(function (b, bi) {
         b.disabled = true;
         if (bi === q.answer) b.classList.add("correct");
@@ -499,7 +521,8 @@
       });
       var why = $(".quiz-why", zone); why.hidden = false;
       why.className = "quiz-why " + (correct ? "ok" : "no");
-      why.innerHTML = "<strong>" + (correct ? ic("check") + " Correct" : "Not quite") + "</strong> " + esc(q.why);
+      why.innerHTML = "<strong>" + (correct ? ic("check") + " Correct" : "Not quite") + "</strong> " +
+        (correct && streak >= 3 ? '<span class="streak-pop">' + ic("fire") + " " + streak + " in a row!</span> " : "") + esc(q.why);
       var n = $("#q-next", zone); n.hidden = false;
       n.innerHTML = (i + 1 < c.quiz.length ? "Next question " + ic("arrow") : "See my results " + ic("arrow"));
       n.onclick = function () { i++; if (i < c.quiz.length) step(); else finish(); };
@@ -529,7 +552,10 @@
     s.courses[c.slug] = { passed: true, score: pct, certId: cid, date: date, name: e.name };
     if (s.badges.indexOf(c.slug) < 0) s.badges.push(c.slug);
     setState(s);
-    if (firstTime) pendingCelebrate = true; // ring pulses + confetti next time they hit home
+    if (firstTime) {
+      pendingCelebrate = true; // ring pulses + confetti next time they hit home
+      if (window.reportCompletion) window.reportCompletion({ type: "course", name: e.name, email: e.email, store: e.store, product: "G Pen " + c.name, courseSlug: c.slug, score: pct, certId: cid, date: date });
+    }
     var streak = touchStreak();
     logEvent("certified", { course: c.slug, certId: cid, score: pct });
     confetti();
@@ -729,7 +755,10 @@
     var s = getState();
     // master cert date = latest course date; id from name + program
     var date = niceDate(), cid = certId(e.name + "|G Pen Certified Specialist|" + date);
-    if (!s.master) { s.master = { certId: cid, date: date, name: e.name }; setState(s); logEvent("master", { certId: cid }); }
+    if (!s.master) {
+      s.master = { certId: cid, date: date, name: e.name }; setState(s); logEvent("master", { certId: cid });
+      if (window.reportCompletion) window.reportCompletion({ type: "master", name: e.name, email: e.email, store: e.store, product: "Certified G", score: 100, certId: cid, date: date });
+    }
     else { cid = s.master.certId; date = s.master.date; }
 
     app.innerHTML = header() +
