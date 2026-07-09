@@ -480,6 +480,7 @@ window.GPEN_COURSES = [
 window.GPEN_EGGS = [
   {
     id: "egg-420", on: "home",
+    slot: "courses", align: "left",
     emoji: "🕓", hint: "Psst… what time is it?",
     q: "Where does “420” actually come from?",
     choices: [
@@ -493,6 +494,7 @@ window.GPEN_EGGS = [
   },
   {
     id: "egg-snoop", on: "about",
+    slot: "collabs", align: "right",
     emoji: "🎤", hint: "Drop the mic?",
     q: "Which legend teamed up with G Pen for the original “Double G” series?",
     choices: ["Wiz Khalifa", "B-Real", "Snoop Dogg", "Berner"],
@@ -501,6 +503,7 @@ window.GPEN_EGGS = [
   },
   {
     id: "egg-trichomes", on: "course:dash-ii",
+    slot: "overview", align: "right",
     emoji: "❄️", hint: "Why so frosty?",
     q: "What are the frosty, crystal-like resin glands on cannabis flower called?",
     choices: ["Pistils", "Trichomes", "Stamens", "Nodes"],
@@ -509,6 +512,7 @@ window.GPEN_EGGS = [
   },
   {
     id: "egg-combustion", on: "course:dash-plus",
+    slot: "specs", align: "left",
     emoji: "🔥", hint: "Don't get burned",
     q: "The whole point of a vaporizer is to heat material just below the point of…",
     choices: ["Evaporation", "Combustion", "Condensation", "Sublimation"],
@@ -517,6 +521,7 @@ window.GPEN_EGGS = [
   },
   {
     id: "egg-terpenes", on: "course:melt-hot-knife",
+    slot: "clean", align: "right",
     emoji: "👃", hint: "Take a whiff",
     q: "Which compounds give each strain its distinct smell and flavor?",
     choices: ["Flavonoids", "Chlorophyll", "Terpenes", "Cannabinoids"],
@@ -525,6 +530,7 @@ window.GPEN_EGGS = [
   },
   {
     id: "egg-cbd", on: "course:hydout",
+    slot: "faq", align: "left",
     emoji: "🌱", hint: "Grow your knowledge",
     q: "Which well-known cannabinoid is non-intoxicating?",
     choices: ["THC", "CBD", "THCa converted with heat", "Delta-8"],
@@ -533,6 +539,7 @@ window.GPEN_EGGS = [
   },
   {
     id: "egg-entourage", on: "course:510-original",
+    slot: "videos", align: "center",
     emoji: "🤝", hint: "Better together",
     q: "What's the term for cannabinoids and terpenes working better together than alone?",
     choices: ["The entourage effect", "The halo effect", "Synergy bloom", "The full-spectrum rule"],
@@ -578,3 +585,52 @@ window.GPEN_ABOUT = {
   socialPitch: "G Pen has one of the biggest, most engaged communities in the space — nearly 300K on Instagram alone. Tag @gpen and use #GPen in your store content, and follow along for drops, collabs, and how-tos you can share with customers.",
   closing: "When you sell a G Pen, you're sharing more than a device — you're handing customers a piece of vaporization history built by one of the originals. Know the story, and every conversation becomes an easy, confident sale.",
 };
+
+/* =============================================================================
+   FUN LAYER — ranks, quips & trivia. All editable, none of it affects scoring.
+   ========================================================================== */
+
+/* Class ranks — you move up the ladder as you certify on courses.
+   `at` = number of courses passed needed to hold this rank. */
+window.GPEN_RANKS = [
+  { at: 0, emoji: "🌱", name: "Freshman",   blurb: "Just got your syllabus." },
+  { at: 1, emoji: "🍃", name: "Sophomore",  blurb: "One course down. Momentum." },
+  { at: 2, emoji: "💨", name: "Junior",     blurb: "You're starting to talk like a pro." },
+  { at: 3, emoji: "🔥", name: "Senior",     blurb: "Customers trust you now." },
+  { at: 4, emoji: "🎓", name: "Dean's List", blurb: "One away from glory." },
+  { at: 5, emoji: "👑", name: "Certified G", blurb: "Fully trained. Fully loaded." },
+];
+
+/* Randomized feedback copy — keeps quizzes from feeling like a compliance module. */
+window.GPEN_QUIPS = {
+  correct: [
+    "Correct!", "Certified genius.", "Big brain energy.", "That's the good stuff.",
+    "Chef's kiss.", "You ate that.", "Textbook. Literally.", "Dialed in.",
+  ],
+  wrong: [
+    "Not quite — try again.", "Close, but no rolling paper.", "Mmm… nope.",
+    "Take another pass at it.", "So close. Circle back.", "Swing and a miss.",
+  ],
+  fail: [
+    "So close!", "Almost had it.", "Take a breath and run it back.", "Not this time — but soon.",
+  ],
+  pass: [
+    "You passed!", "Certified.", "Nailed it.", "Straight A's over here.",
+  ],
+};
+
+/* Rotating "Did you know?" cards — light trivia, no quiz, no points. Pure vibes. */
+window.GPEN_FACTS = [
+  { emoji: "🕓", text: "\"420\" started with five San Rafael high-schoolers — the Waldos — who met at 4:20pm by a Louis Pasteur statue in 1971." },
+  { emoji: "❄️", text: "Those frosty crystals on good flower are trichomes — the resin glands where nearly all the cannabinoids and terpenes actually live." },
+  { emoji: "👃", text: "Terpenes are why one strain smells like diesel and another like mango. Limonene, myrcene, pinene — they're in your citrus peel too." },
+  { emoji: "🌡️", text: "Vaporizers heat below the combustion point (~450°F / 232°C), which is exactly why vapor isn't smoke." },
+  { emoji: "🎤", text: "Snoop Dogg partnered with G Pen in 2014 — one of the first true celebrity collaborations in the vaporizer world." },
+  { emoji: "🍫", text: "Anandamide, one of your body's own cannabinoids, is named after the Sanskrit word for \"bliss.\" It's also found in chocolate." },
+  { emoji: "🌿", text: "Hemp is one of the oldest cultivated crops on Earth — woven fabric samples date back roughly 10,000 years." },
+  { emoji: "🫙", text: "Light and heat degrade cannabinoids faster than anything else. Cool, dark, airtight — that's the whole storage lecture." },
+  { emoji: "⚡", text: "A dirty chamber is the #1 cause of \"my vape stopped hitting.\" Nine times out of ten it's a cleaning issue, not a defect." },
+  { emoji: "🤝", text: "The \"entourage effect\" is the theory that cannabinoids and terpenes work better together than any one compound alone." },
+  { emoji: "🧊", text: "Water filtration doesn't reduce potency much — it mostly cools the vapor. That's the entire pitch for the Hydout." },
+  { emoji: "🏭", text: "Grenco Science shipped its first G Pen in 2012, back when \"vape pen\" wasn't even a phrase people used." },
+];

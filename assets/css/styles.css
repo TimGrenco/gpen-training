@@ -675,3 +675,63 @@ h1, h2, h3, h4 { margin: 0; line-height: 1.08; letter-spacing: -.02em; }
   .cert.master .cert-presented, .cert.master .cert-desc, .cert.master .cert-fl { color: #555; }
   .cert.master .cert-fv { color: #000; }
 }
+
+/* ============================ FUN LAYER ================================== */
+/* Eggs sit on a different side of a different section on every page. */
+.egg-row.left { justify-content: flex-start; }
+.egg-row.right { justify-content: flex-end; }
+.egg-row.center { justify-content: center; }
+
+/* Class rank — Freshman → Certified G */
+.rank-chip {
+  display: inline-flex; align-items: center; gap: 9px; margin-top: 10px;
+  padding: 7px 14px 7px 9px; border-radius: 999px;
+  background: linear-gradient(180deg, #fff8e8, #ffeecb);
+  border: 1.5px solid var(--gold-bright);
+}
+.rank-em { font-size: 20px; line-height: 1; animation: egg-bob 3.4s ease-in-out infinite; }
+.rank-txt { display: grid; line-height: 1.25; }
+.rank-txt b { font-size: 14px; font-weight: 900; color: var(--ink); letter-spacing: -.01em; }
+.rank-txt em { font-style: normal; font-size: 11px; font-weight: 700; color: #8a6b28; }
+
+/* Rotating "Did you know?" card */
+.fact-card {
+  display: flex; align-items: center; gap: 16px; margin: 26px 0;
+  padding: 18px 18px 18px 20px; border-radius: 18px;
+  background: var(--cream); border: 1.5px dashed var(--gold-bright);
+}
+.fact-em { font-size: 30px; line-height: 1; flex: none; }
+.fact-body { flex: 1; min-width: 0; }
+.fact-k { display: block; font-size: 11px; font-weight: 900; letter-spacing: .12em; text-transform: uppercase; color: var(--gold); margin-bottom: 3px; }
+.fact-body p { font-size: 14.5px; line-height: 1.55; color: var(--ink); margin: 0; }
+.fact-more {
+  flex: none; width: 40px; height: 40px; border-radius: 50%; cursor: pointer;
+  border: 1.5px solid var(--line); background: #fff; display: grid; place-items: center;
+  color: var(--stone); transition: transform .2s, color .2s, border-color .2s;
+}
+.fact-more:hover { color: var(--gold); border-color: var(--gold-bright); transform: rotate(90deg); }
+.fact-more svg { width: 17px; height: 17px; }
+.fact-card.flip { animation: fact-flip .45s ease; }
+@keyframes fact-flip { 0% { opacity: .25; transform: translateY(6px); } 100% { opacity: 1; transform: none; } }
+
+.foot-motto { margin-top: 10px; font-size: 12px; color: var(--stone); opacity: .8; }
+.foot-motto em { font-style: italic; }
+
+@media (max-width: 520px) {
+  .fact-card { gap: 12px; padding: 15px; border-radius: 15px; }
+  .fact-em { font-size: 25px; }
+  .fact-body p { font-size: 13.5px; }
+  .fact-more { width: 34px; height: 34px; }
+  .egg-row.left, .egg-row.right { justify-content: center; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .rank-em, .fact-card.flip { animation: none; }
+  .fact-more:hover { transform: none; }
+}
+
+/* Rank chip earns its own line under the store name, and the badge row
+   needs breathing room before the next section heading. */
+.rank-chip { display: flex; width: fit-content; max-width: 100%; }
+.dash-store + .rank-chip { margin-top: 12px; }
+.badges + .sec-h { margin-top: 30px; }

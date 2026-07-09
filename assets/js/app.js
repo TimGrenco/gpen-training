@@ -52,6 +52,65 @@
   function completedCount() { var s = getState(); return COURSES.filter(function (c) { return s.courses[c.slug] && s.courses[c.slug].passed; }).length; }
   function isMasterEarned() { var s = getState(); return coreSlugs().every(function (sl) { return s.courses[sl] && s.courses[sl].passed; }); }
 
+  /* ---- fun layer: class ranks, quips, "did you know" ---------------------- */
+  var RANKS = window.GPEN_RANKS || [];
+  var FACTS = window.GPEN_FACTS || [];
+  // Highest rank whose threshold you've cleared.
+  function rankFor(done) {
+    var r = RANKS[0] || null;
+    RANKS.forEach(function (x) { if (done >= x.at) r = x; });
+    return r;
+  }
+  function nextRank(done) { return RANKS.filter(function (x) { return x.at > done; })[0] || null; }
+  function pick(arr) { return arr && arr.length ? arr[Math.floor(Math.random() * arr.length)] : ""; }
+  function quip(kind) {
+    var q = (window.GPEN_QUIPS || {})[kind];
+    return pick(q) || (kind === "correct" ? "Correct!" : "Not quite.");
+  }
+  function rankChip(done) {
+    var r = rankFor(done); if (!r) return "";
+    var nx = nextRank(done);
+    return '<div class="rank-chip"><span class="rank-em">' + r.emoji + "</span>" +
+      '<span class="rank-txt"><b>' + esc(r.name) + "</b>" +
+        "<em>" + esc(nx ? (nx.at - done) + " more to make " + nx.name : r.blurb) + "</em>" +
+      "</span></div>";
+  }
+  // A rotating trivia card. No points, no quiz — just something to enjoy.
+  function factCard() {
+    if (!FACTS.length) return "";
+    var f = pick(FACTS);
+    return '<div class="fact-card reveal" data-fact>' +
+      '<span class="fact-em">' + f.emoji + "</span>" +
+      '<div class="fact-body"><span class="fact-k">Did you know?</span><p>' + esc(f.text) + "</p></div>" +
+      '<button class="fact-more" type="button" aria-label="Another fact" title="Hit me with another">' + ic("refresh") + "</button>" +
+    "</div>";
+  }
+  function bindFacts() {
+    $$("[data-fact]").forEach(function (card) {
+      var btn = $(".fact-more", card); if (!btn) return;
+      btn.addEventListener("click", function () {
+        var f = pick(FACTS);
+        $(".fact-em", card).textContent = f.emoji;
+        $(".fact-body p", card).textContent = f.text;
+        card.classList.remove("flip"); void card.offsetWidth; card.classList.add("flip");
+      });
+    });
+  }
+  // Tap the footer G four times. Nothing to win — just a wink.
+  function bindLogoFun() {
+    var taps = 0, timer = null;
+    $$(".foot-g").forEach(function (g) {
+      g.style.cursor = "pointer";
+      g.addEventListener("click", function () {
+        taps++; clearTimeout(timer); timer = setTimeout(function () { taps = 0; }, 1400);
+        if (taps >= 4) {
+          taps = 0; confetti();
+          toast("🌬️ Secret handshake accepted. Class dismissed.");
+        }
+      });
+    });
+  }
+
   /* ---- hidden trivia easter eggs ----------------------------------------- */
   function eggFor(pageKey) { return EGGS.filter(function (e) { return e.on === pageKey; })[0] || null; }
   function eggSolved(id) { return !!getState().eggs[id]; }
@@ -60,11 +119,15 @@
   // The hidden 40% reward: every course certified (80%+ to pass) AND every egg found.
   function isSecretUnlocked() { return isMasterEarned() && allEggsSolved(); }
 
-  function eggHTML(pageKey) {
+  // Each egg names the section it hides behind (`slot`) and the side it sits on
+  // (`align`), so no two pages stash their secret in the same place.
+  function eggHTML(pageKey, slot) {
     var egg = eggFor(pageKey); if (!egg) return "";
+    if ((egg.slot || "") !== (slot || "")) return "";
     var solved = eggSolved(egg.id);
     var emoji = egg.emoji || "✨";
-    return '<div class="egg-row">' +
+    var align = egg.align === "left" || egg.align === "right" ? egg.align : "center";
+    return '<div class="egg-row ' + align + '">' +
       '<button class="egg' + (solved ? " found" : "") + '" data-egg="' + esc(egg.id) + '" ' +
         'aria-label="' + (solved ? "Trivia solved" : "Hidden trivia") + '" title="' + (solved ? "Solved!" : "Hidden trivia — tap me") + '">' +
         '<span class="egg-emoji">' + emoji + "</span>" +
@@ -72,6 +135,15 @@
       "</button>" +
       '<span class="egg-hint">' + (solved ? "Secret found" : esc(egg.hint || "Psst… tap me")) + "</span>" +
     "</div>";
+  }
+  // Failsafe: a course missing the section its egg hides behind must not lose the egg.
+  function ensureEgg(pageKey) {
+    var egg = eggFor(pageKey); if (!egg) return;
+    if ($('[data-egg="' + egg.id + '"]')) return;
+    var host = $(".hub") || $(".course") || $(".about"); if (!host) return;
+    var wrap = document.createElement("div");
+    wrap.innerHTML = eggHTML(pageKey, egg.slot);
+    if (wrap.firstChild) host.appendChild(wrap.firstChild);
   }
   function bindEggs() {
     $$("[data-egg]").forEach(function (b) {
@@ -108,12 +180,12 @@
         if (!right) {
           b.classList.add("wrong"); b.disabled = true;
           fact.hidden = false; fact.className = "egg-fact no";
-          fact.innerHTML = "<strong>Not quite — try again.</strong>";
+          fact.innerHTML = "<strong>" + esc(quip("wrong")) + "</strong>";
           return;
         }
         $$(".choice", m).forEach(function (x, xi) { x.disabled = true; if (xi === egg.answer) x.classList.add("correct"); });
         fact.hidden = false; fact.className = "egg-fact ok";
-        fact.innerHTML = "<strong>" + ic("check") + " Correct!</strong> " + esc(egg.fact);
+        fact.innerHTML = "<strong>" + ic("check") + " " + esc(quip("correct")) + "</strong> " + esc(egg.fact);
         solveEgg(egg.id);
       });
     });
@@ -216,7 +288,7 @@
 
     var progressBlock = hasProgress
       ? '<div class="dash-head">' +
-          '<div class="dash-hi"><span class="dash-hello">' + (e ? "Welcome back," : "Your progress") + "</span><h1>" + esc(e ? e.name.split(" ")[0] : "Keep going") + "</h1>" + (e ? '<span class="dash-store">' + esc(e.store) + "</span>" : "") + "</div>" +
+          '<div class="dash-hi"><span class="dash-hello">' + (e ? "Welcome back," : "Your progress") + "</span><h1>" + esc(e ? e.name.split(" ")[0] : "Keep going") + "</h1>" + (e ? '<span class="dash-store">' + esc(e.store) + "</span>" : "") + rankChip(done) + "</div>" +
           '<div class="ring">' +
             '<svg viewBox="0 0 128 128"><circle class="ring-bg" cx="64" cy="64" r="' + R + '"/>' +
             '<circle class="ring-fg" cx="64" cy="64" r="' + R + '" stroke-dasharray="' + C.toFixed(1) + '" stroke-dashoffset="' + C.toFixed(1) + '" data-off="' + off.toFixed(1) + '"/></svg>' +
@@ -252,8 +324,10 @@
         progressBlock +
         '<div class="sec-h" id="courses"><h2>Product courses</h2><span>' + (hasProgress ? done + " of " + total + " certified" : "Tap a product — no sign-up needed") + "</span></div>" +
         '<div class="course-grid">' + COURSES.map(courseCard).join("") + "</div>" +
+        eggHTML("home", "courses") +
+        factCard() +
         rewardsSection(done, master) +
-        eggHTML("home") +
+        eggHTML("home", "rewards") +
         (hasProgress ? '<button class="linklike reset" id="reset">Reset my progress</button>' : "") +
       "</section>" +
       lifestyleBand(true) +
@@ -307,7 +381,9 @@
   function footer() {
     return '<footer class="foot"><img src="assets/img/gpen-g-black.png" class="foot-g light" alt=""/><img src="assets/img/gpen-g-white.png" class="foot-g dark" alt=""/>' +
       '<div class="foot-nav"><a href="#/">Courses</a><a href="#/about">About G Pen</a><a href="' + esc(CFG.shopUrl) + '" target="_blank" rel="noopener">Shop gpen.com</a></div>' +
-      "<p>" + esc(CFG.programName) + " · for authorized G Pen retail partners. Questions? <a href=\"mailto:" + esc(CFG.contactEmail) + "\">" + esc(CFG.contactEmail) + "</a></p></footer>";
+      "<p>" + esc(CFG.programName) + " · for authorized G Pen retail partners. Questions? <a href=\"mailto:" + esc(CFG.contactEmail) + "\">" + esc(CFG.contactEmail) + "</a></p>" +
+      '<p class="foot-motto">A Grenco Science joint · est. 2012 · <em>In Vapore Veritas</em></p>' +
+      "</footer>";
   }
 
   function field(id, label, type, val, ph, ac) {
@@ -420,6 +496,8 @@
     var hero = c.heroImg || c.cover;
     var descHTML = (Array.isArray(c.description) ? c.description : [c.description]).map(function (p) { return "<p>" + p + "</p>"; }).join("");
     var n = 0;
+    // Only the slot this course's egg claims returns markup; the rest are no-ops.
+    function egg(slot) { return eggHTML("course:" + c.slug, slot); }
 
     app.innerHTML = header() +
       '<section class="course reveal">' +
@@ -441,19 +519,26 @@
             '<span class="vid-thumb"><img src="' + esc(v.thumb) + '" alt="" loading="lazy"/><span class="vid-play">' + ic("play") + "</span></span>" +
             '<span class="vid-title">' + esc(v.title) + "</span></button>";
         }).join("") + "</div>" +
+        egg("videos") +
 
         secHead(++n, "Get to know it") +
         '<div class="prose">' + descHTML + "</div>" +
         (c.highlights && c.highlights.length ? '<ul class="hl-list">' + c.highlights.map(function (h) { return "<li>" + ic("check") + "<span>" + esc(h) + "</span></li>"; }).join("") + "</ul>" : "") +
         galleryHTML(c) +
+        egg("overview") +
 
         (c.specs && c.specs.length ? secHead(++n, "Tech specs") + specTableHTML(c.specs) : "") +
+        egg("specs") +
         (c.howToUse && c.howToUse.length ? secHead(++n, "How to use it") + stepListHTML(c.howToUse) : "") +
+        egg("howto") +
         (c.howToClean && c.howToClean.length ? secHead(++n, "How to clean & care") + stepListHTML(c.howToClean) : "") +
+        egg("clean") +
         (c.faq && c.faq.length ? secHead(++n, "FAQ") + faqHTML(c.faq) : "") +
+        egg("faq") +
 
         (c.sell && c.sell.length ? '<div class="sell"><h3>' + ic("tag") + " How to sell it</h3><ul>" + c.sell.map(function (x) { return "<li>" + esc(x) + "</li>"; }).join("") + "</ul></div>" : "") +
-        eggHTML("course:" + c.slug) +
+        egg("sell") +
+        factCard() +
 
         secHead(++n, "Get certified") +
         '<div id="quiz-zone"></div>' +
@@ -629,7 +714,7 @@
       });
       var why = $(".quiz-why", zone); why.hidden = false;
       why.className = "quiz-why " + (correct ? "ok" : "no");
-      why.innerHTML = "<strong>" + (correct ? ic("check") + " Correct" : "Not quite") + "</strong> " +
+      why.innerHTML = "<strong>" + (correct ? ic("check") + " " + quip("correct") : quip("wrong")) + "</strong> " +
         (correct && streak >= 3 ? '<span class="streak-pop">' + ic("fire") + " " + streak + " in a row!</span> " : "") + esc(q.why);
       var n = $("#q-next", zone); n.hidden = false;
       n.innerHTML = (i + 1 < c.quiz.length ? "Next question " + ic("arrow") : "See my results " + ic("arrow"));
@@ -647,7 +732,7 @@
     var zone = $("#quiz-zone");
     zone.innerHTML = '<div class="result fail">' +
       '<div class="result-score">' + pct + '%<span>' + correct + "/" + c.quiz.length + "</span></div>" +
-      "<h3>So close!</h3><p>You need " + c.passPct + "% to certify. Review the lessons above and give it another shot — you've got this.</p>" +
+      "<h3>" + esc(quip("fail")) + "</h3><p>You need " + c.passPct + "% to certify. Review the lessons above and give it another shot — you've got this.</p>" +
       '<button class="btn xl" id="retry">' + ic("refresh") + " Retry quiz</button>" +
     "</div>";
     $("#retry").addEventListener("click", function () { runQuiz(c); });
@@ -673,7 +758,7 @@
     var zone = $("#quiz-zone");
     zone.innerHTML = '<div class="result pass">' +
         '<div class="result-score">' + pct + '%<span>' + correct + "/" + c.quiz.length + "</span></div>" +
-        "<h3>" + ic("check") + " You passed!</h3><p>You're now a certified <strong>" + esc(c.name) + "</strong> Product Specialist" + (firstTime ? "" : " (progress refreshed)") + ".</p>" +
+        "<h3>" + ic("check") + " " + esc(quip("pass")) + "</h3><p>You're now a certified <strong>" + esc(c.name) + "</strong> Product Specialist" + (firstTime ? "" : " (progress refreshed)") + ".</p>" +
       "</div>" +
       '<div id="cert-zone"></div>' +
       '<div id="reward-zone" class="reward-wrap"></div>' +
@@ -939,7 +1024,8 @@
           return '<li><span class="tl-year">' + esc(m.year) + "</span><span class=\"tl-dot\"></span><p>" + esc(m.text) + "</p></li>";
         }).join("") + "</ol></div>" : "") +
         (a.collaborations ? '<div class="about-block"><h2>Iconic collaborations</h2><p class="lead">G Pen has partnered with some of the biggest names in music and cannabis:</p><div class="collabs">' +
-          a.collaborations.map(function (c) { return '<span class="collab">' + esc(c) + "</span>"; }).join("") + "</div></div>" : "") +
+          a.collaborations.map(function (c) { return '<span class="collab">' + esc(c) + "</span>"; }).join("") + "</div>" +
+          eggHTML("about", "collabs") + "</div>" : "") +
         (a.globalReach ? '<div class="about-block glob"><h2>A global brand</h2><p>' + esc(a.globalReach) + "</p></div>" : "") +
         (a.social ? '<div class="about-block"><h2>Join the movement</h2>' +
           (a.socialPitch ? '<p class="lead">' + esc(a.socialPitch) + "</p>" : "") +
@@ -951,7 +1037,8 @@
               '<span class="soc-handle">' + esc(sc.handle) + " " + ic("arrow") + "</span>" +
             "</a>";
           }).join("") + "</div></div>" : "") +
-        eggHTML("about") +
+        eggHTML("about", "social") +
+        factCard() +
         '<div class="about-close">' + ic("tag") + "<p>" + esc(a.closing || "") + "</p></div>" +
         '<a class="btn xl center-btn" href="#/">' + (e ? "Back to my courses" : "Browse courses") + " " + ic("arrow") + "</a>" +
       "</section>" + footer();
@@ -984,14 +1071,18 @@
     var parts = h.split("/").filter(Boolean); // e.g. ["course","dash-ii"]
     window.scrollTo(0, 0);
     setTitleDoc(CFG.programName);
-    if (parts[0] === "course" && parts[1]) renderCourse(parts[1]);
-    else if (parts[0] === "certified") renderCertified();
-    else if (parts[0] === "about") renderAbout();
+    var pageKey = "home";
+    if (parts[0] === "course" && parts[1]) { renderCourse(parts[1]); pageKey = "course:" + parts[1]; }
+    else if (parts[0] === "certified") { renderCertified(); pageKey = ""; }
+    else if (parts[0] === "about") { renderAbout(); pageKey = "about"; }
     else renderHome(); // "/", "/dashboard", "/enroll" and anything else → the hub
     // Safety net: guarantee every view's reveal animation is initialized (and
     // its visibility failsafe armed) even if a render function forgets to call it.
     revealOnScroll();
+    if (pageKey) ensureEgg(pageKey);
     bindEggs();
+    bindFacts();
+    bindLogoFun();
   }
   function boot() {
     app = $("#app"); // re-resolve in case the script loaded before #app parsed
