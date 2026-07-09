@@ -27,17 +27,17 @@ window.TRAINING_CONFIG = {
   coreCourses: null,
 
   discount: {
-    // Shown after passing ANY single course quiz.
+    // Shown after passing ANY single course quiz. 25% off.
     course: {
-      code: "GPENPRO15",
-      label: "15% off your next order at gpen.com",
-      note: "Use this code at checkout on gpen.com to test the products you're learning about.",
+      code: "GPENPRO25",
+      label: "25% off your next order at gpen.com",
+      note: "Use this code at checkout on gpen.com to buy and test the product you just got certified on.",
     },
-    // Shown once ALL core courses are complete (G Pen Certified Specialist).
+    // Shown once ALL courses are complete (G Pen Certified Specialist). 35% off.
     master: {
-      code: "GPENCERTIFIED25",
-      label: "25% off + free shipping at gpen.com",
-      note: "Your specialist reward — thanks for going all the way through G Pen University.",
+      code: "GPENELITE35",
+      label: "35% off your entire order at gpen.com",
+      note: "Your top specialist reward for completing every G Pen course — the biggest discount we offer through the program.",
     },
     // OPTIONAL: give a specific product its own course code. Keyed by course slug.
     // e.g. perCourse: { "dash-ii": { code: "DASH2PRO", label: "...", note: "..." } }

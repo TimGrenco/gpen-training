@@ -111,11 +111,12 @@
         '<div class="hero-inner reveal">' +
           '<div class="hero-eyebrow">' + ic("cap") + " " + esc(CFG.programName) + "</div>" +
           "<h1>Become a <span class=\"gold\">G Pen Certified Specialist</span>.</h1>" +
-          "<p class=\"hero-sub\">Learn every G Pen product inside-out, pass a quick quiz, and earn certificates you can show off — plus a discount code to grab the gear and test it yourself.</p>" +
+          "<p class=\"hero-sub\">Pick the products your store carries, learn them inside-out, and pass a quick quiz to get certified. Earn <strong>25% off</strong> gpen.com for any course — or <strong>35% off</strong> when you complete all " + COURSES.length + ".</p>" +
           '<div class="hero-cta">' +
             '<a class="btn xl" href="#/' + (e ? "dashboard" : "enroll") + '">' + (e ? "Go to my dashboard" : "Start training") + " " + ic("arrow") + "</a>" +
-            '<span class="hero-note">' + COURSES.length + " courses · ~30 min · free</span>" +
+            '<a class="btn xl ghost-dark" href="#/about">About G Pen</a>' +
           "</div>" +
+          '<span class="hero-note">' + COURSES.length + " courses · pick any · ~8 min each · free</span>" +
         "</div>" +
         '<div class="hero-badges reveal">' + COURSES.slice(0, 5).map(function (c, i) {
           return '<div class="hero-chip" style="--i:' + i + '"><img src="' + esc(c.cover) + '" alt="' + esc(c.name) + '"/><span>' + esc(c.name) + "</span></div>";
@@ -123,18 +124,18 @@
       "</section>" +
       '<section class="why">' +
         '<div class="why-grid">' +
-          why(ic("cap"), "Learn the products", "Short, interactive courses with the real how-to videos, key specs, and how to sell each device.") +
-          why(ic("check"), "Prove it with a quiz", "Pass an 80% quiz per product to lock in your certification — retake anytime.") +
-          why(ic("award"), "Earn certificates", "Get a printable Certificate of Completion for each product, and a master Specialist certificate.") +
-          why(ic("tag"), "Get rewarded", "Unlock a gpen.com discount code so you can buy and test the products you're selling.") +
+          why(ic("cap"), "Learn the products", "Interactive courses with real how-to videos, lifestyle photos, full specs, cleaning, FAQs, and how to sell each device.") +
+          why(ic("check"), "Train on what you carry", "Take any courses you want — no need to do all five. Pass an 80% quiz to lock in each certification.") +
+          why(ic("award"), "Earn certificates", "Get a printable Certificate of Completion for each product, and a master Specialist certificate for finishing them all.") +
+          why(ic("tag"), "Get rewarded", "25% off gpen.com for any course you complete — 35% off when you finish all " + COURSES.length + " and go full Certified Specialist.") +
         "</div>" +
       "</section>" +
       '<section class="steps">' +
         '<h2>How it works</h2>' +
         '<ol class="steplist">' +
-          step(1, "Enroll", "Tell us your name, email, and store — takes 10 seconds.") +
-          step(2, "Take a course", "Watch, learn, and pass the quiz for each G Pen product.") +
-          step(3, "Get certified & save", "Download your certificate and grab your discount code.") +
+          step(1, "Enroll", "Enter your name, email, and store — takes 10 seconds and puts your name on your certificates.") +
+          step(2, "Take any course", "Train on the products your store carries — watch, learn, and pass the quiz.") +
+          step(3, "Get certified & save", "Download your certificate and unlock 25% off (or 35% off for all five).") +
         "</ol>" +
         '<a class="btn xl center-btn" href="#/' + (e ? "dashboard" : "enroll") + '">' + (e ? "Continue" : "Enroll & start") + " " + ic("arrow") + "</a>" +
       "</section>" +
@@ -145,6 +146,7 @@
   function step(n, t, s) { return '<li class="step reveal"><span class="step-n">' + n + "</span><div><h4>" + t + "</h4><p>" + s + "</p></div></li>"; }
   function footer() {
     return '<footer class="foot"><img src="assets/img/gpen-g-black.png" class="foot-g light" alt=""/><img src="assets/img/gpen-g-white.png" class="foot-g dark" alt=""/>' +
+      '<div class="foot-nav"><a href="#/about">About G Pen</a><a href="#/dashboard">My dashboard</a><a href="' + esc(CFG.shopUrl) + '" target="_blank" rel="noopener">Shop gpen.com</a></div>' +
       "<p>" + esc(CFG.programName) + " · for authorized G Pen retail partners. Questions? <a href=\"mailto:" + esc(CFG.contactEmail) + "\">" + esc(CFG.contactEmail) + "</a></p></footer>";
   }
 
@@ -224,10 +226,10 @@
   function stat(v, l) { return '<div class="stat"><strong>' + v + "</strong><span>" + l + "</span></div>"; }
   function masterBanner(master) {
     if (master) return '<a class="master-b done" href="#/certified">' + ic("award") +
-      '<div><strong>You\'re a G Pen Certified Specialist!</strong><span>View your master certificate & reward →</span></div></a>';
+      '<div><strong>You\'re a G Pen Certified Specialist!</strong><span>View your master certificate & 35% off reward →</span></div></a>';
     var left = coreSlugs().length - completedCount();
-    return '<div class="master-b"><span class="master-ic">' + ic("lock") + "</span>" +
-      '<div><strong>G Pen Certified Specialist</strong><span>Finish ' + left + " more course" + (left === 1 ? "" : "s") + " to unlock the master certificate + top reward.</span></div></div>";
+    return '<div class="master-b"><span class="master-ic">' + ic("award") + "</span>" +
+      '<div><strong>Bonus: G Pen Certified Specialist</strong><span>Optional — complete all ' + coreSlugs().length + " courses to earn the master certificate + <strong>35% off</strong> (" + left + " to go).</span></div></div>";
   }
   function courseCard(c) {
     var s = getState(), rec = s.courses[c.slug], done = rec && rec.passed;
@@ -252,51 +254,81 @@
     var s = getState(), rec = s.courses[c.slug];
     setTitleDoc(c.name + " — Training");
 
+    var hero = c.heroImg || c.cover;
+    var descHTML = (Array.isArray(c.description) ? c.description : [c.description]).map(function (p) { return "<p>" + p + "</p>"; }).join("");
+    var n = 0;
+
     app.innerHTML = header() +
       '<section class="course reveal">' +
         '<a class="back" href="#/dashboard">' + ic("back") + " Dashboard</a>" +
-        '<div class="course-hero" style="--accent:' + c.accent + '">' +
-          '<img class="ch-img" src="' + esc(c.cover) + '" alt="' + esc(c.name) + '"/>' +
-          '<div class="ch-txt">' +
-            '<span class="ch-eyebrow">' + ic("cap") + " Product Specialist" + (rec && rec.passed ? ' · <b class="ch-done">' + ic("check") + " Certified</b>" : "") + "</span>" +
+        '<div class="cx-hero' + (c.heroImg ? "" : " no-life") + '" style="--accent:' + c.accent + '">' +
+          '<div class="cx-hero-media"><img src="' + esc(hero) + '" alt="' + esc(c.name) + '" loading="eager"/></div>' +
+          '<div class="cx-hero-body">' +
+            '<span class="ch-eyebrow">' + ic("cap") + " Product Specialist Course" + (rec && rec.passed ? ' · <b class="ch-done">' + ic("check") + " Certified</b>" : "") + "</span>" +
             "<h1>" + esc(c.name) + "</h1>" +
+            '<span class="cx-cat">' + esc(c.category) + " · " + esc(c.msrp) + "</span>" +
             "<p>" + esc(c.tagline) + "</p>" +
-            '<div class="ch-meta">' + c.videos.length + " videos · " + c.modules.length + " lessons · " + c.quiz.length + "-question quiz · pass " + c.passPct + "%</div>" +
+            '<div class="ch-meta">' + c.videos.length + " videos · " + c.quiz.length + "-question quiz · pass " + c.passPct + "% · ~" + c.minutes + " min</div>" +
           "</div>" +
         "</div>" +
 
-        secHead(1, "Watch") +
-        '<div class="vid-grid">' + c.videos.map(function (v, i) {
+        secHead(++n, "Watch & learn") +
+        '<div class="vid-grid">' + c.videos.map(function (v) {
           return '<button class="vid" data-yt="' + esc(v.youtube || "") + '" data-title="' + esc(v.title) + '">' +
             '<span class="vid-thumb"><img src="' + esc(v.thumb) + '" alt="" loading="lazy"/><span class="vid-play">' + ic("play") + "</span></span>" +
             '<span class="vid-title">' + esc(v.title) + "</span></button>";
         }).join("") + "</div>" +
 
-        secHead(2, "Learn") +
-        '<p class="lead">Tap each lesson to expand it, then mark it read. Read them all before the quiz.</p>' +
-        '<div class="mods">' + c.modules.map(function (m, i) {
-          return '<div class="mod" data-mi="' + i + '">' +
-            '<button class="mod-h" data-mod-toggle><span class="mod-n">' + (i + 1) + "</span><h3>" + esc(m.title) + "</h3>" +
-              '<span class="mod-chk">' + ic("check") + "</span><span class=\"mod-caret\">+</span></button>" +
-            '<div class="mod-body"><ul>' + m.points.map(function (p) { return "<li>" + p + "</li>"; }).join("") +
-              '</ul><button class="btn ghost sm mod-read" data-read="' + i + '">' + ic("check") + " Mark as read</button></div>" +
-          "</div>";
-        }).join("") + "</div>" +
+        secHead(++n, "Get to know it") +
+        '<div class="prose">' + descHTML + "</div>" +
+        (c.highlights && c.highlights.length ? '<ul class="hl-list">' + c.highlights.map(function (h) { return "<li>" + ic("check") + "<span>" + esc(h) + "</span></li>"; }).join("") + "</ul>" : "") +
+        galleryHTML(c) +
 
-        '<div class="sell">' +
-          '<h3>' + ic("tag") + " How to sell it</h3><ul>" + c.sell.map(function (x) { return "<li>" + esc(x) + "</li>"; }).join("") + "</ul>" +
-        "</div>" +
+        (c.specs && c.specs.length ? secHead(++n, "Tech specs") + specTableHTML(c.specs) : "") +
+        (c.howToUse && c.howToUse.length ? secHead(++n, "How to use it") + stepListHTML(c.howToUse) : "") +
+        (c.howToClean && c.howToClean.length ? secHead(++n, "How to clean & care") + stepListHTML(c.howToClean) : "") +
+        (c.faq && c.faq.length ? secHead(++n, "FAQ") + faqHTML(c.faq) : "") +
 
-        secHead(3, "Get certified") +
+        (c.sell && c.sell.length ? '<div class="sell"><h3>' + ic("tag") + " How to sell it</h3><ul>" + c.sell.map(function (x) { return "<li>" + esc(x) + "</li>"; }).join("") + "</ul></div>" : "") +
+
+        secHead(++n, "Get certified") +
         '<div id="quiz-zone"></div>' +
       "</section>" + footer();
 
     bindVideos();
-    bindModules();
+    bindFaq();
     renderQuizIntro(c);
     revealOnScroll();
   }
   function secHead(n, t) { return '<div class="sec-h big"><span class="sec-n">' + n + "</span><h2>" + t + "</h2></div>"; }
+  function galleryHTML(c) {
+    if (!c.gallery || !c.gallery.length) return "";
+    return '<div class="gallery">' + c.gallery.map(function (g) {
+      return '<figure class="ga-item"><img src="' + esc(g.url) + '" alt="' + esc(g.caption || c.name) + '" loading="lazy"/>' +
+        (g.caption ? '<figcaption>' + esc(g.caption) + "</figcaption>" : "") + "</figure>";
+    }).join("") + "</div>";
+  }
+  function specTableHTML(specs) {
+    return '<div class="spectable">' + specs.map(function (sp) {
+      return '<div class="spec-row"><span class="spec-k">' + esc(sp.label) + '</span><span class="spec-v">' + sp.value + "</span></div>";
+    }).join("") + "</div>";
+  }
+  function stepListHTML(steps) {
+    return '<ol class="steps-list">' + steps.map(function (st, i) {
+      return '<li><span class="sl-n">' + (i + 1) + "</span><span>" + st + "</span></li>";
+    }).join("") + "</ol>";
+  }
+  function faqHTML(faq) {
+    return '<div class="faq">' + faq.map(function (f, i) {
+      return '<div class="faq-item"><button class="faq-q" data-faq="' + i + '"><span>' + esc(f.q) + '</span><span class="faq-caret">+</span></button>' +
+        '<div class="faq-a"><p>' + esc(f.a) + "</p></div></div>";
+    }).join("") + "</div>";
+  }
+  function bindFaq() {
+    $$(".faq-q").forEach(function (b) {
+      b.addEventListener("click", function () { b.closest(".faq-item").classList.toggle("open"); });
+    });
+  }
 
   function bindVideos() {
     $$(".vid").forEach(function (b) {
@@ -339,7 +371,7 @@
     var s = getState(), rec = s.courses[c.slug];
     var zone = $("#quiz-zone");
     zone.innerHTML = '<div class="quiz-intro">' +
-      '<p class="lead">Answer all ' + c.quiz.length + " questions. Score <strong>" + c.passPct + "%</strong> or higher to earn your " + esc(c.name) + " certificate.</p>" +
+      '<p class="lead">Answer all ' + c.quiz.length + " questions. Score <strong>" + c.passPct + "%</strong> or higher to earn your " + esc(c.name) + " certificate and unlock <strong>25% off</strong> gpen.com.</p>" +
       (rec && rec.passed ? '<div class="already">' + ic("check") + " You're already certified (" + rec.score + "%). You can retake to refresh.</div>" : "") +
       '<button class="btn xl" id="start-quiz">' + (rec && rec.passed ? "Retake quiz" : "Start quiz") + " " + ic("arrow") + "</button>" +
     "</div>";
@@ -591,6 +623,35 @@
     revealOnScroll();
   }
 
+  /* ---- ABOUT G PEN ------------------------------------------------------- */
+  function renderAbout() {
+    var a = window.GPEN_ABOUT || {};
+    var e = getEnroll();
+    setTitleDoc("About G Pen");
+    var founding = (Array.isArray(a.foundingStory) ? a.foundingStory : [a.foundingStory || ""]).map(function (p) { return "<p>" + esc(p) + "</p>"; }).join("");
+    app.innerHTML = header() +
+      '<section class="about reveal">' +
+        '<a class="back" href="#/' + (e ? "dashboard" : "") + '">' + ic("back") + " " + (e ? "Dashboard" : "Home") + "</a>" +
+        '<div class="about-hero">' +
+          '<img class="about-g" src="assets/img/gpen-g-white.png" alt="G Pen"/>' +
+          '<span class="ch-eyebrow">' + ic("cap") + " About the brand</span>" +
+          "<h1>15 years of leading the culture.</h1>" +
+          "<p>" + esc(a.intro || "") + "</p>" +
+        "</div>" +
+        (a.stats ? '<div class="about-stats">' + a.stats.map(function (s) { return '<div class="astat"><strong>' + s.number + "</strong><span>" + esc(s.label) + "</span></div>"; }).join("") + "</div>" : "") +
+        '<div class="about-block"><h2>Our story</h2>' + founding + "</div>" +
+        (a.milestones ? '<div class="about-block"><h2>Milestones</h2><ol class="timeline">' + a.milestones.map(function (m) {
+          return '<li><span class="tl-year">' + esc(m.year) + "</span><span class=\"tl-dot\"></span><p>" + esc(m.text) + "</p></li>";
+        }).join("") + "</ol></div>" : "") +
+        (a.collaborations ? '<div class="about-block"><h2>Iconic collaborations</h2><p class="lead">G Pen has partnered with some of the biggest names in music and cannabis:</p><div class="collabs">' +
+          a.collaborations.map(function (c) { return '<span class="collab">' + esc(c) + "</span>"; }).join("") + "</div></div>" : "") +
+        (a.globalReach ? '<div class="about-block glob"><h2>A global brand</h2><p>' + esc(a.globalReach) + "</p></div>" : "") +
+        '<div class="about-close">' + ic("tag") + "<p>" + esc(a.closing || "") + "</p></div>" +
+        '<a class="btn xl center-btn" href="#/' + (e ? "dashboard" : "enroll") + '">' + (e ? "Back to my courses" : "Start training") + " " + ic("arrow") + "</a>" +
+      "</section>" + footer();
+    revealOnScroll();
+  }
+
   /* ---- reveal-on-scroll -------------------------------------------------- */
   function revealOnScroll() {
     var els = $$(".reveal");
@@ -613,6 +674,7 @@
     if (parts[0] === "dashboard") return renderDashboard();
     if (parts[0] === "course" && parts[1]) return renderCourse(parts[1]);
     if (parts[0] === "certified") return renderCertified();
+    if (parts[0] === "about") return renderAbout();
     return renderLanding();
   }
   window.addEventListener("hashchange", route);
