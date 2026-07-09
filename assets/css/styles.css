@@ -526,6 +526,33 @@ h1, h2, h3, h4 { margin: 0; line-height: 1.08; letter-spacing: -.02em; }
 .cc-reward svg { width: 14px; height: 14px; }
 .cc-reward.earned { color: var(--ok); }
 
+/* =============================== FEATURED / BADGES ==================== */
+.cc-featured { position: absolute; top: 12px; right: 12px; display: inline-flex; align-items: center; gap: 4px; font-size: 11px; font-weight: 900; text-transform: uppercase; letter-spacing: .04em; padding: 5px 11px; border-radius: 999px; background: var(--gold-bright); color: #1a1509; box-shadow: 0 4px 14px rgba(254,200,112,.5); }
+.cc-featured svg { width: 12px; height: 12px; }
+.course-card.featured { border-color: var(--gold-bright); box-shadow: 0 0 0 1px var(--gold-bright), var(--shadow); }
+.course-card.featured:hover { box-shadow: 0 0 0 1px var(--gold-bright), var(--shadow-lg); }
+
+.sec-h.sub { margin: 24px 0 12px; }
+.sec-h.sub h2 { font-size: 16px; }
+.sec-h.sub span { font-size: 12px; color: var(--stone); font-weight: 700; }
+.badges { display: flex; flex-wrap: wrap; gap: 10px 12px; margin-bottom: 4px; }
+.badge { display: flex; flex-direction: column; align-items: center; gap: 6px; width: 82px; }
+.badge-disc { position: relative; width: 62px; height: 62px; border-radius: 50%; background: var(--cream); border: 2px solid var(--line); display: grid; place-items: center; overflow: visible; filter: grayscale(1); opacity: .4; transition: transform .16s ease, opacity .2s; }
+.badge-disc img { width: 74%; height: 74%; object-fit: contain; border-radius: 50%; }
+.badge.earned .badge-disc { filter: none; opacity: 1; border-color: var(--gold-bright); box-shadow: 0 0 0 3px rgba(254,200,112,.3), var(--shadow); background: linear-gradient(160deg, #fff, #fbf6ea); }
+.badge:hover .badge-disc { transform: translateY(-3px); }
+.badge-chk { position: absolute; bottom: -3px; right: -3px; width: 22px; height: 22px; background: var(--ok); color: #fff; border-radius: 50%; display: grid; place-items: center; border: 2px solid #fff; }
+.badge-chk svg { width: 12px; height: 12px; }
+.badge-name { font-size: 11px; font-weight: 700; color: var(--stone); text-align: center; line-height: 1.12; }
+.badge.earned .badge-name { color: var(--ink); }
+
+.ring.celebrate { animation: ring-pop 1.15s cubic-bezier(.2,.8,.2,1) 2; }
+@keyframes ring-pop {
+  0%, 100% { transform: scale(1); filter: drop-shadow(0 0 0 rgba(254,200,112,0)); }
+  35% { transform: scale(1.08); filter: drop-shadow(0 0 16px rgba(254,200,112,.8)); }
+}
+@media (prefers-reduced-motion: reduce) { .ring.celebrate { animation: none; } }
+
 /* =============================== RESPONSIVE ============================= */
 @media (min-width: 680px) {
   .why-grid { grid-template-columns: repeat(2, 1fr); }

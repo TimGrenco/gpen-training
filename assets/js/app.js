@@ -13,6 +13,7 @@
   var CFG = window.TRAINING_CONFIG;
   var COURSES = window.GPEN_COURSES || [];
   var app = $("#app");
+  var pendingCelebrate = false; // set when a new cert is earned → ring pulses on next home view
 
   function esc(s) { return String(s == null ? "" : s).replace(/[&<>"']/g, function (m) { return ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" })[m]; }); }
   function courseBySlug(slug) { return COURSES.filter(function (c) { return c.slug === slug; })[0]; }
@@ -62,6 +63,7 @@
     mail: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="5" width="18" height="14" rx="2"/><path d="M3 7l9 6 9-6"/></svg>',
     refresh: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 12a9 9 0 11-3-6.7L21 8"/><path d="M21 3v5h-5"/></svg>',
     share: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="4" y="3" width="16" height="18" rx="3"/><circle cx="12" cy="10" r="3"/><path d="M8.5 20a3.5 3.5 0 017 0"/></svg>',
+    star: '<svg viewBox="0 0 24 24" fill="currentColor"><path d="M12 2l2.9 6.3 6.9.8-5.1 4.7 1.4 6.8L12 17.8 5.9 21.4l1.4-6.8L2.2 9.9l6.9-.8z"/></svg>',
   };
   function ic(n) { return '<span class="ic">' + (IC[n] || "") + "</span>"; }
 
@@ -126,7 +128,9 @@
           stat(done, "Courses passed", done, "") +
           stat(pct + "%", "Program complete", pct, "%") +
           stat('<span class="st-fire">' + (streak ? ic("fire") : "") + streak + "</span>", "Day streak") +
-        "</div>"
+        "</div>" +
+        '<div class="sec-h sub"><h2>Badge collection</h2><span>' + done + " of " + total + "</span></div>" +
+        badgeRow()
       : "";
 
     var heroBg = (window.GPEN_LIFESTYLE || [])[2] || "";
@@ -163,7 +167,15 @@
       "</section>" +
       footer();
 
-    if (hasProgress) { requestAnimationFrame(function () { var r = $(".ring-fg"); if (r) r.style.strokeDashoffset = r.getAttribute("data-off"); }); countUp(); }
+    if (hasProgress) {
+      requestAnimationFrame(function () { var r = $(".ring-fg"); if (r) r.style.strokeDashoffset = r.getAttribute("data-off"); });
+      countUp();
+      if (pendingCelebrate) {
+        pendingCelebrate = false;
+        var ring = $(".ring");
+        if (ring) { ring.classList.add("celebrate"); confetti(); toast("Badge earned! 🎉"); setTimeout(function () { ring.classList.remove("celebrate"); }, 2400); }
+      }
+    }
     fillRewards();
     var bb = $("#browse-btn"); if (bb) bb.addEventListener("click", function () { scrollToId("courses"); });
     $$("[data-goto]").forEach(function (el) { el.addEventListener("click", function () { go("#/course/" + el.getAttribute("data-goto")); }); });
@@ -264,9 +276,10 @@
   }
   function courseCard(c) {
     var s = getState(), rec = s.courses[c.slug], done = rec && rec.passed;
-    return '<a class="course-card' + (done ? " done" : "") + '" href="#/course/' + c.slug + '" style="--accent:' + c.accent + '">' +
+    return '<a class="course-card' + (done ? " done" : "") + (c.featured ? " featured" : "") + '" href="#/course/' + c.slug + '" style="--accent:' + c.accent + '">' +
       '<div class="cc-media"><img src="' + esc(c.cover) + '" alt="' + esc(c.name) + '" loading="lazy"/>' +
         (done ? '<span class="cc-badge">' + ic("check") + " Certified</span>" : '<span class="cc-min">~' + c.minutes + " min</span>") +
+        (c.featured && !done ? '<span class="cc-featured">' + ic("star") + " " + esc(c.featured) + "</span>" : "") +
       "</div>" +
       '<div class="cc-body">' +
         '<span class="cc-cat">' + esc(c.category) + "</span>" +
@@ -277,6 +290,17 @@
           '<span class="cc-go">' + (done ? "Review " : "Start ") + ic("arrow") + "</span></div>" +
       "</div>" +
     "</a>";
+  }
+  // Badge collection — one per product, lit once earned. A "collect them all" row.
+  function badgeRow() {
+    var s = getState();
+    return '<div class="badges">' + COURSES.map(function (c) {
+      var done = s.courses[c.slug] && s.courses[c.slug].passed;
+      return '<a class="badge' + (done ? " earned" : "") + '" href="#/course/' + c.slug + '" title="' + esc(c.name) + (done ? " — certified" : "") + '">' +
+        '<span class="badge-disc"><img src="' + esc(c.cover) + '" alt="' + esc(c.name) + '"/>' + (done ? '<span class="badge-chk">' + ic("check") + "</span>" : "") + "</span>" +
+        '<span class="badge-name">' + esc(c.name) + "</span>" +
+      "</a>";
+    }).join("") + "</div>";
   }
 
   /* ---- COURSE ------------------------------------------------------------ */
@@ -505,6 +529,7 @@
     s.courses[c.slug] = { passed: true, score: pct, certId: cid, date: date, name: e.name };
     if (s.badges.indexOf(c.slug) < 0) s.badges.push(c.slug);
     setState(s);
+    if (firstTime) pendingCelebrate = true; // ring pulses + confetti next time they hit home
     var streak = touchStreak();
     logEvent("certified", { course: c.slug, certId: cid, score: pct });
     confetti();

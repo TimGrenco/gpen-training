@@ -63,6 +63,7 @@ window.GPEN_COURSES = [
     name: "Dash II",
     category: "Dry Herb Vaporizer",
     tagline: "The pocket-sized dry herb vape, upgraded across the board.",
+    featured: "Start here",
     minutes: 9, passPct: 80, msrp: "$49.95", accent: "#FEC870",
     cover: CDN + "Dash2_thumb_01.png?v=1782936076",
     heroImg: LIFE + "dash-ii/f37d082035ae142949fa4dfe33aeebf6d9b556a2745187c26db91bc2ca08a020.jpg",
