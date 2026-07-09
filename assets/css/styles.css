@@ -458,6 +458,9 @@ h1, h2, h3, h4 { margin: 0; line-height: 1.08; letter-spacing: -.02em; }
   .gallery { grid-template-columns: repeat(3, 1fr); }
   .ga-item:first-child { grid-column: 1 / -1; }
   .cx-hero { min-height: 400px; }
+  .hero-cta { flex-direction: row; }
+  .cx-hero { align-items: flex-end; }
+  .cx-hero-body { max-width: 760px; }
 }
 @media (min-width: 1000px) {
   .why-grid { grid-template-columns: repeat(4, 1fr); }

@@ -655,11 +655,19 @@
   /* ---- reveal-on-scroll -------------------------------------------------- */
   function revealOnScroll() {
     var els = $$(".reveal");
-    if (!("IntersectionObserver" in window)) { els.forEach(function (e) { e.classList.add("in"); }); return; }
-    var io = new IntersectionObserver(function (ents) {
-      ents.forEach(function (en) { if (en.isIntersecting) { en.target.classList.add("in"); io.unobserve(en.target); } });
-    }, { threshold: 0.08 });
+    var reveal = function (e) { e.classList.add("in"); };
+    var revealAll = function () { els.forEach(reveal); };
+    if (!("IntersectionObserver" in window)) { revealAll(); return; }
+    var io = new IntersectionObserver(function (ents, obs) {
+      ents.forEach(function (en) { if (en.isIntersecting) { reveal(en.target); obs.unobserve(en.target); } });
+    }, { threshold: 0.05, rootMargin: "0px 0px -4% 0px" });
     els.forEach(function (e) { io.observe(e); });
+    // Content must NEVER stay hidden. If the tab is hidden/inactive the observer
+    // may never fire, so reveal immediately; also reveal on the next visibility
+    // change, plus a hard failsafe timeout. Active tabs still animate on scroll.
+    if (document.hidden) revealAll();
+    document.addEventListener("visibilitychange", function () { if (!document.hidden) revealAll(); }, { once: true });
+    setTimeout(revealAll, 1600);
   }
   function setTitleDoc(t) { document.title = t + " · " + CFG.programName; }
 
@@ -670,12 +678,15 @@
     var parts = h.split("/").filter(Boolean); // e.g. ["course","dash-ii"]
     window.scrollTo(0, 0);
     setTitleDoc(CFG.programName);
-    if (parts[0] === "enroll") return renderEnroll();
-    if (parts[0] === "dashboard") return renderDashboard();
-    if (parts[0] === "course" && parts[1]) return renderCourse(parts[1]);
-    if (parts[0] === "certified") return renderCertified();
-    if (parts[0] === "about") return renderAbout();
-    return renderLanding();
+    if (parts[0] === "enroll") renderEnroll();
+    else if (parts[0] === "dashboard") renderDashboard();
+    else if (parts[0] === "course" && parts[1]) renderCourse(parts[1]);
+    else if (parts[0] === "certified") renderCertified();
+    else if (parts[0] === "about") renderAbout();
+    else renderLanding();
+    // Safety net: guarantee every view's reveal animation is initialized (and
+    // its visibility failsafe armed) even if a render function forgets to call it.
+    revealOnScroll();
   }
   window.addEventListener("hashchange", route);
   route();
