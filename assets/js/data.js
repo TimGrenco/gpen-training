@@ -30,6 +30,31 @@
      quiz        : [{ q, choices:[...], answer:<index>, why }]
    ========================================================================== */
 var CDN = "https://cdn.shopify.com/s/files/1/0185/1576/files/";
+// Real lifestyle photography served from the G Pen brand asset portal
+// (assets.gpen.com). These are people actually using the products.
+var LIFE = "https://assets.gpen.com/assets/synced/";
+
+/* Curated lifestyle shots (people using G Pen products) — powers the landing
+   marquee and lifestyle bands. Pulled from the "Lifestyle Photos" folders on
+   assets.gpen.com. Swap/add URLs freely. */
+window.GPEN_LIFESTYLE = [
+  LIFE + "dash-ii/fa7d18dfeb95a3e64c1463c8b71f8a14fda9385f98cac0edf10939e3f33446c8.jpg",
+  LIFE + "dash-plus/5e5f67089995d3cfba84f862caf73d287ae9bc1d86d05818dde9204e6fce4b74.jpg",
+  LIFE + "hydout/ad92f94cf68885a5ecb0b673ca262349a3f7c0476bf1762cbb375d2289bf39b1.jpg",
+  LIFE + "510-original/058259adc75c62d0fe69f23e94cbb694621854da02665759ab93ad284e329267.jpg",
+  LIFE + "melt/b1cac7548cacc2f2b15e0b9385e6ff04e8a8168f7dbec9e1be8f8354dc506aea.jpg",
+  LIFE + "connect/64d0823e8cfd2bd70ce65a49797bd15b1600b6486c328e37b2b859bc1fc06f56.jpg",
+  LIFE + "dash-ii/4538295a5dae9dfa39f29ccada0ae6dedd2c45d9fe1a9e8fcef6ab3b7b7570a6.jpg",
+  LIFE + "dash-plus/9dc58e5f7e4d991045bc18bff9179fc236a065ac824af2305d717be41d367790.jpg",
+  LIFE + "hydout/9461955584aa93b073a67a8f9dde07d0a427700d00faf13fbdfe7db5648e8cd1.jpg",
+  LIFE + "510-original/ecf9d3fb602da33111fb87463fad8857d7aa9eaace08bd93e248b10c217e2ee0.jpg",
+  LIFE + "melt/d0eaa8ff099588adf44045dd3536650378e563dd37b87d7dc38f1a23599d6348.jpg",
+  LIFE + "dash-plus/fb94c5767d3db271914d35e575d3a37b1b9ab906c6eb8bbf9cbf41fadd6f0888.jpg",
+  LIFE + "dash-ii/42bb8f1cadd8dd7897be569375064bf7fabcb4e2907c2a6c288887d96646064e.jpg",
+  LIFE + "510-original/b53dbd53f6f01d5adb30c5aa8f838d75521277101b5e30e2aa22b6978f7475b4.jpg",
+  LIFE + "hydout/1235084c23990e71170a2a9dfdce5162d3d8d29eda6438f8a2a8ccc1b8019d31.jpg",
+  LIFE + "510-original/5140f8a008fea5e68d07b87e404a1aa437e68bc7bba137187c2509450f3ce08c.jpg",
+];
 
 window.GPEN_COURSES = [
   /* ------------------------------------------------------------------ DASH II */
@@ -40,7 +65,7 @@ window.GPEN_COURSES = [
     tagline: "The pocket-sized dry herb vape, upgraded across the board.",
     minutes: 9, passPct: 80, msrp: "$49.95", accent: "#FEC870",
     cover: CDN + "Dash2_thumb_01.png?v=1782936076",
-    heroImg: CDN + "dash2_thumb_06.jpg?v=1772834595",
+    heroImg: LIFE + "dash-ii/f37d082035ae142949fa4dfe33aeebf6d9b556a2745187c26db91bc2ca08a020.jpg",
     productUrl: "https://www.gpen.com/products/g-pen-dash-ii-vaporizer",
     faqUrl: "https://www.gpen.com/pages/dash-ii-faq",
     gallery: [
@@ -126,7 +151,7 @@ window.GPEN_COURSES = [
     tagline: "Hybrid convection + conduction in a full titanium chamber.",
     minutes: 9, passPct: 80, msrp: "$99.95", accent: "#D75D43",
     cover: CDN + "dash__vape_thumb_5e14bcb4-a63a-4cc3-8078-e57fc572e4da.png?v=1729247649",
-    heroImg: CDN + "dash__vape_thumb_7_83bbfef7-6509-41de-b027-c17175dbadb3.jpg?v=1729247639",
+    heroImg: LIFE + "dash-plus/5e5f67089995d3cfba84f862caf73d287ae9bc1d86d05818dde9204e6fce4b74.jpg",
     productUrl: "https://www.gpen.com/products/g-pen-dash-plus-vaporizer",
     gallery: [
       { url: CDN + "dash__vape_thumb_2_455ab888-db45-48a5-8680-3f5c685cd05f.jpg?v=1729247650", caption: "Full-color LED display" },
@@ -207,7 +232,7 @@ window.GPEN_COURSES = [
     tagline: "The smallest hot knife on the market — zero-mess dabs.",
     minutes: 7, passPct: 80, msrp: "$24.95", accent: "#FEC870",
     cover: CDN + "Melt_thumbA.png?v=1772813232",
-    heroImg: CDN + "Melt_thumb_01.jpg?v=1772808678",
+    heroImg: LIFE + "melt/b1cac7548cacc2f2b15e0b9385e6ff04e8a8168f7dbec9e1be8f8354dc506aea.jpg",
     productUrl: "https://www.gpen.com/products/g-pen-melt",
     gallery: [
       { url: CDN + "Melt_thumb_05.jpg?v=1772808678", caption: "Rapid-heat ceramic tip" },
@@ -285,7 +310,7 @@ window.GPEN_COURSES = [
     tagline: "Discreet 510 battery with a hidden magnetic mouthpiece.",
     minutes: 8, passPct: 80, msrp: "$24.95", accent: "#D75D43",
     cover: CDN + "Hydout_vape_01.png?v=1762467078",
-    heroImg: CDN + "Hydout_vape_thumb_05.jpg?v=1762461585",
+    heroImg: LIFE + "hydout/ad92f94cf68885a5ecb0b673ca262349a3f7c0476bf1762cbb375d2289bf39b1.jpg",
     productUrl: "https://www.gpen.com/products/g-pen-hydout",
     gallery: [
       { url: CDN + "Hydout_vape_thumb_07.jpg?v=1762461585", caption: "Low-key sessions, on the go" },
@@ -367,7 +392,7 @@ window.GPEN_COURSES = [
     tagline: "The smallest, most affordable G Pen battery ever.",
     minutes: 7, passPct: 80, msrp: "$12.95", accent: "#FEC870",
     cover: CDN + "510_on_white_01.png?v=1767045174",
-    heroImg: CDN + "510_thumb_05_47d5239b-66e1-49ca-9939-72a2491c0f51.jpg?v=1767045056",
+    heroImg: LIFE + "510-original/058259adc75c62d0fe69f23e94cbb694621854da02665759ab93ad284e329267.jpg",
     productUrl: "https://www.gpen.com/products/g-pen-510-original",
     gallery: [
       { url: CDN + "510_thumb_06_b4bfbf97-a651-4032-9723-ecc13f5493cf.jpg?v=1767045041", caption: "Ultra-portable, effortless to use" },

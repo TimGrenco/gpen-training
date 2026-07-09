@@ -132,6 +132,7 @@
           why(ic("tag"), "Get rewarded", "25% off gpen.com for any course you complete — 35% off when you finish all " + COURSES.length + " and go full Certified Specialist.") +
         "</div>" +
       "</section>" +
+      lifestyleBand(true) +
       '<section class="steps">' +
         '<h2>How it works</h2>' +
         '<ol class="steplist">' +
@@ -145,14 +146,21 @@
     revealOnScroll();
   }
   function lifestyleImgs() {
+    if (window.GPEN_LIFESTYLE && window.GPEN_LIFESTYLE.length) return window.GPEN_LIFESTYLE.slice();
     var out = [];
     COURSES.forEach(function (c) { if (c.heroImg) out.push(c.heroImg); if (c.gallery && c.gallery[0]) out.push(c.gallery[0].url); });
     return out;
   }
-  function lifestyleBand() {
+  function lifestyleBand(reverse) {
     var imgs = lifestyleImgs(); if (!imgs.length) return "";
+    if (reverse) imgs = imgs.slice().reverse();
     var cells = imgs.concat(imgs).map(function (u) { return '<div class="life-cell"><img src="' + esc(u) + '" alt="" decoding="async"/></div>'; }).join("");
-    return '<section class="life-band"><div class="life-track">' + cells + "</div></section>";
+    return '<section class="life-band' + (reverse ? " rev" : "") + '"><div class="life-track">' + cells + "</div></section>";
+  }
+  function lifestyleGrid(n, start) {
+    var imgs = lifestyleImgs().slice(start || 0, (start || 0) + (n || 6));
+    if (!imgs.length) return "";
+    return '<div class="life-grid">' + imgs.map(function (u) { return '<figure class="lg-cell"><img src="' + esc(u) + '" alt="" decoding="async"/></figure>'; }).join("") + "</div>";
   }
   function why(i, t, s) { return '<div class="why-card reveal"><span class="why-ic">' + i + "</span><h3>" + t + "</h3><p>" + s + "</p></div>"; }
   function step(n, t, s) { return '<li class="step reveal"><span class="step-n">' + n + "</span><div><h4>" + t + "</h4><p>" + s + "</p></div></li>"; }
@@ -768,6 +776,7 @@
           "<p>" + esc(a.intro || "") + "</p>" +
         "</div>" +
         (a.stats ? '<div class="about-stats">' + a.stats.map(function (s) { return '<div class="astat"><strong>' + s.number + "</strong><span>" + esc(s.label) + "</span></div>"; }).join("") + "</div>" : "") +
+        lifestyleGrid(6, 0) +
         '<div class="about-block"><h2>Our story</h2>' + founding + "</div>" +
         (a.milestones ? '<div class="about-block"><h2>Milestones</h2><ol class="timeline">' + a.milestones.map(function (m) {
           return '<li><span class="tl-year">' + esc(m.year) + "</span><span class=\"tl-dot\"></span><p>" + esc(m.text) + "</p></li>";
