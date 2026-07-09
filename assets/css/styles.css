@@ -108,9 +108,13 @@ h1, h2, h3, h4 { margin: 0; line-height: 1.08; letter-spacing: -.02em; }
 .hero-chip {
   display: flex; align-items: center; gap: 9px; background: rgba(255,255,255,.06);
   border: 1px solid rgba(255,255,255,.12); padding: 8px 14px 8px 8px; border-radius: 999px;
-  font-weight: 700; font-size: 13px; color: #fff;
+  font-weight: 700; font-size: 13px; color: #fff; cursor: pointer; font-family: inherit; transition: background .15s, transform .1s;
 }
+.hero-chip:hover { background: rgba(254,200,112,.16); border-color: rgba(254,200,112,.4); }
+.hero-chip:active { transform: scale(.97); }
 .hero-chip img { width: 30px; height: 30px; object-fit: contain; background: #fff; border-radius: 50%; padding: 3px; }
+.hdr-cta { font-weight: 800; font-size: 13.5px; color: var(--ink); background: var(--gold-bright); padding: 8px 16px; border-radius: 999px; }
+.hdr-cta:hover { filter: brightness(.96); }
 
 .why { max-width: var(--maxw); margin: 0 auto; padding: clamp(44px, 7vw, 80px) clamp(16px, 4vw, 40px) 0; }
 .why-grid { display: grid; grid-template-columns: 1fr; gap: 14px; }
@@ -147,6 +151,16 @@ h1, h2, h3, h4 { margin: 0; line-height: 1.08; letter-spacing: -.02em; }
 .form-fine { color: var(--stone); font-size: 12px; text-align: center; margin: 2px 0 0; }
 
 /* =============================== DASHBOARD =============================== */
+.hub { max-width: var(--maxw); margin: 0 auto; padding: clamp(20px,4vw,40px) clamp(16px,4vw,40px) 10px; }
+.hub .dash-head { margin-bottom: 8px; }
+.catalog { max-width: var(--maxw); margin: 0 auto; padding: 0 clamp(16px,4vw,40px); }
+.certify { background: linear-gradient(160deg, #fff, #fbf6ea); border: 1px solid var(--line); border-radius: var(--radius); padding: 26px 24px; box-shadow: var(--shadow); text-align: center; }
+.certify-badge { width: 58px; height: 58px; display: grid; place-items: center; margin: 0 auto 12px; background: var(--ink); color: var(--gold-bright); border-radius: 16px; }
+.certify-badge svg { width: 30px; height: 30px; }
+.certify h3 { font-size: 24px; margin-bottom: 8px; }
+.certify .lead { max-width: 520px; margin: 0 auto 18px; }
+.certify-form { display: grid; gap: 14px; max-width: 420px; margin: 0 auto; text-align: left; }
+.certify-form .btn { margin-top: 4px; }
 .dash { max-width: var(--maxw); margin: 0 auto; padding: clamp(20px,4vw,40px) clamp(16px,4vw,40px) 60px; }
 .dash-head { display: flex; align-items: center; justify-content: space-between; gap: 20px; flex-wrap: wrap; }
 .dash-hello { color: var(--stone); font-weight: 700; font-size: 14px; }

@@ -100,51 +100,80 @@
         '<img src="assets/img/gpen-g-white.png" class="hdr-logo dark" alt="G Pen"/>' +
         '<span class="hdr-name">University</span>' +
       "</a>" +
-      (e ? '<a class="hdr-user" href="#/dashboard"><span class="hdr-u-name">' + esc(e.name) + '</span><span class="hdr-u-store">' + esc(e.store || "") + "</span></a>" : "") +
+      (e ? '<a class="hdr-user" href="#/"><span class="hdr-u-name">' + esc(e.name) + '</span><span class="hdr-u-store">' + esc(e.store || "") + "</span></a>"
+         : '<a class="hdr-cta" href="#/">Browse courses</a>') +
     "</header>";
   }
 
-  /* ---- LANDING ----------------------------------------------------------- */
-  function renderLanding() {
-    var e = getEnroll();
+  /* ---- HOME (browse-first hub) ------------------------------------------- */
+  function renderHome() {
+    var e = getEnroll(), s = getState(), done = completedCount(), total = COURSES.length;
+    var hasProgress = !!e || done > 0;
+    var master = isMasterEarned();
+    var pct = Math.round((done / total) * 100), streak = s.streak.count || 0;
+    var R = 54, C = 2 * Math.PI * R, off = C * (1 - done / total);
+
+    var progressBlock = hasProgress
+      ? '<div class="dash-head">' +
+          '<div class="dash-hi"><span class="dash-hello">' + (e ? "Welcome back," : "Your progress") + "</span><h1>" + esc(e ? e.name.split(" ")[0] : "Keep going") + "</h1>" + (e ? '<span class="dash-store">' + esc(e.store) + "</span>" : "") + "</div>" +
+          '<div class="ring">' +
+            '<svg viewBox="0 0 128 128"><circle class="ring-bg" cx="64" cy="64" r="' + R + '"/>' +
+            '<circle class="ring-fg" cx="64" cy="64" r="' + R + '" stroke-dasharray="' + C.toFixed(1) + '" stroke-dashoffset="' + C.toFixed(1) + '" data-off="' + off.toFixed(1) + '"/></svg>' +
+            '<div class="ring-txt"><strong>' + done + "<span>/" + total + "</span></strong><em>certified</em></div>" +
+          "</div>" +
+        "</div>" +
+        '<div class="stat-row">' +
+          stat(done, "Courses passed", done, "") +
+          stat(pct + "%", "Program complete", pct, "%") +
+          stat('<span class="st-fire">' + (streak ? ic("fire") : "") + streak + "</span>", "Day streak") +
+        "</div>"
+      : "";
+
     app.innerHTML = header() +
       '<section class="hero">' +
         '<div class="hero-inner reveal">' +
           '<div class="hero-eyebrow">' + ic("cap") + " " + esc(CFG.programName) + "</div>" +
-          "<h1>Become a <span class=\"gold\">G Pen Certified Specialist</span>.</h1>" +
-          "<p class=\"hero-sub\">Pick the products your store carries, learn them inside-out, and pass a quick quiz to get certified. Earn <strong>25% off</strong> gpen.com for any course — or <strong>35% off</strong> when you complete all " + COURSES.length + ".</p>" +
+          "<h1>Learn the G Pen lineup. <span class=\"gold\">Get certified.</span> Earn discounts.</h1>" +
+          "<p class=\"hero-sub\">Jump into any product course free — watch the how-to videos, learn the specs, and get the talking points. Want the badge? Pass a quick quiz to get certified and unlock <strong>25% off</strong> gpen.com (or <strong>35% off</strong> for all " + total + ").</p>" +
           '<div class="hero-cta">' +
-            '<a class="btn xl" href="#/' + (e ? "dashboard" : "enroll") + '">' + (e ? "Go to my dashboard" : "Start training") + " " + ic("arrow") + "</a>" +
+            '<button class="btn xl" id="browse-btn">Browse courses ' + ic("arrow") + "</button>" +
             '<a class="btn xl ghost-dark" href="#/about">About G Pen</a>' +
           "</div>" +
-          '<span class="hero-note">' + COURSES.length + " courses · pick any · ~8 min each · free</span>" +
+          '<span class="hero-note">' + total + " courses · no sign-up to explore · ~8 min each</span>" +
         "</div>" +
         '<div class="hero-badges reveal">' + COURSES.slice(0, 5).map(function (c, i) {
-          return '<div class="hero-chip" style="--i:' + i + '"><img src="' + esc(c.cover) + '" alt="' + esc(c.name) + '"/><span>' + esc(c.name) + "</span></div>";
+          return '<button class="hero-chip" data-goto="' + c.slug + '" style="--i:' + i + '"><img src="' + esc(c.cover) + '" alt="' + esc(c.name) + '"/><span>' + esc(c.name) + "</span></button>";
         }).join("") + "</div>" +
       "</section>" +
       lifestyleBand() +
-      '<section class="why">' +
-        '<div class="why-grid">' +
-          why(ic("cap"), "Learn the products", "Interactive courses with real how-to videos, lifestyle photos, full specs, cleaning, FAQs, and how to sell each device.") +
-          why(ic("check"), "Train on what you carry", "Take any courses you want — no need to do all five. Pass an 80% quiz to lock in each certification.") +
-          why(ic("award"), "Earn certificates", "Get a printable Certificate of Completion for each product, and a master Specialist certificate for finishing them all.") +
-          why(ic("tag"), "Get rewarded", "25% off gpen.com for any course you complete — 35% off when you finish all " + COURSES.length + " and go full Certified Specialist.") +
-        "</div>" +
+      '<section class="hub reveal">' +
+        progressBlock +
+        rewardsSection(done, master) +
+        '<div class="sec-h" id="courses"><h2>Product courses</h2><span>' + (hasProgress ? done + " of " + total + " certified" : "Tap a product to start — no sign-up needed") + "</span></div>" +
+        '<div class="course-grid">' + COURSES.map(courseCard).join("") + "</div>" +
+        (hasProgress ? '<button class="linklike reset" id="reset">Reset my progress</button>' : "") +
       "</section>" +
       lifestyleBand(true) +
-      '<section class="steps">' +
-        '<h2>How it works</h2>' +
-        '<ol class="steplist">' +
-          step(1, "Enroll", "Enter your name, email, and store — takes 10 seconds and puts your name on your certificates.") +
-          step(2, "Take any course", "Train on the products your store carries — watch, learn, and pass the quiz.") +
-          step(3, "Get certified & save", "Download your certificate and unlock 25% off (or 35% off for all five).") +
-        "</ol>" +
-        '<a class="btn xl center-btn" href="#/' + (e ? "dashboard" : "enroll") + '">' + (e ? "Continue" : "Enroll & start") + " " + ic("arrow") + "</a>" +
+      '<section class="why">' +
+        '<div class="why-grid">' +
+          why(ic("play"), "Explore free", "Open any course and watch the how-to videos, browse specs, cleaning, and FAQs — no account required.") +
+          why(ic("cap"), "Get certified", "When you're ready, pass an 80% quiz to earn a Product Specialist certificate for that device.") +
+          why(ic("tag"), "Unlock discounts", "Each certification unlocks 25% off gpen.com — finish all " + total + " for 35% off and go full Certified G.") +
+          why(ic("share"), "Show it off", "Download a printable certificate and a shareable IG story card for every product you master.") +
+        "</div>" +
       "</section>" +
       footer();
+
+    if (hasProgress) { requestAnimationFrame(function () { var r = $(".ring-fg"); if (r) r.style.strokeDashoffset = r.getAttribute("data-off"); }); countUp(); }
+    fillRewards();
+    var bb = $("#browse-btn"); if (bb) bb.addEventListener("click", function () { scrollToId("courses"); });
+    $$("[data-goto]").forEach(function (el) { el.addEventListener("click", function () { go("#/course/" + el.getAttribute("data-goto")); }); });
+    var rst = $("#reset"); if (rst) rst.addEventListener("click", function () {
+      if (confirm("Reset ALL your training progress and certificates on this device?")) { localStorage.removeItem(K_STATE); localStorage.removeItem(K_ENROLL); go("#/"); }
+    });
     revealOnScroll();
   }
+  function scrollToId(id) { var el = document.getElementById(id); if (el) el.scrollIntoView({ behavior: "smooth", block: "start" }); }
   function lifestyleImgs() {
     if (window.GPEN_LIFESTYLE && window.GPEN_LIFESTYLE.length) return window.GPEN_LIFESTYLE.slice();
     var out = [];
@@ -166,84 +195,15 @@
   function step(n, t, s) { return '<li class="step reveal"><span class="step-n">' + n + "</span><div><h4>" + t + "</h4><p>" + s + "</p></div></li>"; }
   function footer() {
     return '<footer class="foot"><img src="assets/img/gpen-g-black.png" class="foot-g light" alt=""/><img src="assets/img/gpen-g-white.png" class="foot-g dark" alt=""/>' +
-      '<div class="foot-nav"><a href="#/about">About G Pen</a><a href="#/dashboard">My dashboard</a><a href="' + esc(CFG.shopUrl) + '" target="_blank" rel="noopener">Shop gpen.com</a></div>' +
+      '<div class="foot-nav"><a href="#/">Courses</a><a href="#/about">About G Pen</a><a href="' + esc(CFG.shopUrl) + '" target="_blank" rel="noopener">Shop gpen.com</a></div>' +
       "<p>" + esc(CFG.programName) + " · for authorized G Pen retail partners. Questions? <a href=\"mailto:" + esc(CFG.contactEmail) + "\">" + esc(CFG.contactEmail) + "</a></p></footer>";
   }
 
-  /* ---- ENROLL ------------------------------------------------------------ */
-  function renderEnroll() {
-    var e = getEnroll() || {};
-    app.innerHTML = header() +
-      '<section class="pane narrow reveal">' +
-        '<a class="back" href="#/">' + ic("back") + " Back</a>" +
-        '<div class="enroll-badge">' + ic("cap") + "</div>" +
-        "<h1 class=\"pane-h\">Enroll in " + esc(CFG.programName) + "</h1>" +
-        "<p class=\"pane-sub\">Your name goes on your certificates. This stays on your device — we only use your store to credit your training.</p>" +
-        '<form id="enroll-form" class="form">' +
-          field("name", "Your full name", "text", e.name, "Jane Budtender", "name") +
-          field("email", "Email address", "email", e.email, "you@store.com", "email") +
-          field("store", "Store / shop name", "text", e.store, "Cloud 9 Smoke Shop", "organization") +
-          '<button class="btn xl full" type="submit">Start learning ' + ic("arrow") + "</button>" +
-          '<p class="form-fine">By enrolling you agree this is for authorized retail partner training.</p>' +
-        "</form>" +
-      "</section>" + footer();
-    var f = $("#enroll-form");
-    f.addEventListener("submit", function (ev) {
-      ev.preventDefault();
-      var name = $("#f-name").value.trim(), email = $("#f-email").value.trim(), store = $("#f-store").value.trim();
-      if (!name) { toast("Please enter your name"); $("#f-name").focus(); return; }
-      if (!email || email.indexOf("@") < 0) { toast("Please enter a valid email"); $("#f-email").focus(); return; }
-      if (!store) { toast("Please enter your store name"); $("#f-store").focus(); return; }
-      var prev = getEnroll();
-      setEnroll({ name: name, email: email, store: store, ts: (prev && prev.ts) || new Date().toISOString() });
-      if (!prev) logEvent("enroll", { name: name, email: email, store: store });
-      go("#/dashboard");
-    });
-  }
   function field(id, label, type, val, ph, ac) {
     return '<label class="field"><span>' + label + "</span>" +
       '<input id="f-' + id + '" type="' + type + '" value="' + esc(val || "") + '" placeholder="' + esc(ph) + '" autocomplete="' + ac + '" /></label>';
   }
 
-  /* ---- DASHBOARD --------------------------------------------------------- */
-  function renderDashboard() {
-    var e = getEnroll(); if (!e) return go("#/enroll");
-    var s = getState(), done = completedCount(), total = COURSES.length, pct = Math.round((done / total) * 100);
-    var master = isMasterEarned();
-    var streak = s.streak.count || 0;
-    var R = 54, C = 2 * Math.PI * R, off = C * (1 - done / total);
-
-    app.innerHTML = header() +
-      '<section class="dash reveal">' +
-        '<div class="dash-head">' +
-          '<div class="dash-hi"><span class="dash-hello">Welcome back,</span><h1>' + esc(e.name.split(" ")[0]) + "</h1><span class=\"dash-store\">" + esc(e.store) + "</span></div>" +
-          '<div class="ring">' +
-            '<svg viewBox="0 0 128 128"><circle class="ring-bg" cx="64" cy="64" r="' + R + '"/>' +
-            '<circle class="ring-fg" cx="64" cy="64" r="' + R + '" stroke-dasharray="' + C.toFixed(1) + '" stroke-dashoffset="' + C.toFixed(1) + '" data-off="' + off.toFixed(1) + '"/></svg>' +
-            '<div class="ring-txt"><strong>' + done + "<span>/" + total + "</span></strong><em>certified</em></div>" +
-          "</div>" +
-        "</div>" +
-        '<div class="stat-row">' +
-          stat(done, "Courses passed", done, "") +
-          stat(pct + "%", "Program complete", pct, "%") +
-          stat('<span class="st-fire">' + (streak ? ic("fire") : "") + streak + "</span>", "Day streak") +
-        "</div>" +
-        rewardsSection(done, master) +
-        '<div class="sec-h"><h2>Your courses</h2><span>' + done + " of " + total + " complete</span></div>" +
-        '<div class="course-grid">' + COURSES.map(courseCard).join("") + "</div>" +
-        '<button class="linklike reset" id="reset">Reset my progress</button>' +
-      "</section>" + footer();
-
-    requestAnimationFrame(function () { var r = $(".ring-fg"); if (r) r.style.strokeDashoffset = r.getAttribute("data-off"); });
-    countUp();
-    fillRewards();
-    $("#reset").addEventListener("click", function () {
-      if (confirm("Reset ALL your training progress and certificates on this device?")) {
-        localStorage.removeItem(K_STATE); localStorage.removeItem(K_ENROLL); go("#/");
-      }
-    });
-    revealOnScroll();
-  }
   function stat(v, l, to, suf) {
     return '<div class="stat"><strong' + (to != null ? ' data-to="' + to + '" data-suffix="' + (suf || "") + '"' : "") + ">" + v + "</strong><span>" + l + "</span></div>";
   }
@@ -322,8 +282,7 @@
 
   /* ---- COURSE ------------------------------------------------------------ */
   function renderCourse(slug) {
-    var e = getEnroll(); if (!e) return go("#/enroll");
-    var c = courseBySlug(slug); if (!c) return go("#/dashboard");
+    var c = courseBySlug(slug); if (!c) return go("#/");
     var s = getState(), rec = s.courses[c.slug];
     setTitleDoc(c.name + " — Training");
 
@@ -333,7 +292,7 @@
 
     app.innerHTML = header() +
       '<section class="course reveal">' +
-        '<a class="back" href="#/dashboard">' + ic("back") + " Dashboard</a>" +
+        '<a class="back" href="#/">' + ic("back") + " All courses</a>" +
         '<div class="cx-hero' + (c.heroImg ? "" : " no-life") + '" style="--accent:' + c.accent + '">' +
           '<div class="cx-hero-media"><img src="' + esc(hero) + '" alt="' + esc(c.name) + '" loading="eager"/></div>' +
           '<div class="cx-hero-body">' +
@@ -440,15 +399,51 @@
   }
 
   /* ---- QUIZ (stepped, one question at a time) ---------------------------- */
+  // The certify section. Browsing the course is free; this is the ONLY place we
+  // ask for name/email/store — just-in-time, when someone opts to get certified.
   function renderQuizIntro(c) {
-    var s = getState(), rec = s.courses[c.slug];
-    var zone = $("#quiz-zone");
-    zone.innerHTML = '<div class="quiz-intro">' +
-      '<p class="lead">Answer all ' + c.quiz.length + " questions. Score <strong>" + c.passPct + "%</strong> or higher to earn your " + esc(c.name) + " certificate and unlock <strong>25% off</strong> gpen.com.</p>" +
-      (rec && rec.passed ? '<div class="already">' + ic("check") + " You're already certified (" + rec.score + "%). You can retake to refresh.</div>" : "") +
-      '<button class="btn xl" id="start-quiz">' + (rec && rec.passed ? "Retake quiz" : "Start quiz") + " " + ic("arrow") + "</button>" +
-    "</div>";
-    $("#start-quiz").addEventListener("click", function () { runQuiz(c); });
+    var rec = getState().courses[c.slug];
+    if (rec && rec.passed) return showCertifiedState(c, rec);
+    showCertifyForm(c);
+  }
+  function showCertifiedState(c, rec) {
+    var zone = $("#quiz-zone"), e = getEnroll() || {};
+    zone.innerHTML =
+      '<div class="result pass"><div class="result-score">' + rec.score + '%<span>certified</span></div>' +
+        "<h3>" + ic("check") + " You're a certified " + esc(c.name) + " Specialist</h3>" +
+        "<p>Certificate earned " + esc(rec.date) + ". Grab your certificate and discount code below — or retake the quiz to refresh your score.</p>" +
+        '<button class="btn ghost" id="retake">' + ic("refresh") + " Retake quiz</button>" +
+      "</div>" +
+      '<div id="cert-zone"></div><div id="reward-zone" class="reward-wrap"></div>';
+    showCertificate(c, rec.name || e.name || "", rec.date, rec.score, rec.certId, $("#cert-zone"));
+    revealReward("course", { courseSlug: c.slug, name: rec.name || e.name, email: e.email, store: e.store, certId: rec.certId }, $("#reward-zone"));
+    $("#retake").addEventListener("click", function () { showCertifyForm(c); $("#quiz-zone").scrollIntoView({ behavior: "smooth", block: "start" }); });
+  }
+  function showCertifyForm(c) {
+    var zone = $("#quiz-zone"), e = getEnroll() || {};
+    zone.innerHTML =
+      '<div class="certify">' +
+        '<div class="certify-badge">' + ic("award") + "</div>" +
+        "<h3>Get certified &amp; unlock 25% off</h3>" +
+        '<p class="lead">Ready? Pass the ' + c.quiz.length + "-question quiz (score " + c.passPct + "%+) to earn your <strong>" + esc(c.name) + "</strong> Product Specialist certificate and a gpen.com discount code. Enter your details so we can put your name on the certificate.</p>" +
+        '<div class="certify-form">' +
+          field("name", "Your full name", "text", e.name, "Jane Budtender", "name") +
+          field("email", "Email address", "email", e.email, "you@store.com", "email") +
+          field("store", "Store / shop name", "text", e.store, "Cloud 9 Smoke Shop", "organization") +
+          '<button class="btn xl full" id="start-quiz">Start the quiz ' + ic("arrow") + "</button>" +
+          '<p class="form-fine">No account needed — this only personalizes your certificate and stays on your device.</p>' +
+        "</div>" +
+      "</div>";
+    $("#start-quiz").addEventListener("click", function () {
+      var name = $("#f-name").value.trim(), email = $("#f-email").value.trim(), store = $("#f-store").value.trim();
+      if (!name) { toast("Enter your name for the certificate"); $("#f-name").focus(); return; }
+      if (!email || email.indexOf("@") < 0) { toast("Enter a valid email"); $("#f-email").focus(); return; }
+      if (!store) { toast("Enter your store name"); $("#f-store").focus(); return; }
+      var prev = getEnroll();
+      setEnroll({ name: name, email: email, store: store, ts: (prev && prev.ts) || new Date().toISOString() });
+      if (!prev) logEvent("enroll", { name: name, email: email, store: store });
+      runQuiz(c);
+    });
   }
   function runQuiz(c) {
     var order = c.quiz.map(function (_, i) { return i; });
@@ -524,7 +519,7 @@
       '<div id="cert-zone"></div>' +
       '<div id="reward-zone" class="reward-wrap"></div>' +
       (master ? '<a class="master-unlock" href="#/certified">' + ic("award") + " You've finished every course — you're now <strong>Certified G</strong>! Get your certificate & 35% off " + ic("arrow") + "</a>"
-              : '<a class="btn ghost xl backdash" href="#/dashboard">Back to dashboard ' + ic("arrow") + "</a>");
+              : '<a class="btn ghost xl backdash" href="#/">Back to all courses ' + ic("arrow") + "</a>");
     showCertificate(c, e.name, date, pct, cid, $("#cert-zone"));
     revealReward("course", { courseSlug: c.slug, name: e.name, email: e.email, store: e.store, certId: cid }, $("#reward-zone"));
     zone.scrollIntoView({ behavior: "smooth", block: "start" });
@@ -705,8 +700,8 @@
 
   /* ---- CERTIFIED (master) ------------------------------------------------ */
   function renderCertified() {
-    var e = getEnroll(); if (!e) return go("#/enroll");
-    if (!isMasterEarned()) return go("#/dashboard");
+    if (!isMasterEarned()) return go("#/");
+    var e = getEnroll() || { name: "", store: "", email: "" };
     var s = getState();
     // master cert date = latest course date; id from name + program
     var date = niceDate(), cid = certId(e.name + "|G Pen Certified Specialist|" + date);
@@ -715,7 +710,7 @@
 
     app.innerHTML = header() +
       '<section class="course reveal">' +
-        '<a class="back" href="#/dashboard">' + ic("back") + " Dashboard</a>" +
+        '<a class="back" href="#/">' + ic("back") + " All courses</a>" +
         '<div class="master-hero">' + ic("award") +
           "<h1>You're Certified G</h1>" +
           "<p>Congratulations, " + esc(e.name.split(" ")[0]) + " — you've completed every course in " + esc(CFG.programName) + " and are officially a <strong>fully trained G Pen Product Specialist</strong>. You know the whole lineup cold.</p>" +
@@ -816,12 +811,10 @@
     var parts = h.split("/").filter(Boolean); // e.g. ["course","dash-ii"]
     window.scrollTo(0, 0);
     setTitleDoc(CFG.programName);
-    if (parts[0] === "enroll") renderEnroll();
-    else if (parts[0] === "dashboard") renderDashboard();
-    else if (parts[0] === "course" && parts[1]) renderCourse(parts[1]);
+    if (parts[0] === "course" && parts[1]) renderCourse(parts[1]);
     else if (parts[0] === "certified") renderCertified();
     else if (parts[0] === "about") renderAbout();
-    else renderLanding();
+    else renderHome(); // "/", "/dashboard", "/enroll" and anything else → the hub
     // Safety net: guarantee every view's reveal animation is initialized (and
     // its visibility failsafe armed) even if a render function forgets to call it.
     revealOnScroll();
