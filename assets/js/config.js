@@ -26,25 +26,34 @@ window.TRAINING_CONFIG = {
   // Set to a list of slugs to require only some; null = require them all.
   coreCourses: null,
 
+  /* The reward ladder climbs with your card collection:
+       1 card  -> 25%   3 cards -> 30%   full Base Set (5) -> 35%
+       Base Set + every Trainer card (all 10 trivia eggs) -> 40% gold */
   discount: {
-    // Shown after passing ANY single course quiz. 25% off.
+    // Shown after passing ANY single course quiz — your first card. 25% off.
     course: {
       code: "GPENPRO25",
       label: "25% off your next order at gpen.com",
       note: "Use this code at checkout on gpen.com to buy and test the product you just got certified on.",
     },
-    // Shown once ALL courses are complete (G Pen Certified Specialist). 35% off.
+    // Shown at 3 collected product cards. 30% off.
+    trio: {
+      code: "GPENHOLO30",
+      label: "30% off your next order at gpen.com",
+      note: "Three cards deep. You know the lineup better than most of the floor — here's a bigger cut.",
+    },
+    // Shown once ALL courses are complete (the full Base Set). 35% off.
     master: {
       code: "GPENELITE35",
       label: "35% off your entire order at gpen.com",
-      note: "Your top specialist reward for completing every G Pen course — the biggest discount we offer through the program.",
+      note: "You collected the whole Base Set and pulled the Certified G card. This is the top public reward in the program.",
     },
-    // The hidden reward: shown only when someone certifies on EVERY course AND
-    // finds + correctly answers every hidden trivia egg. 40% off.
+    // The hidden reward: the Certified G card upgraded to full gold. Requires
+    // certifying on EVERY course AND finding every hidden trivia egg. 40% off.
     secret: {
       code: "CERTIFIEDG40",
-      label: "40% off — the secret Certified G reward",
-      note: "You certified on every product AND found every hidden trivia egg. This is the highest reward in the program — nice work.",
+      label: "40% off — the gold Certified G reward",
+      note: "You collected the Base Set AND every Trainer card. Your Certified G card is now full gold — the rarest thing in the program.",
     },
     // OPTIONAL: give a specific product its own course code. Keyed by course slug.
     // e.g. perCourse: { "dash-ii": { code: "DASH2PRO", label: "...", note: "..." } }
@@ -65,7 +74,7 @@ window.TRAINING_CONFIG = {
 /* -----------------------------------------------------------------------------
    REWARD ISSUANCE — the single, isolated hand-off point.
    Called as: issueRewardCode("course", { courseSlug, name, email, store, certId })
-          or: issueRewardCode("master", { name, email, store, certId })
+          or: issueRewardCode("trio" | "master" | "secret", { name, email, store })
    Returns (sync or Promise) an object: { code, label, note }.
 
    TO GO LIVE WITH UNIQUE CODES LATER: swap the body for something like —
@@ -77,6 +86,7 @@ window.issueRewardCode = function (type, ctx) {
   var d = window.TRAINING_CONFIG.discount;
   if (type === "secret") return Object.assign({ type: "secret" }, d.secret);
   if (type === "master") return Object.assign({ type: "master" }, d.master);
+  if (type === "trio") return Object.assign({ type: "trio" }, d.trio);
   var perCourse = (ctx && ctx.courseSlug && d.perCourse[ctx.courseSlug]) || d.course;
   return Object.assign({ type: "course" }, perCourse);
 };

@@ -7,11 +7,15 @@ certificate the site sends:
 
 ```json
 {
-  "type": "course",              // "course" | "master" (all 5) | "secret" (all 5 + every hidden trivia egg)
+  "type": "course",              // see the table below
+  //  "course"  first time a product card is pulled (any single course passed)
+  //  "trio"    the 3rd product card is collected (30% tier)
+  //  "master"  the full 5-card Base Set is collected (35% tier)
+  //  "secret"  Base Set + every Trainer card, i.e. all 10 trivia eggs (40% gold tier)
   "name": "Jane Budtender",
   "email": "jane@store.com",
   "store": "Cloud 9 Smoke Shop",
-  "product": "G Pen Dash II",    // or "Certified G" for master
+  "product": "G Pen Dash II",    // or "Certified G" (master) / a tier label for trio+secret
   "score": 92,
   "certId": "GP-1G4-0TB",
   "date": "July 9, 2026",

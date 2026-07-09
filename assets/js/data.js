@@ -538,6 +538,38 @@ window.GPEN_EGGS = [
     fact: "CBD won't get you high — it's the non-intoxicating cannabinoid most associated with wellness use.",
   },
   {
+    id: "egg-munchies", on: "home",
+    slot: "rewards", align: "right",
+    emoji: "🍕", hint: "Hungry?",
+    q: "Why do the munchies happen?",
+    choices: [
+      "Cannabis empties your stomach faster",
+      "THC activates receptors that heighten smell, taste, and hunger signals",
+      "It lowers your blood sugar",
+      "It's purely psychological",
+    ],
+    answer: 1,
+    fact: "THC binds to CB1 receptors in the brain — including the olfactory bulb and hypothalamus — which sharpens smell and taste and ramps up ghrelin, the hormone that tells you you're hungry.",
+  },
+  {
+    id: "egg-global", on: "about",
+    slot: "social", align: "left",
+    emoji: "🌍", hint: "Think globally",
+    q: "Uruguay legalized nationwide adult-use cannabis first. Which country was second?",
+    choices: ["The Netherlands", "Portugal", "Canada", "Thailand"],
+    answer: 2,
+    fact: "Canada legalized nationwide adult-use cannabis in October 2018, five years after Uruguay became the first country in the world to do it.",
+  },
+  {
+    id: "egg-binder", on: "collection",
+    slot: "binder", align: "center",
+    emoji: "🃏", hint: "One more for the set…",
+    q: "Cannabis sativa and Cannabis indica were first named by botanists in which century?",
+    choices: ["The 1500s", "The 1700s", "The 1800s", "The 1900s"],
+    answer: 1,
+    fact: "Carl Linnaeus named Cannabis sativa in 1753, and Jean-Baptiste Lamarck named Cannabis indica in 1785 — both in the 18th century, long before anyone argued about them on a dispensary menu.",
+  },
+  {
     id: "egg-entourage", on: "course:510-original",
     slot: "videos", align: "center",
     emoji: "🤝", hint: "Better together",
@@ -633,4 +665,112 @@ window.GPEN_FACTS = [
   { emoji: "🤝", text: "The \"entourage effect\" is the theory that cannabinoids and terpenes work better together than any one compound alone." },
   { emoji: "🧊", text: "Water filtration doesn't reduce potency much — it mostly cools the vapor. That's the entire pitch for the Hydout." },
   { emoji: "🏭", text: "Grenco Science shipped its first G Pen in 2012, back when \"vape pen\" wasn't even a phrase people used." },
+];
+
+/* =============================================================================
+   THE COLLECTION — trading-card metadata
+   -----------------------------------------------------------------------------
+   Every course is a collectible card. Pass its quiz at 80%+ and you "pull" it.
+   Collect the 5-card Base Set to reveal the Certified G secret rare; find all
+   the hidden trivia eggs to upgrade that card to full gold.
+
+   Per card:
+     no        : card number in the set (printed bottom-right as "N/6")
+     rarity    : "common" | "uncommon" | "rare"   (drives the symbol + foil)
+     element   : key into GPEN_ELEMENTS below
+     code      : course code, university-catalog style (printed on the card)
+     power     : the "HP" analog — battery capacity
+     moves     : [{ name, cost, dmg, text }] — real specs dressed up as attacks
+     statsRow  : the weakness/resistance/retreat row, repurposed for real specs
+   ========================================================================== */
+window.GPEN_ELEMENTS = {
+  herb: { emoji: "🌿", label: "Dry Herb", tint: "#2f8f5b" },
+  conc: { emoji: "🔥", label: "Concentrate", tint: "#D75D43" },
+  cart: { emoji: "🔋", label: "Cartridge", tint: "#3f6fb5" },
+  gold: { emoji: "👑", label: "Certified", tint: "#c8952f" },
+};
+
+window.GPEN_RARITY = {
+  common:   { sym: "●",   label: "Common" },
+  uncommon: { sym: "◆",   label: "Uncommon" },
+  rare:     { sym: "★",   label: "Rare Holo" },
+  secret:   { sym: "★★★", label: "Secret Rare" },
+};
+
+window.GPEN_SET = { name: "Base Set", total: 6, illus: "Illus. Grenco Science" };
+
+window.GPEN_CARDS = {
+  "dash-ii": {
+    no: 1, rarity: "uncommon", element: "herb", code: "VAPE 101",
+    power: "1,100", powerUnit: "mAh",
+    moves: [
+      { name: "Quick Draw", cost: 1, dmg: "30s", text: "The 0.4g ceramic chamber is session-ready in about 30 seconds." },
+      { name: "Dial It In", cost: 2, dmg: "±1°", text: "Precise temperature control with a live OLED readout." },
+    ],
+    statsRow: [{ k: "Heat-up", v: "~30s" }, { k: "Warranty", v: "6 mo" }, { k: "Charge", v: "USB-C" }],
+  },
+  "dash-plus": {
+    no: 2, rarity: "rare", element: "herb", code: "VAPE 201",
+    power: "1,800", powerUnit: "mAh",
+    moves: [
+      { name: "Hybrid Heat", cost: 2, dmg: "20s", text: "Convection and conduction together, through a full titanium chamber." },
+      { name: "Long Session", cost: 3, dmg: "40m", text: "1,800mAh delivers roughly 40 minutes of heating per charge." },
+    ],
+    statsRow: [{ k: "Heat-up", v: "~20s" }, { k: "Warranty", v: "2 yr" }, { k: "Charge", v: "USB-C" }],
+  },
+  "melt-hot-knife": {
+    no: 3, rarity: "common", element: "conc", code: "CONC 210",
+    power: "500", powerUnit: "mAh",
+    moves: [
+      { name: "Hot Knife", cost: 1, dmg: "302°F", text: "Ceramic tip hits ~150°C for clean, torch-free dabs." },
+      { name: "Pocket Carry", cost: 1, dmg: "—", text: "The smallest hot knife on the market. It goes everywhere you do." },
+    ],
+    statsRow: [{ k: "Tip temp", v: "150°C" }, { k: "Warranty", v: "90 d" }, { k: "Charge", v: "USB-C" }],
+  },
+  "hydout": {
+    no: 4, rarity: "uncommon", element: "cart", code: "CART 110",
+    power: "400", powerUnit: "mAh",
+    moves: [
+      { name: "Stealth Mode", cost: 1, dmg: "—", text: "A hidden magnetic mouthpiece cover keeps the cart out of sight." },
+      { name: "Fine Tune", cost: 2, dmg: "3.8V", text: "Five voltage settings from 2.4V to 3.8V, plus a 1.8V preheat." },
+    ],
+    statsRow: [{ k: "Voltages", v: "5" }, { k: "Warranty", v: "90 d" }, { k: "Charge", v: "USB-C" }],
+  },
+  "510-original": {
+    no: 5, rarity: "common", element: "cart", code: "CART 101",
+    power: "400", powerUnit: "mAh",
+    moves: [
+      { name: "Breath Activated", cost: 1, dmg: "—", text: "No buttons, no menus. Inhale and it fires." },
+      { name: "Three Presets", cost: 1, dmg: "3.8V", text: "Cycle 3.2V / 3.6V / 3.8V to match any cartridge." },
+    ],
+    statsRow: [{ k: "Presets", v: "3" }, { k: "Warranty", v: "90 d" }, { k: "Charge", v: "USB-C" }],
+  },
+};
+
+/* The 6th card. Two states: Holo (collect the Base Set) and Gold (also find
+   every hidden trivia egg). The gold face carries the program's top reward. */
+window.GPEN_SECRET_CARD = {
+  no: 6, rarity: "secret", element: "gold", code: "G 420",
+  name: "Certified G", power: "∞", powerUnit: "",
+  moves: [
+    { name: "Total Recall", cost: 3, dmg: "5/5", text: "Knows every G Pen product cold — specs, cleaning, objections, all of it." },
+    { name: "House Discount", cost: 2, dmg: "40%", text: "The highest reward in the program. Nobody else on the floor has this card." },
+  ],
+  statsRow: [{ k: "Base Set", v: "5/5" }, { k: "Trainers", v: "10/10" }, { k: "Rank", v: "👑" }],
+  flavor: "Fully trained. Fully loaded. A G Pen Product Specialist in every sense.",
+};
+
+/* Trainer & Energy cards — one for every hidden trivia egg you solve.
+   `egg` must match an id in GPEN_EGGS. Order here = card number. */
+window.GPEN_TRAINERS = [
+  { egg: "egg-420",        no: 1,  kind: "Supporter", name: "The Waldos",       text: "Five San Rafael teenagers, one 4:20pm meet-up, and a code word that outlived them all." },
+  { egg: "egg-snoop",      no: 2,  kind: "Supporter", name: "The Collab",       text: "When the culture's biggest name puts his name on your pen, the whole category moves." },
+  { egg: "egg-trichomes",  no: 3,  kind: "Energy",    name: "Trichome Frost",   text: "The frost is the point. Nearly every cannabinoid and terpene lives in those resin glands." },
+  { egg: "egg-combustion", no: 4,  kind: "Item",      name: "Low & Slow",       text: "Stay under the combustion point and vapor stays vapor. That's the whole product category." },
+  { egg: "egg-terpenes",   no: 5,  kind: "Energy",    name: "Terp Profile",     text: "Diesel, citrus, pine. Terpenes are why no two strains ever smell the same." },
+  { egg: "egg-cbd",        no: 6,  kind: "Energy",    name: "Full Spectrum",    text: "The whole plant, not just the headline compound." },
+  { egg: "egg-entourage",  no: 7,  kind: "Stadium",   name: "Entourage Effect", text: "Cannabinoids and terpenes, working the room together." },
+  { egg: "egg-munchies",   no: 8,  kind: "Item",      name: "The Munchies",     text: "Your own receptors turning the volume up on smell, taste, and hunger." },
+  { egg: "egg-global",     no: 9,  kind: "Stadium",   name: "Global Reach",     text: "From a Los Angeles garage in 2012 to shelves on nearly every continent." },
+  { egg: "egg-binder",     no: 10, kind: "Item",      name: "The Binder",       text: "Every collector needs somewhere to keep the set." },
 ];

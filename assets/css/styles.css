@@ -50,7 +50,10 @@ h1, h2, h3, h4 { margin: 0; line-height: 1.08; letter-spacing: -.02em; }
 .btn.ghost:hover { border-color: var(--ink); }
 .btn.gold { --bg: var(--gold-bright); --fg: #1a1509; border-color: var(--gold-bright); }
 .btn .ic { display: inline-flex; }
-.ic svg { width: 1.15em; height: 1.15em; display: block; fill: currentColor; }
+/* Each icon declares its own fill ("none" for stroke icons, "currentColor" for
+   solid ones). Setting fill here would override that attribute and flood the
+   stroke icons solid. */
+.ic svg { width: 1.15em; height: 1.15em; display: block; }
 .ic { display: inline-flex; align-items: center; }
 .linklike { background: none; border: 0; color: var(--stone); font: inherit; cursor: pointer; text-decoration: underline; }
 
@@ -381,7 +384,9 @@ h1, h2, h3, h4 { margin: 0; line-height: 1.08; letter-spacing: -.02em; }
 .confetti { position: fixed; inset: 0; z-index: 110; pointer-events: none; }
 
 /* =============================== RICH COURSE ============================ */
-.ghost-dark { --bg: transparent; --fg: #fff; border-color: rgba(255,255,255,.4); }
+/* `.hero-cta .btn` (0,2,0) outranks a bare `.ghost-dark` (0,1,0), which is why
+   the secondary hero CTA rendered solid gold. Match the specificity. */
+.ghost-dark, .hero-cta .btn.ghost-dark { --bg: transparent; --fg: #fff; border-color: rgba(255,255,255,.4); }
 .ghost-dark:hover { border-color: #fff; background: rgba(255,255,255,.08); }
 .foot-nav { display: flex; flex-wrap: wrap; gap: 6px 20px; justify-content: center; margin-bottom: 14px; }
 .foot-nav a { font-weight: 700; font-size: 13px; color: var(--ink); text-decoration: none; }
@@ -647,7 +652,10 @@ h1, h2, h3, h4 { margin: 0; line-height: 1.08; letter-spacing: -.02em; }
 @media (min-width: 1000px) {
   .why-grid { grid-template-columns: repeat(4, 1fr); }
   .course-grid { grid-template-columns: repeat(3, 1fr); }
-  .rewards { grid-template-columns: repeat(3, 1fr); }
+}
+/* Four reward tiers: 2x2 from tablet, all four across on a wide desktop. */
+@media (min-width: 1180px) {
+  .rewards { grid-template-columns: repeat(4, 1fr); }
 }
 @media (max-width: 520px) {
   .stat strong { font-size: 20px; }
@@ -735,3 +743,347 @@ h1, h2, h3, h4 { margin: 0; line-height: 1.08; letter-spacing: -.02em; }
 .rank-chip { display: flex; width: fit-content; max-width: 100%; }
 .dash-store + .rank-chip { margin-top: 12px; }
 .badges + .sec-h { margin-top: 30px; }
+
+/* =========================================================================
+   THE COLLECTION — trading cards
+   Card geometry is driven by --cw (card width). Everything inside scales off
+   it so one card renders identically in the catalog, the binder, and a modal.
+   ====================================================================== */
+.tcg-grid {
+  display: grid; gap: 22px; margin: 6px 0 4px;
+  grid-template-columns: 1fr;
+  perspective: 1600px;
+}
+@media (min-width: 620px) { .tcg-grid { grid-template-columns: repeat(2, 1fr); gap: 20px; } }
+@media (min-width: 1000px) { .tcg-grid { grid-template-columns: repeat(3, 1fr); gap: 24px; } }
+.tcg-grid.single { grid-template-columns: 1fr; max-width: 380px; margin: 6px auto 4px; }
+
+.catalog-lede { color: var(--stone); font-size: 15px; line-height: 1.6; margin: -4px 0 20px; max-width: 62ch; }
+.catalog-lede b { color: var(--ink); font-weight: 800; }
+
+/* ---- the card ---------------------------------------------------------- */
+.tcg {
+  --mx: 50%; --my: 50%; --rx: 0deg; --ry: 0deg;
+  display: block; text-decoration: none; color: var(--ink);
+  border-radius: 16px; position: relative;
+  background: linear-gradient(160deg, #f2c75a 0%, #d9a63c 18%, #f7e2a4 42%, #c8952f 62%, #f2c75a 100%);
+  padding: 7px;
+  box-shadow: 0 10px 26px rgba(0,0,0,.16), 0 2px 6px rgba(0,0,0,.1);
+  transform: rotateX(var(--rx)) rotateY(var(--ry));
+  transform-style: preserve-3d;
+  transition: transform .25s cubic-bezier(.2,.7,.3,1), box-shadow .25s;
+  will-change: transform;
+}
+.tcg:hover { box-shadow: 0 22px 46px rgba(0,0,0,.24), 0 3px 8px rgba(0,0,0,.12); }
+/* Not-yet-collected cards read as a plain, un-foiled print run. */
+.tcg:not(.owned):not(.secret) { background: linear-gradient(160deg, #d8d4cb, #b9b4a9 45%, #ddd9d1); }
+.tcg-inner {
+  display: flex; flex-direction: column; gap: 8px;
+  background: var(--paper); border-radius: 10px; padding: 11px 11px 12px;
+  position: relative; overflow: hidden; min-height: 100%;
+}
+
+/* Holo treatment, only on cards you own.
+   The rainbow foil is confined to the art window (that's where real foil sits);
+   the whole card gets only a soft white glare, so the spec text stays legible. */
+.tcg-shine { position: absolute; inset: 0; pointer-events: none; opacity: 0; z-index: 4; border-radius: 10px; }
+.tcg.owned .tcg-shine, .tcg.secret .tcg-shine {
+  opacity: 1;
+  background: radial-gradient(circle at var(--mx) var(--my), rgba(255,255,255,.30) 0%, rgba(255,255,255,0) 46%);
+  mix-blend-mode: screen;
+}
+.tcg.owned .tcg-art::after, .tcg.secret .tcg-art::after {
+  content: ""; position: absolute; inset: 0; z-index: 1; pointer-events: none;
+  background:
+    radial-gradient(circle at var(--mx) var(--my), rgba(255,255,255,.42) 0%, rgba(255,255,255,0) 40%),
+    conic-gradient(from 210deg at var(--mx) var(--my),
+      rgba(255,0,128,.22), rgba(255,214,0,.22), rgba(0,255,196,.22),
+      rgba(0,153,255,.22), rgba(190,0,255,.22), rgba(255,0,128,.22));
+  mix-blend-mode: color-dodge;
+}
+.tcg.r-rare.owned .tcg-art::after { filter: saturate(1.4); }
+/* Touch devices can't move the foil, so it would sit saturated over the product
+   photo. Keep a sheen, but let the product read true. */
+@media (hover: none) {
+  .tcg.owned .tcg-art::after, .tcg.secret .tcg-art::after { opacity: .45; }
+}
+/* The secret rare is gold foil, so its sheen stays in the gold family. */
+.tcg.secret .tcg-art::after {
+  background:
+    radial-gradient(circle at var(--mx) var(--my), rgba(255,255,255,.40) 0%, rgba(255,255,255,0) 40%),
+    conic-gradient(from 210deg at var(--mx) var(--my),
+      rgba(255,214,0,.34), rgba(255,166,60,.34), rgba(255,244,200,.34),
+      rgba(200,149,47,.34), rgba(255,214,0,.34));
+}
+.tcg-stamp, .tcg-featured, .tcg-perfect { z-index: 3; }
+
+/* head */
+.tcg-head { display: grid; gap: 2px; }
+.tcg-stage { font-size: 9.5px; font-weight: 800; letter-spacing: .1em; text-transform: uppercase; color: var(--stone); }
+.tcg-name-row { display: flex; align-items: baseline; justify-content: space-between; gap: 8px; }
+.tcg-name { font-size: 22px; font-weight: 900; letter-spacing: -.02em; line-height: 1.1; }
+.tcg-hp { display: flex; align-items: baseline; gap: 3px; flex: none; }
+.tcg-hp em { font-style: normal; font-size: 9px; font-weight: 800; color: var(--stone); }
+.tcg-hp b { font-size: 17px; font-weight: 900; }
+.tcg-el { font-style: normal; font-size: 15px; margin-left: 2px; }
+
+/* art window */
+.tcg-art {
+  position: relative; border-radius: 6px; overflow: hidden;
+  border: 3px solid rgba(0,0,0,.12);
+  background: linear-gradient(165deg, color-mix(in srgb, var(--tint) 16%, #fff), color-mix(in srgb, var(--accent) 26%, #fff));
+  aspect-ratio: 16 / 11; display: grid; place-items: center;
+}
+.tcg-art img { width: 100%; height: 100%; object-fit: contain; padding: 8px; }
+.tcg:not(.owned):not(.secret) .tcg-art { filter: saturate(.55); }
+.tcg-stamp, .tcg-featured, .tcg-perfect {
+  position: absolute; left: 8px; top: 8px; z-index: 2;
+  display: inline-flex; align-items: center; gap: 5px;
+  font-size: 10px; font-weight: 900; letter-spacing: .07em; text-transform: uppercase;
+  padding: 5px 9px; border-radius: 999px;
+}
+.tcg-stamp { background: var(--ink); color: var(--gold-bright); }
+.tcg-featured { background: var(--gold-bright); color: var(--ink); }
+.tcg-perfect { left: auto; right: 8px; background: linear-gradient(120deg,#f7e2a4,#c8952f); color: #3a2a05; }
+.tcg-stamp svg, .tcg-featured svg, .tcg-perfect svg { width: 11px; height: 11px; }
+
+/* type bar */
+.tcg-typebar {
+  display: flex; align-items: center; justify-content: space-between; gap: 8px;
+  background: color-mix(in srgb, var(--tint) 12%, var(--cream));
+  border-radius: 5px; padding: 5px 9px;
+  border-left: 4px solid var(--tint);
+}
+.tcg-typebar em { font-style: normal; font-size: 10.5px; font-weight: 800; letter-spacing: .04em; text-transform: uppercase; color: var(--ink); }
+.tcg-typebar b { font-size: 13px; font-weight: 900; }
+
+/* attacks */
+.tcg-moves { display: grid; gap: 7px; padding: 2px 0; }
+.tcg-move { display: grid; grid-template-columns: auto 1fr auto; gap: 9px; align-items: start; }
+.mv-cost { display: inline-flex; gap: 1px; padding-top: 1px; }
+.mv-e { font-style: normal; font-size: 12px; line-height: 1; }
+.mv-body { display: grid; gap: 1px; min-width: 0; }
+.mv-body b { font-size: 13.5px; font-weight: 900; letter-spacing: -.01em; }
+.mv-body em { font-style: normal; font-size: 11px; line-height: 1.42; color: var(--stone); }
+.mv-dmg { font-size: 14px; font-weight: 900; flex: none; letter-spacing: -.02em; }
+
+/* the weakness/resistance/retreat strip, repurposed for real specs */
+.tcg-stats {
+  display: grid; grid-template-columns: repeat(3, 1fr); gap: 6px;
+  border-top: 1px solid var(--line); border-bottom: 1px solid var(--line);
+  padding: 6px 0; margin-top: auto;
+}
+.tcg-stats span { display: grid; gap: 1px; text-align: center; }
+.tcg-stats em { font-style: normal; font-size: 8.5px; font-weight: 800; letter-spacing: .07em; text-transform: uppercase; color: var(--stone); }
+.tcg-stats b { font-size: 12px; font-weight: 900; }
+
+.tcg-flavor { font-size: 11px; font-style: italic; line-height: 1.45; color: var(--stone); padding: 0 2px; }
+
+.tcg-foot { display: flex; align-items: center; justify-content: space-between; gap: 8px; font-size: 8.5px; font-weight: 800; letter-spacing: .06em; text-transform: uppercase; color: var(--stone); }
+.tcg-no { display: inline-flex; align-items: center; gap: 4px; flex: none; }
+.tcg-rar { font-style: normal; font-size: 10px; color: var(--gold); }
+.tcg.r-common .tcg-rar { color: var(--stone); }
+
+.tcg-cta { display: flex; align-items: center; justify-content: space-between; gap: 8px; padding-top: 2px; }
+.tcg-cta em { font-style: normal; display: inline-flex; align-items: center; gap: 5px; font-size: 11.5px; font-weight: 800; color: var(--gold); }
+.tcg-cta em svg { width: 13px; height: 13px; }
+.tcg.owned .tcg-cta em { color: var(--ok); }
+.tcg-cta b { display: inline-flex; align-items: center; gap: 4px; font-size: 12.5px; font-weight: 900; }
+.tcg-cta b svg { width: 13px; height: 13px; }
+
+/* featured "start here" card gets a gentle glow */
+.tcg.featured { box-shadow: 0 0 0 3px rgba(254,200,112,.5), 0 14px 32px rgba(0,0,0,.18); }
+
+/* ---- secret rare ------------------------------------------------------- */
+.tcg.secret { background: linear-gradient(135deg,#8a6b28,#f7e2a4 20%,#c8952f 40%,#fff3cf 55%,#c8952f 72%,#8a6b28 100%); }
+.tcg.secret .tcg-inner { background: linear-gradient(170deg,#1b1710,#0d0b07); color: #f6ecd4; }
+.tcg.secret.gold .tcg-inner { background: linear-gradient(170deg,#2a2110,#15100a); }
+.tcg.secret .tcg-stage, .tcg.secret .tcg-hp em, .tcg.secret .mv-body em,
+.tcg.secret .tcg-stats em, .tcg.secret .tcg-flavor, .tcg.secret .tcg-foot { color: #b39a63; }
+.tcg.secret .tcg-art { border-color: rgba(200,149,47,.5); background: radial-gradient(circle at 50% 40%, #4a3a17, #14100a); }
+.tcg.secret .tcg-art img { padding: 22px; opacity: .95; }
+.tcg.secret .tcg-typebar { background: rgba(200,149,47,.14); border-left-color: var(--gold-bright); }
+.tcg.secret .tcg-typebar em, .tcg.secret .tcg-typebar b { color: var(--gold-bright); }
+.tcg.secret .tcg-stats { border-color: rgba(200,149,47,.28); }
+.tcg.secret .tcg-stamp { background: var(--gold-bright); color: #211a08; }
+.tcg.secret .tcg-rar { color: var(--gold-bright); }
+.tcg.secret .tcg-cta em { color: var(--gold-bright); }
+.tcg.secret.gold { animation: gold-breathe 4.5s ease-in-out infinite; }
+@keyframes gold-breathe {
+  0%, 100% { box-shadow: 0 0 0 0 rgba(254,200,112,.42), 0 14px 34px rgba(0,0,0,.3); }
+  50% { box-shadow: 0 0 0 9px rgba(254,200,112,0), 0 14px 34px rgba(0,0,0,.3); }
+}
+
+/* ---- card back (secret rare, still locked) ----------------------------- */
+.tcg.back { background: linear-gradient(160deg,#3a3227,#171412 50%,#3a3227); cursor: default; }
+.tcg.back .tcg-inner {
+  background:
+    repeating-linear-gradient(45deg, rgba(200,149,47,.07) 0 10px, transparent 10px 20px),
+    linear-gradient(170deg,#1c1813,#0c0a08);
+  align-items: center; justify-content: center; text-align: center; gap: 12px; padding: 26px 16px;
+  /* keeps card proportions when it sits alone in a one-column grid */
+  min-height: 400px;
+}
+.back-art { position: relative; display: grid; place-items: center; }
+.back-art img { width: 74px; height: 74px; object-fit: contain; opacity: .16; }
+.back-q { position: absolute; font-size: 46px; font-weight: 900; color: var(--gold-bright); opacity: .9; }
+.back-name { font-size: 12px; font-weight: 900; letter-spacing: .18em; text-transform: uppercase; color: var(--gold-bright); }
+.back-msg { font-size: 12px; line-height: 1.5; color: #b39a63; display: flex; align-items: center; gap: 6px; flex-wrap: wrap; justify-content: center; }
+.back-msg b { color: var(--gold-bright); }
+.back-msg svg { width: 13px; height: 13px; }
+.tcg.back .tcg-foot { width: 100%; margin-top: 6px; color: #7d6a44; }
+.tcg.back .tcg-rar { color: var(--gold-bright); }
+
+/* ---- trainer / energy cards -------------------------------------------- */
+.trn-grid { display: grid; gap: 12px; grid-template-columns: repeat(2, 1fr); }
+@media (min-width: 700px) { .trn-grid { grid-template-columns: repeat(3, 1fr); } }
+@media (min-width: 1040px) { .trn-grid { grid-template-columns: repeat(5, 1fr); } }
+.trn { border-radius: 12px; padding: 4px; background: linear-gradient(160deg,#ddd8ce,#bdb7ab); }
+.trn.owned { background: linear-gradient(160deg,#f2c75a,#c8952f 55%,#f7e2a4); }
+.trn-inner {
+  position: relative; overflow: hidden;
+  display: flex; flex-direction: column; align-items: center; text-align: center; gap: 5px;
+  background: var(--paper); border-radius: 9px; padding: 12px 9px 9px; height: 100%;
+}
+.trn:not(.owned) .trn-inner { background: var(--cream); }
+.trn-kind { font-size: 8px; font-weight: 900; letter-spacing: .12em; text-transform: uppercase; color: var(--stone); }
+.trn.owned .trn-kind { color: var(--gold); }
+.trn-em { font-size: 30px; line-height: 1.1; }
+.trn:not(.owned) .trn-em { color: var(--line); font-weight: 900; }
+.trn-name { font-size: 13px; font-weight: 900; letter-spacing: -.01em; }
+.trn:not(.owned) .trn-name { color: var(--stone); }
+.trn-text { font-style: normal; font-size: 10.5px; line-height: 1.45; color: var(--stone); flex: 1; }
+.trn-foot { font-size: 9px; font-weight: 800; color: var(--stone); letter-spacing: .06em; }
+.trn.owned .trn-shine {
+  position: absolute; inset: 0; pointer-events: none;
+  background: linear-gradient(115deg, transparent 35%, rgba(255,255,255,.5) 50%, transparent 65%);
+  animation: trn-sweep 4.5s ease-in-out infinite;
+}
+@keyframes trn-sweep { 0%, 70% { transform: translateX(-120%); } 100% { transform: translateX(120%); } }
+
+/* ---- the card-pull moment ---------------------------------------------- */
+.pull-modal .pull-in {
+  position: relative; width: min(380px, 92vw);
+  display: grid; gap: 16px; justify-items: center; text-align: center;
+}
+.pull-kicker {
+  display: inline-flex; align-items: center; gap: 7px;
+  font-size: 12px; font-weight: 900; letter-spacing: .14em; text-transform: uppercase;
+  color: var(--gold-bright);
+}
+.pull-kicker svg { width: 15px; height: 15px; }
+.pull-card { width: 100%; animation: pull-in .72s cubic-bezier(.2,.9,.25,1) both; }
+.pull-card .tcg, .pull-card .trn { pointer-events: none; }
+.pull-card .trn { max-width: 220px; margin: 0 auto; }
+@keyframes pull-in {
+  0% { transform: perspective(1200px) rotateY(92deg) scale(.72); opacity: 0; }
+  60% { transform: perspective(1200px) rotateY(-9deg) scale(1.03); opacity: 1; }
+  100% { transform: perspective(1200px) rotateY(0) scale(1); opacity: 1; }
+}
+.pull-note { font-size: 13.5px; line-height: 1.55; color: #d8d2c4; max-width: 34ch; }
+.pull-note b { color: var(--gold-bright); font-weight: 900; }
+.pull-modal .modal-x { position: absolute; top: -6px; right: -4px; z-index: 5; color: #fff; }
+.pull-ok { width: 100%; }
+
+/* ---- collection strip (home) ------------------------------------------- */
+.col-strip {
+  display: grid; gap: 10px; text-decoration: none; color: var(--ink);
+  background: var(--paper); border: 1px solid var(--line); border-radius: 16px;
+  padding: 16px 18px; box-shadow: var(--shadow); transition: border-color .2s, transform .2s;
+}
+.col-strip:hover { border-color: var(--gold-bright); transform: translateY(-2px); }
+.cs-head { display: flex; align-items: center; justify-content: space-between; gap: 12px; flex-wrap: wrap; }
+.cs-head b { font-size: 15px; font-weight: 900; }
+.cs-head em { font-style: normal; display: inline-flex; align-items: center; gap: 5px; font-size: 12.5px; font-weight: 800; color: var(--gold); }
+.cs-head em svg { width: 13px; height: 13px; }
+.cs-slots { display: flex; flex-wrap: wrap; gap: 5px; }
+.cs-slot { width: 100%; max-width: 26px; height: 12px; border-radius: 3px; background: var(--line); flex: 1 1 14px; transition: background .3s; }
+.cs-slot.p.on { background: var(--ink); }
+.cs-slot.t { border-radius: 999px; }
+.cs-slot.t.on { background: var(--gold-bright); }
+.cs-slot.s { max-width: 34px; border-radius: 3px; background: repeating-linear-gradient(45deg, var(--line) 0 4px, transparent 4px 8px); }
+.cs-slot.s.holo { background: linear-gradient(120deg,#c8952f,#f7e2a4); }
+.cs-slot.s.gold { background: linear-gradient(120deg,#f2c75a,#fff3cf,#c8952f); box-shadow: 0 0 0 2px rgba(254,200,112,.45); }
+
+/* ---- header binder counter --------------------------------------------- */
+.hdr-binder {
+  display: inline-flex; align-items: center; gap: 6px; margin-left: auto; margin-right: 12px;
+  padding: 7px 12px; border-radius: 999px; text-decoration: none;
+  border: 1.5px solid var(--line); background: var(--paper); color: var(--ink);
+  transition: border-color .2s, transform .2s;
+}
+.hdr-binder:hover { border-color: var(--gold-bright); transform: translateY(-1px); }
+.hb-em { font-size: 14px; line-height: 1; }
+.hdr-binder b { font-size: 12.5px; font-weight: 900; letter-spacing: -.01em; white-space: nowrap; }
+
+/* ---- university crest --------------------------------------------------- */
+.crest { width: 84px; height: 84px; display: block; }
+.cr-ring { fill: none; stroke: currentColor; stroke-width: 1.6; opacity: .55; }
+.cr-ring.thin { stroke-width: .8; opacity: .35; }
+.cr-disc { fill: currentColor; opacity: .06; }
+.cr-t { font-size: 10px; font-weight: 800; letter-spacing: .18em; fill: currentColor; }
+.cr-t.sm { font-size: 7.4px; letter-spacing: .14em; opacity: .7; }
+.cr-star { font-size: 9px; fill: currentColor; opacity: .6; }
+.cr-est { font-size: 8px; font-weight: 800; letter-spacing: .18em; fill: currentColor; opacity: .65; }
+.cr-yr { font-size: 19px; font-weight: 900; letter-spacing: -.01em; fill: currentColor; }
+.hero-crest { margin: 0 auto 14px; color: var(--gold-bright); }
+.crest.big { width: 104px; height: 104px; margin: 0 auto 14px; color: var(--gold-bright); }
+
+/* ---- the binder page ---------------------------------------------------- */
+.binder { max-width: var(--maxw); margin: 0 auto; padding: 18px clamp(16px,4vw,40px) 20px; display: grid; gap: 4px; }
+.bn-hero {
+  text-align: center; border-radius: 22px; padding: clamp(28px,5vw,48px) clamp(18px,4vw,40px);
+  background: linear-gradient(165deg,#191919,#0b0b0b); color: #fff; margin-bottom: 26px;
+}
+.bn-hero h1 { font-size: clamp(32px,7vw,50px); font-weight: 900; letter-spacing: -.03em; margin: 6px 0 8px; }
+.bn-hero p { color: #cfc9bb; font-size: 15px; line-height: 1.6; max-width: 52ch; margin: 0 auto; }
+.bn-hero .ch-eyebrow { justify-content: center; }
+.bn-meter { height: 10px; border-radius: 999px; background: rgba(255,255,255,.13); overflow: hidden; margin: 22px auto 10px; max-width: 460px; }
+.bn-meter-fill { height: 100%; border-radius: 999px; background: linear-gradient(90deg,#c8952f,#FEC870); transition: width 1s cubic-bezier(.3,.8,.3,1); }
+.bn-count { font-size: 13px; font-weight: 700; color: #cfc9bb; }
+.bn-count b { color: var(--gold-bright); font-size: 16px; font-weight: 900; }
+.bn-share {
+  margin-top: 30px; text-align: center; border-radius: 18px; padding: 28px 20px;
+  background: var(--cream); border: 1.5px dashed var(--gold-bright);
+}
+.bn-share h3 { display: inline-flex; align-items: center; gap: 8px; font-size: 19px; font-weight: 900; }
+.bn-share h3 svg { width: 18px; height: 18px; color: var(--gold); }
+.bn-share p { color: var(--stone); font-size: 14px; margin: 6px 0 18px; }
+.bn-share p b { color: var(--ink); font-weight: 800; }
+.bn-share-row { display: flex; flex-wrap: wrap; gap: 10px; justify-content: center; }
+.master-nudge {
+  display: flex; align-items: center; gap: 8px; justify-content: center; flex-wrap: wrap;
+  margin: 16px auto 0; max-width: 640px; text-align: center; text-decoration: none;
+  border-radius: 14px; padding: 14px 18px; font-size: 13.5px; line-height: 1.5;
+  background: var(--cream); border: 1.5px dashed var(--gold-bright); color: var(--ink);
+}
+.master-nudge b { color: var(--gold); font-weight: 900; }
+.master-nudge svg { width: 15px; height: 15px; color: var(--gold); flex: none; }
+
+@media (max-width: 520px) {
+  .hdr-binder { margin-right: 8px; padding: 6px 9px; gap: 4px; }
+  .hdr-binder b { font-size: 11.5px; }
+  .tcg-name { font-size: 20px; }
+  .trn-grid { gap: 10px; }
+  .bn-hero { border-radius: 18px; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .tcg { transform: none !important; transition: none; }
+  .tcg.secret.gold { animation: none; }
+  .trn.owned .trn-shine { animation: none; opacity: .25; }
+  .pull-card { animation: none; }
+}
+
+/* The binder chip joined the header, so the wordmark now competes for space.
+   The brand holds its natural width; the user chip yields first (their name is
+   already the first thing on the hub), then disappears on the narrowest phones. */
+.hdr-brand { flex: 0 0 auto; }
+.hdr-name { white-space: nowrap; }
+@media (max-width: 560px) {
+  .hdr-user { max-width: 32%; }
+  .hdr-u-store { display: none; }
+}
+@media (max-width: 430px) {
+  .hdr-user { display: none; }
+}

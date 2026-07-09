@@ -28,7 +28,7 @@
   function getEnroll() { try { return JSON.parse(localStorage.getItem(K_ENROLL) || "null"); } catch (e) { return null; } }
   function setEnroll(v) { try { localStorage.setItem(K_ENROLL, JSON.stringify(v)); } catch (e) {} }
   function getState() {
-    var d = { courses: {}, badges: [], streak: { count: 0, last: null }, master: null, eggs: {}, secret: null, log: [] };
+    var d = { courses: {}, badges: [], streak: { count: 0, last: null }, master: null, eggs: {}, trio: null, secret: null, log: [] };
     var s;
     try { s = Object.assign(d, JSON.parse(localStorage.getItem(K_STATE) || "{}")); } catch (e) { return d; }
     if (!s.eggs) s.eggs = {};
@@ -51,6 +51,226 @@
   }
   function completedCount() { var s = getState(); return COURSES.filter(function (c) { return s.courses[c.slug] && s.courses[c.slug].passed; }).length; }
   function isMasterEarned() { var s = getState(); return coreSlugs().every(function (sl) { return s.courses[sl] && s.courses[sl].passed; }); }
+
+  /* =========================================================================
+     THE COLLECTION — trading cards
+     Every course is a card you pull by passing its quiz at 80%+. Every trivia
+     egg is a Trainer card. Collect the 5-card Base Set to reveal the Certified
+     G secret rare; find all 10 eggs to upgrade that card to full gold.
+     ====================================================================== */
+  var CARDS = window.GPEN_CARDS || {};
+  var ELEMENTS = window.GPEN_ELEMENTS || {};
+  var RARITY = window.GPEN_RARITY || {};
+  var TRAINERS = window.GPEN_TRAINERS || [];
+  var SET = window.GPEN_SET || { name: "Base Set", total: 6, illus: "" };
+  var SECRET_CARD = window.GPEN_SECRET_CARD || null;
+
+  function cardOwned(slug) { var r = getState().courses[slug]; return !!(r && r.passed); }
+  function cardScore(slug) { var r = getState().courses[slug]; return r && r.passed ? r.score : 0; }
+  function baseSetOwned() { return COURSES.filter(function (c) { return cardOwned(c.slug); }).length; }
+  function trainersOwned() { return eggsSolvedCount(); }
+  // The 6th card appears once the Base Set is complete; it turns gold when every
+  // Trainer card is in the binder too.
+  function secretCardState() {
+    if (!isMasterEarned()) return "locked";
+    return allEggsSolved() ? "gold" : "holo";
+  }
+  function totalCards() { return COURSES.length + TRAINERS.length + 1; }
+  function ownedCards() { return baseSetOwned() + trainersOwned() + (secretCardState() !== "locked" ? 1 : 0); }
+
+  function energyDots(el, n) {
+    var e = ELEMENTS[el] || {}; var out = "";
+    for (var i = 0; i < (n || 1); i++) out += '<i class="mv-e">' + (e.emoji || "●") + "</i>";
+    return out;
+  }
+  function movesHTML(el, moves) {
+    return (moves || []).map(function (m) {
+      return '<span class="tcg-move">' +
+        '<span class="mv-cost">' + energyDots(el, m.cost) + "</span>" +
+        '<span class="mv-body"><b>' + esc(m.name) + "</b><em>" + esc(m.text) + "</em></span>" +
+        '<span class="mv-dmg">' + esc(m.dmg || "") + "</span>" +
+      "</span>";
+    }).join("");
+  }
+  function statsRowHTML(rows) {
+    return '<span class="tcg-stats">' + (rows || []).map(function (r) {
+      return "<span><em>" + esc(r.k) + "</em><b>" + esc(r.v) + "</b></span>";
+    }).join("") + "</span>";
+  }
+  function rarityHTML(key) {
+    var r = RARITY[key] || RARITY.common || { sym: "●", label: "Common" };
+    return '<i class="tcg-rar" title="' + esc(r.label) + '">' + r.sym + "</i>";
+  }
+
+  /* A product card. `mini` drops the moves/flavor for the binder grid. */
+  function tcgCard(c, mini) {
+    var cd = CARDS[c.slug]; if (!cd) return "";
+    var el = ELEMENTS[cd.element] || {};
+    var owned = cardOwned(c.slug), score = cardScore(c.slug), perfect = score === 100;
+    var cls = ["tcg", "r-" + cd.rarity, "e-" + cd.element];
+    if (owned) cls.push("owned");
+    if (perfect) cls.push("perfect");
+    if (mini) cls.push("mini");
+    if (c.featured && !owned) cls.push("featured");
+    return '<a class="' + cls.join(" ") + '" href="#/course/' + c.slug + '" style="--accent:' + c.accent + ';--tint:' + (el.tint || "#888") + '"' +
+      ' data-card="' + esc(c.slug) + '" aria-label="' + esc(c.name) + (owned ? " — collected" : " — not yet collected") + '">' +
+      '<span class="tcg-inner">' +
+        '<span class="tcg-shine" aria-hidden="true"></span>' +
+        '<span class="tcg-head">' +
+          '<span class="tcg-stage">Basic · ' + esc(cd.code) + " · ~" + c.minutes + " min</span>" +
+          '<span class="tcg-name-row">' +
+            '<b class="tcg-name">' + esc(c.name) + "</b>" +
+            '<span class="tcg-hp"><em>' + esc(cd.powerUnit) + "</em><b>" + esc(cd.power) + '</b><i class="tcg-el" title="' + esc(el.label || "") + '">' + (el.emoji || "") + "</i></span>" +
+          "</span>" +
+        "</span>" +
+        '<span class="tcg-art">' +
+          '<img src="' + esc(c.cover) + '" alt="" loading="lazy"/>' +
+          (owned
+            ? '<span class="tcg-stamp">' + ic("check") + " Certified " + score + "%</span>"
+            : (c.featured ? '<span class="tcg-featured">' + ic("star") + " " + esc(c.featured) + "</span>" : "")) +
+          (perfect ? '<span class="tcg-perfect">' + ic("star") + " PERFECT</span>" : "") +
+        "</span>" +
+        '<span class="tcg-typebar"><em>' + esc(c.category) + "</em><b>" + esc(c.msrp) + "</b></span>" +
+        (mini ? "" :
+          '<span class="tcg-moves">' + movesHTML(cd.element, cd.moves) + "</span>" +
+          statsRowHTML(cd.statsRow) +
+          '<span class="tcg-flavor">' + esc(c.tagline) + "</span>") +
+        '<span class="tcg-foot">' +
+          '<span class="tcg-set">' + esc(SET.name) + " · " + esc(SET.illus) + "</span>" +
+          '<span class="tcg-no">' + cd.no + "/" + SET.total + " " + rarityHTML(cd.rarity) + "</span>" +
+        "</span>" +
+        (mini ? "" : '<span class="tcg-cta"><em>' + (owned ? ic("check") + " 25% off earned" : ic("tag") + " Pass → 25% off") + "</em><b>" + (owned ? "Review " : "Start ") + ic("arrow") + "</b></span>") +
+      "</span>" +
+    "</a>";
+  }
+
+  /* The 6th card. Locked shows a card BACK — you see the slot, not the card. */
+  function secretCardHTML(mini) {
+    if (!SECRET_CARD) return "";
+    var st = secretCardState(), e = getEnroll();
+    var sc = SECRET_CARD, el = ELEMENTS[sc.element] || {};
+    var need = COURSES.length - baseSetOwned();
+    var trLeft = TRAINERS.length - trainersOwned();
+
+    if (st === "locked") {
+      return '<div class="tcg back' + (mini ? " mini" : "") + '" data-card="secret" aria-label="Certified G — locked">' +
+        '<span class="tcg-inner">' +
+          '<span class="tcg-shine" aria-hidden="true"></span>' +
+          '<span class="back-art">' +
+            '<img src="assets/img/gpen-g-white.png" alt=""/>' +
+            '<span class="back-q">?</span>' +
+          "</span>" +
+          '<span class="back-name">Secret Rare</span>' +
+          '<span class="back-msg">' + ic("lock") + " Collect all " + COURSES.length + " Base Set cards to reveal" +
+            (need ? " — <b>" + need + " to go</b>" : "") + "</span>" +
+          '<span class="tcg-foot"><span class="tcg-set">' + esc(SET.name) + "</span>" +
+            '<span class="tcg-no">' + sc.no + "/" + SET.total + " " + rarityHTML("secret") + "</span></span>" +
+        "</span>" +
+      "</div>";
+    }
+
+    var gold = st === "gold";
+    return '<a class="tcg secret ' + st + (mini ? " mini" : "") + '" href="#/certified" data-card="secret" aria-label="Certified G — collected">' +
+      '<span class="tcg-inner">' +
+        '<span class="tcg-shine" aria-hidden="true"></span>' +
+        '<span class="tcg-head">' +
+          '<span class="tcg-stage">' + (gold ? "Gold Foil" : "Holo") + " · " + esc(sc.code) + "</span>" +
+          '<span class="tcg-name-row"><b class="tcg-name">' + esc(sc.name) + "</b>" +
+            '<span class="tcg-hp"><b>' + sc.power + '</b><i class="tcg-el">' + (el.emoji || "") + "</i></span></span>" +
+        "</span>" +
+        '<span class="tcg-art">' +
+          '<img src="assets/img/gpen-g-white.png" alt=""/>' +
+          '<span class="tcg-stamp">' + ic("award") + (gold ? " GOLD FOIL" : " HOLO") + "</span>" +
+        "</span>" +
+        '<span class="tcg-typebar"><em>' + esc(e ? e.name : "Product Specialist") + "</em><b>" + (gold ? "40% OFF" : "35% OFF") + "</b></span>" +
+        (mini ? "" :
+          '<span class="tcg-moves">' + movesHTML("gold", sc.moves) + "</span>" +
+          statsRowHTML([{ k: "Base Set", v: baseSetOwned() + "/" + COURSES.length }, { k: "Trainers", v: trainersOwned() + "/" + TRAINERS.length }, { k: "Rank", v: "👑" }]) +
+          '<span class="tcg-flavor">' + esc(sc.flavor) + "</span>") +
+        '<span class="tcg-foot"><span class="tcg-set">' + esc(SET.name) + " · " + esc(SET.illus) + "</span>" +
+          '<span class="tcg-no">' + sc.no + "/" + SET.total + " " + rarityHTML("secret") + "</span></span>" +
+        (mini ? "" : '<span class="tcg-cta"><em>' + (gold ? ic("spark") + " Gold — 40% off" : ic("spark") + " Find all " + TRAINERS.length + " Trainers for gold" + (trLeft ? " (" + trLeft + " left)" : "")) + "</em><b>View " + ic("arrow") + "</b></span>") +
+      "</span>" +
+    "</a>";
+  }
+
+  /* Trainer / Energy cards — one per solved trivia egg. */
+  function trainerCardHTML(t) {
+    var egg = EGGS.filter(function (e) { return e.id === t.egg; })[0];
+    var owned = eggSolved(t.egg);
+    return '<div class="trn' + (owned ? " owned" : "") + '" data-trainer="' + esc(t.egg) + '">' +
+      '<span class="trn-inner">' +
+        '<span class="trn-shine" aria-hidden="true"></span>' +
+        '<span class="trn-kind">' + esc(t.kind) + "</span>" +
+        '<span class="trn-em">' + (owned ? (egg ? egg.emoji : "✨") : "?") + "</span>" +
+        '<b class="trn-name">' + (owned ? esc(t.name) : "Undiscovered") + "</b>" +
+        '<em class="trn-text">' + (owned ? esc(t.text) : esc(egg ? "Hidden somewhere on the " + eggPageLabel(egg) + " page" : "Keep looking…")) + "</em>" +
+        '<span class="trn-foot">' + t.no + "/" + TRAINERS.length + "</span>" +
+      "</span>" +
+    "</div>";
+  }
+  function eggPageLabel(egg) {
+    if (egg.on === "home") return "home";
+    if (egg.on === "about") return "About G Pen";
+    if (egg.on === "collection") return "binder";
+    var c = courseBySlug((egg.on || "").replace("course:", ""));
+    return c ? c.name : "course";
+  }
+
+  // Pulling a card mid-page must update the counters that are already on screen.
+  function refreshCounters() {
+    var chip = $(".hdr-binder b");
+    if (chip) chip.textContent = ownedCards() + "/" + totalCards();
+    var head = $(".col-strip .cs-head b");
+    if (head) head.textContent = ownedCards() + " / " + totalCards() + " cards collected";
+    var slots = $(".col-strip .cs-slots");
+    if (slots) {
+      var cs = $$(".cs-slot", slots);
+      COURSES.forEach(function (c, i) { if (cs[i] && cardOwned(c.slug)) cs[i].classList.add("on"); });
+      TRAINERS.forEach(function (t, i) {
+        var el = cs[COURSES.length + i];
+        if (el && eggSolved(t.egg)) el.classList.add("on");
+      });
+      var sec = cs[COURSES.length + TRAINERS.length];
+      if (sec) sec.className = "cs-slot s " + secretCardState();
+    }
+  }
+
+  /* Tiny 16-slot progress strip: 5 product + 10 trainer + 1 secret. */
+  function collectionStrip() {
+    var slots = COURSES.map(function (c) {
+      return '<i class="cs-slot p' + (cardOwned(c.slug) ? " on" : "") + '" title="' + esc(c.name) + '"></i>';
+    }).join("") +
+    TRAINERS.map(function (t) {
+      return '<i class="cs-slot t' + (eggSolved(t.egg) ? " on" : "") + '" title="Trainer — ' + esc(t.name) + '"></i>';
+    }).join("") +
+    '<i class="cs-slot s ' + secretCardState() + '" title="Certified G"></i>';
+    return '<a class="col-strip" href="#/collection">' +
+      '<span class="cs-head"><b>' + ownedCards() + " / " + totalCards() + " cards collected</b><em>Open the binder " + ic("arrow") + "</em></span>" +
+      '<span class="cs-slots">' + slots + "</span>" +
+    "</a>";
+  }
+
+  /* Holo tilt: the card leans toward the pointer and the shine follows it.
+     Pointer-only and motion-safe — touch and reduced-motion get a flat card. */
+  function bindCardTilt() {
+    if (window.matchMedia("(prefers-reduced-motion: reduce)").matches) return;
+    if (!window.matchMedia("(hover: hover) and (pointer: fine)").matches) return;
+    $$(".tcg").forEach(function (card) {
+      card.addEventListener("pointermove", function (ev) {
+        var r = card.getBoundingClientRect();
+        var px = (ev.clientX - r.left) / r.width, py = (ev.clientY - r.top) / r.height;
+        card.style.setProperty("--mx", (px * 100).toFixed(1) + "%");
+        card.style.setProperty("--my", (py * 100).toFixed(1) + "%");
+        card.style.setProperty("--rx", ((0.5 - py) * 9).toFixed(2) + "deg");
+        card.style.setProperty("--ry", ((px - 0.5) * 11).toFixed(2) + "deg");
+      });
+      card.addEventListener("pointerleave", function () {
+        card.style.setProperty("--rx", "0deg"); card.style.setProperty("--ry", "0deg");
+        card.style.setProperty("--mx", "50%"); card.style.setProperty("--my", "50%");
+      });
+    });
+  }
 
   /* ---- fun layer: class ranks, quips, "did you know" ---------------------- */
   var RANKS = window.GPEN_RANKS || [];
@@ -111,8 +331,35 @@
     });
   }
 
+  /* The card-pull moment. Used when you certify (product card) and when you
+     solve a trivia egg (trainer card). The card flips in out of a foil pack. */
+  function showPull(kicker, cardHTML, footNote) {
+    var m = document.createElement("div");
+    m.className = "modal pull-modal";
+    m.innerHTML = '<div class="pull-in">' +
+      '<button class="modal-x" aria-label="Close">×</button>' +
+      '<div class="pull-kicker">' + ic("spark") + " " + esc(kicker) + "</div>" +
+      '<div class="pull-card">' + cardHTML + "</div>" +
+      (footNote ? '<div class="pull-note">' + footNote + "</div>" : "") +
+      '<button class="btn xl pull-ok">Add to binder ' + ic("arrow") + "</button>" +
+    "</div>";
+    document.body.appendChild(m); document.body.classList.add("noscroll");
+    function close() { m.remove(); document.body.classList.remove("noscroll"); }
+    m.addEventListener("click", function (ev) {
+      if (ev.target === m || ev.target.closest(".modal-x") || ev.target.closest(".pull-ok")) close();
+    });
+    document.addEventListener("keydown", function onEsc(ev) {
+      if (ev.key === "Escape") { close(); document.removeEventListener("keydown", onEsc); }
+    });
+    confetti();
+  }
+
   /* ---- hidden trivia easter eggs ----------------------------------------- */
-  function eggFor(pageKey) { return EGGS.filter(function (e) { return e.on === pageKey; })[0] || null; }
+  // A page may hide more than one egg, so eggs are looked up by (page, slot).
+  function eggsFor(pageKey) { return EGGS.filter(function (e) { return e.on === pageKey; }); }
+  function eggAt(pageKey, slot) {
+    return eggsFor(pageKey).filter(function (e) { return (e.slot || "") === (slot || ""); })[0] || null;
+  }
   function eggSolved(id) { return !!getState().eggs[id]; }
   function eggsSolvedCount() { var s = getState(); return EGGS.filter(function (e) { return s.eggs[e.id]; }).length; }
   function allEggsSolved() { return EGGS.length > 0 && eggsSolvedCount() === EGGS.length; }
@@ -122,8 +369,7 @@
   // Each egg names the section it hides behind (`slot`) and the side it sits on
   // (`align`), so no two pages stash their secret in the same place.
   function eggHTML(pageKey, slot) {
-    var egg = eggFor(pageKey); if (!egg) return "";
-    if ((egg.slot || "") !== (slot || "")) return "";
+    var egg = eggAt(pageKey, slot); if (!egg) return "";
     var solved = eggSolved(egg.id);
     var emoji = egg.emoji || "✨";
     var align = egg.align === "left" || egg.align === "right" ? egg.align : "center";
@@ -136,14 +382,16 @@
       '<span class="egg-hint">' + (solved ? "Secret found" : esc(egg.hint || "Psst… tap me")) + "</span>" +
     "</div>";
   }
-  // Failsafe: a course missing the section its egg hides behind must not lose the egg.
+  // Failsafe: a page missing the section an egg hides behind must not lose the
+  // egg — the gold Certified G card requires that all of them stay findable.
   function ensureEgg(pageKey) {
-    var egg = eggFor(pageKey); if (!egg) return;
-    if ($('[data-egg="' + egg.id + '"]')) return;
-    var host = $(".hub") || $(".course") || $(".about"); if (!host) return;
-    var wrap = document.createElement("div");
-    wrap.innerHTML = eggHTML(pageKey, egg.slot);
-    if (wrap.firstChild) host.appendChild(wrap.firstChild);
+    var host = $(".hub") || $(".course") || $(".about") || $(".binder"); if (!host) return;
+    eggsFor(pageKey).forEach(function (egg) {
+      if ($('[data-egg="' + egg.id + '"]')) return;
+      var wrap = document.createElement("div");
+      wrap.innerHTML = eggHTML(pageKey, egg.slot);
+      if (wrap.firstChild) host.appendChild(wrap.firstChild);
+    });
   }
   function bindEggs() {
     $$("[data-egg]").forEach(function (b) {
@@ -187,19 +435,31 @@
         fact.hidden = false; fact.className = "egg-fact ok";
         fact.innerHTML = "<strong>" + ic("check") + " " + esc(quip("correct")) + "</strong> " + esc(egg.fact);
         solveEgg(egg.id);
+        // hand off to the card-pull moment once they've read the fact
+        var t = trainerFor(egg.id);
+        if (!t) confetti(); // egg with no Trainer card — still celebrate the find
+        if (t) setTimeout(function () {
+          if (!document.body.contains(m)) return;
+          close();
+          var left = TRAINERS.length - trainersOwned();
+          showPull("Trainer card pulled!", trainerCardHTML(t),
+            left ? "<b>" + left + "</b> Trainer card" + (left === 1 ? "" : "s") + " still hidden across the site."
+                 : "<b>Every Trainer card found.</b> Your Certified G card is gold.");
+        }, 2100);
       });
     });
   }
+  function trainerFor(eggId) { return TRAINERS.filter(function (t) { return t.egg === eggId; })[0] || null; }
   function solveEgg(id) {
     var s = getState();
     if (s.eggs[id]) return;
     s.eggs[id] = true; setState(s);
     logEvent("egg", { egg: id });
-    confetti();
     var found = eggsSolvedCount();
-    if (allEggsSolved() && !isMasterEarned()) toast("All " + EGGS.length + " secrets found! Certify on every course to unlock 40% off.");
-    else if (isSecretUnlocked()) toast("Secret 40% reward unlocked! 🎉");
-    else toast("Secret found — " + found + " of " + EGGS.length + " 🔎");
+    if (allEggsSolved() && !isMasterEarned()) toast("All " + EGGS.length + " Trainer cards! Collect the Base Set to go gold.");
+    else if (isSecretUnlocked()) toast("Certified G went GOLD — 40% off unlocked! 👑");
+    else toast("Trainer card " + found + " of " + EGGS.length + " 🃏");
+    refreshCounters();
     // reflect the found state on the page without a full re-render
     $$('[data-egg="' + id + '"]').forEach(function (b) {
       b.classList.add("found");
@@ -207,6 +467,15 @@
       if (h) h.textContent = "Secret found";
     });
     maybeReportSecret();
+  }
+  // The 30% tier fires once, the first time a third card lands in the binder.
+  function maybeReportTier() {
+    if (baseSetOwned() < 3) return;
+    var s = getState(); if (s.trio) return;
+    var e = getEnroll() || {};
+    s.trio = { at: new Date().toISOString() }; setState(s);
+    logEvent("trio", {});
+    if (window.reportCompletion) window.reportCompletion({ type: "trio", name: e.name, email: e.email, store: e.store, product: "30% reward (3 cards)", score: 100, certId: "", date: niceDate() });
   }
   function maybeReportSecret() {
     if (!isSecretUnlocked()) return;
@@ -219,7 +488,7 @@
 
   /* ---- icons (inline SVG) ------------------------------------------------ */
   var IC = {
-    play: '<svg viewBox="0 0 24 24"><path d="M8 5v14l11-7z"/></svg>',
+    play: '<svg viewBox="0 0 24 24" fill="currentColor"><path d="M8 5v14l11-7z"/></svg>',
     check: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6L9 17l-5-5"/></svg>',
     cap: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M22 10L12 5 2 10l10 5 10-5z"/><path d="M6 12v5c0 1 2.5 3 6 3s6-2 6-3v-5"/></svg>',
     award: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="8" r="6"/><path d="M15.5 13.5L17 22l-5-3-5 3 1.5-8.5"/></svg>',
@@ -273,6 +542,7 @@
         '<img src="assets/img/gpen-g-white.png" class="hdr-logo dark" alt="G Pen"/>' +
         '<span class="hdr-name">G Pen <em>University</em></span>' +
       "</a>" +
+      '<a class="hdr-binder" href="#/collection" title="Your binder"><span class="hb-em">\uD83C\uDCCF</span><b>' + ownedCards() + "/" + totalCards() + "</b></a>" +
       (e ? '<a class="hdr-user" href="#/"><span class="hdr-u-name">' + esc(e.name) + '</span><span class="hdr-u-store">' + esc(e.store || "") + "</span></a>"
          : '<a class="hdr-cta" href="#/">Browse courses</a>') +
     "</header>";
@@ -300,8 +570,7 @@
           stat(pct + "%", "Program complete", pct, "%") +
           stat('<span class="st-fire">' + (streak ? ic("fire") : "") + streak + "</span>", "Day streak") +
         "</div>" +
-        '<div class="sec-h sub"><h2>Badge collection</h2><span>' + done + " of " + total + "</span></div>" +
-        badgeRow()
+        collectionStrip()
       : "";
 
     var heroBg = (window.GPEN_LIFESTYLE || [])[2] || "";
@@ -310,9 +579,10 @@
       '<section class="hero">' +
         (heroBg ? '<div class="hero-bg" style="background-image:url(\'' + esc(heroBg) + '\')"></div>' : "") +
         '<div class="hero-inner reveal">' +
+          crestSVG("hero-crest") +
           '<div class="hero-eyebrow">' + ic("cap") + " " + esc(CFG.programName) + "</div>" +
           "<h1>Become a <span class=\"gold\">Certified G</span>.</h1>" +
-          "<p class=\"hero-sub\">Explore any product course — watch the how-to videos, learn the specs, get the talking points. Want the badge? Pass a quick quiz to unlock <strong>25% off</strong> gpen.com, or go full <strong>Certified G</strong> for <strong>35% off</strong>.</p>" +
+          "<p class=\"hero-sub\">Every product course is a collectible card. Watch the videos, learn the specs, then pass the quiz to pull the card. Stack them up and climb the ladder — <strong>25%</strong> to <strong>40% off</strong> gpen.com.</p>" +
           '<div class="hero-cta">' +
             '<button class="btn xl" id="browse-btn">Browse courses ' + ic("arrow") + "</button>" +
             '<a class="btn xl ghost-dark" href="#/about">About G Pen</a>' +
@@ -322,8 +592,9 @@
       lifestyleBand() +
       '<section class="hub reveal">' +
         progressBlock +
-        '<div class="sec-h" id="courses"><h2>Product courses</h2><span>' + (hasProgress ? done + " of " + total + " certified" : "Tap a product — no sign-up needed") + "</span></div>" +
-        '<div class="course-grid">' + COURSES.map(courseCard).join("") + "</div>" +
+        '<div class="sec-h" id="courses"><h2>Course catalog</h2><span>' + esc(SET.name) + " · " + ownedCards() + " of " + totalCards() + " cards collected</span></div>" +
+        '<p class="catalog-lede">Every course is a collectible card. Pass its quiz at ' + (COURSES[0] ? COURSES[0].passPct : 80) + '%+ to pull it. Collect all ' + total + ' and the <b>Certified G</b> secret rare reveals itself — find every hidden Trainer card and it turns <b>gold</b>.</p>' +
+        '<div class="tcg-grid">' + COURSES.map(function (c) { return tcgCard(c); }).join("") + secretCardHTML() + "</div>" +
         eggHTML("home", "courses") +
         factCard() +
         rewardsSection(done, master) +
@@ -334,9 +605,9 @@
       '<section class="why">' +
         '<div class="why-grid">' +
           why(ic("play"), "Explore free", "Open any course and watch the how-to videos, browse specs, cleaning, and FAQs — no account required.") +
-          why(ic("cap"), "Get certified", "When you're ready, pass an 80% quiz to earn a Product Specialist certificate for that device.") +
-          why(ic("tag"), "Unlock discounts", "Each certification unlocks 25% off gpen.com — finish all " + total + " for 35% off and go full Certified G.") +
-          why(ic("share"), "Show it off", "Download a printable certificate and a shareable IG story card for every product you master.") +
+          why(ic("cap"), "Pull the card", "When you're ready, pass an 80% quiz to pull that product's card and earn a Product Specialist certificate.") +
+          why(ic("tag"), "Climb the ladder", "1 card unlocks 25% off gpen.com, 3 cards gets 30%, and the full " + total + "-card Base Set gets 35%.") +
+          why(ic("spark"), "Chase the gold", "Hidden trivia across the site drops Trainer cards. Collect all " + TRAINERS.length + " and your Certified G card turns gold — 40% off.") +
         "</div>" +
       "</section>" +
       footer();
@@ -380,7 +651,7 @@
   function step(n, t, s) { return '<li class="step reveal"><span class="step-n">' + n + "</span><div><h4>" + t + "</h4><p>" + s + "</p></div></li>"; }
   function footer() {
     return '<footer class="foot"><img src="assets/img/gpen-g-black.png" class="foot-g light" alt=""/><img src="assets/img/gpen-g-white.png" class="foot-g dark" alt=""/>' +
-      '<div class="foot-nav"><a href="#/">Courses</a><a href="#/about">About G Pen</a><a href="' + esc(CFG.shopUrl) + '" target="_blank" rel="noopener">Shop gpen.com</a></div>' +
+      '<div class="foot-nav"><a href="#/">Courses</a><a href="#/collection">The Binder</a><a href="#/about">About G Pen</a><a href="' + esc(CFG.shopUrl) + '" target="_blank" rel="noopener">Shop gpen.com</a></div>' +
       "<p>" + esc(CFG.programName) + " · for authorized G Pen retail partners. Questions? <a href=\"mailto:" + esc(CFG.contactEmail) + "\">" + esc(CFG.contactEmail) + "</a></p>" +
       '<p class="foot-motto">A Grenco Science joint · est. 2012 · <em>In Vapore Veritas</em></p>' +
       "</footer>";
@@ -412,25 +683,29 @@
     });
   }
   // The three-tier discount reward, shown as an "earn it" tracker on the home hub.
+  /* The reward ladder climbs with the collection:
+       1 card -> 25%   3 cards -> 30%   full Base Set -> 35%   + all Trainers -> 40% gold */
   function rewardsSection(done, master) {
-    var core = coreSlugs().length, left = core - done;
-    var c25 = done >= 1, c35 = master;
+    var core = coreSlugs().length;
+    var trio = done >= 3, c25 = done >= 1, c35 = master;
     var secret = isSecretUnlocked();
-    var eggsLeft = EGGS.length - eggsSolvedCount();
-    var head = secret ? "Secret 40% reward unlocked 🎉"
-      : (c35 ? "Top reward unlocked 🎉" : (c25 ? "25% off unlocked — keep going!" : "Pass one course to start earning"));
-    var secretLock = eggsLeft > 0
-      ? eggsLeft + " hidden secret" + (eggsLeft === 1 ? "" : "s") + " still out there…"
-      : "All secrets found — certify on all " + core + " courses";
-    return '<div class="sec-h"><h2>Your rewards</h2><span>' + head + "</span></div>" +
+    var trLeft = TRAINERS.length - trainersOwned();
+    var head = secret ? "Gold Certified G unlocked 👑"
+      : (c35 ? "Base Set complete — 35% off" : (trio ? "30% off unlocked — two cards to go" : (c25 ? "25% off unlocked — keep pulling cards" : "Pull your first card to start earning")));
+    var secretLock = trLeft > 0
+      ? trLeft + " Trainer card" + (trLeft === 1 ? "" : "s") + " still hidden…"
+      : "All Trainers found — collect the Base Set";
+    return '<div class="sec-h"><h2>The reward ladder</h2><span>' + head + "</span></div>" +
       '<div class="rewards">' +
-        rewardCard("course", c25, "25% OFF", "gpen.com — for completing any course", "Complete any 1 course to unlock") +
-        rewardCard("master", c35, "35% OFF", "gpen.com — for completing all " + core + " courses", left + " more course" + (left === 1 ? "" : "s") + " to unlock") +
-        (EGGS.length ? rewardCard("secret", secret, "40% OFF", "The secret reward — certify on all " + core + " <em>and</em> find every hidden trivia egg", secretLock) : "") +
+        rewardCard("course", c25, "25% OFF", "Your first card — pass any single course", "Collect 1 card to unlock") +
+        rewardCard("trio", trio, "30% OFF", "Three cards deep into the Base Set", (3 - done) + " more card" + (3 - done === 1 ? "" : "s") + " to unlock") +
+        rewardCard("master", c35, "35% OFF", "The full " + core + "-card Base Set — pulls the <em>Certified G</em> secret rare", (core - done) + " more card" + (core - done === 1 ? "" : "s") + " to unlock") +
+        (EGGS.length ? rewardCard("secret", secret, "40% OFF", "Certified G in <em>gold foil</em> — the Base Set <em>and</em> every Trainer card", secretLock) : "") +
       "</div>";
   }
   function rewardCard(type, unlocked, big, sub, lockMsg) {
     var isSecret = type === "secret";
+    if (unlocked) lockMsg = "";
     return '<div class="rw-card ' + (unlocked ? "on" : "off") + (isSecret ? " secret" : "") + '">' +
       '<div class="rw-top"><span class="rw-ic">' + ic(unlocked ? (isSecret ? "spark" : "tag") : "lock") + '</span><span class="rw-status">' + (unlocked ? "Unlocked" : (isSecret ? "Secret" : "Locked")) + "</span></div>" +
       '<div class="rw-big">' + big + "</div>" +
@@ -442,10 +717,11 @@
         : '<div class="rw-lock">' + ic(isSecret ? "spark" : "lock") + " " + lockMsg + "</div>") +
     "</div>";
   }
-  function copyCode(code) {
-    if (navigator.clipboard) navigator.clipboard.writeText(code).then(function () { toast("Code copied — " + code); }, function () { toast(code); });
-    else toast(code);
+  function copyText(text, okMsg) {
+    if (navigator.clipboard) navigator.clipboard.writeText(text).then(function () { toast(okMsg); }, function () { toast(text); });
+    else toast(text);
   }
+  function copyCode(code) { copyText(code, "Code copied — " + code); }
   function fillRewards() {
     var e = getEnroll() || {};
     $$("[data-rwcode]").forEach(function (btn) {
@@ -457,34 +733,6 @@
         btn.addEventListener("click", function () { copyCode(r.code); });
       });
     });
-  }
-  function courseCard(c) {
-    var s = getState(), rec = s.courses[c.slug], done = rec && rec.passed;
-    return '<a class="course-card' + (done ? " done" : "") + (c.featured ? " featured" : "") + '" href="#/course/' + c.slug + '" style="--accent:' + c.accent + '">' +
-      '<div class="cc-media"><img src="' + esc(c.cover) + '" alt="' + esc(c.name) + '" loading="lazy"/>' +
-        (done ? '<span class="cc-badge">' + ic("check") + " Certified</span>" : '<span class="cc-min">~' + c.minutes + " min</span>") +
-        (c.featured && !done ? '<span class="cc-featured">' + ic("star") + " " + esc(c.featured) + "</span>" : "") +
-      "</div>" +
-      '<div class="cc-body">' +
-        '<span class="cc-cat">' + esc(c.category) + "</span>" +
-        "<h3>" + esc(c.name) + "</h3>" +
-        "<p>" + esc(c.tagline) + "</p>" +
-        '<div class="cc-reward' + (done ? " earned" : "") + '">' + ic(done ? "check" : "tag") + "<span>" + (done ? "25% off earned" : "Pass → 25% off") + "</span></div>" +
-        '<div class="cc-foot"><span class="cc-price">' + esc(c.msrp) + "</span>" +
-          '<span class="cc-go">' + (done ? "Review " : "Start ") + ic("arrow") + "</span></div>" +
-      "</div>" +
-    "</a>";
-  }
-  // Badge collection — one per product, lit once earned. A "collect them all" row.
-  function badgeRow() {
-    var s = getState();
-    return '<div class="badges">' + COURSES.map(function (c) {
-      var done = s.courses[c.slug] && s.courses[c.slug].passed;
-      return '<a class="badge' + (done ? " earned" : "") + '" href="#/course/' + c.slug + '" title="' + esc(c.name) + (done ? " — certified" : "") + '">' +
-        '<span class="badge-disc"><img src="' + esc(c.cover) + '" alt="' + esc(c.name) + '"/>' + (done ? '<span class="badge-chk">' + ic("check") + "</span>" : "") + "</span>" +
-        '<span class="badge-name">' + esc(c.name) + "</span>" +
-      "</a>";
-    }).join("") + "</div>";
   }
 
   /* ---- COURSE ------------------------------------------------------------ */
@@ -749,12 +997,24 @@
       pendingCelebrate = true; // ring pulses + confetti next time they hit home
       if (window.reportCompletion) window.reportCompletion({ type: "course", name: e.name, email: e.email, store: e.store, product: "G Pen " + c.name, courseSlug: c.slug, score: pct, certId: cid, date: date });
     }
+    maybeReportTier();   // a third card unlocks the 30% tier
     maybeReportSecret(); // finishing the last course can complete the secret too
+    refreshCounters();
     var streak = touchStreak();
     logEvent("certified", { course: c.slug, certId: cid, score: pct });
-    confetti();
 
     var master = isMasterEarned();
+    if (firstTime) {
+      var left = COURSES.length - baseSetOwned();
+      var note = master
+        ? "<b>Base Set complete.</b> The Certified G secret rare is yours."
+        : "<b>" + left + "</b> more card" + (left === 1 ? "" : "s") + " to complete the " + esc(SET.name) + ".";
+      if (pct === 100) note = "<b>★ Perfect score.</b> " + note;
+      // let the pass banner paint before the pack opens
+      setTimeout(function () { showPull("You pulled a card!", tcgCard(c), note); }, 550);
+    } else {
+      confetti();
+    }
     var zone = $("#quiz-zone");
     zone.innerHTML = '<div class="result pass">' +
         '<div class="result-score">' + pct + '%<span>' + correct + "/" + c.quiz.length + "</span></div>" +
@@ -762,7 +1022,7 @@
       "</div>" +
       '<div id="cert-zone"></div>' +
       '<div id="reward-zone" class="reward-wrap"></div>' +
-      (master ? '<a class="master-unlock" href="#/certified">' + ic("award") + " You've finished every course — you're now <strong>Certified G</strong>! Get your certificate & 35% off " + ic("arrow") + "</a>"
+      (master ? '<a class="master-unlock" href="#/certified">' + ic("award") + " Base Set complete — you pulled the <strong>Certified G</strong> secret rare! Certificate & 35% off " + ic("arrow") + "</a>"
               : '<a class="btn ghost xl backdash" href="#/">Back to all courses ' + ic("arrow") + "</a>");
     showCertificate(c, e.name, date, pct, cid, $("#cert-zone"));
     revealReward("course", { courseSlug: c.slug, name: e.name, email: e.email, store: e.store, certId: cid }, $("#reward-zone"));
@@ -962,6 +1222,8 @@
           "<h1>You're Certified G</h1>" +
           "<p>Congratulations, " + esc(e.name.split(" ")[0]) + " — you've completed every course in " + esc(CFG.programName) + " and are officially a <strong>fully trained G Pen Product Specialist</strong>. You know the whole lineup cold.</p>" +
         "</div>" +
+        '<div class="tcg-grid single">' + secretCardHTML() + "</div>" +
+        (allEggsSolved() ? "" : '<a class="master-nudge" href="#/collection">' + ic("spark") + " Your Certified G card is <b>holo</b>. Find the last " + (TRAINERS.length - trainersOwned()) + " Trainer card" + (TRAINERS.length - trainersOwned() === 1 ? "" : "s") + " to turn it <b>gold</b> and unlock 40% off " + ic("arrow") + "</a>") +
         '<div id="mcert"></div>' +
         '<div id="mreward" class="reward-wrap"></div>' +
       "</section>" + footer();
@@ -1045,6 +1307,87 @@
     revealOnScroll();
   }
 
+  /* A proper university seal: ring text, est. date, motto. */
+  function crestSVG(cls) {
+    return '<svg class="crest ' + (cls || "") + '" viewBox="0 0 120 120" aria-hidden="true">' +
+      '<defs>' +
+        '<path id="crest-top" d="M16,60 A44,44 0 0 1 104,60" fill="none"/>' +
+        '<path id="crest-bot" d="M19,60 A41,41 0 0 0 101,60" fill="none"/>' +
+      "</defs>" +
+      '<circle cx="60" cy="60" r="58" class="cr-ring"/>' +
+      '<circle cx="60" cy="60" r="49" class="cr-ring thin"/>' +
+      '<circle cx="60" cy="60" r="34" class="cr-disc"/>' +
+      '<text class="cr-t"><textPath href="#crest-top" startOffset="50%" text-anchor="middle">G PEN UNIVERSITY</textPath></text>' +
+      '<text class="cr-t sm"><textPath href="#crest-bot" startOffset="50%" text-anchor="middle">IN VAPORE VERITAS</textPath></text>' +
+      '<text class="cr-star" x="14" y="64">\u2726</text><text class="cr-star" x="100" y="64">\u2726</text>' +
+      '<text class="cr-est" x="60" y="54" text-anchor="middle">EST.</text>' +
+      '<text class="cr-yr" x="60" y="74" text-anchor="middle">2012</text>' +
+    "</svg>";
+  }
+
+  /* ---- THE BINDER (card collection) -------------------------------------- */
+  function renderCollection() {
+    setTitleDoc("The Binder");
+    var e = getEnroll();
+    var base = baseSetOwned(), tr = trainersOwned(), st = secretCardState();
+    var owned = ownedCards(), total = totalCards();
+    var pct = Math.round((owned / total) * 100);
+    var a = window.GPEN_ABOUT || {};
+
+    app.innerHTML = header() +
+      '<section class="binder reveal">' +
+        '<a class="back" href="#/">' + ic("back") + " All courses</a>" +
+        '<div class="bn-hero">' +
+          crestSVG("big") +
+          '<span class="ch-eyebrow">' + ic("cap") + " The Collection</span>" +
+          "<h1>The Binder</h1>" +
+          "<p>" + (e ? esc(e.name) + "&rsquo;s collection" : "Your collection") + " &mdash; every card you&rsquo;ve pulled, and every slot still waiting.</p>" +
+          '<div class="bn-meter"><div class="bn-meter-fill" style="width:' + pct + '%"></div></div>' +
+          '<div class="bn-count"><b>' + owned + "</b> of " + total + " cards &middot; " + pct + "% complete</div>" +
+        "</div>" +
+
+        '<div class="sec-h big"><span class="sec-n">1</span><h2>' + esc(SET.name) + "</h2><span>" + base + " of " + COURSES.length + " collected</span></div>" +
+        '<div class="tcg-grid">' + COURSES.map(function (c) { return tcgCard(c); }).join("") + "</div>" +
+
+        '<div class="sec-h big"><span class="sec-n">2</span><h2>Trainers &amp; Energy</h2><span>' + tr + " of " + TRAINERS.length + " found</span></div>" +
+        '<p class="catalog-lede">One card for every hidden trivia egg on the site. They&rsquo;re tucked in different places on every page &mdash; look for something that doesn&rsquo;t belong.</p>' +
+        '<div class="trn-grid">' + TRAINERS.map(trainerCardHTML).join("") + "</div>" +
+        eggHTML("collection", "binder") +
+
+        '<div class="sec-h big"><span class="sec-n">3</span><h2>Secret Rare</h2><span>' +
+          (st === "gold" ? "Gold foil \uD83D\uDC51" : st === "holo" ? "Holo \u2014 go for gold" : "Locked") + "</span></div>" +
+        '<div class="tcg-grid single">' + secretCardHTML() + "</div>" +
+
+        '<div class="bn-share">' +
+          "<h3>" + ic("share") + " Show off the collection</h3>" +
+          "<p>Post it, tag <b>@gpen</b>, and let the rest of the floor know who&rsquo;s stacking cards.</p>" +
+          '<div class="bn-share-row">' +
+            '<button class="btn xl" id="brag">' + ic("share") + " Copy my brag</button>" +
+            (a.social && a.social[0] ? '<a class="btn xl ghost" href="' + esc(a.social[0].url) + '" target="_blank" rel="noopener">Follow ' + esc(a.social[0].handle) + " " + ic("arrow") + "</a>" : "") +
+          "</div>" +
+        "</div>" +
+        factCard() +
+      "</section>" + footer();
+
+    var brag = $("#brag");
+    if (brag) brag.addEventListener("click", function () { copyText(bragText(), "Brag copied — go post it \uD83C\uDCCF"); });
+    revealOnScroll();
+  }
+  // The line they paste into a story or a group chat.
+  function bragText() {
+    var e = getEnroll();
+    var names = COURSES.filter(function (c) { return cardOwned(c.slug); }).map(function (c) { return c.name; });
+    var st = secretCardState();
+    var lead = st === "gold" ? "I pulled the GOLD Certified G card \uD83D\uDC51"
+      : st === "holo" ? "I completed the Base Set and pulled Certified G \u2728"
+      : names.length ? "I\u2019m " + ownedCards() + "/" + totalCards() + " cards into G Pen University \uD83C\uDCCF"
+      : "I\u2019m collecting cards at G Pen University \uD83C\uDCCF";
+    return lead +
+      (names.length ? "\nCertified on: " + names.join(", ") : "") +
+      (e && e.store ? "\n" + e.store : "") +
+      "\n#CertifiedG \u00B7 training.gpen.com";
+  }
+
   /* ---- reveal-on-scroll -------------------------------------------------- */
   function revealOnScroll() {
     var els = $$(".reveal");
@@ -1074,6 +1417,7 @@
     var pageKey = "home";
     if (parts[0] === "course" && parts[1]) { renderCourse(parts[1]); pageKey = "course:" + parts[1]; }
     else if (parts[0] === "certified") { renderCertified(); pageKey = ""; }
+    else if (parts[0] === "collection") { renderCollection(); pageKey = "collection"; }
     else if (parts[0] === "about") { renderAbout(); pageKey = "about"; }
     else renderHome(); // "/", "/dashboard", "/enroll" and anything else → the hub
     // Safety net: guarantee every view's reveal animation is initialized (and
@@ -1083,9 +1427,13 @@
     bindEggs();
     bindFacts();
     bindLogoFun();
+    bindCardTilt();
   }
   function boot() {
     app = $("#app"); // re-resolve in case the script loaded before #app parsed
+    // Backfill: someone who earned a tier before it existed still gets reported
+    // once. Both calls no-op unless the tier is newly reached and unrecorded.
+    if (getEnroll()) { maybeReportTier(); maybeReportSecret(); }
     if (!app) { return document.addEventListener("DOMContentLoaded", boot, { once: true }); }
     window.addEventListener("hashchange", route);
     route();
