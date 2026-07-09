@@ -480,6 +480,7 @@ window.GPEN_COURSES = [
 window.GPEN_EGGS = [
   {
     id: "egg-420", on: "home",
+    emoji: "🕓", hint: "Psst… what time is it?",
     q: "Where does “420” actually come from?",
     choices: [
       "A police radio code for cannabis",
@@ -492,6 +493,7 @@ window.GPEN_EGGS = [
   },
   {
     id: "egg-snoop", on: "about",
+    emoji: "🎤", hint: "Drop the mic?",
     q: "Which legend teamed up with G Pen for the original “Double G” series?",
     choices: ["Wiz Khalifa", "B-Real", "Snoop Dogg", "Berner"],
     answer: 2,
@@ -499,6 +501,7 @@ window.GPEN_EGGS = [
   },
   {
     id: "egg-trichomes", on: "course:dash-ii",
+    emoji: "❄️", hint: "Why so frosty?",
     q: "What are the frosty, crystal-like resin glands on cannabis flower called?",
     choices: ["Pistils", "Trichomes", "Stamens", "Nodes"],
     answer: 1,
@@ -506,6 +509,7 @@ window.GPEN_EGGS = [
   },
   {
     id: "egg-combustion", on: "course:dash-plus",
+    emoji: "🔥", hint: "Don't get burned",
     q: "The whole point of a vaporizer is to heat material just below the point of…",
     choices: ["Evaporation", "Combustion", "Condensation", "Sublimation"],
     answer: 1,
@@ -513,6 +517,7 @@ window.GPEN_EGGS = [
   },
   {
     id: "egg-terpenes", on: "course:melt-hot-knife",
+    emoji: "👃", hint: "Take a whiff",
     q: "Which compounds give each strain its distinct smell and flavor?",
     choices: ["Flavonoids", "Chlorophyll", "Terpenes", "Cannabinoids"],
     answer: 2,
@@ -520,6 +525,7 @@ window.GPEN_EGGS = [
   },
   {
     id: "egg-cbd", on: "course:hydout",
+    emoji: "🌱", hint: "Grow your knowledge",
     q: "Which well-known cannabinoid is non-intoxicating?",
     choices: ["THC", "CBD", "THCa converted with heat", "Delta-8"],
     answer: 1,
@@ -527,6 +533,7 @@ window.GPEN_EGGS = [
   },
   {
     id: "egg-entourage", on: "course:510-original",
+    emoji: "🤝", hint: "Better together",
     q: "What's the term for cannabinoids and terpenes working better together than alone?",
     choices: ["The entourage effect", "The halo effect", "Synergy bloom", "The full-spectrum rule"],
     answer: 0,

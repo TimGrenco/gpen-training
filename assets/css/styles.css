@@ -583,24 +583,31 @@ h1, h2, h3, h4 { margin: 0; line-height: 1.08; letter-spacing: -.02em; }
 /* =============================== EASTER EGGS ========================== */
 .egg-row { display: flex; align-items: center; justify-content: center; gap: 11px; margin: 26px 0 8px; }
 .egg {
-  width: 54px; height: 54px; flex: none; border-radius: 50%; cursor: pointer;
-  border: 2px solid var(--gold-bright); color: var(--gold-bright);
-  background: radial-gradient(circle at 32% 30%, #2a2110, #0e0e0e);
-  display: grid; place-items: center; transition: transform .16s ease;
+  position: relative; width: 56px; height: 56px; flex: none; border-radius: 50%; cursor: pointer;
+  border: 2px solid var(--gold-bright);
+  background: radial-gradient(circle at 32% 28%, #fff8e8, #ffe9bd);
+  display: grid; place-items: center; transition: transform .16s ease, box-shadow .2s;
   animation: egg-pulse 2.6s ease-out infinite;
 }
-.egg:hover { transform: scale(1.09); }
-.egg:active { transform: scale(.96); }
-.egg svg { width: 24px; height: 24px; }
-.egg.found { border-color: var(--ok); background: var(--ok); color: #fff; animation: none; box-shadow: var(--shadow); }
+.egg:hover { transform: scale(1.1) rotate(-4deg); }
+.egg:active { transform: scale(.95); }
+.egg-emoji { font-size: 27px; line-height: 1; display: block; animation: egg-bob 2.3s ease-in-out infinite; }
+.egg:hover .egg-emoji { animation-play-state: paused; }
+.egg-chk { display: none; position: absolute; bottom: -3px; right: -3px; width: 21px; height: 21px; background: var(--ok); color: #fff; border-radius: 50%; place-items: center; border: 2px solid #fff; }
+.egg-chk svg { width: 11px; height: 11px; }
+.egg.found { border-color: var(--ok); background: linear-gradient(160deg, #fff, #eef7ef); animation: none; box-shadow: var(--shadow); }
+.egg.found .egg-emoji { animation: none; opacity: .55; }
+.egg.found .egg-chk { display: grid; }
 .egg-hint { font-size: 12px; font-weight: 800; text-transform: uppercase; letter-spacing: .09em; color: var(--gold); }
 .egg.found + .egg-hint { color: var(--ok); }
+.egg-eyebrow-em { font-size: 16px; line-height: 1; }
+@keyframes egg-bob { 0%, 100% { transform: translateY(0) rotate(-5deg); } 50% { transform: translateY(-4px) rotate(5deg); } }
 @keyframes egg-pulse {
   0%   { box-shadow: 0 0 0 0 rgba(254,200,112,.55); }
   70%  { box-shadow: 0 0 0 18px rgba(254,200,112,0); }
   100% { box-shadow: 0 0 0 0 rgba(254,200,112,0); }
 }
-@media (prefers-reduced-motion: reduce) { .egg { animation: none; } }
+@media (prefers-reduced-motion: reduce) { .egg, .egg-emoji { animation: none; } }
 
 .modal-in.egg-card { max-width: 520px; background: #fff; border-radius: 20px; padding: 30px 24px 26px; box-shadow: var(--shadow-lg); }
 .egg-modal .modal-x { top: 12px; right: 12px; width: 36px; height: 36px; background: rgba(17,17,17,.08); color: var(--ink); }

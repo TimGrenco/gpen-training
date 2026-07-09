@@ -63,12 +63,14 @@
   function eggHTML(pageKey) {
     var egg = eggFor(pageKey); if (!egg) return "";
     var solved = eggSolved(egg.id);
+    var emoji = egg.emoji || "✨";
     return '<div class="egg-row">' +
       '<button class="egg' + (solved ? " found" : "") + '" data-egg="' + esc(egg.id) + '" ' +
-        'aria-label="' + (solved ? "Trivia solved" : "Hidden trivia") + '" title="' + (solved ? "Solved!" : "Psst… hidden trivia") + '">' +
-        '<span class="egg-ic">' + ic(solved ? "check" : "spark") + "</span>" +
+        'aria-label="' + (solved ? "Trivia solved" : "Hidden trivia") + '" title="' + (solved ? "Solved!" : "Hidden trivia — tap me") + '">' +
+        '<span class="egg-emoji">' + emoji + "</span>" +
+        '<span class="egg-chk">' + ic("check") + "</span>" +
       "</button>" +
-      '<span class="egg-hint">' + (solved ? "Secret found" : "Psst… tap me") + "</span>" +
+      '<span class="egg-hint">' + (solved ? "Secret found" : esc(egg.hint || "Psst… tap me")) + "</span>" +
     "</div>";
   }
   function bindEggs() {
@@ -84,7 +86,7 @@
     var m = document.createElement("div"); m.className = "modal egg-modal";
     m.innerHTML = '<div class="modal-in egg-card">' +
       '<button class="modal-x" aria-label="Close">×</button>' +
-      '<div class="egg-eyebrow">' + ic("spark") + " Hidden trivia · " + eggsSolvedCount() + " of " + EGGS.length + " found</div>" +
+      '<div class="egg-eyebrow"><span class="egg-eyebrow-em">' + (egg.emoji || "✨") + "</span> Hidden trivia · " + eggsSolvedCount() + " of " + EGGS.length + " found</div>" +
       '<h3 class="egg-q">' + esc(egg.q) + "</h3>" +
       (solved
         ? '<div class="egg-fact ok"><strong>' + ic("check") + " You already nailed this one.</strong> " + esc(egg.fact) + "</div>"
@@ -131,7 +133,6 @@
       b.classList.add("found");
       var h = b.parentElement && b.parentElement.querySelector(".egg-hint");
       if (h) h.textContent = "Secret found";
-      var icn = b.querySelector(".egg-ic"); if (icn) icn.innerHTML = IC.check;
     });
     maybeReportSecret();
   }
