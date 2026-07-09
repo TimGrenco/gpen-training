@@ -580,6 +580,47 @@ h1, h2, h3, h4 { margin: 0; line-height: 1.08; letter-spacing: -.02em; }
 @keyframes cert-reveal { from { opacity: 0; transform: translateY(18px) scale(.96); } to { opacity: 1; transform: none; } }
 @media (prefers-reduced-motion: reduce) { .cert, .quiz-streak, .streak-pop { animation: none; } }
 
+/* =============================== EASTER EGGS ========================== */
+.egg-row { display: flex; align-items: center; justify-content: center; gap: 11px; margin: 26px 0 8px; }
+.egg {
+  width: 54px; height: 54px; flex: none; border-radius: 50%; cursor: pointer;
+  border: 2px solid var(--gold-bright); color: var(--gold-bright);
+  background: radial-gradient(circle at 32% 30%, #2a2110, #0e0e0e);
+  display: grid; place-items: center; transition: transform .16s ease;
+  animation: egg-pulse 2.6s ease-out infinite;
+}
+.egg:hover { transform: scale(1.09); }
+.egg:active { transform: scale(.96); }
+.egg svg { width: 24px; height: 24px; }
+.egg.found { border-color: var(--ok); background: var(--ok); color: #fff; animation: none; box-shadow: var(--shadow); }
+.egg-hint { font-size: 12px; font-weight: 800; text-transform: uppercase; letter-spacing: .09em; color: var(--gold); }
+.egg.found + .egg-hint { color: var(--ok); }
+@keyframes egg-pulse {
+  0%   { box-shadow: 0 0 0 0 rgba(254,200,112,.55); }
+  70%  { box-shadow: 0 0 0 18px rgba(254,200,112,0); }
+  100% { box-shadow: 0 0 0 0 rgba(254,200,112,0); }
+}
+@media (prefers-reduced-motion: reduce) { .egg { animation: none; } }
+
+.modal-in.egg-card { max-width: 520px; background: #fff; border-radius: 20px; padding: 30px 24px 26px; box-shadow: var(--shadow-lg); }
+.egg-modal .modal-x { top: 12px; right: 12px; width: 36px; height: 36px; background: rgba(17,17,17,.08); color: var(--ink); }
+.egg-eyebrow { display: inline-flex; align-items: center; gap: 6px; font-size: 11.5px; font-weight: 800; text-transform: uppercase; letter-spacing: .1em; color: var(--gold); }
+.egg-eyebrow svg { width: 15px; height: 15px; }
+.egg-q { font-size: clamp(19px, 4vw, 23px); font-weight: 900; letter-spacing: -.02em; margin: 10px 0 16px; }
+.egg-choices { display: grid; gap: 9px; }
+.egg-fact { margin-top: 15px; padding: 14px 16px; border-radius: 12px; font-size: 14.5px; background: var(--cream); color: var(--ink-2); line-height: 1.5; }
+.egg-fact.ok { background: #f0f7f1; }
+.egg-fact.no { background: #fbf0ee; }
+.egg-fact strong { display: inline-flex; align-items: center; gap: 5px; color: var(--ink); }
+.egg-fact svg { width: 15px; height: 15px; }
+
+.rw-card.secret.off { border-style: dashed; border-color: var(--gold); background: linear-gradient(160deg, #fff, #f8f3e6); }
+.rw-card.secret.off .rw-ic { background: rgba(254,200,112,.2); color: var(--gold); }
+.rw-card.secret.off .rw-status { color: var(--gold); }
+.rw-card.secret.off .rw-lock { background: rgba(254,200,112,.14); color: var(--gold); }
+.rw-card.secret.on { background: linear-gradient(160deg, #1d1608, #0e0e0e); }
+.rw-sub em { font-style: italic; }
+
 /* =============================== RESPONSIVE ============================= */
 @media (min-width: 680px) {
   .why-grid { grid-template-columns: repeat(2, 1fr); }
@@ -599,6 +640,7 @@ h1, h2, h3, h4 { margin: 0; line-height: 1.08; letter-spacing: -.02em; }
 @media (min-width: 1000px) {
   .why-grid { grid-template-columns: repeat(4, 1fr); }
   .course-grid { grid-template-columns: repeat(3, 1fr); }
+  .rewards { grid-template-columns: repeat(3, 1fr); }
 }
 @media (max-width: 520px) {
   .stat strong { font-size: 20px; }

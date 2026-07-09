@@ -39,6 +39,13 @@ window.TRAINING_CONFIG = {
       label: "35% off your entire order at gpen.com",
       note: "Your top specialist reward for completing every G Pen course — the biggest discount we offer through the program.",
     },
+    // The hidden reward: shown only when someone certifies on EVERY course AND
+    // finds + correctly answers every hidden trivia egg. 40% off.
+    secret: {
+      code: "CERTIFIEDG40",
+      label: "40% off — the secret Certified G reward",
+      note: "You certified on every product AND found every hidden trivia egg. This is the highest reward in the program — nice work.",
+    },
     // OPTIONAL: give a specific product its own course code. Keyed by course slug.
     // e.g. perCourse: { "dash-ii": { code: "DASH2PRO", label: "...", note: "..." } }
     perCourse: {},
@@ -68,6 +75,7 @@ window.TRAINING_CONFIG = {
    --------------------------------------------------------------------------- */
 window.issueRewardCode = function (type, ctx) {
   var d = window.TRAINING_CONFIG.discount;
+  if (type === "secret") return Object.assign({ type: "secret" }, d.secret);
   if (type === "master") return Object.assign({ type: "master" }, d.master);
   var perCourse = (ctx && ctx.courseSlug && d.perCourse[ctx.courseSlug]) || d.course;
   return Object.assign({ type: "course" }, perCourse);

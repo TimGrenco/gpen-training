@@ -12,6 +12,7 @@
   var $$ = function (s, c) { return Array.prototype.slice.call((c || document).querySelectorAll(s)); };
   var CFG = window.TRAINING_CONFIG;
   var COURSES = window.GPEN_COURSES || [];
+  var EGGS = window.GPEN_EGGS || [];
   var app = $("#app");
   var pendingCelebrate = false; // set when a new cert is earned → ring pulses on next home view
   var stickyHandler = null;     // scroll handler for the course "get certified" nudge
@@ -27,8 +28,11 @@
   function getEnroll() { try { return JSON.parse(localStorage.getItem(K_ENROLL) || "null"); } catch (e) { return null; } }
   function setEnroll(v) { try { localStorage.setItem(K_ENROLL, JSON.stringify(v)); } catch (e) {} }
   function getState() {
-    var d = { courses: {}, badges: [], streak: { count: 0, last: null }, master: null, log: [] };
-    try { return Object.assign(d, JSON.parse(localStorage.getItem(K_STATE) || "{}")); } catch (e) { return d; }
+    var d = { courses: {}, badges: [], streak: { count: 0, last: null }, master: null, eggs: {}, secret: null, log: [] };
+    var s;
+    try { s = Object.assign(d, JSON.parse(localStorage.getItem(K_STATE) || "{}")); } catch (e) { return d; }
+    if (!s.eggs) s.eggs = {};
+    return s;
   }
   function setState(s) { try { localStorage.setItem(K_STATE, JSON.stringify(s)); } catch (e) {} }
   function logEvent(type, data) {
@@ -48,6 +52,98 @@
   function completedCount() { var s = getState(); return COURSES.filter(function (c) { return s.courses[c.slug] && s.courses[c.slug].passed; }).length; }
   function isMasterEarned() { var s = getState(); return coreSlugs().every(function (sl) { return s.courses[sl] && s.courses[sl].passed; }); }
 
+  /* ---- hidden trivia easter eggs ----------------------------------------- */
+  function eggFor(pageKey) { return EGGS.filter(function (e) { return e.on === pageKey; })[0] || null; }
+  function eggSolved(id) { return !!getState().eggs[id]; }
+  function eggsSolvedCount() { var s = getState(); return EGGS.filter(function (e) { return s.eggs[e.id]; }).length; }
+  function allEggsSolved() { return EGGS.length > 0 && eggsSolvedCount() === EGGS.length; }
+  // The hidden 40% reward: every course certified (80%+ to pass) AND every egg found.
+  function isSecretUnlocked() { return isMasterEarned() && allEggsSolved(); }
+
+  function eggHTML(pageKey) {
+    var egg = eggFor(pageKey); if (!egg) return "";
+    var solved = eggSolved(egg.id);
+    return '<div class="egg-row">' +
+      '<button class="egg' + (solved ? " found" : "") + '" data-egg="' + esc(egg.id) + '" ' +
+        'aria-label="' + (solved ? "Trivia solved" : "Hidden trivia") + '" title="' + (solved ? "Solved!" : "Psst… hidden trivia") + '">' +
+        '<span class="egg-ic">' + ic(solved ? "check" : "spark") + "</span>" +
+      "</button>" +
+      '<span class="egg-hint">' + (solved ? "Secret found" : "Psst… tap me") + "</span>" +
+    "</div>";
+  }
+  function bindEggs() {
+    $$("[data-egg]").forEach(function (b) {
+      b.addEventListener("click", function () {
+        var egg = EGGS.filter(function (e) { return e.id === b.getAttribute("data-egg"); })[0];
+        if (egg) openEgg(egg);
+      });
+    });
+  }
+  function openEgg(egg) {
+    var solved = eggSolved(egg.id);
+    var m = document.createElement("div"); m.className = "modal egg-modal";
+    m.innerHTML = '<div class="modal-in egg-card">' +
+      '<button class="modal-x" aria-label="Close">×</button>' +
+      '<div class="egg-eyebrow">' + ic("spark") + " Hidden trivia · " + eggsSolvedCount() + " of " + EGGS.length + " found</div>" +
+      '<h3 class="egg-q">' + esc(egg.q) + "</h3>" +
+      (solved
+        ? '<div class="egg-fact ok"><strong>' + ic("check") + " You already nailed this one.</strong> " + esc(egg.fact) + "</div>"
+        : '<div class="egg-choices">' + egg.choices.map(function (ch, i) {
+            return '<button class="choice" data-ci="' + i + '"><span class="ch-key">' + String.fromCharCode(65 + i) + "</span><span>" + esc(ch) + "</span></button>";
+          }).join("") + "</div><div class=\"egg-fact\" hidden></div>") +
+    "</div>";
+    document.body.appendChild(m); document.body.classList.add("noscroll");
+    function close() { m.remove(); document.body.classList.remove("noscroll"); }
+    m.addEventListener("click", function (ev) { if (ev.target === m || ev.target.closest(".modal-x")) close(); });
+    document.addEventListener("keydown", function esc2(ev) { if (ev.key === "Escape") { close(); document.removeEventListener("keydown", esc2); } });
+    if (solved) return;
+
+    $$(".choice", m).forEach(function (b) {
+      b.addEventListener("click", function () {
+        var ci = parseInt(b.getAttribute("data-ci"), 10);
+        var right = ci === egg.answer;
+        var fact = $(".egg-fact", m);
+        if (!right) {
+          b.classList.add("wrong"); b.disabled = true;
+          fact.hidden = false; fact.className = "egg-fact no";
+          fact.innerHTML = "<strong>Not quite — try again.</strong>";
+          return;
+        }
+        $$(".choice", m).forEach(function (x, xi) { x.disabled = true; if (xi === egg.answer) x.classList.add("correct"); });
+        fact.hidden = false; fact.className = "egg-fact ok";
+        fact.innerHTML = "<strong>" + ic("check") + " Correct!</strong> " + esc(egg.fact);
+        solveEgg(egg.id);
+      });
+    });
+  }
+  function solveEgg(id) {
+    var s = getState();
+    if (s.eggs[id]) return;
+    s.eggs[id] = true; setState(s);
+    logEvent("egg", { egg: id });
+    confetti();
+    var found = eggsSolvedCount();
+    if (allEggsSolved() && !isMasterEarned()) toast("All " + EGGS.length + " secrets found! Certify on every course to unlock 40% off.");
+    else if (isSecretUnlocked()) toast("Secret 40% reward unlocked! 🎉");
+    else toast("Secret found — " + found + " of " + EGGS.length + " 🔎");
+    // reflect the found state on the page without a full re-render
+    $$('[data-egg="' + id + '"]').forEach(function (b) {
+      b.classList.add("found");
+      var h = b.parentElement && b.parentElement.querySelector(".egg-hint");
+      if (h) h.textContent = "Secret found";
+      var icn = b.querySelector(".egg-ic"); if (icn) icn.innerHTML = IC.check;
+    });
+    maybeReportSecret();
+  }
+  function maybeReportSecret() {
+    if (!isSecretUnlocked()) return;
+    var s = getState(); if (s.secret) return;
+    var e = getEnroll() || {};
+    s.secret = { at: new Date().toISOString() }; setState(s);
+    logEvent("secret", {});
+    if (window.reportCompletion) window.reportCompletion({ type: "secret", name: e.name, email: e.email, store: e.store, product: "Secret 40% reward", score: 100, certId: "", date: niceDate() });
+  }
+
   /* ---- icons (inline SVG) ------------------------------------------------ */
   var IC = {
     play: '<svg viewBox="0 0 24 24"><path d="M8 5v14l11-7z"/></svg>',
@@ -65,6 +161,7 @@
     refresh: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 12a9 9 0 11-3-6.7L21 8"/><path d="M21 3v5h-5"/></svg>',
     share: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="4" y="3" width="16" height="18" rx="3"/><circle cx="12" cy="10" r="3"/><path d="M8.5 20a3.5 3.5 0 017 0"/></svg>',
     star: '<svg viewBox="0 0 24 24" fill="currentColor"><path d="M12 2l2.9 6.3 6.9.8-5.1 4.7 1.4 6.8L12 17.8 5.9 21.4l1.4-6.8L2.2 9.9l6.9-.8z"/></svg>',
+    spark: '<svg viewBox="0 0 24 24" fill="currentColor"><path d="M12 2l1.9 5.4L19 9l-5.1 1.6L12 16l-1.9-5.4L5 9l5.1-1.6z"/><path d="M18.5 14l.9 2.4 2.6.8-2.6.8-.9 2.4-.9-2.4-2.6-.8 2.6-.8z"/><path d="M5 15l.7 1.9 2 .6-2 .6L5 20l-.7-1.9-2-.6 2-.6z"/></svg>',
   };
   function ic(n) { return '<span class="ic">' + (IC[n] || "") + "</span>"; }
 
@@ -155,6 +252,7 @@
         '<div class="sec-h" id="courses"><h2>Product courses</h2><span>' + (hasProgress ? done + " of " + total + " certified" : "Tap a product — no sign-up needed") + "</span></div>" +
         '<div class="course-grid">' + COURSES.map(courseCard).join("") + "</div>" +
         rewardsSection(done, master) +
+        eggHTML("home") +
         (hasProgress ? '<button class="linklike reset" id="reset">Reset my progress</button>' : "") +
       "</section>" +
       lifestyleBand(true) +
@@ -236,27 +334,35 @@
       setTimeout(setFinal, 1200);
     });
   }
-  // The two-tier discount reward, shown as an "earn it" tracker on the dashboard.
+  // The three-tier discount reward, shown as an "earn it" tracker on the home hub.
   function rewardsSection(done, master) {
     var core = coreSlugs().length, left = core - done;
     var c25 = done >= 1, c35 = master;
-    var head = c35 ? "Top reward unlocked 🎉" : (c25 ? "25% off unlocked — keep going!" : "Pass one course to start earning");
+    var secret = isSecretUnlocked();
+    var eggsLeft = EGGS.length - eggsSolvedCount();
+    var head = secret ? "Secret 40% reward unlocked 🎉"
+      : (c35 ? "Top reward unlocked 🎉" : (c25 ? "25% off unlocked — keep going!" : "Pass one course to start earning"));
+    var secretLock = eggsLeft > 0
+      ? eggsLeft + " hidden secret" + (eggsLeft === 1 ? "" : "s") + " still out there…"
+      : "All secrets found — certify on all " + core + " courses";
     return '<div class="sec-h"><h2>Your rewards</h2><span>' + head + "</span></div>" +
       '<div class="rewards">' +
         rewardCard("course", c25, "25% OFF", "gpen.com — for completing any course", "Complete any 1 course to unlock") +
         rewardCard("master", c35, "35% OFF", "gpen.com — for completing all " + core + " courses", left + " more course" + (left === 1 ? "" : "s") + " to unlock") +
+        (EGGS.length ? rewardCard("secret", secret, "40% OFF", "The secret reward — certify on all " + core + " <em>and</em> find every hidden trivia egg", secretLock) : "") +
       "</div>";
   }
   function rewardCard(type, unlocked, big, sub, lockMsg) {
-    return '<div class="rw-card ' + (unlocked ? "on" : "off") + '">' +
-      '<div class="rw-top"><span class="rw-ic">' + ic(unlocked ? "tag" : "lock") + '</span><span class="rw-status">' + (unlocked ? "Unlocked" : "Locked") + "</span></div>" +
+    var isSecret = type === "secret";
+    return '<div class="rw-card ' + (unlocked ? "on" : "off") + (isSecret ? " secret" : "") + '">' +
+      '<div class="rw-top"><span class="rw-ic">' + ic(unlocked ? (isSecret ? "spark" : "tag") : "lock") + '</span><span class="rw-status">' + (unlocked ? "Unlocked" : (isSecret ? "Secret" : "Locked")) + "</span></div>" +
       '<div class="rw-big">' + big + "</div>" +
       '<div class="rw-sub">' + sub + "</div>" +
       (unlocked
         ? '<button class="rw-code" data-rwcode="' + type + '"><span class="rw-code-v">••••••</span><em>' + ic("tag") + " Tap to copy</em></button>" +
           '<a class="rw-shop" href="' + esc(CFG.shopUrl) + '" target="_blank" rel="noopener">Shop gpen.com ' + ic("arrow") + "</a>" +
           (type === "master" ? '<a class="rw-cert" href="#/certified">View master certificate →</a>' : "")
-        : '<div class="rw-lock">' + ic("lock") + " " + lockMsg + "</div>") +
+        : '<div class="rw-lock">' + ic(isSecret ? "spark" : "lock") + " " + lockMsg + "</div>") +
     "</div>";
   }
   function copyCode(code) {
@@ -346,6 +452,7 @@
         (c.faq && c.faq.length ? secHead(++n, "FAQ") + faqHTML(c.faq) : "") +
 
         (c.sell && c.sell.length ? '<div class="sell"><h3>' + ic("tag") + " How to sell it</h3><ul>" + c.sell.map(function (x) { return "<li>" + esc(x) + "</li>"; }).join("") + "</ul></div>" : "") +
+        eggHTML("course:" + c.slug) +
 
         secHead(++n, "Get certified") +
         '<div id="quiz-zone"></div>' +
@@ -556,6 +663,7 @@
       pendingCelebrate = true; // ring pulses + confetti next time they hit home
       if (window.reportCompletion) window.reportCompletion({ type: "course", name: e.name, email: e.email, store: e.store, product: "G Pen " + c.name, courseSlug: c.slug, score: pct, certId: cid, date: date });
     }
+    maybeReportSecret(); // finishing the last course can complete the secret too
     var streak = touchStreak();
     logEvent("certified", { course: c.slug, certId: cid, score: pct });
     confetti();
@@ -842,6 +950,7 @@
               '<span class="soc-handle">' + esc(sc.handle) + " " + ic("arrow") + "</span>" +
             "</a>";
           }).join("") + "</div></div>" : "") +
+        eggHTML("about") +
         '<div class="about-close">' + ic("tag") + "<p>" + esc(a.closing || "") + "</p></div>" +
         '<a class="btn xl center-btn" href="#/">' + (e ? "Back to my courses" : "Browse courses") + " " + ic("arrow") + "</a>" +
       "</section>" + footer();
@@ -881,6 +990,7 @@
     // Safety net: guarantee every view's reveal animation is initialized (and
     // its visibility failsafe armed) even if a render function forgets to call it.
     revealOnScroll();
+    bindEggs();
   }
   function boot() {
     app = $("#app"); // re-resolve in case the script loaded before #app parsed

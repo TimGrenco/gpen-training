@@ -468,6 +468,73 @@ window.GPEN_COURSES = [
 ];
 
 /* =============================================================================
+   HIDDEN TRIVIA EASTER EGGS
+   -----------------------------------------------------------------------------
+   One hidden trivia orb per page. Find + answer them ALL correctly, and certify
+   on every course (80%+), to unlock the secret 40% reward code.
+
+   `on` tells the app which page the orb hides on:
+     "home" | "about" | "course:<course-slug>"
+   Add/remove eggs freely — the "find them all" count updates automatically.
+   ========================================================================== */
+window.GPEN_EGGS = [
+  {
+    id: "egg-420", on: "home",
+    q: "Where does “420” actually come from?",
+    choices: [
+      "A police radio code for cannabis",
+      "A group of ’70s California high schoolers who met at 4:20 p.m.",
+      "The number of compounds in cannabis",
+      "The date of the first legalization vote",
+    ],
+    answer: 1,
+    fact: "In 1971, a group of San Rafael High students called “the Waldos” met at 4:20 p.m. to hunt for a rumored hidden crop. The time became their code word — and eventually the whole culture's.",
+  },
+  {
+    id: "egg-snoop", on: "about",
+    q: "Which legend teamed up with G Pen for the original “Double G” series?",
+    choices: ["Wiz Khalifa", "B-Real", "Snoop Dogg", "Berner"],
+    answer: 2,
+    fact: "Snoop Dogg announced his official partnership with Grenco Science in 2013 — the “Double G” series put G Pen on the map.",
+  },
+  {
+    id: "egg-trichomes", on: "course:dash-ii",
+    q: "What are the frosty, crystal-like resin glands on cannabis flower called?",
+    choices: ["Pistils", "Trichomes", "Stamens", "Nodes"],
+    answer: 1,
+    fact: "Trichomes are the tiny resin glands that hold most of the cannabinoids and terpenes — that “frost” is where the good stuff lives.",
+  },
+  {
+    id: "egg-combustion", on: "course:dash-plus",
+    q: "The whole point of a vaporizer is to heat material just below the point of…",
+    choices: ["Evaporation", "Combustion", "Condensation", "Sublimation"],
+    answer: 1,
+    fact: "Vaporizers heat material hot enough to release vapor but below combustion (~450°F/232°C), so you get vapor instead of smoke.",
+  },
+  {
+    id: "egg-terpenes", on: "course:melt-hot-knife",
+    q: "Which compounds give each strain its distinct smell and flavor?",
+    choices: ["Flavonoids", "Chlorophyll", "Terpenes", "Cannabinoids"],
+    answer: 2,
+    fact: "Terpenes are the aromatic oils behind citrus, pine, and diesel notes. They're also delicate — which is exactly why lower-temp vaping preserves flavor.",
+  },
+  {
+    id: "egg-cbd", on: "course:hydout",
+    q: "Which well-known cannabinoid is non-intoxicating?",
+    choices: ["THC", "CBD", "THCa converted with heat", "Delta-8"],
+    answer: 1,
+    fact: "CBD won't get you high — it's the non-intoxicating cannabinoid most associated with wellness use.",
+  },
+  {
+    id: "egg-entourage", on: "course:510-original",
+    q: "What's the term for cannabinoids and terpenes working better together than alone?",
+    choices: ["The entourage effect", "The halo effect", "Synergy bloom", "The full-spectrum rule"],
+    answer: 0,
+    fact: "The “entourage effect” is the theory that the full mix of cannabinoids and terpenes produces a richer experience than any isolated compound.",
+  },
+];
+
+/* =============================================================================
    ABOUT G PEN — brand story shown on the "#/about" page. Edit freely.
    ========================================================================== */
 window.GPEN_ABOUT = {

@@ -7,7 +7,7 @@ certificate the site sends:
 
 ```json
 {
-  "type": "course",              // or "master" (finished all 5)
+  "type": "course",              // "course" | "master" (all 5) | "secret" (all 5 + every hidden trivia egg)
   "name": "Jane Budtender",
   "email": "jane@store.com",
   "store": "Cloud 9 Smoke Shop",
