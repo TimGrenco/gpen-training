@@ -129,28 +129,27 @@
         "</div>"
       : "";
 
+    var heroBg = (window.GPEN_LIFESTYLE || [])[2] || "";
+
     app.innerHTML = header() +
       '<section class="hero">' +
+        (heroBg ? '<div class="hero-bg" style="background-image:url(\'' + esc(heroBg) + '\')"></div>' : "") +
         '<div class="hero-inner reveal">' +
           '<div class="hero-eyebrow">' + ic("cap") + " " + esc(CFG.programName) + "</div>" +
           "<h1>Become a <span class=\"gold\">Certified G</span>.</h1>" +
-          "<p class=\"hero-sub\">Explore any product course free — watch the how-to videos, learn the specs, and get the talking points. Want the badge? Pass a quick quiz to get certified and unlock <strong>25% off</strong> gpen.com — or go full <strong>Certified G</strong> for <strong>35% off</strong>.</p>" +
+          "<p class=\"hero-sub\">Explore any product course — watch the how-to videos, learn the specs, get the talking points. Want the badge? Pass a quick quiz to unlock <strong>25% off</strong> gpen.com, or go full <strong>Certified G</strong> for <strong>35% off</strong>.</p>" +
           '<div class="hero-cta">' +
             '<button class="btn xl" id="browse-btn">Browse courses ' + ic("arrow") + "</button>" +
             '<a class="btn xl ghost-dark" href="#/about">About G Pen</a>' +
           "</div>" +
-          '<span class="hero-note">' + total + " courses · no sign-up to explore · ~8 min each</span>" +
         "</div>" +
-        '<div class="hero-badges reveal">' + COURSES.slice(0, 5).map(function (c, i) {
-          return '<button class="hero-chip" data-goto="' + c.slug + '" style="--i:' + i + '"><img src="' + esc(c.cover) + '" alt="' + esc(c.name) + '"/><span>' + esc(c.name) + "</span></button>";
-        }).join("") + "</div>" +
       "</section>" +
       lifestyleBand() +
       '<section class="hub reveal">' +
         progressBlock +
-        rewardsSection(done, master) +
-        '<div class="sec-h" id="courses"><h2>Product courses</h2><span>' + (hasProgress ? done + " of " + total + " certified" : "Tap a product to start — no sign-up needed") + "</span></div>" +
+        '<div class="sec-h" id="courses"><h2>Product courses</h2><span>' + (hasProgress ? done + " of " + total + " certified" : "Tap a product — no sign-up needed") + "</span></div>" +
         '<div class="course-grid">' + COURSES.map(courseCard).join("") + "</div>" +
+        rewardsSection(done, master) +
         (hasProgress ? '<button class="linklike reset" id="reset">Reset my progress</button>' : "") +
       "</section>" +
       lifestyleBand(true) +
