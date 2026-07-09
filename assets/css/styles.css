@@ -59,11 +59,11 @@ h1, h2, h3, h4 { margin: 0; line-height: 1.08; letter-spacing: -.02em; }
   gap: 12px; padding: 12px clamp(16px, 4vw, 40px); background: rgba(250,249,245,.86);
   backdrop-filter: saturate(1.4) blur(10px); border-bottom: 1px solid var(--line);
 }
-.hdr-brand { display: flex; align-items: center; gap: 9px; font-weight: 900; letter-spacing: -.02em; }
-.hdr-logo { width: 26px; height: 26px; object-fit: contain; }
+.hdr-brand { display: flex; align-items: center; gap: 10px; font-weight: 900; letter-spacing: -.01em; }
+.hdr-logo { width: 32px; height: 32px; object-fit: contain; }
 .hdr-logo.dark { display: none; }
-.hdr-name { font-size: 15px; text-transform: uppercase; letter-spacing: .04em; }
-.hdr-name::before { content: "· "; color: var(--gold); }
+.hdr-name { font-size: clamp(16px, 4.4vw, 20px); font-weight: 900; text-transform: uppercase; letter-spacing: .03em; line-height: 1; }
+.hdr-name em { color: var(--gold); font-style: normal; }
 .hdr-user { display: flex; flex-direction: column; align-items: flex-end; line-height: 1.15; }
 .hdr-u-name { font-weight: 800; font-size: 14px; }
 .hdr-u-store { font-size: 11.5px; color: var(--stone); }

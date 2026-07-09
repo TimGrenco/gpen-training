@@ -98,7 +98,7 @@
       '<a class="hdr-brand" href="#/">' +
         '<img src="assets/img/gpen-g-black.png" class="hdr-logo light" alt="G Pen"/>' +
         '<img src="assets/img/gpen-g-white.png" class="hdr-logo dark" alt="G Pen"/>' +
-        '<span class="hdr-name">University</span>' +
+        '<span class="hdr-name">G Pen <em>University</em></span>' +
       "</a>" +
       (e ? '<a class="hdr-user" href="#/"><span class="hdr-u-name">' + esc(e.name) + '</span><span class="hdr-u-store">' + esc(e.store || "") + "</span></a>"
          : '<a class="hdr-cta" href="#/">Browse courses</a>') +
