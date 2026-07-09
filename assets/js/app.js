@@ -333,7 +333,7 @@
 
   /* The card-pull moment. Used when you certify (product card) and when you
      solve a trivia egg (trainer card). The card flips in out of a foil pack. */
-  function showPull(kicker, cardHTML, footNote) {
+  function showPull(kicker, cardHTML, footNote, saveSlug) {
     var m = document.createElement("div");
     m.className = "modal pull-modal";
     m.innerHTML = '<div class="pull-in">' +
@@ -341,10 +341,15 @@
       '<div class="pull-kicker">' + ic("spark") + " " + esc(kicker) + "</div>" +
       '<div class="pull-card">' + cardHTML + "</div>" +
       (footNote ? '<div class="pull-note">' + footNote + "</div>" : "") +
-      '<button class="btn xl pull-ok">Add to binder ' + ic("arrow") + "</button>" +
+      '<div class="pull-actions">' +
+        (saveSlug ? '<button class="btn xl ghost-dark pull-save">' + ic("dl") + " Save card</button>" : "") +
+        '<button class="btn xl pull-ok">Add to binder ' + ic("arrow") + "</button>" +
+      "</div>" +
     "</div>";
     document.body.appendChild(m); document.body.classList.add("noscroll");
     function close() { m.remove(); document.body.classList.remove("noscroll"); }
+    var save = $(".pull-save", m);
+    if (save) save.addEventListener("click", function (ev) { ev.stopPropagation(); saveCardImage(saveSlug); });
     m.addEventListener("click", function (ev) {
       if (ev.target === m || ev.target.closest(".modal-x") || ev.target.closest(".pull-ok")) close();
     });
@@ -1011,7 +1016,7 @@
         : "<b>" + left + "</b> more card" + (left === 1 ? "" : "s") + " to complete the " + esc(SET.name) + ".";
       if (pct === 100) note = "<b>★ Perfect score.</b> " + note;
       // let the pass banner paint before the pack opens
-      setTimeout(function () { showPull("You pulled a card!", tcgCard(c), note); }, 550);
+      setTimeout(function () { showPull("You pulled a card!", tcgCard(c), note, c.slug); }, 550);
     } else {
       confetti();
     }
@@ -1202,6 +1207,202 @@
     } catch (e) { toast("Image export was blocked"); }
   }
 
+  /* =========================================================================
+     SAVE A CARD AS AN IMAGE
+     Renders the trading card to a 1080x1500 canvas so it can be posted. The
+     product photos come from the Shopify CDN, which is CORS-clean, so the
+     canvas stays untainted and toBlob() works.
+     ====================================================================== */
+  function cardImageSpec(slug) {
+    if (slug === "secret") {
+      var st = secretCardState(); if (st === "locked") return null;
+      var sc = SECRET_CARD, en = getEnroll();
+      return {
+        gold: true, name: sc.name, stage: (st === "gold" ? "Gold Foil" : "Holo") + " · " + sc.code,
+        power: sc.power, powerUnit: "", el: ELEMENTS.gold,
+        typeLeft: en ? en.name : "Product Specialist", typeRight: st === "gold" ? "40% OFF" : "35% OFF",
+        moves: sc.moves, stats: [{ k: "Base Set", v: baseSetOwned() + "/" + COURSES.length }, { k: "Trainers", v: trainersOwned() + "/" + TRAINERS.length }, { k: "Rank", v: "Certified G" }],
+        flavor: sc.flavor, no: sc.no, rarity: "secret", img: "assets/img/gpen-g-white.png", tint: "#c8952f", accent: "#FEC870",
+      };
+    }
+    var c = courseBySlug(slug), cd = CARDS[slug];
+    if (!c || !cd || !cardOwned(slug)) return null;
+    var el = ELEMENTS[cd.element] || {};
+    return {
+      gold: false, name: c.name, stage: "Basic · " + cd.code, power: cd.power, powerUnit: cd.powerUnit, el: el,
+      typeLeft: c.category, typeRight: c.msrp, moves: cd.moves, stats: cd.statsRow, flavor: c.tagline,
+      no: cd.no, rarity: cd.rarity, img: c.cover, tint: el.tint || "#888", accent: c.accent,
+      score: cardScore(slug),
+    };
+  }
+  function saveCardImage(slug) {
+    var spec = cardImageSpec(slug);
+    if (!spec) return toast("Collect that card first.");
+    toast("Building your card…");
+    var img = new Image(); img.crossOrigin = "anonymous";
+    var done = false, go2 = function (i) { if (done) return; done = true; paintCard(spec, i); };
+    img.onload = function () { go2(img); };
+    img.onerror = function () { go2(null); };
+    img.src = spec.img;
+    setTimeout(function () { go2(img.complete && img.naturalWidth ? img : null); }, 2600);
+  }
+  function paintCard(sp, art) {
+    var W = 1080, H = 1440, cv = document.createElement("canvas"); cv.width = W; cv.height = H;
+    var x = cv.getContext("2d");
+    var GOLD = "#FEC870", GOLD2 = "#C8952F", INK = "#111", STONE = "#6e6e66", PAPER = "#ffffff";
+    var dark = sp.gold;
+    function ls(v) { try { x.letterSpacing = v; } catch (e) {} }
+
+    // foil border
+    var fg = x.createLinearGradient(0, 0, W, H);
+    if (dark) { fg.addColorStop(0, "#8a6b28"); fg.addColorStop(.25, "#f7e2a4"); fg.addColorStop(.5, "#c8952f"); fg.addColorStop(.75, "#fff3cf"); fg.addColorStop(1, "#8a6b28"); }
+    else { fg.addColorStop(0, "#f2c75a"); fg.addColorStop(.3, "#d9a63c"); fg.addColorStop(.55, "#f7e2a4"); fg.addColorStop(.8, "#c8952f"); fg.addColorStop(1, "#f2c75a"); }
+    x.fillStyle = fg; roundRectPath(x, 0, 0, W, H, 46); x.fill();
+
+    // card face
+    var P = 30, IX = P, IY = P, IW = W - P * 2, IH = H - P * 2;
+    if (dark) { var dg = x.createLinearGradient(0, IY, 0, IY + IH); dg.addColorStop(0, "#2a2110"); dg.addColorStop(1, "#15100a"); x.fillStyle = dg; }
+    else x.fillStyle = PAPER;
+    roundRectPath(x, IX, IY, IW, IH, 26); x.fill();
+
+    var L = IX + 34, R = IX + IW - 34, y = IY + 62;
+    var fgTxt = dark ? "#f6ecd4" : INK, subTxt = dark ? "#b39a63" : STONE;
+
+    // header
+    x.textAlign = "left"; x.textBaseline = "alphabetic";
+    ls("3px"); x.font = '800 20px Archivo, sans-serif'; x.fillStyle = subTxt;
+    x.fillText(sp.stage.toUpperCase(), L, y); ls("0px");
+    y += 58;
+    x.font = '900 62px Archivo, sans-serif'; x.fillStyle = fgTxt;
+    x.fillText(sp.name, L, y);
+    x.textAlign = "right";
+    var elTxt = sp.el && sp.el.emoji ? sp.el.emoji : "";
+    x.font = '900 44px Archivo, sans-serif';
+    var pw = x.measureText(sp.power).width;
+    x.font = '400 40px "Apple Color Emoji", "Segoe UI Emoji", sans-serif';
+    x.fillText(elTxt, R, y);
+    var emW = x.measureText(elTxt).width + 14;
+    x.font = '900 44px Archivo, sans-serif'; x.fillStyle = fgTxt;
+    x.fillText(sp.power, R - emW, y);
+    if (sp.powerUnit) {
+      x.font = '800 22px Archivo, sans-serif'; x.fillStyle = subTxt;
+      x.fillText(sp.powerUnit, R - emW - pw - 10, y);
+    }
+    x.textAlign = "left"; // header drew right-aligned; everything below is left-aligned
+    y += 30;
+
+    // art window
+    var AW = R - L, AH = 545;
+    var ag = x.createLinearGradient(L, y, R, y + AH);
+    if (dark) { ag.addColorStop(0, "#4a3a17"); ag.addColorStop(1, "#14100a"); }
+    else { ag.addColorStop(0, mix(sp.tint, "#ffffff", .84)); ag.addColorStop(1, mix(sp.accent, "#ffffff", .74)); }
+    x.save(); roundRectPath(x, L, y, AW, AH, 14); x.clip();
+    x.fillStyle = ag; x.fillRect(L, y, AW, AH);
+    if (art) {
+      var pad = dark ? 96 : 34;
+      var maxW = AW - pad * 2, maxH = AH - pad * 2;
+      var sc = Math.min(maxW / art.naturalWidth, maxH / art.naturalHeight);
+      var dw = art.naturalWidth * sc, dh = art.naturalHeight * sc;
+      x.drawImage(art, L + (AW - dw) / 2, y + (AH - dh) / 2, dw, dh);
+    }
+    x.restore();
+    x.strokeStyle = dark ? "rgba(200,149,47,.5)" : "rgba(0,0,0,.12)"; x.lineWidth = 6;
+    roundRectPath(x, L, y, AW, AH, 14); x.stroke();
+    // certified stamp
+    if (sp.score) {
+      x.fillStyle = INK; roundRectPath(x, L + 20, y + 20, 268, 54, 27); x.fill();
+      x.fillStyle = GOLD; x.font = '900 22px Archivo, sans-serif'; x.textAlign = "center"; ls("2px");
+      x.fillText("CERTIFIED " + sp.score + "%", L + 154, y + 55); ls("0px");
+      if (sp.score === 100) {
+        var pg = x.createLinearGradient(R - 240, 0, R - 20, 0); pg.addColorStop(0, "#f7e2a4"); pg.addColorStop(1, "#c8952f");
+        x.fillStyle = pg; roundRectPath(x, R - 216, y + 20, 196, 54, 27); x.fill();
+        x.fillStyle = "#3a2a05"; x.font = '900 22px Archivo, sans-serif'; ls("2px");
+        x.fillText("★ PERFECT", R - 118, y + 55); ls("0px");
+      }
+      x.textAlign = "left";
+    }
+    y += AH + 28;
+
+    // type bar
+    x.fillStyle = dark ? "rgba(200,149,47,.16)" : mix(sp.tint, "#faf9f5", .88);
+    roundRectPath(x, L, y, AW, 62, 8); x.fill();
+    x.fillStyle = sp.tint; x.fillRect(L, y + 4, 8, 54);
+    x.font = '800 24px Archivo, sans-serif'; x.fillStyle = dark ? GOLD : INK; ls("1px");
+    x.fillText(sp.typeLeft.toUpperCase(), L + 26, y + 41); ls("0px");
+    x.textAlign = "right"; x.font = '900 28px Archivo, sans-serif';
+    x.fillText(sp.typeRight, R - 22, y + 42); x.textAlign = "left";
+    y += 62 + 34;
+
+    // moves
+    (sp.moves || []).forEach(function (m) {
+      var dots = "";
+      for (var i = 0; i < (m.cost || 1); i++) dots += (sp.el && sp.el.emoji ? sp.el.emoji : "●");
+      x.font = '400 26px "Apple Color Emoji", "Segoe UI Emoji", sans-serif';
+      x.fillText(dots, L, y + 4);
+      var tx = L + 30 + (m.cost || 1) * 30;
+      x.font = '900 32px Archivo, sans-serif'; x.fillStyle = fgTxt;
+      x.fillText(m.name, tx, y + 4);
+      if (m.dmg) { x.textAlign = "right"; x.font = '900 32px Archivo, sans-serif'; x.fillText(m.dmg, R, y + 4); x.textAlign = "left"; }
+      y += 34;
+      x.font = '400 23px Archivo, sans-serif'; x.fillStyle = subTxt;
+      y = wrapLeft(x, m.text, tx, y + 6, R - tx - 90, 31) + 40;
+    });
+
+    // stats strip
+    x.strokeStyle = dark ? "rgba(200,149,47,.3)" : "rgba(0,0,0,.1)"; x.lineWidth = 2;
+    x.beginPath(); x.moveTo(L, y); x.lineTo(R, y); x.stroke();
+    var cw = AW / (sp.stats.length || 1);
+    x.textAlign = "center";
+    (sp.stats || []).forEach(function (st, i) {
+      var cxp = L + cw * i + cw / 2;
+      ls("2px"); x.font = '800 19px Archivo, sans-serif'; x.fillStyle = subTxt;
+      x.fillText(st.k.toUpperCase(), cxp, y + 34); ls("0px");
+      x.font = '900 28px Archivo, sans-serif'; x.fillStyle = fgTxt;
+      x.fillText(st.v, cxp, y + 68);
+    });
+    x.textAlign = "left";
+    y += 88;
+    x.beginPath(); x.moveTo(L, y); x.lineTo(R, y); x.stroke();
+    y += 44;
+
+    // flavor
+    x.font = 'italic 400 24px Archivo, sans-serif'; x.fillStyle = subTxt;
+    y = wrapLeft(x, sp.flavor, L, y, AW - 20, 33);
+
+    // footer band
+    var fy = IY + IH - 46;
+    ls("2px"); x.font = '800 19px Archivo, sans-serif'; x.fillStyle = subTxt;
+    x.fillText("TRAINING.GPEN.COM · #CERTIFIEDG", L, fy);
+    x.textAlign = "right"; x.fillStyle = dark ? GOLD : (sp.rarity === "common" ? subTxt : GOLD2);
+    var sym = (RARITY[sp.rarity] || {}).sym || "●";
+    x.fillText(sp.no + "/" + SET.total + "  " + sym, R, fy);
+    ls("0px"); x.textAlign = "left";
+
+    var fname = "gpen-card-" + sp.name.toLowerCase().replace(/[^a-z0-9]+/g, "-") + ".png";
+    if (cv.toBlob) cv.toBlob(function (b) {
+      if (!b) { toast("Couldn't export image"); return; }
+      dl(URL.createObjectURL(b), fname); toast("Card saved! 🃏");
+    }, "image/png");
+    else { dl(cv.toDataURL("image/png"), fname); toast("Card saved! 🃏"); }
+  }
+  // left-aligned word wrap; returns the y of the last line drawn
+  function wrapLeft(ctx, text, x0, y0, max, lh) {
+    var words = String(text).split(" "), line = "", lines = [];
+    for (var i = 0; i < words.length; i++) {
+      var t = line ? line + " " + words[i] : words[i];
+      if (ctx.measureText(t).width > max && line) { lines.push(line); line = words[i]; } else line = t;
+    }
+    if (line) lines.push(line);
+    lines.forEach(function (ln, i) { ctx.fillText(ln, x0, y0 + i * lh); });
+    return y0 + (lines.length - 1) * lh;
+  }
+  // blend two hex colours (t = how much of `b`)
+  function mix(a, b, t) {
+    function h(c) { c = c.replace("#", ""); if (c.length === 3) c = c[0]+c[0]+c[1]+c[1]+c[2]+c[2]; return [parseInt(c.slice(0,2),16), parseInt(c.slice(2,4),16), parseInt(c.slice(4,6),16)]; }
+    var A = h(a), B = h(b);
+    return "rgb(" + A.map(function (v, i) { return Math.round(v + (B[i] - v) * t); }).join(",") + ")";
+  }
+
   /* ---- CERTIFIED (master) ------------------------------------------------ */
   function renderCertified() {
     if (!isMasterEarned()) return go("#/");
@@ -1362,7 +1563,8 @@
           "<h3>" + ic("share") + " Show off the collection</h3>" +
           "<p>Post it, tag <b>@gpen</b>, and let the rest of the floor know who&rsquo;s stacking cards.</p>" +
           '<div class="bn-share-row">' +
-            '<button class="btn xl" id="brag">' + ic("share") + " Copy my brag</button>" +
+            (rarestOwned() ? '<button class="btn xl" id="savecard">' + ic("dl") + " Save my best card</button>" : "") +
+            '<button class="btn xl ghost" id="brag">' + ic("share") + " Copy my brag</button>" +
             (a.social && a.social[0] ? '<a class="btn xl ghost" href="' + esc(a.social[0].url) + '" target="_blank" rel="noopener">Follow ' + esc(a.social[0].handle) + " " + ic("arrow") + "</a>" : "") +
           "</div>" +
         "</div>" +
@@ -1371,7 +1573,22 @@
 
     var brag = $("#brag");
     if (brag) brag.addEventListener("click", function () { copyText(bragText(), "Brag copied — go post it \uD83C\uDCCF"); });
+    var sv = $("#savecard");
+    if (sv) sv.addEventListener("click", function () { saveCardImage(rarestOwned()); });
     revealOnScroll();
+  }
+  // The best card they hold: the secret rare if revealed, else the rarest product card.
+  function rarestOwned() {
+    if (secretCardState() !== "locked") return "secret";
+    var order = { rare: 3, uncommon: 2, common: 1 };
+    var best = null, bestScore = 0;
+    COURSES.forEach(function (c) {
+      if (!cardOwned(c.slug)) return;
+      var r = (CARDS[c.slug] || {}).rarity;
+      var sc = (order[r] || 0) * 1000 + cardScore(c.slug);
+      if (sc > bestScore) { bestScore = sc; best = c.slug; }
+    });
+    return best;
   }
   // The line they paste into a story or a group chat.
   function bragText() {

@@ -1087,3 +1087,8 @@ h1, h2, h3, h4 { margin: 0; line-height: 1.08; letter-spacing: -.02em; }
 @media (max-width: 430px) {
   .hdr-user { display: none; }
 }
+
+/* Save / add-to-binder actions under a pulled card */
+.pull-actions { display: grid; gap: 10px; width: 100%; }
+@media (min-width: 420px) { .pull-actions { grid-template-columns: 1fr 1fr; } }
+.pull-actions .btn { width: 100%; }
