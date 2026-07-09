@@ -61,6 +61,7 @@
     dl: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3v12M7 10l5 5 5-5"/><path d="M4 21h16"/></svg>',
     mail: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="5" width="18" height="14" rx="2"/><path d="M3 7l9 6 9-6"/></svg>',
     refresh: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 12a9 9 0 11-3-6.7L21 8"/><path d="M21 3v5h-5"/></svg>',
+    share: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="4" y="3" width="16" height="18" rx="3"/><circle cx="12" cy="10" r="3"/><path d="M8.5 20a3.5 3.5 0 017 0"/></svg>',
   };
   function ic(n) { return '<span class="ic">' + (IC[n] || "") + "</span>"; }
 
@@ -510,7 +511,7 @@
       "</div>" +
       '<div id="cert-zone"></div>' +
       '<div id="reward-zone" class="reward-wrap"></div>' +
-      (master ? '<a class="master-unlock" href="#/certified">' + ic("award") + " You've finished every course — view your <strong>Certified Specialist</strong> certificate & top reward " + ic("arrow") + "</a>"
+      (master ? '<a class="master-unlock" href="#/certified">' + ic("award") + " You've finished every course — you're now <strong>Certified G</strong>! Get your certificate & 35% off " + ic("arrow") + "</a>"
               : '<a class="btn ghost xl backdash" href="#/dashboard">Back to dashboard ' + ic("arrow") + "</a>");
     showCertificate(c, e.name, date, pct, cid, $("#cert-zone"));
     revealReward("course", { courseSlug: c.slug, name: e.name, email: e.email, store: e.store, certId: cid }, $("#reward-zone"));
@@ -573,12 +574,14 @@
         "</div>" +
       "</div>" +
       '<div class="cert-actions">' +
-        '<button class="btn" id="cert-print">' + ic("print") + " Print</button>" +
+        '<button class="btn" id="cert-print">' + ic("print") + " Print certificate</button>" +
         '<button class="btn ghost" id="cert-dl">' + ic("dl") + " Download image</button>" +
+        '<button class="btn gold" id="cert-ig">' + ic("share") + " Save for IG story</button>" +
         '<button class="btn ghost" id="cert-mail">' + ic("mail") + " Email it</button>" +
       "</div>";
     $("#cert-print").addEventListener("click", function () { window.print(); });
     $("#cert-dl").addEventListener("click", function () { downloadCertificate(product, nm, date, pct, cid, "PRODUCT SPECIALIST"); });
+    $("#cert-ig").addEventListener("click", function () { drawShareCard({ kind: "course", name: nm, product: c.name, score: pct, date: date, cid: cid, cover: c.cover }); });
     $("#cert-mail").addEventListener("click", function () {
       var e = getEnroll() || {};
       var body = "I completed the " + product + " Product Specialist training.\n\nName: " + nm + "\nStore: " + (e.store || "") + "\nEmail: " + (e.email || "") + "\nProduct: " + product + "\nScore: " + pct + "%\nDate: " + date + "\nCertificate ID: " + cid;
@@ -628,6 +631,66 @@
   }
   function dl(href, name) { var a = document.createElement("a"); a.href = href; a.download = name; document.body.appendChild(a); a.click(); a.remove(); }
 
+  // ---- Shareable IG story / reel image (1080×1920) --------------------------
+  var CERT_LOGO_W = new Image(); CERT_LOGO_W.crossOrigin = "anonymous"; CERT_LOGO_W.src = "assets/img/gpen-g-white.png";
+  function roundRectPath(ctx, x0, y0, w, h, r) { ctx.beginPath(); ctx.moveTo(x0 + r, y0); ctx.arcTo(x0 + w, y0, x0 + w, y0 + h, r); ctx.arcTo(x0 + w, y0 + h, x0, y0 + h, r); ctx.arcTo(x0, y0 + h, x0, y0, r); ctx.arcTo(x0, y0, x0 + w, y0, r); ctx.closePath(); }
+  function drawShareCard(opts) {
+    toast("Building your share image…");
+    var done = false, finish = function (cover) { if (done) return; done = true; renderShare(opts, cover); };
+    if (opts.cover) {
+      var img = new Image(); img.crossOrigin = "anonymous";
+      img.onload = function () { finish(img); };
+      img.onerror = function () { finish(null); };
+      img.src = opts.cover;
+      setTimeout(function () { finish(img.complete && img.naturalWidth ? img : null); }, 2600);
+    } else finish(null);
+  }
+  function renderShare(opts, cover) {
+    var W = 1080, H = 1920, c = document.createElement("canvas"); c.width = W; c.height = H;
+    var x = c.getContext("2d"), cx = W / 2, GOLD = "#FEC870", GOLD2 = "#C8952F", master = opts.kind === "master";
+    function ls(v) { try { x.letterSpacing = v; } catch (e) {} }
+    function wrap(text, y, max, lh, font, fill) {
+      x.font = font; x.fillStyle = fill;
+      var words = String(text).split(" "), line = "", lines = [];
+      for (var i = 0; i < words.length; i++) { var t = line ? line + " " + words[i] : words[i]; if (x.measureText(t).width > max && line) { lines.push(line); line = words[i]; } else line = t; }
+      if (line) lines.push(line);
+      lines.forEach(function (ln, i) { x.fillText(ln, cx, y + i * lh); });
+      return y + (lines.length - 1) * lh;
+    }
+    var g = x.createLinearGradient(0, 0, 0, H); g.addColorStop(0, "#17140d"); g.addColorStop(0.5, "#0d0d0b"); g.addColorStop(1, "#080808");
+    x.fillStyle = g; x.fillRect(0, 0, W, H);
+    var rg = x.createRadialGradient(W * 0.75, H * 0.12, 0, W * 0.75, H * 0.12, W * 1.15);
+    rg.addColorStop(0, "rgba(254,200,112,0.30)"); rg.addColorStop(1, "rgba(254,200,112,0)");
+    x.fillStyle = rg; x.fillRect(0, 0, W, H);
+    x.strokeStyle = "rgba(254,200,112,0.45)"; x.lineWidth = 5; roundRectPath(x, 44, 44, W - 88, H - 88, 30); x.stroke();
+    x.textAlign = "center"; x.textBaseline = "alphabetic";
+    if (CERT_LOGO_W.complete && CERT_LOGO_W.naturalWidth) { var lw = 150, lh2 = Math.round(lw * (CERT_LOGO_W.naturalHeight / CERT_LOGO_W.naturalWidth)); x.drawImage(CERT_LOGO_W, cx - lw / 2, 150, lw, lh2); }
+    ls("8px"); x.fillStyle = GOLD; x.font = "800 30px Archivo, Arial, sans-serif"; x.fillText("G PEN UNIVERSITY", cx, 366); ls("0px");
+    x.fillStyle = "#fff"; x.font = "900 " + (master ? "128px" : "150px") + " Archivo, Arial, sans-serif"; x.fillText(master ? "CERTIFIED G" : "CERTIFIED", cx, 540);
+    var cy = 800;
+    if (cover) {
+      x.fillStyle = "rgba(255,255,255,0.06)"; x.beginPath(); x.arc(cx, cy, 215, 0, 7); x.fill();
+      x.strokeStyle = "rgba(254,200,112,0.35)"; x.lineWidth = 3; x.beginPath(); x.arc(cx, cy, 215, 0, 7); x.stroke();
+      var iw = 380, ih = 380, ar = cover.naturalWidth / cover.naturalHeight; if (ar > 1) ih = iw / ar; else iw = ih * ar;
+      x.drawImage(cover, cx - iw / 2, cy - ih / 2, iw, ih);
+    } else {
+      x.strokeStyle = GOLD; x.lineWidth = 6; x.beginPath(); x.arc(cx, cy, 165, 0, 7); x.stroke();
+      x.lineWidth = 3; x.beginPath(); x.arc(cx, cy, 145, 0, 7); x.stroke();
+      x.fillStyle = GOLD; x.font = "900 130px Archivo, Arial, sans-serif"; x.fillText("★", cx, cy + 46);
+    }
+    ls("2px"); x.fillStyle = GOLD; x.font = "800 40px Archivo, Arial, sans-serif"; x.fillText(master ? "FULLY TRAINED PRODUCT SPECIALIST" : "PRODUCT SPECIALIST", cx, 1110); ls("0px");
+    wrap(opts.name, 1250, W - 200, 96, "800 92px Archivo, Arial, sans-serif", "#fff");
+    x.fillStyle = "#b9b8b0"; x.font = "400 36px Archivo, Arial, sans-serif"; x.fillText(master ? "is a fully trained specialist in" : "is now certified on the", cx, 1420);
+    wrap(master ? "the entire G Pen lineup" : ("G Pen " + opts.product), 1510, W - 180, 82, "800 76px Archivo, Arial, sans-serif", GOLD);
+    x.fillStyle = "#fff"; x.font = "700 46px Archivo, Arial, sans-serif"; x.fillText("Ask me about G Pen", cx, 1710);
+    ls("2px"); x.fillStyle = GOLD2; x.font = "600 28px Archivo, Arial, sans-serif"; x.fillText("gpen.com" + (opts.cid ? ("   ·   " + opts.cid) : ""), cx, 1815); ls("0px");
+    var fname = (master ? "G_Pen_Certified_G" : (opts.product.replace(/[^\w.-]+/g, "_") + "_Certified")) + "_IG_Story.png";
+    try {
+      if (c.toBlob) c.toBlob(function (b) { if (!b) { toast("Couldn't export image"); return; } var u = URL.createObjectURL(b); dl(u, fname); setTimeout(function () { URL.revokeObjectURL(u); }, 8000); toast("Saved! Share it to your story 🎉"); }, "image/png");
+      else { dl(c.toDataURL("image/png"), fname); toast("Saved!"); }
+    } catch (e) { toast("Image export was blocked"); }
+  }
+
   /* ---- CERTIFIED (master) ------------------------------------------------ */
   function renderCertified() {
     var e = getEnroll(); if (!e) return go("#/enroll");
@@ -642,25 +705,25 @@
       '<section class="course reveal">' +
         '<a class="back" href="#/dashboard">' + ic("back") + " Dashboard</a>" +
         '<div class="master-hero">' + ic("award") +
-          "<h1>G Pen Certified Specialist</h1>" +
-          "<p>Congratulations, " + esc(e.name.split(" ")[0]) + " — you've completed every course in " + esc(CFG.programName) + ". You know the whole G Pen lineup cold.</p>" +
+          "<h1>You're Certified G</h1>" +
+          "<p>Congratulations, " + esc(e.name.split(" ")[0]) + " — you've completed every course in " + esc(CFG.programName) + " and are officially a <strong>fully trained G Pen Product Specialist</strong>. You know the whole lineup cold.</p>" +
         "</div>" +
         '<div id="mcert"></div>' +
         '<div id="mreward" class="reward-wrap"></div>' +
       "</section>" + footer();
 
     // master certificate (no % — it's a program completion)
-    var box = $("#mcert"), product = "G Pen Certified Specialist";
+    var box = $("#mcert"), product = "Certified G";
     box.innerHTML =
       '<div class="cert master" id="cert-card"><div class="cert-inner">' +
         '<div class="cert-logo"><img src="assets/img/gpen-g-black.png" alt="G Pen"/></div>' +
         '<div class="cert-eyebrow">G Pen · ' + esc(CFG.programName) + "</div>" +
-        '<h3 class="cert-award">Master Certification</h3>' +
+        '<h3 class="cert-award">Certified G</h3>' +
         '<div class="cert-presented">This certifies that</div>' +
         '<div class="cert-name">' + esc(e.name) + "</div>" +
         '<div class="cert-desc">has completed every Product Specialist course and is recognized as a</div>' +
-        '<div class="cert-product">G Pen Certified Specialist</div>' +
-        sealHTML(0, "G PEN SPECIALIST") +
+        '<div class="cert-product">Fully Trained G Pen Product Specialist</div>' +
+        sealHTML(0, "PRODUCT SPECIALIST") +
         '<div class="cert-foot">' +
           '<div class="cert-fcol"><span class="cert-fv">' + esc(date) + '</span><span class="cert-fl">Date Issued</span></div>' +
           '<div class="cert-fcol"><span class="cert-fv cert-sig">Grenco Science</span><span class="cert-fl">Authorized By</span></div>' +
@@ -668,12 +731,14 @@
         "</div>" +
       "</div></div>" +
       '<div class="cert-actions">' +
-        '<button class="btn" id="cert-print">' + ic("print") + " Print</button>" +
+        '<button class="btn" id="cert-print">' + ic("print") + " Print certificate</button>" +
         '<button class="btn ghost" id="cert-dl">' + ic("dl") + " Download image</button>" +
+        '<button class="btn gold" id="cert-ig">' + ic("share") + " Save for IG story</button>" +
         '<button class="btn ghost" id="cert-mail">' + ic("mail") + " Email it</button>" +
       "</div>";
     $("#cert-print").addEventListener("click", function () { window.print(); });
-    $("#cert-dl").addEventListener("click", function () { downloadCertificate(product, e.name, date, 0, cid, "G PEN SPECIALIST"); });
+    $("#cert-dl").addEventListener("click", function () { downloadCertificate("G Pen Certified Specialist", e.name, date, 0, cid, "CERTIFIED G"); });
+    $("#cert-ig").addEventListener("click", function () { drawShareCard({ kind: "master", name: e.name, cid: cid }); });
     $("#cert-mail").addEventListener("click", function () {
       var body = "I'm now a G Pen Certified Specialist!\n\nName: " + e.name + "\nStore: " + (e.store || "") + "\nEmail: " + (e.email || "") + "\nDate: " + date + "\nCertificate ID: " + cid;
       window.location.href = "mailto:" + CFG.contactEmail + "?subject=" + encodeURIComponent("G Pen Certified Specialist") + "&body=" + encodeURIComponent(body);

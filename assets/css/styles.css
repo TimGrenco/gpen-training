@@ -47,6 +47,7 @@ h1, h2, h3, h4 { margin: 0; line-height: 1.08; letter-spacing: -.02em; }
 .btn.full { width: 100%; }
 .btn.ghost { --bg: transparent; --fg: var(--ink); border-color: var(--line); background: #fff; }
 .btn.ghost:hover { border-color: var(--ink); }
+.btn.gold { --bg: var(--gold-bright); --fg: #1a1509; border-color: var(--gold-bright); }
 .btn .ic { display: inline-flex; }
 .ic svg { width: 1.15em; height: 1.15em; display: block; fill: currentColor; }
 .ic { display: inline-flex; align-items: center; }
