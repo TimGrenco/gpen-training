@@ -449,6 +449,46 @@ h1, h2, h3, h4 { margin: 0; line-height: 1.08; letter-spacing: -.02em; }
 .about-close svg { width: 22px; height: 22px; }
 .about-close p { margin: 0; font-size: 15px; color: #eae9e2; line-height: 1.55; }
 
+/* =============================== LIFESTYLE MARQUEE ===================== */
+.life-band { overflow: hidden; background: #0e0e0e; padding: 14px 0; }
+.life-track { display: flex; gap: 12px; width: max-content; animation: life-marq 55s linear infinite; }
+.life-band:hover .life-track { animation-play-state: paused; }
+.life-cell { flex: none; width: min(46vw, 300px); aspect-ratio: 16/10; border-radius: 14px; overflow: hidden; }
+.life-cell img { width: 100%; height: 100%; object-fit: cover; }
+@keyframes life-marq { from { transform: translateX(0); } to { transform: translateX(-50%); } }
+@media (prefers-reduced-motion: reduce) { .life-track { animation: none; } }
+
+/* =============================== REWARDS TRACKER ====================== */
+.rewards { display: grid; grid-template-columns: 1fr; gap: 12px; margin-bottom: 8px; }
+.rw-card { border-radius: 16px; padding: 20px; border: 1px solid var(--line); background: #fff; box-shadow: var(--shadow); }
+.rw-card.off { border-style: dashed; }
+.rw-card.on { background: linear-gradient(160deg, #151510, #0e0e0e); color: #fff; border-color: transparent; position: relative; overflow: hidden; }
+.rw-card.on::before { content: ""; position: absolute; inset: 0; background: radial-gradient(80% 60% at 90% -10%, rgba(254,200,112,.22), transparent 60%); }
+.rw-card.on > * { position: relative; }
+.rw-top { display: flex; align-items: center; justify-content: space-between; }
+.rw-ic { width: 38px; height: 38px; display: grid; place-items: center; border-radius: 10px; background: var(--cream); color: var(--stone); }
+.rw-ic svg { width: 20px; height: 20px; }
+.rw-card.on .rw-ic { background: rgba(254,200,112,.16); color: var(--gold-bright); }
+.rw-status { font-size: 11px; font-weight: 800; text-transform: uppercase; letter-spacing: .1em; color: var(--stone); }
+.rw-card.on .rw-status { color: var(--gold-bright); }
+.rw-big { font-size: 34px; font-weight: 900; letter-spacing: -.02em; margin-top: 12px; }
+.rw-sub { font-size: 13px; color: var(--stone); margin-bottom: 14px; }
+.rw-card.on .rw-sub { color: #c9c8c1; }
+.rw-code { display: flex; align-items: center; justify-content: space-between; gap: 10px; width: 100%; background: #fff; color: var(--ink); border: 2px dashed var(--gold); border-radius: 12px; padding: 12px 14px; cursor: pointer; font: inherit; margin-bottom: 10px; transition: transform .1s; }
+.rw-code:active { transform: scale(.99); }
+.rw-code-v { font-size: 20px; font-weight: 900; letter-spacing: .04em; }
+.rw-code em { font-style: normal; font-size: 10.5px; font-weight: 700; text-transform: uppercase; letter-spacing: .05em; color: var(--stone); display: inline-flex; align-items: center; gap: 4px; }
+.rw-code em svg { width: 13px; height: 13px; }
+.rw-shop { display: inline-flex; align-items: center; gap: 6px; font-weight: 800; font-size: 14px; color: var(--gold-bright); }
+.rw-shop svg { width: 15px; height: 15px; }
+.rw-cert { display: block; margin-top: 10px; font-size: 13px; color: #c9c8c1; text-decoration: underline; }
+.rw-lock { display: flex; align-items: center; gap: 7px; font-size: 13.5px; font-weight: 600; color: var(--stone); background: var(--cream); border-radius: 10px; padding: 12px 14px; }
+.rw-lock svg { width: 15px; height: 15px; flex: none; }
+
+.cc-reward { display: flex; align-items: center; gap: 6px; font-size: 12px; font-weight: 800; color: var(--gold); margin: 2px 0 12px; }
+.cc-reward svg { width: 14px; height: 14px; }
+.cc-reward.earned { color: var(--ok); }
+
 /* =============================== RESPONSIVE ============================= */
 @media (min-width: 680px) {
   .why-grid { grid-template-columns: repeat(2, 1fr); }
@@ -461,6 +501,7 @@ h1, h2, h3, h4 { margin: 0; line-height: 1.08; letter-spacing: -.02em; }
   .hero-cta { flex-direction: row; }
   .cx-hero { align-items: flex-end; }
   .cx-hero-body { max-width: 760px; }
+  .rewards { grid-template-columns: repeat(2, 1fr); }
 }
 @media (min-width: 1000px) {
   .why-grid { grid-template-columns: repeat(4, 1fr); }

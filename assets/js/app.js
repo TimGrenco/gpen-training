@@ -122,6 +122,7 @@
           return '<div class="hero-chip" style="--i:' + i + '"><img src="' + esc(c.cover) + '" alt="' + esc(c.name) + '"/><span>' + esc(c.name) + "</span></div>";
         }).join("") + "</div>" +
       "</section>" +
+      lifestyleBand() +
       '<section class="why">' +
         '<div class="why-grid">' +
           why(ic("cap"), "Learn the products", "Interactive courses with real how-to videos, lifestyle photos, full specs, cleaning, FAQs, and how to sell each device.") +
@@ -141,6 +142,16 @@
       "</section>" +
       footer();
     revealOnScroll();
+  }
+  function lifestyleImgs() {
+    var out = [];
+    COURSES.forEach(function (c) { if (c.heroImg) out.push(c.heroImg); if (c.gallery && c.gallery[0]) out.push(c.gallery[0].url); });
+    return out;
+  }
+  function lifestyleBand() {
+    var imgs = lifestyleImgs(); if (!imgs.length) return "";
+    var cells = imgs.concat(imgs).map(function (u) { return '<div class="life-cell"><img src="' + esc(u) + '" alt="" decoding="async"/></div>'; }).join("");
+    return '<section class="life-band"><div class="life-track">' + cells + "</div></section>";
   }
   function why(i, t, s) { return '<div class="why-card reveal"><span class="why-ic">' + i + "</span><h3>" + t + "</h3><p>" + s + "</p></div>"; }
   function step(n, t, s) { return '<li class="step reveal"><span class="step-n">' + n + "</span><div><h4>" + t + "</h4><p>" + s + "</p></div></li>"; }
@@ -204,18 +215,19 @@
           "</div>" +
         "</div>" +
         '<div class="stat-row">' +
-          stat(done, "Courses passed") +
-          stat(pct + "%", "Program complete") +
+          stat(done, "Courses passed", done, "") +
+          stat(pct + "%", "Program complete", pct, "%") +
           stat('<span class="st-fire">' + (streak ? ic("fire") : "") + streak + "</span>", "Day streak") +
         "</div>" +
-        masterBanner(master) +
+        rewardsSection(done, master) +
         '<div class="sec-h"><h2>Your courses</h2><span>' + done + " of " + total + " complete</span></div>" +
         '<div class="course-grid">' + COURSES.map(courseCard).join("") + "</div>" +
         '<button class="linklike reset" id="reset">Reset my progress</button>' +
       "</section>" + footer();
 
-    // animate ring
     requestAnimationFrame(function () { var r = $(".ring-fg"); if (r) r.style.strokeDashoffset = r.getAttribute("data-off"); });
+    countUp();
+    fillRewards();
     $("#reset").addEventListener("click", function () {
       if (confirm("Reset ALL your training progress and certificates on this device?")) {
         localStorage.removeItem(K_STATE); localStorage.removeItem(K_ENROLL); go("#/");
@@ -223,13 +235,60 @@
     });
     revealOnScroll();
   }
-  function stat(v, l) { return '<div class="stat"><strong>' + v + "</strong><span>" + l + "</span></div>"; }
-  function masterBanner(master) {
-    if (master) return '<a class="master-b done" href="#/certified">' + ic("award") +
-      '<div><strong>You\'re a G Pen Certified Specialist!</strong><span>View your master certificate & 35% off reward →</span></div></a>';
-    var left = coreSlugs().length - completedCount();
-    return '<div class="master-b"><span class="master-ic">' + ic("award") + "</span>" +
-      '<div><strong>Bonus: G Pen Certified Specialist</strong><span>Optional — complete all ' + coreSlugs().length + " courses to earn the master certificate + <strong>35% off</strong> (" + left + " to go).</span></div></div>";
+  function stat(v, l, to, suf) {
+    return '<div class="stat"><strong' + (to != null ? ' data-to="' + to + '" data-suffix="' + (suf || "") + '"' : "") + ">" + v + "</strong><span>" + l + "</span></div>";
+  }
+  function countUp() {
+    $$(".stat strong[data-to]").forEach(function (el) {
+      var to = parseInt(el.getAttribute("data-to"), 10) || 0, suf = el.getAttribute("data-suffix") || "";
+      var start = null, dur = 850;
+      if (to <= 0) { el.textContent = "0" + suf; return; }
+      requestAnimationFrame(function step(ts) {
+        if (!start) start = ts;
+        var p = Math.min((ts - start) / dur, 1);
+        el.textContent = Math.round(p * to) + suf;
+        if (p < 1) requestAnimationFrame(step);
+      });
+    });
+  }
+  // The two-tier discount reward, shown as an "earn it" tracker on the dashboard.
+  function rewardsSection(done, master) {
+    var core = coreSlugs().length, left = core - done;
+    var c25 = done >= 1, c35 = master;
+    var head = c35 ? "Top reward unlocked 🎉" : (c25 ? "25% off unlocked — keep going!" : "Pass one course to start earning");
+    return '<div class="sec-h"><h2>Your rewards</h2><span>' + head + "</span></div>" +
+      '<div class="rewards">' +
+        rewardCard("course", c25, "25% OFF", "gpen.com — for completing any course", "Complete any 1 course to unlock") +
+        rewardCard("master", c35, "35% OFF", "gpen.com — for completing all " + core + " courses", left + " more course" + (left === 1 ? "" : "s") + " to unlock") +
+      "</div>";
+  }
+  function rewardCard(type, unlocked, big, sub, lockMsg) {
+    return '<div class="rw-card ' + (unlocked ? "on" : "off") + '">' +
+      '<div class="rw-top"><span class="rw-ic">' + ic(unlocked ? "tag" : "lock") + '</span><span class="rw-status">' + (unlocked ? "Unlocked" : "Locked") + "</span></div>" +
+      '<div class="rw-big">' + big + "</div>" +
+      '<div class="rw-sub">' + sub + "</div>" +
+      (unlocked
+        ? '<button class="rw-code" data-rwcode="' + type + '"><span class="rw-code-v">••••••</span><em>' + ic("tag") + " Tap to copy</em></button>" +
+          '<a class="rw-shop" href="' + esc(CFG.shopUrl) + '" target="_blank" rel="noopener">Shop gpen.com ' + ic("arrow") + "</a>" +
+          (type === "master" ? '<a class="rw-cert" href="#/certified">View master certificate →</a>' : "")
+        : '<div class="rw-lock">' + ic("lock") + " " + lockMsg + "</div>") +
+    "</div>";
+  }
+  function copyCode(code) {
+    if (navigator.clipboard) navigator.clipboard.writeText(code).then(function () { toast("Code copied — " + code); }, function () { toast(code); });
+    else toast(code);
+  }
+  function fillRewards() {
+    var e = getEnroll() || {};
+    $$("[data-rwcode]").forEach(function (btn) {
+      var type = btn.getAttribute("data-rwcode");
+      Promise.resolve(window.issueRewardCode(type, { name: e.name, email: e.email, store: e.store })).then(function (r) {
+        if (!r || !r.code) return;
+        var v = btn.querySelector(".rw-code-v"); if (v) v.textContent = r.code;
+        if (r.label) btn.setAttribute("title", r.label);
+        btn.addEventListener("click", function () { copyCode(r.code); });
+      });
+    });
   }
   function courseCard(c) {
     var s = getState(), rec = s.courses[c.slug], done = rec && rec.passed;
@@ -241,6 +300,7 @@
         '<span class="cc-cat">' + esc(c.category) + "</span>" +
         "<h3>" + esc(c.name) + "</h3>" +
         "<p>" + esc(c.tagline) + "</p>" +
+        '<div class="cc-reward' + (done ? " earned" : "") + '">' + ic(done ? "check" : "tag") + "<span>" + (done ? "25% off earned" : "Pass → 25% off") + "</span></div>" +
         '<div class="cc-foot"><span class="cc-price">' + esc(c.msrp) + "</span>" +
           '<span class="cc-go">' + (done ? "Review " : "Start ") + ic("arrow") + "</span></div>" +
       "</div>" +
