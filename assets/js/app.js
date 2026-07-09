@@ -242,14 +242,18 @@
   function countUp() {
     $$(".stat strong[data-to]").forEach(function (el) {
       var to = parseInt(el.getAttribute("data-to"), 10) || 0, suf = el.getAttribute("data-suffix") || "";
+      var setFinal = function () { el.textContent = to + suf; };
+      // In hidden/inactive tabs rAF is paused — just show the real value.
+      if (document.hidden || to <= 0) { setFinal(); return; }
       var start = null, dur = 850;
-      if (to <= 0) { el.textContent = "0" + suf; return; }
       requestAnimationFrame(function step(ts) {
         if (!start) start = ts;
         var p = Math.min((ts - start) / dur, 1);
         el.textContent = Math.round(p * to) + suf;
         if (p < 1) requestAnimationFrame(step);
       });
+      // Failsafe: never leave a stat stuck mid-animation (wrong value).
+      setTimeout(setFinal, 1200);
     });
   }
   // The two-tier discount reward, shown as an "earn it" tracker on the dashboard.
