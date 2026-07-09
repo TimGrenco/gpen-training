@@ -1,0 +1,40 @@
+name: Stamp build version
+
+# Writes the current commit's short SHA into version.json on every push so the
+# site's runtime loader can detect new deploys and refresh clients automatically
+# (no hard refresh). Pushing version.json does not re-trigger this workflow
+# (paths-ignore + GITHUB_TOKEN pushes don't trigger workflows).
+
+on:
+  push:
+    branches: [ main ]
+    paths-ignore:
+      - 'version.json'
+
+permissions:
+  contents: write
+
+concurrency:
+  group: stamp-version
+  cancel-in-progress: true
+
+jobs:
+  stamp:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Write version.json from commit SHA
+        run: |
+          SHA="$(echo "${GITHUB_SHA}" | cut -c1-8)"
+          printf '{ "version": "%s", "deployed": "%s" }\n' "$SHA" "$(date -u +%FT%TZ)" > version.json
+      - name: Commit if changed
+        run: |
+          git config user.name "gpen-university-bot"
+          git config user.email "actions@users.noreply.github.com"
+          if ! git diff --quiet version.json; then
+            git add version.json
+            git commit -m "chore: stamp build version [auto]"
+            git push
+          else
+            echo "version.json unchanged"
+          fi

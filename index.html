@@ -14,12 +14,50 @@
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
   <link href="https://fonts.googleapis.com/css2?family=Archivo:wght@400;500;600;700;800;900&display=swap" rel="stylesheet" />
-  <link rel="stylesheet" href="assets/css/styles.css?v=14" />
+  <!-- Runtime loader: fetches the current build version and loads the CSS/JS
+       tagged with it, so a new deploy shows up WITHOUT a hard refresh. Open tabs
+       auto-reload when a newer version ships (never mid-quiz). version.json is
+       stamped automatically on every push by .github/workflows/stamp-version.yml. -->
+  <script>
+    (function () {
+      var CSS = "assets/css/styles.css";
+      var JS = ["assets/js/config.js", "assets/js/data.js", "assets/js/app.js"];
+      var current = null, loaded = false;
+
+      function inject(v) {
+        current = v;
+        var q = v ? "?v=" + encodeURIComponent(v) : "";
+        var link = document.createElement("link");
+        link.rel = "stylesheet"; link.href = CSS + q;
+        document.head.appendChild(link);
+        JS.forEach(function (src) {
+          var s = document.createElement("script");
+          s.src = src + q; s.async = false; // keep config -> data -> app order
+          document.head.appendChild(s);
+        });
+      }
+      function getVersion() {
+        return fetch("version.json?t=" + Date.now(), { cache: "no-store" })
+          .then(function (r) { return r.ok ? r.json() : null; })
+          .then(function (d) { return d && d.version ? String(d.version) : null; })
+          .catch(function () { return null; });
+      }
+      function check() {
+        getVersion().then(function (v) {
+          if (v && current && v !== current && !document.querySelector(".quiz")) location.reload();
+        });
+      }
+      // Never let a slow/missing version.json block the app from loading.
+      var t = setTimeout(function () { if (!loaded) { loaded = true; inject(null); } }, 2500);
+      getVersion().then(function (v) {
+        if (loaded) return; loaded = true; clearTimeout(t); inject(v);
+        setInterval(check, 120000);
+        document.addEventListener("visibilitychange", function () { if (!document.hidden) check(); });
+      });
+    }());
+  </script>
 </head>
 <body>
   <div id="app"></div>
-  <script src="assets/js/config.js?v=14"></script>
-  <script src="assets/js/data.js?v=14"></script>
-  <script src="assets/js/app.js?v=14"></script>
 </body>
 </html>

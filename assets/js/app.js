@@ -882,6 +882,12 @@
     // its visibility failsafe armed) even if a render function forgets to call it.
     revealOnScroll();
   }
-  window.addEventListener("hashchange", route);
-  route();
+  function boot() {
+    app = $("#app"); // re-resolve in case the script loaded before #app parsed
+    if (!app) { return document.addEventListener("DOMContentLoaded", boot, { once: true }); }
+    window.addEventListener("hashchange", route);
+    route();
+  }
+  if (document.readyState === "loading") document.addEventListener("DOMContentLoaded", boot, { once: true });
+  else boot();
 })();
