@@ -28,10 +28,11 @@
   function getEnroll() { try { return JSON.parse(localStorage.getItem(K_ENROLL) || "null"); } catch (e) { return null; } }
   function setEnroll(v) { try { localStorage.setItem(K_ENROLL, JSON.stringify(v)); } catch (e) {} }
   function getState() {
-    var d = { courses: {}, badges: [], streak: { count: 0, last: null }, master: null, eggs: {}, trio: null, secret: null, log: [] };
+    var d = { courses: {}, badges: [], streak: { count: 0, last: null }, master: null, eggs: {}, trio: null, secret: null, fresh: {}, log: [] };
     var s;
     try { s = Object.assign(d, JSON.parse(localStorage.getItem(K_STATE) || "{}")); } catch (e) { return d; }
     if (!s.eggs) s.eggs = {};
+    if (!s.fresh) s.fresh = {};
     return s;
   }
   function setState(s) { try { localStorage.setItem(K_STATE, JSON.stringify(s)); } catch (e) {} }
@@ -66,6 +67,17 @@
   var SECRET_CARD = window.GPEN_SECRET_CARD || null;
 
   function cardOwned(slug) { var r = getState().courses[slug]; return !!(r && r.passed); }
+  // A card you've pulled but not yet seen in the binder wears a "NEW!" sticker.
+  function isFresh(key) { return !!getState().fresh[key]; }
+  function markFresh(key) { var s = getState(); s.fresh[key] = true; setState(s); }
+  function clearFresh() {
+    var s = getState();
+    if (!Object.keys(s.fresh).length) return;
+    s.fresh = {}; setState(s);
+    $$(".tcg-new").forEach(function (n) { n.remove(); });
+    $$(".is-new").forEach(function (n) { n.classList.remove("is-new"); });
+  }
+  function newSticker() { return '<span class="tcg-new">New!</span>'; }
   function cardScore(slug) { var r = getState().courses[slug]; return r && r.passed ? r.score : 0; }
   function baseSetOwned() { return COURSES.filter(function (c) { return cardOwned(c.slug); }).length; }
   function trainersOwned() { return eggsSolvedCount(); }
@@ -112,8 +124,11 @@
     if (perfect) cls.push("perfect");
     if (mini) cls.push("mini");
     if (c.featured && !owned) cls.push("featured");
+    var fresh = owned && isFresh(c.slug);
+    if (fresh) cls.push("is-new");
     return '<a class="' + cls.join(" ") + '" href="#/course/' + c.slug + '" style="--accent:' + c.accent + ';--tint:' + (el.tint || "#888") + '"' +
       ' data-card="' + esc(c.slug) + '" aria-label="' + esc(c.name) + (owned ? " — collected" : " — not yet collected") + '">' +
+      (fresh ? newSticker() : "") +
       '<span class="tcg-inner">' +
         '<span class="tcg-shine" aria-hidden="true"></span>' +
         '<span class="tcg-head">' +
@@ -125,6 +140,7 @@
         "</span>" +
         '<span class="tcg-art">' +
           '<img src="' + esc(c.cover) + '" alt="" loading="lazy"/>' +
+          (owned ? '<i class="spk a">\u2726</i><i class="spk b">\u2726</i>' : "") +
           (owned
             ? '<span class="tcg-stamp">' + ic("check") + " Certified " + score + "%</span>"
             : (c.featured ? '<span class="tcg-featured">' + ic("star") + " " + esc(c.featured) + "</span>" : "")) +
@@ -170,7 +186,9 @@
     }
 
     var gold = st === "gold";
-    return '<a class="tcg secret ' + st + (mini ? " mini" : "") + '" href="#/certified" data-card="secret" aria-label="Certified G — collected">' +
+    var freshS = isFresh("secret");
+    return '<a class="tcg secret ' + st + (mini ? " mini" : "") + (freshS ? " is-new" : "") + '" href="#/certified" data-card="secret" aria-label="Certified G — collected">' +
+      (freshS ? newSticker() : "") +
       '<span class="tcg-inner">' +
         '<span class="tcg-shine" aria-hidden="true"></span>' +
         '<span class="tcg-head">' +
@@ -180,6 +198,7 @@
         "</span>" +
         '<span class="tcg-art">' +
           '<img src="assets/img/gpen-g-white.png" alt=""/>' +
+          '<i class="spk a">\u2726</i><i class="spk b">\u2726</i>' +
           '<span class="tcg-stamp">' + ic("award") + (gold ? " GOLD FOIL" : " HOLO") + "</span>" +
         "</span>" +
         '<span class="tcg-typebar"><em>' + esc(e ? e.name : "Product Specialist") + "</em><b>" + (gold ? "40% OFF" : "35% OFF") + "</b></span>" +
@@ -198,7 +217,9 @@
   function trainerCardHTML(t) {
     var egg = EGGS.filter(function (e) { return e.id === t.egg; })[0];
     var owned = eggSolved(t.egg);
-    return '<div class="trn' + (owned ? " owned" : "") + '" data-trainer="' + esc(t.egg) + '">' +
+    var fresh = owned && isFresh("t:" + t.egg);
+    return '<div class="trn' + (owned ? " owned" : "") + (fresh ? " is-new" : "") + '" data-trainer="' + esc(t.egg) + '">' +
+      (fresh ? newSticker() : "") +
       '<span class="trn-inner">' +
         '<span class="trn-shine" aria-hidden="true"></span>' +
         '<span class="trn-kind">' + esc(t.kind) + "</span>" +
@@ -460,6 +481,8 @@
     if (s.eggs[id]) return;
     s.eggs[id] = true; setState(s);
     logEvent("egg", { egg: id });
+    markFresh("t:" + id);
+    if (isSecretUnlocked()) markFresh("secret"); // that egg turned the card gold
     var found = eggsSolvedCount();
     if (allEggsSolved() && !isMasterEarned()) toast("All " + EGGS.length + " Trainer cards! Collect the Base Set to go gold.");
     else if (isSecretUnlocked()) toast("Certified G went GOLD — 40% off unlocked! 👑");
@@ -1000,6 +1023,8 @@
     setState(s);
     if (firstTime) {
       pendingCelebrate = true; // ring pulses + confetti next time they hit home
+      markFresh(c.slug);
+      if (isMasterEarned()) markFresh("secret"); // that pull revealed the secret rare
       if (window.reportCompletion) window.reportCompletion({ type: "course", name: e.name, email: e.email, store: e.store, product: "G Pen " + c.name, courseSlug: c.slug, score: pct, certId: cid, date: date });
     }
     maybeReportTier();   // a third card unlocks the 30% tier
@@ -1298,6 +1323,8 @@
     else { ag.addColorStop(0, mix(sp.tint, "#ffffff", .84)); ag.addColorStop(1, mix(sp.accent, "#ffffff", .74)); }
     x.save(); roundRectPath(x, L, y, AW, AH, 14); x.clip();
     x.fillStyle = ag; x.fillRect(L, y, AW, AH);
+    // owned cards are foiled; the product then prints clean on top
+    if (sp.score || dark) drawFoil(x, L + AW / 2, y + AH / 2, Math.max(AW, AH), dark);
     if (art) {
       var pad = dark ? 96 : 34;
       var maxW = AW - pad * 2, maxH = AH - pad * 2;
@@ -1385,6 +1412,30 @@
     }, "image/png");
     else { dl(cv.toDataURL("image/png"), fname); toast("Card saved! 🃏"); }
   }
+  /* Starburst foil for the exported card, so the PNG matches what's on screen:
+     a rainbow (or gold) wash, then thin white rays radiating from the centre. */
+  function drawFoil(ctx, cx, cy, r, dark) {
+    ctx.save();
+    if (ctx.createConicGradient) {
+      var cg = ctx.createConicGradient(Math.PI * 7 / 6, cx, cy);
+      var stops = dark
+        ? ["rgba(255,214,0,.34)", "rgba(255,166,60,.34)", "rgba(255,244,200,.34)", "rgba(200,149,47,.34)", "rgba(255,214,0,.34)"]
+        : ["rgba(255,0,128,.26)", "rgba(255,214,0,.26)", "rgba(0,255,196,.26)", "rgba(0,153,255,.26)", "rgba(190,0,255,.26)", "rgba(255,0,128,.26)"];
+      stops.forEach(function (c, i) { cg.addColorStop(i / (stops.length - 1), c); });
+      ctx.fillStyle = cg; ctx.fillRect(cx - r, cy - r, r * 2, r * 2);
+    }
+    // rays
+    ctx.globalCompositeOperation = dark ? "lighter" : "source-over";
+    ctx.fillStyle = dark ? "rgba(255,232,170,.16)" : "rgba(255,255,255,.55)";
+    var n = 72;
+    for (var i = 0; i < n; i++) {
+      var a0 = (i / n) * Math.PI * 2, a1 = a0 + (Math.PI * 2 / n) * 0.34;
+      ctx.beginPath(); ctx.moveTo(cx, cy);
+      ctx.arc(cx, cy, r, a0, a1); ctx.closePath(); ctx.fill();
+    }
+    ctx.restore();
+  }
+
   // left-aligned word wrap; returns the y of the last line drawn
   function wrapLeft(ctx, text, x0, y0, max, lh) {
     var words = String(text).split(" "), line = "", lines = [];
@@ -1575,6 +1626,9 @@
     if (brag) brag.addEventListener("click", function () { copyText(bragText(), "Brag copied — go post it \uD83C\uDCCF"); });
     var sv = $("#savecard");
     if (sv) sv.addEventListener("click", function () { saveCardImage(rarestOwned()); });
+    // They've now seen the new cards in the binder — retire the stickers, but
+    // leave them on screen long enough to be noticed.
+    if (Object.keys(getState().fresh).length) setTimeout(clearFresh, 4500);
     revealOnScroll();
   }
   // The best card they hold: the secret rare if revealed, else the rarest product card.

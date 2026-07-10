@@ -517,12 +517,15 @@ h1, h2, h3, h4 { margin: 0; line-height: 1.08; letter-spacing: -.02em; }
 .rw-status { font-size: 11px; font-weight: 800; text-transform: uppercase; letter-spacing: .1em; color: var(--stone); }
 .rw-card.on .rw-status { color: var(--gold-bright); }
 .rw-big { font-size: 34px; font-weight: 900; letter-spacing: -.02em; margin-top: 12px; }
-.rw-sub { font-size: 13px; color: var(--stone); margin-bottom: 14px; }
+/* Reserve two lines so the code buttons line up across tiers of unequal copy. */
+.rw-sub { font-size: 13px; line-height: 1.45; color: var(--stone); margin-bottom: 14px; min-height: 2.9em; }
 .rw-card.on .rw-sub { color: #c9c8c1; }
-.rw-code { display: flex; align-items: center; justify-content: space-between; gap: 10px; width: 100%; background: #fff; color: var(--ink); border: 2px dashed var(--gold); border-radius: 12px; padding: 12px 14px; cursor: pointer; font: inherit; margin-bottom: 10px; transition: transform .1s; }
+/* Stacked, not side-by-side: at four tiers the cards are ~250px and a long code
+   ("CERTIFIEDG40") plus the "tap to copy" hint no longer fit on one line. */
+.rw-code { display: flex; flex-direction: column; align-items: flex-start; gap: 5px; width: 100%; background: #fff; color: var(--ink); border: 2px dashed var(--gold); border-radius: 12px; padding: 11px 14px; cursor: pointer; font: inherit; margin-bottom: 10px; transition: transform .1s; text-align: left; }
 .rw-code:active { transform: scale(.99); }
-.rw-code-v { font-size: 20px; font-weight: 900; letter-spacing: .04em; }
-.rw-code em { font-style: normal; font-size: 10.5px; font-weight: 700; text-transform: uppercase; letter-spacing: .05em; color: var(--stone); display: inline-flex; align-items: center; gap: 4px; }
+.rw-code-v { font-size: clamp(17px, 1.35vw, 20px); font-weight: 900; letter-spacing: .03em; overflow-wrap: anywhere; }
+.rw-code em { font-style: normal; font-size: 10.5px; font-weight: 700; text-transform: uppercase; letter-spacing: .05em; color: var(--stone); display: inline-flex; align-items: center; gap: 4px; white-space: nowrap; }
 .rw-code em svg { width: 13px; height: 13px; }
 .rw-shop { display: inline-flex; align-items: center; gap: 6px; font-weight: 800; font-size: 14px; color: var(--gold-bright); }
 .rw-shop svg { width: 15px; height: 15px; }
@@ -784,38 +787,75 @@ h1, h2, h3, h4 { margin: 0; line-height: 1.08; letter-spacing: -.02em; }
 }
 
 /* Holo treatment, only on cards you own.
-   The rainbow foil is confined to the art window (that's where real foil sits);
-   the whole card gets only a soft white glare, so the spec text stays legible. */
+   A real holo card puts the foil BEHIND the artwork: starburst rays and glitter
+   inside the art window, product printed clean on top. Painting the rainbow over
+   the product just recolours it (Dash+ came out purple). Layer order in the art
+   window: rays ::before (z1), product img (z2), glitter ::after (z3), stamps (z5).
+   The card as a whole gets a pointer-tracked glare (z4) and a slow sheen (z6). */
 .tcg-shine { position: absolute; inset: 0; pointer-events: none; opacity: 0; z-index: 4; border-radius: 10px; }
 .tcg.owned .tcg-shine, .tcg.secret .tcg-shine {
   opacity: 1;
   background: radial-gradient(circle at var(--mx) var(--my), rgba(255,255,255,.30) 0%, rgba(255,255,255,0) 46%);
   mix-blend-mode: screen;
 }
+
+.tcg-art { isolation: isolate; }
+
+/* starburst foil */
+.tcg.owned .tcg-art::before, .tcg.secret .tcg-art::before {
+  content: ""; position: absolute; inset: -45%; z-index: 1; pointer-events: none;
+  background:
+    repeating-conic-gradient(from 0deg at 50% 50%,
+      rgba(255,255,255,.9) 0deg 1.4deg, rgba(255,255,255,0) 1.4deg 5deg),
+    conic-gradient(from 210deg at 50% 50%,
+      rgba(255,0,128,.55), rgba(255,214,0,.55), rgba(0,255,196,.55),
+      rgba(0,153,255,.55), rgba(190,0,255,.55), rgba(255,0,128,.55));
+  background-blend-mode: overlay;
+  opacity: .5;
+  animation: holo-spin 34s linear infinite;
+}
+.tcg.r-rare.owned .tcg-art::before { opacity: .68; }
+/* The secret rare is gold foil, so its rays stay in the gold family. */
+.tcg.secret .tcg-art::before {
+  background:
+    repeating-conic-gradient(from 0deg at 50% 50%,
+      rgba(255,232,170,.9) 0deg 1.4deg, rgba(255,232,170,0) 1.4deg 5deg),
+    conic-gradient(from 210deg at 50% 50%,
+      rgba(255,214,0,.75), rgba(255,166,60,.75), rgba(255,244,200,.75),
+      rgba(200,149,47,.75), rgba(255,214,0,.75));
+  background-blend-mode: multiply;
+  /* `overlay` darkens against the near-black art window; `screen` makes the
+     gold rays glow out of it, which is what gold foil actually does. */
+  mix-blend-mode: screen;
+  opacity: .5;
+}
+@keyframes holo-spin { to { transform: rotate(360deg); } }
+
+/* glitter dust across the art window */
 .tcg.owned .tcg-art::after, .tcg.secret .tcg-art::after {
-  content: ""; position: absolute; inset: 0; z-index: 1; pointer-events: none;
-  background:
-    radial-gradient(circle at var(--mx) var(--my), rgba(255,255,255,.42) 0%, rgba(255,255,255,0) 40%),
-    conic-gradient(from 210deg at var(--mx) var(--my),
-      rgba(255,0,128,.22), rgba(255,214,0,.22), rgba(0,255,196,.22),
-      rgba(0,153,255,.22), rgba(190,0,255,.22), rgba(255,0,128,.22));
-  mix-blend-mode: color-dodge;
+  content: ""; position: absolute; inset: 0; z-index: 3; pointer-events: none;
+  background-image: radial-gradient(rgba(255,255,255,.95) 1px, transparent 1.3px);
+  background-size: 18px 18px;
+  opacity: .18; mix-blend-mode: screen;
+  animation: glitter 4.2s ease-in-out infinite;
 }
-.tcg.r-rare.owned .tcg-art::after { filter: saturate(1.4); }
-/* Touch devices can't move the foil, so it would sit saturated over the product
-   photo. Keep a sheen, but let the product read true. */
-@media (hover: none) {
-  .tcg.owned .tcg-art::after, .tcg.secret .tcg-art::after { opacity: .45; }
+@keyframes glitter { 0%, 100% { background-position: 0 0; opacity: .14; } 50% { background-position: 8px 5px; opacity: .24; } }
+
+/* a slow sheen crossing the card, staggered so a row doesn't flash in unison */
+.tcg.owned .tcg-inner::after, .tcg.secret .tcg-inner::after {
+  content: ""; position: absolute; inset: 0; z-index: 6; pointer-events: none;
+  background: linear-gradient(112deg, transparent 42%, rgba(255,255,255,.34) 50%, transparent 58%);
+  transform: translateX(-130%);
+  animation: card-sweep 7s ease-in-out infinite;
 }
-/* The secret rare is gold foil, so its sheen stays in the gold family. */
-.tcg.secret .tcg-art::after {
-  background:
-    radial-gradient(circle at var(--mx) var(--my), rgba(255,255,255,.40) 0%, rgba(255,255,255,0) 40%),
-    conic-gradient(from 210deg at var(--mx) var(--my),
-      rgba(255,214,0,.34), rgba(255,166,60,.34), rgba(255,244,200,.34),
-      rgba(200,149,47,.34), rgba(255,214,0,.34));
-}
-.tcg-stamp, .tcg-featured, .tcg-perfect { z-index: 3; }
+.tcg-grid > .tcg:nth-child(2) .tcg-inner::after { animation-delay: 1.1s; }
+.tcg-grid > .tcg:nth-child(3) .tcg-inner::after { animation-delay: 2.2s; }
+.tcg-grid > .tcg:nth-child(4) .tcg-inner::after { animation-delay: 3.3s; }
+.tcg-grid > .tcg:nth-child(5) .tcg-inner::after { animation-delay: 4.4s; }
+.tcg-grid > .tcg:nth-child(6) .tcg-inner::after { animation-delay: 5.5s; }
+@keyframes card-sweep { 0%, 78% { transform: translateX(-130%); } 100% { transform: translateX(130%); } }
+
+.tcg-stamp, .tcg-featured, .tcg-perfect { z-index: 5; }
 
 /* head */
 .tcg-head { display: grid; gap: 2px; }
@@ -834,7 +874,16 @@ h1, h2, h3, h4 { margin: 0; line-height: 1.08; letter-spacing: -.02em; }
   background: linear-gradient(165deg, color-mix(in srgb, var(--tint) 16%, #fff), color-mix(in srgb, var(--accent) 26%, #fff));
   aspect-ratio: 16 / 11; display: grid; place-items: center;
 }
-.tcg-art img { width: 100%; height: 100%; object-fit: contain; padding: 8px; }
+/* `height: 100%` can't resolve against an aspect-ratio-derived height, so the
+   square product photo sized itself off its own 1:1 ratio, overflowed the 16:11
+   art window and was clipped at the bottom. Absolute positioning gives it a
+   definite box to contain into. */
+.tcg-art > img {
+  position: absolute; inset: 9px; z-index: 2;
+  width: calc(100% - 18px); height: calc(100% - 18px);
+  object-fit: contain; padding: 0;
+}
+.tcg.secret .tcg-art > img { inset: 22px; width: calc(100% - 44px); height: calc(100% - 44px); }
 .tcg:not(.owned):not(.secret) .tcg-art { filter: saturate(.55); }
 .tcg-stamp, .tcg-featured, .tcg-perfect {
   position: absolute; left: 8px; top: 8px; z-index: 2;
@@ -844,7 +893,14 @@ h1, h2, h3, h4 { margin: 0; line-height: 1.08; letter-spacing: -.02em; }
 }
 .tcg-stamp { background: var(--ink); color: var(--gold-bright); }
 .tcg-featured { background: var(--gold-bright); color: var(--ink); }
-.tcg-perfect { left: auto; right: 8px; background: linear-gradient(120deg,#f7e2a4,#c8952f); color: #3a2a05; }
+.tcg-perfect {
+  left: auto; right: 8px; color: #2a1a00;
+  background: linear-gradient(100deg,#ff5f9e,#ffd54a,#4be3b0,#4aa8ff,#c07bff);
+  background-size: 260% 100%;
+  animation: perfect-shift 5s ease-in-out infinite;
+  box-shadow: 0 2px 10px rgba(0,0,0,.22);
+}
+@keyframes perfect-shift { 0%, 100% { background-position: 0% 50%; } 50% { background-position: 100% 50%; } }
 .tcg-stamp svg, .tcg-featured svg, .tcg-perfect svg { width: 11px; height: 11px; }
 
 /* type bar */
@@ -860,8 +916,20 @@ h1, h2, h3, h4 { margin: 0; line-height: 1.08; letter-spacing: -.02em; }
 /* attacks */
 .tcg-moves { display: grid; gap: 7px; padding: 2px 0; }
 .tcg-move { display: grid; grid-template-columns: auto 1fr auto; gap: 9px; align-items: start; }
-.mv-cost { display: inline-flex; gap: 1px; padding-top: 1px; }
-.mv-e { font-style: normal; font-size: 12px; line-height: 1; }
+.mv-cost { display: inline-flex; gap: 3px; padding-top: 2px; }
+/* A real TCG energy cost is a coloured disc, not a bare emoji. */
+.mv-e {
+  font-style: normal; display: inline-grid; place-items: center;
+  width: 19px; height: 19px; border-radius: 50%; flex: none;
+  font-size: 10px; line-height: 1;
+  background: radial-gradient(circle at 34% 28%, #fff, color-mix(in srgb, var(--tint) 42%, #fff));
+  border: 1.5px solid color-mix(in srgb, var(--tint) 55%, #8d8d86);
+  box-shadow: inset 0 -1px 2px rgba(0,0,0,.08);
+}
+.tcg.secret .mv-e {
+  background: radial-gradient(circle at 34% 28%, #fff6dc, #c8952f);
+  border-color: #f7e2a4;
+}
 .mv-body { display: grid; gap: 1px; min-width: 0; }
 .mv-body b { font-size: 13.5px; font-weight: 900; letter-spacing: -.01em; }
 .mv-body em { font-style: normal; font-size: 11px; line-height: 1.42; color: var(--stone); }
@@ -900,8 +968,8 @@ h1, h2, h3, h4 { margin: 0; line-height: 1.08; letter-spacing: -.02em; }
 .tcg.secret.gold .tcg-inner { background: linear-gradient(170deg,#2a2110,#15100a); }
 .tcg.secret .tcg-stage, .tcg.secret .tcg-hp em, .tcg.secret .mv-body em,
 .tcg.secret .tcg-stats em, .tcg.secret .tcg-flavor, .tcg.secret .tcg-foot { color: #b39a63; }
-.tcg.secret .tcg-art { border-color: rgba(200,149,47,.5); background: radial-gradient(circle at 50% 40%, #4a3a17, #14100a); }
-.tcg.secret .tcg-art img { padding: 22px; opacity: .95; }
+.tcg.secret .tcg-art { border-color: rgba(200,149,47,.55); background: radial-gradient(circle at 50% 42%, #3d2f12, #0d0a06 78%); }
+.tcg.secret .tcg-art > img { opacity: .95; }
 .tcg.secret .tcg-typebar { background: rgba(200,149,47,.14); border-left-color: var(--gold-bright); }
 .tcg.secret .tcg-typebar em, .tcg.secret .tcg-typebar b { color: var(--gold-bright); }
 .tcg.secret .tcg-stats { border-color: rgba(200,149,47,.28); }
@@ -972,7 +1040,9 @@ h1, h2, h3, h4 { margin: 0; line-height: 1.08; letter-spacing: -.02em; }
   color: var(--gold-bright);
 }
 .pull-kicker svg { width: 15px; height: 15px; }
-.pull-card { width: 100%; animation: pull-in .72s cubic-bezier(.2,.9,.25,1) both; }
+/* The modal centres its own text; the card inside must not inherit that. */
+.pull-card { width: 100%; text-align: left; animation: pull-in .72s cubic-bezier(.2,.9,.25,1) both; }
+.pull-card .trn { text-align: center; }
 .pull-card .tcg, .pull-card .trn { pointer-events: none; }
 .pull-card .trn { max-width: 220px; margin: 0 auto; }
 @keyframes pull-in {
@@ -1073,6 +1143,11 @@ h1, h2, h3, h4 { margin: 0; line-height: 1.08; letter-spacing: -.02em; }
   .tcg.secret.gold { animation: none; }
   .trn.owned .trn-shine { animation: none; opacity: .25; }
   .pull-card { animation: none; }
+  .tcg.owned .tcg-art::before, .tcg.secret .tcg-art::before,
+  .tcg.owned .tcg-art::after, .tcg.secret .tcg-art::after,
+  .tcg.owned .tcg-inner::after, .tcg.secret .tcg-inner::after,
+  .tcg-perfect { animation: none; }
+  .tcg.owned .tcg-inner::after, .tcg.secret .tcg-inner::after { display: none; }
 }
 
 /* The binder chip joined the header, so the wordmark now competes for space.
@@ -1091,4 +1166,83 @@ h1, h2, h3, h4 { margin: 0; line-height: 1.08; letter-spacing: -.02em; }
 /* Save / add-to-binder actions under a pulled card */
 .pull-actions { display: grid; gap: 10px; width: 100%; }
 @media (min-width: 420px) { .pull-actions { grid-template-columns: 1fr 1fr; } }
-.pull-actions .btn { width: 100%; }
+.pull-actions .btn { width: 100%; white-space: nowrap; padding-left: 14px; padding-right: 14px; font-size: 15px; }
+
+/* ==================== CARD POLISH: stickers, foil, sparkle ================ */
+
+/* "New!" sticker — a card you've pulled but not yet filed in the binder. */
+.tcg, .trn { position: relative; }
+.tcg-new {
+  position: absolute; top: -10px; right: -8px; z-index: 9;
+  padding: 6px 13px; border-radius: 999px;
+  font-size: 11px; font-weight: 900; letter-spacing: .1em; text-transform: uppercase;
+  color: #2a1a00; background: linear-gradient(120deg, #fff3cf, #FEC870 55%, #f2c75a);
+  border: 2px solid #fff; box-shadow: 0 4px 14px rgba(0,0,0,.28);
+  transform: rotate(7deg);
+  animation: new-pop .5s cubic-bezier(.2,1.5,.4,1) both, new-bob 2.4s ease-in-out .5s infinite;
+  pointer-events: none;
+}
+.trn .tcg-new { top: -9px; right: -6px; font-size: 9.5px; padding: 4px 9px; border-width: 1.5px; }
+@keyframes new-pop { 0% { transform: rotate(7deg) scale(0); } 100% { transform: rotate(7deg) scale(1); } }
+@keyframes new-bob {
+  0%, 100% { transform: rotate(7deg) translateY(0); }
+  50% { transform: rotate(7deg) translateY(-3px); }
+}
+
+/* The foil border on an owned card shimmers instead of sitting flat. */
+.tcg.owned, .tcg.secret { background-size: 220% 220%; animation: foil-drift 9s ease-in-out infinite; }
+.tcg.is-new { box-shadow: 0 0 0 3px rgba(254,200,112,.55), 0 18px 40px rgba(0,0,0,.24); }
+@keyframes foil-drift {
+  0%, 100% { background-position: 0% 50%; }
+  50% { background-position: 100% 50%; }
+}
+
+/* Two sparkles twinkling in the art window of an owned card. */
+.tcg.owned .tcg-art .spk, .tcg.secret .tcg-art .spk {
+  position: absolute; z-index: 4; pointer-events: none;
+  font-size: 14px; line-height: 1; opacity: 0; font-style: normal;
+  color: #fff; text-shadow: 0 0 6px rgba(255,255,255,.95), 0 0 14px rgba(254,200,112,.85);
+  animation: twinkle 3.6s ease-in-out infinite;
+}
+.tcg-art .spk.a { top: 12%; right: 16%; }
+.tcg-art .spk.b { bottom: 16%; left: 12%; animation-delay: 1.8s; }
+@keyframes twinkle {
+  0%, 72%, 100% { opacity: 0; transform: scale(.4) rotate(0deg); }
+  84% { opacity: 1; transform: scale(1) rotate(25deg); }
+}
+
+/* Rarity symbol reads at a glance: gold star for rare, gold triple for secret. */
+.tcg.r-rare .tcg-rar { color: var(--gold); text-shadow: 0 0 8px rgba(254,200,112,.9); }
+.tcg.secret .tcg-rar { letter-spacing: -1px; text-shadow: 0 0 10px rgba(254,200,112,.8); }
+
+/* The locked card back gets a gold shimmer so the empty slot still tempts you. */
+.tcg.back .back-q { animation: q-pulse 2.8s ease-in-out infinite; }
+@keyframes q-pulse { 0%, 100% { opacity: .75; transform: scale(1); } 50% { opacity: 1; transform: scale(1.09); } }
+.tcg.back .tcg-inner::before {
+  content: ""; position: absolute; inset: 0; pointer-events: none;
+  background: linear-gradient(112deg, transparent 43%, rgba(254,200,112,.16) 50%, transparent 57%);
+  transform: translateX(-130%);
+  animation: card-sweep 5.5s ease-in-out infinite;
+}
+
+/* An earned Trainer card gets a starburst behind its emoji.
+   `isolation` makes .trn-em a stacking context, so the z-index:-1 glow lands
+   behind the emoji rather than behind the whole card's background. */
+.trn.owned .trn-em { position: relative; isolation: isolate; }
+.trn.owned .trn-em::before {
+  content: ""; position: absolute; left: 50%; top: 50%; width: 62px; height: 62px;
+  transform: translate(-50%, -50%); z-index: -1; border-radius: 50%;
+  background: radial-gradient(circle, rgba(254,200,112,.55), rgba(254,200,112,0) 68%);
+  animation: q-pulse 3.2s ease-in-out infinite;
+}
+
+@media (max-width: 520px) {
+  .tcg-new { top: -8px; right: -4px; font-size: 10px; padding: 5px 10px; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .tcg-new { animation: none; }
+  .tcg.owned, .tcg.secret { animation: none; }
+  .tcg-art .spk { display: none; }
+  .tcg.back .back-q, .tcg.back .tcg-inner::before, .trn.owned .trn-em::before { animation: none; }
+}
