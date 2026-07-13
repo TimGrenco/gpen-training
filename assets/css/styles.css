@@ -1246,3 +1246,145 @@ h1, h2, h3, h4 { margin: 0; line-height: 1.08; letter-spacing: -.02em; }
   .tcg-art .spk { display: none; }
   .tcg.back .back-q, .tcg.back .tcg-inner::before, .trn.owned .trn-em::before { animation: none; }
 }
+
+/* ==================== BOOSTER PACK (the pull ritual) ===================== */
+/* Block flow, not nested grid: a grid item with no in-flow content collapsed
+   the pack to 0 wide despite a definite width. Block + margin auto is stable. */
+.pull-stage { position: relative; display: block; text-align: center; min-height: 360px; width: min(360px, 86vw); margin: 0 auto; }
+/* the reveal starts hidden behind the pack, then flips in */
+.pull-reveal[hidden] { display: none; }
+.pull-reveal { display: grid; gap: 16px; justify-items: center; text-align: center; width: 100%; animation: reveal-fade .5s ease both; }
+@keyframes reveal-fade { from { opacity: 0; transform: translateY(8px); } to { opacity: 1; transform: none; } }
+
+.pull-pack {
+  position: relative; width: min(228px, 66vw); margin: 0 auto;
+  border: 0; padding: 0; background: none; cursor: pointer; display: block;
+  animation: pack-float 3s ease-in-out infinite;
+  filter: drop-shadow(0 20px 34px rgba(0,0,0,.42));
+}
+@keyframes pack-float { 0%, 100% { transform: translateY(0) rotate(-1.6deg); } 50% { transform: translateY(-11px) rotate(1.6deg); } }
+/* pk-main is in-flow and carries the aspect-ratio, so it gives the pack a
+   definite size — the absolute layers (top strip, glow, hint) sit over it. */
+.pk-main {
+  position: relative; width: 100%; aspect-ratio: 5 / 7; border-radius: 15px; overflow: hidden;
+  background: linear-gradient(150deg, #f2c75a, #c8952f 38%, #8a6b28 54%, #f7e2a4 76%, #c8952f);
+  border: 2px solid rgba(255,255,255,.42);
+  display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 16px;
+}
+.pk-main::before { /* faint pinstripe foil texture */
+  content: ""; position: absolute; inset: 0; opacity: .5;
+  background: repeating-linear-gradient(58deg, rgba(255,255,255,.16) 0 2px, transparent 2px 9px);
+}
+.pk-eyebrow { position: relative; font-size: 12px; font-weight: 900; letter-spacing: .16em; text-transform: uppercase; color: #2a1a00; }
+.pk-logo { position: relative; }
+.pk-logo img { width: 92px; height: 92px; object-fit: contain; filter: drop-shadow(0 3px 7px rgba(0,0,0,.32)); opacity: .96; }
+.pk-set { position: relative; font-size: 11px; font-weight: 800; letter-spacing: .13em; text-transform: uppercase; color: #3a2a05; background: rgba(255,255,255,.4); padding: 4px 11px; border-radius: 999px; }
+.pk-glow { position: absolute; inset: 0; z-index: 2; pointer-events: none; border-radius: 15px;
+  background: linear-gradient(115deg, transparent 40%, rgba(255,255,255,.62) 50%, transparent 60%);
+  transform: translateX(-120%); animation: pk-shine 2.7s ease-in-out infinite; }
+@keyframes pk-shine { 0%, 55% { transform: translateX(-120%); } 100% { transform: translateX(120%); } }
+.pk-top {
+  position: absolute; top: 0; left: 0; right: 0; height: 21%; z-index: 3;
+  background: linear-gradient(150deg, #fff3cf, #d9a63c);
+  border-bottom: 3px dashed rgba(0,0,0,.28); border-radius: 15px 15px 3px 3px;
+  transform-origin: 50% 100%;
+}
+.pk-hint {
+  position: absolute; bottom: -38px; left: 0; right: 0; text-align: center;
+  display: inline-flex; align-items: center; justify-content: center; gap: 5px;
+  font-size: 13px; font-weight: 800; color: var(--gold-bright); letter-spacing: .01em;
+  animation: pk-nudge 1.4s ease-in-out infinite;
+}
+.pk-hint svg { width: 14px; height: 14px; }
+@keyframes pk-nudge { 0%, 100% { opacity: .55; transform: translateY(0); } 50% { opacity: 1; transform: translateY(3px); } }
+
+/* the tear */
+.pull-pack.ripping { animation: pack-jolt .5s ease; pointer-events: none; }
+@keyframes pack-jolt { 0% { transform: translateY(-11px) rotate(1.6deg); } 20% { transform: translateX(-5px) rotate(-3deg); } 40% { transform: translateX(5px) rotate(3deg); } 100% { transform: none; } }
+.pull-pack.ripping .pk-top { animation: pk-tear .52s cubic-bezier(.3,.7,.3,1) forwards; }
+@keyframes pk-tear { to { transform: translateY(-160%) rotate(-15deg); opacity: 0; } }
+.pull-pack.ripping .pk-main { animation: pk-open .56s ease forwards; }
+@keyframes pk-open { 0% { transform: scale(1); } 22% { transform: scale(1.05) rotate(1deg); } 100% { transform: scale(.58) translateY(34px); opacity: 0; } }
+.pull-pack.ripping .pk-hint, .pull-pack.ripping .pk-glow { opacity: 0; }
+.pull-pack.ripping::after { /* light burst */
+  content: ""; position: absolute; inset: -12%; z-index: 4; pointer-events: none; border-radius: 24px;
+  background: radial-gradient(circle at 50% 44%, rgba(255,255,255,.95), rgba(254,200,112,.55) 30%, transparent 64%);
+  animation: pk-burst .58s ease-out forwards;
+}
+@keyframes pk-burst { 0% { opacity: 0; transform: scale(.3); } 38% { opacity: 1; } 100% { opacity: 0; transform: scale(1.9); } }
+
+@media (prefers-reduced-motion: reduce) {
+  .pull-pack, .pk-glow { animation: none; }
+}
+
+/* ==================== AMBIENT VAPOR ===================================== */
+.vapor { position: absolute; inset: 0; overflow: hidden; pointer-events: none; }
+.vap {
+  position: absolute; bottom: -60px; border-radius: 50%;
+  background: radial-gradient(circle, rgba(255,255,255,.32), rgba(255,255,255,0) 68%);
+  filter: blur(8px); opacity: 0;
+  animation: vap-rise linear infinite;
+}
+@keyframes vap-rise {
+  0% { transform: translateY(0) scale(.6); opacity: 0; }
+  18% { opacity: .7; }
+  78% { opacity: .4; }
+  100% { transform: translateY(-400px) scale(1.75); opacity: 0; }
+}
+/* keep the hero's real content above the vapor + gradient */
+.hero-inner { position: relative; z-index: 1; }
+.hero .vapor { z-index: 0; }
+.bn-hero { position: relative; overflow: hidden; }
+.bn-hero > *:not(.vapor) { position: relative; z-index: 1; }
+.bn-hero .vapor .vap { background: radial-gradient(circle, rgba(254,200,112,.22), rgba(254,200,112,0) 66%); }
+@media (prefers-reduced-motion: reduce) { .vapor { display: none; } }
+
+/* ==================== QUIZ ARCADE JUICE ================================= */
+.quiz { position: relative; }
+.quiz-count { display: flex; align-items: center; gap: 10px; flex-wrap: wrap; }
+.qc-num { font-weight: 800; }
+.quiz-score { margin-left: auto; display: inline-flex; align-items: center; gap: 5px; font-weight: 800; color: var(--gold); font-variant-numeric: tabular-nums; }
+.quiz-score svg { width: 14px; height: 14px; }
+.quiz-score b { font-size: 15px; }
+#qscore.pop { animation: score-pop .34s cubic-bezier(.2,1.6,.4,1); display: inline-block; }
+@keyframes score-pop { 0% { transform: scale(1); color: var(--ok); } 45% { transform: scale(1.5); color: var(--ok); } 100% { transform: scale(1); } }
+
+.pt-fly {
+  position: absolute; z-index: 5; transform: translate(-50%, 0);
+  font-size: 22px; font-weight: 900; color: var(--ok); pointer-events: none; white-space: nowrap;
+  text-shadow: 0 2px 8px rgba(0,0,0,.18);
+  animation: pt-rise 1.05s cubic-bezier(.2,.7,.3,1) forwards;
+}
+.pt-fly em { font-style: normal; color: var(--ember); font-size: 16px; margin-left: 3px; }
+@keyframes pt-rise {
+  0% { opacity: 0; transform: translate(-50%, 6px) scale(.7); }
+  20% { opacity: 1; transform: translate(-50%, -6px) scale(1.1); }
+  100% { opacity: 0; transform: translate(-50%, -64px) scale(1); }
+}
+
+/* letter grade on the results screen */
+.grade-card {
+  display: inline-flex; align-items: center; gap: 16px; margin: 0 auto 6px;
+  padding: 14px 22px 14px 16px; border-radius: 18px; background: var(--cream);
+  border: 2px solid var(--line);
+  animation: grade-in .6s cubic-bezier(.2,1.4,.4,1) both;
+}
+.grade-big {
+  font-size: 52px; font-weight: 900; line-height: 1; letter-spacing: -.03em;
+  width: 84px; height: 84px; display: grid; place-items: center; border-radius: 16px;
+  color: #fff; background: var(--ink);
+}
+.grade-card.g-A .grade-big { background: linear-gradient(140deg, #2f8f5b, #1f6f43); }
+.grade-card.g-B .grade-big { background: linear-gradient(140deg, #c8952f, #FEC870); color: #2a1a00; }
+.grade-card.g-C .grade-big { background: linear-gradient(140deg, #D75D43, #b8492f); }
+.grade-card.g-D .grade-big, .grade-card.g-F .grade-big { background: linear-gradient(140deg, #555, #333); }
+.grade-meta { display: grid; gap: 3px; text-align: left; }
+.grade-meta b { font-size: 19px; font-weight: 900; }
+.grade-meta em { font-style: normal; display: inline-flex; align-items: center; gap: 5px; font-size: 13px; font-weight: 800; color: var(--gold); }
+.grade-meta em svg { width: 13px; height: 13px; }
+@keyframes grade-in { 0% { opacity: 0; transform: scale(.5) rotate(-8deg); } 60% { transform: scale(1.06) rotate(2deg); } 100% { opacity: 1; transform: none; } }
+
+@media (prefers-reduced-motion: reduce) {
+  .pt-fly { animation: none; opacity: 1; }
+  #qscore.pop, .grade-card { animation: none; }
+}

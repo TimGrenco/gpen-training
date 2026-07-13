@@ -355,19 +355,40 @@
   /* The card-pull moment. Used when you certify (product card) and when you
      solve a trivia egg (trainer card). The card flips in out of a foil pack. */
   function showPull(kicker, cardHTML, footNote, saveSlug) {
+    var reduced = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
     var m = document.createElement("div");
     m.className = "modal pull-modal";
+
+    var revealHTML =
+      '<div class="pull-reveal"' + (reduced ? "" : " hidden") + '>' +
+        '<div class="pull-kicker">' + ic("spark") + " " + esc(kicker) + "</div>" +
+        '<div class="pull-card">' + cardHTML + "</div>" +
+        (footNote ? '<div class="pull-note">' + footNote + "</div>" : "") +
+        '<div class="pull-actions">' +
+          (saveSlug ? '<button class="btn xl ghost-dark pull-save">' + ic("dl") + " Save card</button>" : "") +
+          '<button class="btn xl pull-ok">Add to binder ' + ic("arrow") + "</button>" +
+        "</div>" +
+      "</div>";
+
+    // The booster pack: a foil wrapper you tear open. Skipped for reduced-motion.
+    var packHTML = reduced ? "" :
+      '<button class="pull-pack" aria-label="Rip open your booster pack">' +
+        '<span class="pk-glow"></span>' +
+        '<span class="pk-main">' +
+          '<span class="pk-eyebrow">G Pen University</span>' +
+          '<span class="pk-logo"><img src="assets/img/gpen-g-white.png" alt=""/></span>' +
+          '<span class="pk-set">Base Set · Booster</span>' +
+        "</span>" +
+        '<span class="pk-top"></span>' +
+        '<span class="pk-hint">' + ic("spark") + " Tap to rip it open</span>" +
+      "</button>";
+
     m.innerHTML = '<div class="pull-in">' +
       '<button class="modal-x" aria-label="Close">×</button>' +
-      '<div class="pull-kicker">' + ic("spark") + " " + esc(kicker) + "</div>" +
-      '<div class="pull-card">' + cardHTML + "</div>" +
-      (footNote ? '<div class="pull-note">' + footNote + "</div>" : "") +
-      '<div class="pull-actions">' +
-        (saveSlug ? '<button class="btn xl ghost-dark pull-save">' + ic("dl") + " Save card</button>" : "") +
-        '<button class="btn xl pull-ok">Add to binder ' + ic("arrow") + "</button>" +
-      "</div>" +
+      '<div class="pull-stage">' + packHTML + revealHTML + "</div>" +
     "</div>";
     document.body.appendChild(m); document.body.classList.add("noscroll");
+
     function close() { m.remove(); document.body.classList.remove("noscroll"); }
     var save = $(".pull-save", m);
     if (save) save.addEventListener("click", function (ev) { ev.stopPropagation(); saveCardImage(saveSlug); });
@@ -377,7 +398,21 @@
     document.addEventListener("keydown", function onEsc(ev) {
       if (ev.key === "Escape") { close(); document.removeEventListener("keydown", onEsc); }
     });
-    confetti();
+
+    var pack = $(".pull-pack", m), reveal = $(".pull-reveal", m);
+    if (!pack) { confetti(); return; } // reduced-motion: card is already showing
+
+    var opened = false, autoT;
+    function open() {
+      if (opened) return; opened = true;
+      clearTimeout(autoT);
+      pack.classList.add("ripping");
+      confetti();
+      // let the tear play, then swap the pack for the card
+      setTimeout(function () { if (pack.parentNode) pack.remove(); reveal.hidden = false; }, 560);
+    }
+    pack.addEventListener("click", function (ev) { ev.stopPropagation(); open(); });
+    autoT = setTimeout(open, 4600); // safety: open it for them if they just stare
   }
 
   /* ---- hidden trivia easter eggs ----------------------------------------- */
@@ -606,6 +641,7 @@
     app.innerHTML = header() +
       '<section class="hero">' +
         (heroBg ? '<div class="hero-bg" style="background-image:url(\'' + esc(heroBg) + '\')"></div>' : "") +
+        vaporHTML(6) +
         '<div class="hero-inner reveal">' +
           crestSVG("hero-crest") +
           '<div class="hero-eyebrow">' + ic("cap") + " " + esc(CFG.programName) + "</div>" +
@@ -959,7 +995,7 @@
   }
   function runQuiz(c) {
     var order = c.quiz.map(function (_, i) { return i; });
-    var i = 0, answers = [], streak = 0, zone = $("#quiz-zone");
+    var i = 0, answers = [], streak = 0, points = 0, zone = $("#quiz-zone");
     step();
     zone.scrollIntoView({ behavior: "smooth", block: "start" });
 
@@ -967,8 +1003,9 @@
       var q = c.quiz[order[i]];
       zone.innerHTML = '<div class="quiz">' +
         '<div class="quiz-bar"><div class="quiz-bar-fill" style="width:' + Math.round((i / c.quiz.length) * 100) + '%"></div></div>' +
-        '<div class="quiz-count">Question ' + (i + 1) + " of " + c.quiz.length +
-          (streak >= 2 ? '<span class="quiz-streak">' + ic("fire") + " " + streak + " in a row</span>" : "") + "</div>" +
+        '<div class="quiz-count"><span class="qc-num">Question ' + (i + 1) + " of " + c.quiz.length + "</span>" +
+          (streak >= 2 ? '<span class="quiz-streak">' + ic("fire") + " ×" + Math.min(streak, 5) + " combo</span>" : "") +
+          '<span class="quiz-score">' + ic("spark") + ' <b id="qscore">' + points + "</b> pts</span></div>" +
         '<div class="quiz-q">' + esc(q.q) + "</div>" +
         '<div class="quiz-choices">' + q.choices.map(function (ch, ci) {
           return '<button class="choice" data-ci="' + ci + '"><span class="ch-key">' + String.fromCharCode(65 + ci) + "</span><span>" + esc(ch) + "</span></button>";
@@ -976,13 +1013,33 @@
         '<div class="quiz-why" hidden></div>' +
         '<button class="btn xl next" id="q-next" hidden></button>' +
       "</div>";
-      $$(".choice", zone).forEach(function (b) { b.addEventListener("click", function () { choose(parseInt(b.getAttribute("data-ci"), 10), q); }); });
+      $$(".choice", zone).forEach(function (b) { b.addEventListener("click", function () { choose(parseInt(b.getAttribute("data-ci"), 10), q, b); }); });
     }
-    function choose(ci, q) {
+    // A correct answer flings its points up from the tapped choice.
+    function flyPoints(gain, mult, btn) {
+      var quiz = $(".quiz", zone); if (!quiz) return;
+      var qr = quiz.getBoundingClientRect(), br = btn.getBoundingClientRect();
+      var fly = document.createElement("div");
+      fly.className = "pt-fly";
+      fly.innerHTML = "+" + gain + (mult > 1 ? '<em>×' + mult + "</em>" : "");
+      fly.style.left = (br.left - qr.left + br.width / 2) + "px";
+      fly.style.top = (br.top - qr.top + 6) + "px";
+      quiz.appendChild(fly);
+      setTimeout(function () { fly.remove(); }, 1100);
+    }
+    function bumpScore() {
+      var el = $("#qscore", zone); if (!el) return;
+      el.textContent = points; el.classList.remove("pop"); void el.offsetWidth; el.classList.add("pop");
+    }
+    function choose(ci, q, btn) {
       if (answers[i] != null) return;
       answers[i] = ci;
       var correct = ci === q.answer;
-      streak = correct ? streak + 1 : 0;
+      if (correct) {
+        streak += 1;
+        var mult = Math.min(streak, 5), gain = 100 * mult;
+        points += gain; flyPoints(gain, mult, btn); bumpScore();
+      } else { streak = 0; }
       $$(".choice", zone).forEach(function (b, bi) {
         b.disabled = true;
         if (bi === q.answer) b.classList.add("correct");
@@ -991,7 +1048,7 @@
       var why = $(".quiz-why", zone); why.hidden = false;
       why.className = "quiz-why " + (correct ? "ok" : "no");
       why.innerHTML = "<strong>" + (correct ? ic("check") + " " + quip("correct") : quip("wrong")) + "</strong> " +
-        (correct && streak >= 3 ? '<span class="streak-pop">' + ic("fire") + " " + streak + " in a row!</span> " : "") + esc(q.why);
+        (correct && streak >= 3 ? '<span class="streak-pop">' + ic("fire") + " ×" + Math.min(streak, 5) + " combo!</span> " : "") + esc(q.why);
       var n = $("#q-next", zone); n.hidden = false;
       n.innerHTML = (i + 1 < c.quiz.length ? "Next question " + ic("arrow") : "See my results " + ic("arrow"));
       n.onclick = function () { i++; if (i < c.quiz.length) step(); else finish(); };
@@ -1000,13 +1057,31 @@
       var correct = 0; c.quiz.forEach(function (q, qi) { if (answers[qi] === q.answer) correct++; });
       var pct = Math.round((correct / c.quiz.length) * 100), passed = pct >= c.passPct;
       logEvent("quiz", { course: c.slug, score: pct, passed: passed });
-      if (!passed) return quizFail(c, correct, pct);
-      quizPass(c, correct, pct);
+      if (!passed) return quizFail(c, correct, pct, points);
+      quizPass(c, correct, pct, points);
     }
   }
-  function quizFail(c, correct, pct) {
+  // Letter grade for the results screen — a little arcade payoff.
+  function gradeFor(pct) {
+    if (pct >= 100) return { g: "A+", label: "Flawless victory" };
+    if (pct >= 90) return { g: "A", label: "Certified genius" };
+    if (pct >= 80) return { g: "B", label: "Solid work" };
+    if (pct >= 70) return { g: "C", label: "So close" };
+    if (pct >= 60) return { g: "D", label: "Almost there" };
+    return { g: "F", label: "Run it back" };
+  }
+  function gradeHTML(pct, points) {
+    var gr = gradeFor(pct);
+    return '<div class="grade-card g-' + gr.g.charAt(0) + '">' +
+      '<span class="grade-big">' + gr.g + "</span>" +
+      '<span class="grade-meta"><b>' + esc(gr.label) + "</b>" +
+        (points != null ? '<em>' + ic("spark") + " " + points.toLocaleString() + " pts</em>" : "") + "</span>" +
+    "</div>";
+  }
+  function quizFail(c, correct, pct, points) {
     var zone = $("#quiz-zone");
     zone.innerHTML = '<div class="result fail">' +
+      gradeHTML(pct, points) +
       '<div class="result-score">' + pct + '%<span>' + correct + "/" + c.quiz.length + "</span></div>" +
       "<h3>" + esc(quip("fail")) + "</h3><p>You need " + c.passPct + "% to certify. Review the lessons above and give it another shot — you've got this.</p>" +
       '<button class="btn xl" id="retry">' + ic("refresh") + " Retry quiz</button>" +
@@ -1014,7 +1089,7 @@
     $("#retry").addEventListener("click", function () { runQuiz(c); });
     zone.scrollIntoView({ behavior: "smooth", block: "start" });
   }
-  function quizPass(c, correct, pct) {
+  function quizPass(c, correct, pct, points) {
     var e = getEnroll();
     var date = niceDate(), cid = certId(e.name + "|" + c.name + "|" + date);
     var s = getState(); var firstTime = !(s.courses[c.slug] && s.courses[c.slug].passed);
@@ -1047,6 +1122,7 @@
     }
     var zone = $("#quiz-zone");
     zone.innerHTML = '<div class="result pass">' +
+        gradeHTML(pct, points) +
         '<div class="result-score">' + pct + '%<span>' + correct + "/" + c.quiz.length + "</span></div>" +
         "<h3>" + ic("check") + " " + esc(quip("pass")) + "</h3><p>You're now a certified <strong>" + esc(c.name) + "</strong> Product Specialist" + (firstTime ? "" : " (progress refreshed)") + ".</p>" +
       "</div>" +
@@ -1560,6 +1636,19 @@
   }
 
   /* A proper university seal: ring text, est. date, motto. */
+  // Drifting vapor wisps for a hero background — it's a vaporizer site, after all.
+  function vaporHTML(n) {
+    var out = "";
+    for (var i = 0; i < (n || 5); i++) {
+      var size = 90 + Math.round(Math.random() * 90);
+      var left = Math.round(Math.random() * 100);
+      var dur = 9 + Math.round(Math.random() * 9);
+      var delay = -Math.round(Math.random() * dur);
+      out += '<span class="vap" style="left:' + left + "%;width:" + size + "px;height:" + size +
+        "px;animation-duration:" + dur + "s;animation-delay:" + delay + 's"></span>';
+    }
+    return '<div class="vapor" aria-hidden="true">' + out + "</div>";
+  }
   function crestSVG(cls) {
     return '<svg class="crest ' + (cls || "") + '" viewBox="0 0 120 120" aria-hidden="true">' +
       '<defs>' +
@@ -1590,6 +1679,7 @@
       '<section class="binder reveal">' +
         '<a class="back" href="#/">' + ic("back") + " All courses</a>" +
         '<div class="bn-hero">' +
+          vaporHTML(5) +
           crestSVG("big") +
           '<span class="ch-eyebrow">' + ic("cap") + " The Collection</span>" +
           "<h1>The Binder</h1>" +
