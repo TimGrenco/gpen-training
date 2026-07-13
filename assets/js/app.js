@@ -1667,6 +1667,13 @@
   }
 
   /* ---- THE BINDER (card collection) -------------------------------------- */
+  // Wrap a card in a translucent plastic sleeve pocket (the binder page slot).
+  function pocket(inner, filled) {
+    return '<div class="pocket' + (filled ? " filled" : "") + '">' + inner + "</div>";
+  }
+  // Binding rings are drawn as a tiled CSS background on .binder-rings so they
+  // stay evenly spaced down the spine no matter how tall the pages get.
+  function ringsHTML() { return ""; }
   function renderCollection() {
     setTitleDoc("The Binder");
     var e = getEnroll();
@@ -1683,22 +1690,38 @@
           crestSVG("big") +
           '<span class="ch-eyebrow">' + ic("cap") + " The Collection</span>" +
           "<h1>The Binder</h1>" +
-          "<p>" + (e ? esc(e.name) + "&rsquo;s collection" : "Your collection") + " &mdash; every card you&rsquo;ve pulled, and every slot still waiting.</p>" +
+          "<p>" + (e ? esc(e.name) + "&rsquo;s collection" : "Your collection") + " &mdash; flip through your sleeves, admire the holos, and hunt down every empty slot.</p>" +
           '<div class="bn-meter"><div class="bn-meter-fill" style="width:' + pct + '%"></div></div>' +
           '<div class="bn-count"><b>' + owned + "</b> of " + total + " cards &middot; " + pct + "% complete</div>" +
         "</div>" +
 
-        '<div class="sec-h big"><span class="sec-n">1</span><h2>' + esc(SET.name) + "</h2><span>" + base + " of " + COURSES.length + " collected</span></div>" +
-        '<div class="tcg-grid">' + COURSES.map(function (c) { return tcgCard(c); }).join("") + "</div>" +
+        '<div class="binder-book">' +
+          '<div class="binder-rings" aria-hidden="true">' + ringsHTML(6) + "</div>" +
+          '<div class="binder-pages">' +
 
-        '<div class="sec-h big"><span class="sec-n">2</span><h2>Trainers &amp; Energy</h2><span>' + tr + " of " + TRAINERS.length + " found</span></div>" +
-        '<p class="catalog-lede">One card for every hidden trivia egg on the site. They&rsquo;re tucked in different places on every page &mdash; look for something that doesn&rsquo;t belong.</p>' +
-        '<div class="trn-grid">' + TRAINERS.map(trainerCardHTML).join("") + "</div>" +
-        eggHTML("collection", "binder") +
+            // Page 1 \u2014 the 6-card Base Set (5 products + the secret rare as 6/6)
+            '<div class="sleeve-page">' +
+              '<div class="page-head"><span class="page-tab"><span class="tab-no">Page 1</span>' + esc(SET.name) + "</span>" +
+                '<span class="page-status">' + (base + (st !== "locked" ? 1 : 0)) + " of 6 collected</span></div>" +
+              '<div class="tcg-grid pockets">' +
+                COURSES.map(function (c) { return pocket(tcgCard(c), cardOwned(c.slug)); }).join("") +
+                pocket(secretCardHTML(), st !== "locked") +
+              "</div>" +
+            "</div>" +
 
-        '<div class="sec-h big"><span class="sec-n">3</span><h2>Secret Rare</h2><span>' +
-          (st === "gold" ? "Gold foil \uD83D\uDC51" : st === "holo" ? "Holo \u2014 go for gold" : "Locked") + "</span></div>" +
-        '<div class="tcg-grid single">' + secretCardHTML() + "</div>" +
+            // Page 2 \u2014 Trainers & Energy (one per hidden egg)
+            '<div class="sleeve-page">' +
+              '<div class="page-head"><span class="page-tab"><span class="tab-no">Page 2</span>Trainers &amp; Energy</span>' +
+                '<span class="page-status">' + tr + " of " + TRAINERS.length + " found</span></div>" +
+              '<p class="catalog-lede">One card for every hidden trivia egg on the site. They&rsquo;re tucked in different places on every page &mdash; look for something that doesn&rsquo;t belong.</p>' +
+              '<div class="trn-grid pockets">' +
+                TRAINERS.map(function (t) { return pocket(trainerCardHTML(t), eggSolved(t.egg)); }).join("") +
+              "</div>" +
+              eggHTML("collection", "binder") +
+            "</div>" +
+
+          "</div>" +
+        "</div>" +
 
         '<div class="bn-share">' +
           "<h3>" + ic("share") + " Show off the collection</h3>" +
