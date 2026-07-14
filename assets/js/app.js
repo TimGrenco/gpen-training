@@ -760,7 +760,7 @@
           "</div>" +
         "</div>" +
       "</section>" +
-      lifestyleBand() +
+      lifestyleShowcase() +
       '<section class="hub reveal">' +
         progressBlock +
         nextUpBlock() +
@@ -773,7 +773,7 @@
         eggHTML("home", "rewards") +
         (hasProgress ? '<button class="linklike reset" id="reset">Reset my progress</button>' : "") +
       "</section>" +
-      lifestyleBand(true) +
+      lifestyleCinema((window.GPEN_LIFESTYLE || [])[9] || "", "The G Pen life", "Learn it. Live it. Sell it.") +
       '<section class="why">' +
         '<div class="why-grid">' +
           why(ic("play"), "Explore free", "Open any course and watch the how-to videos, browse specs, cleaning, and FAQs — no account required.") +
@@ -808,16 +808,37 @@
     COURSES.forEach(function (c) { if (c.heroImg) out.push(c.heroImg); if (c.gallery && c.gallery[0]) out.push(c.gallery[0].url); });
     return out;
   }
-  function lifestyleBand(reverse) {
-    var imgs = lifestyleImgs(); if (!imgs.length) return "";
-    if (reverse) imgs = imgs.slice().reverse();
-    var cells = imgs.concat(imgs).map(function (u) { return '<div class="life-cell"><img src="' + esc(u) + '" alt="" decoding="async"/></div>'; }).join("");
-    return '<section class="life-band' + (reverse ? " rev" : "") + '"><div class="life-track">' + cells + "</div></section>";
-  }
-  function lifestyleGrid(n, start) {
-    var imgs = lifestyleImgs().slice(start || 0, (start || 0) + (n || 6));
+  // A static editorial collage of real-people-using-product shots (masonry).
+  function lifestyleMosaic(n, start) {
+    var imgs = lifestyleImgs().slice(start || 0, (start || 0) + (n || 7));
     if (!imgs.length) return "";
-    return '<div class="life-grid">' + imgs.map(function (u) { return '<figure class="lg-cell"><img src="' + esc(u) + '" alt="" decoding="async"/></figure>'; }).join("") + "</div>";
+    return '<div class="life-mosaic">' + imgs.map(function (u) {
+      return '<figure class="lm-cell"><img src="' + esc(u) + '" alt="Real people using G Pen products" loading="lazy" decoding="async"/></figure>';
+    }).join("") + "</div>";
+  }
+  // The "the lifestyle" showcase section that replaced the scrolling marquee.
+  function lifestyleShowcase() {
+    var m = lifestyleMosaic(7, 0); if (!m) return "";
+    return '<section class="life-showcase reveal">' +
+      '<div class="ls-head"><span class="ls-eyebrow">' + ic("spark") + " The lifestyle</span>" +
+        "<h2>Real people. Real sessions.</h2>" +
+        "<p>This is the world you&rsquo;re repping &mdash; G Pen in the wild, from the couch to the function.</p></div>" +
+      m +
+    "</section>";
+  }
+  // A full-width cinematic lifestyle band used as a divider / on course pages.
+  function lifestyleCinema(img, eyebrow, line) {
+    if (!img) return "";
+    return '<section class="life-cinema reveal" style="background-image:url(\'' + esc(img) + '\')">' +
+      '<div class="lc-inner"><span class="lc-eyebrow">' + esc(eyebrow) + "</span><h2>" + esc(line) + "</h2></div>" +
+    "</section>";
+  }
+  // A lifestyle shot of a specific product (matched by folder in the CDN path).
+  function productLifeImg(slug, exclude) {
+    var folder = ({ "dash-ii": "dash-ii/", "dash-plus": "dash-plus/", "melt-hot-knife": "melt/", "hydout": "hydout/", "510-original": "510-original/" })[slug] || "";
+    var all = window.GPEN_LIFESTYLE || [];
+    var match = all.filter(function (u) { return folder && u.indexOf(folder) >= 0 && u !== exclude; })[0];
+    return match || all.filter(function (u) { return u !== exclude; })[0] || "";
   }
   function why(i, t, s) { return '<div class="why-card reveal"><span class="why-ic">' + i + "</span><h3>" + t + "</h3><p>" + s + "</p></div>"; }
   function step(n, t, s) { return '<li class="step reveal"><span class="step-n">' + n + "</span><div><h4>" + t + "</h4><p>" + s + "</p></div></li>"; }
@@ -977,6 +998,7 @@
         (c.highlights && c.highlights.length ? '<ul class="hl-list">' + c.highlights.map(function (h) { return "<li>" + ic("check") + "<span>" + esc(h) + "</span></li>"; }).join("") + "</ul>" : "") +
         galleryHTML(c) +
         egg("overview") +
+        lifestyleCinema(productLifeImg(c.slug, c.heroImg), "In the wild", "The " + c.name + " out in the world.") +
 
         (c.specs && c.specs.length ? secHead(++n, "Tech specs") + specTableHTML(c.specs) : "") +
         egg("specs") +
@@ -1749,7 +1771,7 @@
           "<p>" + esc(a.intro || "") + "</p>" +
         "</div>" +
         (a.stats ? '<div class="about-stats">' + a.stats.map(function (s) { return '<div class="astat"><strong>' + s.number + "</strong><span>" + esc(s.label) + "</span></div>"; }).join("") + "</div>" : "") +
-        lifestyleGrid(6, 0) +
+        lifestyleMosaic(7, 0) +
         '<div class="about-block"><h2>Our story</h2>' + founding + "</div>" +
         (a.milestones ? '<div class="about-block"><h2>Milestones</h2><ol class="timeline">' + a.milestones.map(function (m) {
           return '<li><span class="tl-year">' + esc(m.year) + "</span><span class=\"tl-dot\"></span><p>" + esc(m.text) + "</p></li>";
