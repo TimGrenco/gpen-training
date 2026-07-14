@@ -774,3 +774,51 @@ window.GPEN_TRAINERS = [
   { egg: "egg-global",     no: 9,  kind: "Stadium",   name: "Global Reach",     text: "From a Los Angeles garage in 2012 to shelves on nearly every continent." },
   { egg: "egg-binder",     no: 10, kind: "Item",      name: "The Binder",       text: "Every collector needs somewhere to keep the set." },
 ];
+
+/* =============================================================================
+   PROFESSOR O.G. — the mascot (Original G, tenured owl, Dean of G Pen U)
+   -----------------------------------------------------------------------------
+   Voice: playful and clever. He drops real knowledge, hypes your pulls, and
+   never, ever sounds like a compliance module. Edit the lines freely.
+   ========================================================================== */
+window.GPEN_MASCOT = {
+  name: "Professor O.G.",
+  short: "Prof. O.G.",
+  title: "Dean of G Pen University",
+  // home greeting, by how far along they are
+  welcome: [
+    "Welcome to G Pen U. I&rsquo;m Professor O.G. &mdash; Original G, tenured, and yes, the chain is real.",
+    "Class is in session. Pick any product, watch the tape, then show me you actually know it.",
+  ],
+  started: [
+    "Good pull. The set isn&rsquo;t gonna collect itself, though.",
+    "You&rsquo;re building a rep out there. Keep it rolling.",
+  ],
+  almost: [
+    "One card left. Don&rsquo;t leave me hanging here.",
+    "So close I can taste it. Finish the set.",
+  ],
+  done: [
+    "Certified G. You&rsquo;ve officially out-studied the faculty.",
+    "Gold chain, gold card. Go run the floor.",
+  ],
+  // quiz reactions
+  correct: [
+    "That&rsquo;s the one. Textbook.",
+    "Ayy &mdash; big brain.",
+    "You&rsquo;ve been reading. Respect.",
+    "Smooth. Like a 20-second heat-up.",
+  ],
+  wrong: [
+    "Not quite &mdash; even I misplace my glasses.",
+    "Nah. Circle back, you&rsquo;ve got it.",
+    "Close, but the syllabus disagrees.",
+  ],
+  // card pull
+  pull: [
+    "Ooh &mdash; fresh out the pack. Sleeve it up.",
+    "That&rsquo;s a clean pull. Straight to the binder.",
+    "Certified. Add it to the collection.",
+  ],
+  perfect: ["Perfect score?! Save some knowledge for the rest of us."],
+};

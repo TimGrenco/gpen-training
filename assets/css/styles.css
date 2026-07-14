@@ -300,7 +300,8 @@ h1, h2, h3, h4 { margin: 0; line-height: 1.08; letter-spacing: -.02em; }
 .quiz-why.ok { background: #f0f7f1; }
 .quiz-why.no { background: #fbf0ee; }
 .quiz-why strong { display: inline-flex; align-items: center; gap: 5px; }
-.quiz-why svg { width: 15px; height: 15px; }
+/* scoped to the icon wrapper so it can't shrink Prof. O.G.'s SVG */
+.quiz-why .ic svg { width: 15px; height: 15px; }
 .next { margin-top: 18px; width: 100%; }
 
 .result { background: #fff; border: 1px solid var(--line); border-radius: var(--radius); padding: 28px 24px; text-align: center; box-shadow: var(--shadow); }
@@ -1583,3 +1584,45 @@ h1, h2, h3, h4 { margin: 0; line-height: 1.08; letter-spacing: -.02em; }
   100% { transform: scale(1); }
 }
 @media (prefers-reduced-motion: reduce) { .hdr-binder.pop { animation: none; } }
+
+/* ==================== PROFESSOR O.G. (the mascot) ======================= */
+/* two classes deep so page-level `<container> svg` rules can't shrink him */
+.og-art .og-svg, .og-mini .og-svg, .og-say .og-svg { width: 100%; height: 100%; display: block; overflow: visible; }
+
+/* his "office hours" block on the home hub */
+.og-block {
+  display: flex; align-items: center; gap: 16px; margin: 4px 0 18px;
+  padding: 14px 18px 14px 14px; border-radius: 20px;
+  background: linear-gradient(120deg, #17140e, #0e0c08);
+  border: 1.5px solid rgba(200,149,47,.35);
+}
+.og-art { flex: none; width: 78px; height: 84px; }
+.og-art .og-svg { animation: og-bob 4.2s ease-in-out infinite; transform-origin: 50% 90%; }
+@keyframes og-bob { 0%, 100% { transform: translateY(0) rotate(-1.5deg); } 50% { transform: translateY(-4px) rotate(1.5deg); } }
+.og-bubble { position: relative; flex: 1; min-width: 0; background: var(--paper); border-radius: 14px; padding: 12px 15px; }
+.og-bubble::before { /* speech tail pointing at O.G. */
+  content: ""; position: absolute; left: -8px; top: 50%; transform: translateY(-50%);
+  border: 8px solid transparent; border-right-color: var(--paper); border-left: 0;
+}
+.og-name { display: flex; align-items: baseline; gap: 8px; flex-wrap: wrap; font-size: 13px; font-weight: 900; color: var(--ink); }
+.og-name em { font-style: normal; font-size: 10.5px; font-weight: 800; letter-spacing: .08em; text-transform: uppercase; color: var(--gold); }
+.og-bubble p { margin: 3px 0 0; font-size: 14.5px; line-height: 1.5; color: var(--ink); }
+
+/* small inline head — quiz feedback, pull note */
+.og-mini { flex: none; display: inline-block; width: 42px; height: 46px; vertical-align: middle; }
+
+/* quiz feedback becomes a row: O.G. reacts, then explains */
+.quiz-why { display: flex; align-items: flex-start; gap: 12px; }
+.qw-text { flex: 1; min-width: 0; }
+
+/* his line inside the card-pull note */
+.og-say { display: flex; align-items: center; gap: 9px; justify-content: center; margin-bottom: 8px; }
+.og-say em { font-style: italic; font-size: 13px; line-height: 1.4; color: var(--gold-bright); text-align: left; }
+
+@media (max-width: 520px) {
+  .og-block { gap: 11px; padding: 12px 13px 12px 10px; border-radius: 16px; }
+  .og-art { width: 62px; height: 68px; }
+  .og-bubble p { font-size: 13.5px; }
+  .og-mini { width: 36px; height: 40px; }
+}
+@media (prefers-reduced-motion: reduce) { .og-art .og-svg { animation: none; } }

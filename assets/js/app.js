@@ -607,6 +607,89 @@
   };
   function ic(n) { return '<span class="ic">' + (IC[n] || "") + "</span>"; }
 
+  /* =========================================================================
+     PROFESSOR O.G. — the mascot. A tenured owl in a grad cap with a G Pen
+     gold chain. Drawn as inline SVG so he recolours/scales anywhere.
+     Moods: chill | hyped | think | proud | oops
+     ====================================================================== */
+  var MASCOT = window.GPEN_MASCOT || {};
+  function mascotSVG(mood) {
+    mood = mood || "chill";
+    var closed = mood === "proud";
+    var lid = ({ chill: 14, hyped: 0, think: 9, proud: 0, oops: 6 })[mood] || 0;
+    var pupR = mood === "hyped" ? 12 : 10;
+    var pupDX = mood === "think" ? 5 : 0;
+    var brows = ({
+      chill: ["M66 86 L104 80", "M154 86 L116 80"],
+      hyped: ["M64 80 L104 74", "M156 80 L116 74"],
+      think: ["M66 92 L104 76", "M154 82 L116 80"],
+      proud: ["M66 86 L104 82", "M154 86 L116 82"],
+      oops: ["M66 78 L104 88", "M154 78 L116 88"],
+    })[mood] || ["M66 86 L104 80", "M154 86 L116 80"];
+    var uid = "og" + mood + (mascotSVG.n = (mascotSVG.n || 0) + 1);
+
+    function eye(cx) {
+      if (closed) {
+        return '<path d="M' + (cx - 19) + " 116 Q" + cx + " 98 " + (cx + 19) + ' 116" fill="none" stroke="#1f1f1f" stroke-width="6" stroke-linecap="round"/>';
+      }
+      var id = uid + "c" + cx;
+      return '<clipPath id="' + id + '"><circle cx="' + cx + '" cy="110" r="24"/></clipPath>' +
+        '<circle cx="' + cx + '" cy="110" r="24" fill="#ffffff"/>' +
+        '<g clip-path="url(#' + id + ')">' +
+          '<circle cx="' + (cx + pupDX) + '" cy="112" r="' + pupR + '" fill="#1a1a1a"/>' +
+          '<circle cx="' + (cx + pupDX + 4) + '" cy="108" r="4" fill="#fff"/>' +
+          (lid ? '<rect x="' + (cx - 26) + '" y="' + (86 - (14 - lid)) + '" width="52" height="' + lid + '" fill="#e2dccc"/>' : "") +
+        "</g>" +
+        '<circle cx="' + cx + '" cy="110" r="24" fill="none" stroke="#c8952f" stroke-width="3.5"/>';
+    }
+
+    return '<svg class="og-svg" viewBox="0 0 220 240" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">' +
+      '<path d="M52 92 L34 52 L82 74 Z" fill="#2b2b2b"/><path d="M168 92 L186 52 L138 74 Z" fill="#2b2b2b"/>' +
+      '<ellipse cx="110" cy="138" rx="72" ry="76" fill="#2b2b2b"/>' +
+      '<path d="M40 132 Q24 172 48 206 Q42 164 56 134 Z" fill="#1e1e1e"/>' +
+      '<path d="M180 132 Q196 172 172 206 Q178 164 164 134 Z" fill="#1e1e1e"/>' +
+      '<ellipse cx="110" cy="110" rx="60" ry="48" fill="#f3efe3"/>' +
+      eye(86) + eye(134) +
+      '<path d="' + brows[0] + '" stroke="#2b2b2b" stroke-width="6.5" stroke-linecap="round" fill="none"/>' +
+      '<path d="' + brows[1] + '" stroke="#2b2b2b" stroke-width="6.5" stroke-linecap="round" fill="none"/>' +
+      '<path d="M110 128 L100 144 L120 144 Z" fill="#FEC870"/>' +
+      '<path d="M110 144 L105 151 L115 151 Z" fill="#c8952f"/>' +
+      '<path d="M72 168 Q110 206 148 168" fill="none" stroke="#FEC870" stroke-width="5" stroke-linecap="round"/>' +
+      '<circle cx="110" cy="200" r="16" fill="#FEC870" stroke="#c8952f" stroke-width="2.5"/>' +
+      '<text x="110" y="207" text-anchor="middle" font-size="20" font-weight="900" font-family="Archivo, system-ui, sans-serif" fill="#1a1a1a">G</text>' +
+      '<g transform="translate(110,48) rotate(-9)">' +
+        '<path d="M-32 0 L32 0 L32 12 Q0 25 -32 12 Z" fill="#151515"/>' +
+        '<path d="M-58 -2 L0 -24 L58 -2 L0 20 Z" fill="#111"/>' +
+        '<path d="M-58 -2 L0 -24 L58 -2 L0 20 Z" fill="none" stroke="#c8952f" stroke-width="1.5" opacity=".55"/>' +
+        '<circle cx="0" cy="-2" r="4" fill="#c8952f"/>' +
+        '<path d="M54 -1 Q66 16 62 32" stroke="#FEC870" stroke-width="3" fill="none" stroke-linecap="round"/>' +
+        '<path d="M62 32 l-5 13 M62 32 l0 14 M62 32 l5 13" stroke="#FEC870" stroke-width="3" stroke-linecap="round"/>' +
+      "</g>" +
+      '<path d="M88 212 l0 11 M83 223 l10 0 M132 212 l0 11 M127 223 l10 0" stroke="#c8952f" stroke-width="4" stroke-linecap="round"/>' +
+    "</svg>";
+  }
+  function ogLine(key) { return pick(MASCOT[key] || []) || ""; }
+  // A small O.G. head used inline (quiz feedback, pull note).
+  function ogMini(mood) { return '<span class="og-mini">' + mascotSVG(mood) + "</span>"; }
+  // O.G. with a speech bubble — his "office hours" block on the hub.
+  function ogSays(mood, line) {
+    return '<div class="og-block reveal">' +
+      '<span class="og-art">' + mascotSVG(mood) + "</span>" +
+      '<div class="og-bubble">' +
+        '<span class="og-name">' + esc(MASCOT.short || "Prof. O.G.") + '<em>' + esc(MASCOT.title || "") + "</em></span>" +
+        "<p>" + line + "</p>" +
+      "</div>" +
+    "</div>";
+  }
+  // Which greeting he opens with, based on how far along they are.
+  function ogGreeting() {
+    var done = completedCount(), total = COURSES.length;
+    if (isSecretUnlocked() || isMasterEarned()) return ogSays("proud", ogLine("done"));
+    if (done === 0) return ogSays("chill", ogLine("welcome"));
+    if (done >= total - 1) return ogSays("hyped", ogLine("almost"));
+    return ogSays("chill", ogLine("started"));
+  }
+
   /* ---- sound fx (synthesized Web Audio; no asset files, gesture-triggered) - */
   var sfx = (function () {
     var KEY = "gpt.sound";
@@ -763,6 +846,7 @@
       lifestyleShowcase() +
       '<section class="hub reveal">' +
         progressBlock +
+        ogGreeting() +
         nextUpBlock() +
         '<div class="sec-h" id="courses"><h2>Course catalog</h2><span>' + esc(SET.name) + " · " + ownedCards() + " of " + totalCards() + " cards collected</span></div>" +
         '<p class="catalog-lede">Every course is a collectible card. Pass its quiz at ' + (COURSES[0] ? COURSES[0].passPct : 80) + '%+ to pull it. Collect all ' + total + ' and the <b>Certified G</b> secret rare reveals itself — find every hidden Trainer card and it turns <b>gold</b>.</p>' +
@@ -1209,8 +1293,10 @@
       });
       var why = $(".quiz-why", zone); why.hidden = false;
       why.className = "quiz-why " + (correct ? "ok" : "no");
-      why.innerHTML = "<strong>" + (correct ? ic("check") + " " + quip("correct") : quip("wrong")) + "</strong> " +
-        (correct && streak >= 3 ? '<span class="streak-pop">' + ic("fire") + " ×" + Math.min(streak, 5) + " combo!</span> " : "") + esc(q.why);
+      // Professor O.G. reacts to every answer, then explains.
+      why.innerHTML = ogMini(correct ? "hyped" : "oops") +
+        '<span class="qw-text"><strong>' + (correct ? ic("check") + " " + ogLine("correct") : ogLine("wrong")) + "</strong> " +
+        (correct && streak >= 3 ? '<span class="streak-pop">' + ic("fire") + " ×" + Math.min(streak, 5) + " combo!</span> " : "") + esc(q.why) + "</span>";
       var n = $("#q-next", zone); n.hidden = false;
       n.innerHTML = (i + 1 < c.quiz.length ? "Next question " + ic("arrow") : "See my results " + ic("arrow"));
       n.onclick = function () { i++; if (i < c.quiz.length) step(); else finish(); };
@@ -1278,6 +1364,9 @@
         ? "<b>Base Set complete.</b> The Certified G secret rare is yours."
         : "<b>" + left + "</b> more card" + (left === 1 ? "" : "s") + " to complete the " + esc(SET.name) + ".";
       if (pct === 100) note = "<b>★ Perfect score.</b> " + note;
+      // Prof. O.G. hypes the pull
+      note = '<span class="og-say">' + ogMini(pct === 100 ? "proud" : "hyped") +
+        "<em>&ldquo;" + (pct === 100 ? ogLine("perfect") : ogLine("pull")) + "&rdquo;</em></span>" + note;
       // let the pass banner paint before the pack opens
       setTimeout(function () { showPull("You pulled a card!", tcgCard(c), note, c.slug); }, 550);
     } else {
