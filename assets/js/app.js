@@ -400,13 +400,14 @@
     });
 
     var pack = $(".pull-pack", m), reveal = $(".pull-reveal", m);
-    if (!pack) { confetti(); return; } // reduced-motion: card is already showing
+    if (!pack) { sfx.play("pull"); confetti(); return; } // reduced-motion: card is already showing
 
     var opened = false, autoT;
     function open() {
       if (opened) return; opened = true;
       clearTimeout(autoT);
       pack.classList.add("ripping");
+      sfx.play("pull");
       confetti();
       // let the tear play, then swap the pack for the card
       setTimeout(function () { if (pack.parentNode) pack.remove(); reveal.hidden = false; }, 560);
@@ -519,9 +520,9 @@
     markFresh("t:" + id);
     if (isSecretUnlocked()) markFresh("secret"); // that egg turned the card gold
     var found = eggsSolvedCount();
-    if (allEggsSolved() && !isMasterEarned()) toast("All " + EGGS.length + " Trainer cards! Collect the Base Set to go gold.");
-    else if (isSecretUnlocked()) toast("Certified G went GOLD — 40% off unlocked! 👑");
-    else toast("Trainer card " + found + " of " + EGGS.length + " 🃏");
+    if (isSecretUnlocked()) { sfx.play("gold"); toast("Certified G went GOLD — 40% off unlocked! 👑"); }
+    else if (allEggsSolved() && !isMasterEarned()) { sfx.play("egg"); toast("All " + EGGS.length + " Trainer cards! Collect the Base Set to go gold."); }
+    else { sfx.play("egg"); toast("Trainer card " + found + " of " + EGGS.length + " 🃏"); }
     refreshCounters();
     // reflect the found state on the page without a full re-render
     $$('[data-egg="' + id + '"]').forEach(function (b) {
@@ -567,8 +568,68 @@
     share: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="4" y="3" width="16" height="18" rx="3"/><circle cx="12" cy="10" r="3"/><path d="M8.5 20a3.5 3.5 0 017 0"/></svg>',
     star: '<svg viewBox="0 0 24 24" fill="currentColor"><path d="M12 2l2.9 6.3 6.9.8-5.1 4.7 1.4 6.8L12 17.8 5.9 21.4l1.4-6.8L2.2 9.9l6.9-.8z"/></svg>',
     spark: '<svg viewBox="0 0 24 24" fill="currentColor"><path d="M12 2l1.9 5.4L19 9l-5.1 1.6L12 16l-1.9-5.4L5 9l5.1-1.6z"/><path d="M18.5 14l.9 2.4 2.6.8-2.6.8-.9 2.4-.9-2.4-2.6-.8 2.6-.8z"/><path d="M5 15l.7 1.9 2 .6-2 .6L5 20l-.7-1.9-2-.6 2-.6z"/></svg>',
+    sound: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M11 5L6 9H3v6h3l5 4z"/><path d="M15.5 8.5a5 5 0 010 7"/><path d="M18.5 5.5a9 9 0 010 13"/></svg>',
+    mute: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M11 5L6 9H3v6h3l5 4z"/><path d="M22 9l-6 6M16 9l6 6"/></svg>',
   };
   function ic(n) { return '<span class="ic">' + (IC[n] || "") + "</span>"; }
+
+  /* ---- sound fx (synthesized Web Audio; no asset files, gesture-triggered) - */
+  var sfx = (function () {
+    var KEY = "gpt.sound";
+    var on = (function () { try { return localStorage.getItem(KEY) !== "off"; } catch (e) { return true; } })();
+    var ctx = null;
+    function ac() {
+      if (ctx) return ctx;
+      try { ctx = new (window.AudioContext || window.webkitAudioContext)(); } catch (e) { ctx = null; }
+      return ctx;
+    }
+    function tone(freq, start, dur, type, gain) {
+      var c = ac(); if (!c) return;
+      var o = c.createOscillator(), g = c.createGain();
+      o.type = type || "sine"; o.frequency.value = freq;
+      var t0 = c.currentTime + (start || 0);
+      g.gain.setValueAtTime(0.0001, t0);
+      g.gain.exponentialRampToValueAtTime(gain || 0.18, t0 + 0.012);
+      g.gain.exponentialRampToValueAtTime(0.0001, t0 + (dur || 0.15));
+      o.connect(g); g.connect(c.destination);
+      o.start(t0); o.stop(t0 + (dur || 0.15) + 0.03);
+    }
+    function noise(start, dur, gain, hp) {
+      var c = ac(); if (!c) return;
+      var n = Math.max(1, Math.floor((dur || 0.2) * c.sampleRate));
+      var buf = c.createBuffer(1, n, c.sampleRate), d = buf.getChannelData(0);
+      for (var i = 0; i < n; i++) d[i] = (Math.random() * 2 - 1) * (1 - i / n);
+      var s = c.createBufferSource(); s.buffer = buf;
+      var f = c.createBiquadFilter(); f.type = "highpass"; f.frequency.value = hp || 1100;
+      var g = c.createGain(); g.gain.value = gain || 0.14;
+      s.connect(f); f.connect(g); g.connect(c.destination);
+      s.start(c.currentTime + (start || 0));
+    }
+    var lib = {
+      correct: function () { tone(660, 0, 0.12, "sine", 0.16); tone(880, 0.08, 0.14, "sine", 0.16); },
+      wrong: function () { tone(196, 0, 0.2, "square", 0.12); tone(147, 0.06, 0.22, "square", 0.1); },
+      combo: function () { [523, 659, 784, 1046].forEach(function (f, i) { tone(f, i * 0.055, 0.13, "triangle", 0.15); }); },
+      pull: function () { noise(0, 0.26, 0.16, 900); [784, 1046, 1318].forEach(function (f, i) { tone(f, 0.14 + i * 0.05, 0.18, "sine", 0.15); }); },
+      pass: function () { [523, 659, 784, 1046].forEach(function (f, i) { tone(f, i * 0.1, 0.24, "triangle", 0.17); }); },
+      egg: function () { tone(1046, 0, 0.18, "sine", 0.15); tone(1568, 0.1, 0.24, "sine", 0.13); },
+      gold: function () { [659, 784, 988, 1319, 1568].forEach(function (f, i) { tone(f, i * 0.09, 0.3, "triangle", 0.16); }); },
+      copy: function () { tone(880, 0, 0.05, "square", 0.09); tone(1320, 0.04, 0.05, "square", 0.07); },
+      tick: function () { tone(660, 0, 0.04, "sine", 0.07); },
+    };
+    return {
+      play: function (name) {
+        if (!on) return;
+        var c = ac(); if (c && c.state === "suspended") { try { c.resume(); } catch (e) {} }
+        var f = lib[name]; if (f) try { f(); } catch (e) {}
+      },
+      toggle: function () {
+        on = !on; try { localStorage.setItem(KEY, on ? "on" : "off"); } catch (e) {}
+        if (on) this.play("tick");
+        return on;
+      },
+      isOn: function () { return on; },
+    };
+  })();
 
   /* ---- toast + confetti -------------------------------------------------- */
   var toastT;
@@ -605,10 +666,22 @@
         '<img src="assets/img/gpen-g-white.png" class="hdr-logo dark" alt="G Pen"/>' +
         '<span class="hdr-name">G Pen <em>University</em></span>' +
       "</a>" +
+      '<button class="hdr-sound" id="sound-toggle" title="' + (sfx.isOn() ? "Sound on" : "Sound off") + '" aria-label="Toggle sound">' + ic(sfx.isOn() ? "sound" : "mute") + "</button>" +
       '<a class="hdr-binder" href="#/collection" title="Your binder"><span class="hb-em">\uD83C\uDCCF</span><b>' + ownedCards() + "/" + totalCards() + "</b></a>" +
       (e ? '<a class="hdr-user" href="#/"><span class="hdr-u-name">' + esc(e.name) + '</span><span class="hdr-u-store">' + esc(e.store || "") + "</span></a>"
          : '<a class="hdr-cta" href="#/">Browse courses</a>') +
     "</header>";
+  }
+  // Sound toggle survives re-renders via a single delegated listener (bound in boot).
+  function bindSoundToggle() {
+    document.addEventListener("click", function (ev) {
+      var btn = ev.target.closest && ev.target.closest("#sound-toggle");
+      if (!btn) return;
+      var nowOn = sfx.toggle();
+      btn.innerHTML = ic(nowOn ? "sound" : "mute");
+      btn.title = nowOn ? "Sound on" : "Sound off";
+      toast(nowOn ? "\uD83D\uDD0A Sound on" : "\uD83D\uDD07 Sound off");
+    });
   }
 
   /* ---- HOME (browse-first hub) ------------------------------------------- */
@@ -656,6 +729,7 @@
       lifestyleBand() +
       '<section class="hub reveal">' +
         progressBlock +
+        nextUpBlock() +
         '<div class="sec-h" id="courses"><h2>Course catalog</h2><span>' + esc(SET.name) + " · " + ownedCards() + " of " + totalCards() + " cards collected</span></div>" +
         '<p class="catalog-lede">Every course is a collectible card. Pass its quiz at ' + (COURSES[0] ? COURSES[0].passPct : 80) + '%+ to pull it. Collect all ' + total + ' and the <b>Certified G</b> secret rare reveals itself — find every hidden Trainer card and it turns <b>gold</b>.</p>' +
         '<div class="tcg-grid">' + COURSES.map(function (c) { return tcgCard(c); }).join("") + secretCardHTML() + "</div>" +
@@ -749,6 +823,36 @@
   // The three-tier discount reward, shown as an "earn it" tracker on the home hub.
   /* The reward ladder climbs with the collection:
        1 card -> 25%   3 cards -> 30%   full Base Set -> 35%   + all Trainers -> 40% gold */
+  // "Next up": the single clearest next step + how close the next reward is.
+  // The engagement hook — always one tappable "just one more" away from a payoff.
+  function nextUpBlock() {
+    if (isSecretUnlocked()) {
+      return '<a class="nextup done" href="#/collection">' +
+        '<span class="nu-badge">' + ic("award") + " Certified G</span>" +
+        '<span class="nu-main"><b>You collected everything. 👑</b><em>Every card, every Trainer, the gold foil — you&rsquo;re a fully loaded G.</em></span>' +
+        '<span class="nu-cta">Open the binder ' + ic("arrow") + "</span></a>";
+    }
+    var done = completedCount(), total = COURSES.length;
+    var headline, sub, ctaLabel, ctaHref;
+    if (!isMasterEarned()) {
+      var next = COURSES.filter(function (c) { return !cardOwned(c.slug); })[0] || COURSES[0];
+      ctaHref = "#/course/" + next.slug;
+      ctaLabel = (cardScore(next.slug) ? "Review " : "Start ") + next.name;
+      if (done === 0) { headline = "Pull your first card"; sub = "Pass any course quiz to bag your first card and unlock 25% off gpen.com."; }
+      else if (done < 3) { var t3 = 3 - done; headline = t3 + " more card" + (t3 === 1 ? "" : "s") + " to 30% off"; sub = "You&rsquo;re building the set — keep the combo rolling with " + esc(next.name) + "."; }
+      else { var ts = total - done; headline = ts + " more to finish the Base Set"; sub = "Collect all " + total + " for 35% off and reveal the Certified G secret rare."; }
+    } else {
+      var left = TRAINERS.length - trainersOwned();
+      headline = left + " Trainer card" + (left === 1 ? "" : "s") + " to go gold";
+      sub = "You&rsquo;ve got the Base Set. Find the last hidden trivia across the site to flip Certified G to gold — 40% off.";
+      ctaLabel = "Hunt in the binder"; ctaHref = "#/collection";
+    }
+    return '<a class="nextup" href="' + ctaHref + '">' +
+      '<span class="nu-badge">' + ic("spark") + " Next up</span>" +
+      '<span class="nu-main"><b>' + headline + "</b><em>" + sub + "</em></span>" +
+      '<span class="nu-cta">' + esc(ctaLabel) + " " + ic("arrow") + "</span>" +
+    "</a>";
+  }
   function rewardsSection(done, master) {
     var core = coreSlugs().length;
     var trio = done >= 3, c25 = done >= 1, c35 = master;
@@ -782,6 +886,7 @@
     "</div>";
   }
   function copyText(text, okMsg) {
+    sfx.play("copy");
     if (navigator.clipboard) navigator.clipboard.writeText(text).then(function () { toast(okMsg); }, function () { toast(text); });
     else toast(text);
   }
@@ -1039,7 +1144,8 @@
         streak += 1;
         var mult = Math.min(streak, 5), gain = 100 * mult;
         points += gain; flyPoints(gain, mult, btn); bumpScore();
-      } else { streak = 0; }
+        sfx.play(streak >= 3 ? "combo" : "correct");
+      } else { streak = 0; sfx.play("wrong"); }
       $$(".choice", zone).forEach(function (b, bi) {
         b.disabled = true;
         if (bi === q.answer) b.classList.add("correct");
@@ -1107,6 +1213,7 @@
     refreshCounters();
     var streak = touchStreak();
     logEvent("certified", { course: c.slug, certId: cid, score: pct });
+    sfx.play("pass");
 
     var master = isMasterEarned();
     if (firstTime) {
@@ -1819,6 +1926,7 @@
     // once. Both calls no-op unless the tier is newly reached and unrecorded.
     if (getEnroll()) { maybeReportTier(); maybeReportSecret(); }
     if (!app) { return document.addEventListener("DOMContentLoaded", boot, { once: true }); }
+    bindSoundToggle();
     window.addEventListener("hashchange", route);
     route();
   }

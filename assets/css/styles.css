@@ -1452,3 +1452,63 @@ h1, h2, h3, h4 { margin: 0; line-height: 1.08; letter-spacing: -.02em; }
   .sleeve-page { padding: 12px 11px 16px; }
   .pocket { padding: 7px; border-radius: 13px; }
 }
+
+/* ==================== SOUND TOGGLE ====================================== */
+.hdr-sound {
+  flex: none; width: 38px; height: 38px; margin-left: auto; margin-right: 4px;
+  display: grid; place-items: center; border-radius: 50%; cursor: pointer;
+  border: 1.5px solid var(--line); background: var(--paper); color: var(--ink);
+  transition: border-color .2s, transform .15s, color .2s;
+}
+.hdr-sound:hover { border-color: var(--gold-bright); color: var(--gold); transform: translateY(-1px); }
+.hdr-sound svg { width: 18px; height: 18px; }
+.hdr-binder { margin-left: 0; } /* sound toggle now takes the auto margin */
+
+/* ==================== "NEXT UP" MOMENTUM BANNER ======================== */
+.nextup {
+  display: flex; align-items: center; gap: 16px; margin: 4px 0 22px;
+  padding: 16px 18px; border-radius: 18px; text-decoration: none; color: var(--ink);
+  background: linear-gradient(120deg, #fff7e6, #ffedc7 60%, #ffe4a8);
+  border: 1.5px solid var(--gold-bright);
+  box-shadow: 0 8px 22px rgba(200,149,47,.16);
+  transition: transform .18s ease, box-shadow .18s ease;
+}
+.nextup:hover { transform: translateY(-2px); box-shadow: 0 14px 30px rgba(200,149,47,.24); }
+.nextup.done { background: linear-gradient(120deg, #1c1712, #0f0c08); border-color: var(--gold); color: #f6ecd4; }
+.nu-badge {
+  flex: none; display: inline-flex; align-items: center; gap: 6px; align-self: flex-start;
+  font-size: 11px; font-weight: 900; letter-spacing: .1em; text-transform: uppercase;
+  color: #2a1a00; background: var(--gold-bright); padding: 6px 11px; border-radius: 999px;
+}
+.nextup.done .nu-badge { color: #1c1712; }
+.nu-badge svg { width: 13px; height: 13px; }
+.nu-main { flex: 1; min-width: 0; display: grid; gap: 3px; }
+.nu-main b { font-size: clamp(16px, 2.4vw, 20px); font-weight: 900; letter-spacing: -.01em; line-height: 1.15; }
+.nu-main em { font-style: normal; font-size: 13px; line-height: 1.45; color: var(--stone); }
+.nextup.done .nu-main em { color: #b39a63; }
+.nu-cta {
+  flex: none; display: inline-flex; align-items: center; gap: 6px;
+  font-weight: 900; font-size: 14px; color: var(--gold); white-space: nowrap;
+}
+.nextup.done .nu-cta { color: var(--gold-bright); }
+.nu-cta svg { width: 15px; height: 15px; }
+
+@media (max-width: 620px) {
+  .nextup { flex-wrap: wrap; gap: 10px; padding: 14px; }
+  .nu-main { flex-basis: 100%; order: 2; }
+  .nu-cta { order: 3; margin-left: auto; }
+}
+@media (max-width: 400px) {
+  .hdr-sound { width: 34px; height: 34px; }
+}
+
+/* Reclaim header space on the smallest phones now that the sound toggle is in */
+@media (max-width: 380px) {
+  .hdr { padding-left: 12px; padding-right: 12px; gap: 8px; }
+  .hdr-logo { width: 26px; height: 26px; }
+  .hdr-name { font-size: 14px; letter-spacing: 0; }
+  .hdr-sound { width: 32px; height: 32px; margin-right: 2px; }
+  .hdr-sound svg { width: 16px; height: 16px; }
+  .hdr-binder { padding: 5px 9px; gap: 4px; }
+  .hdr-binder b { font-size: 11px; }
+}
