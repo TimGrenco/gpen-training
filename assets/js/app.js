@@ -16,6 +16,7 @@
   var app = $("#app");
   var pendingCelebrate = false; // set when a new cert is earned → ring pulses on next home view
   var stickyHandler = null;     // scroll handler for the course "get certified" nudge
+  var binderResize = null;      // resize handler that keeps the flip viewport fitted
 
   function esc(s) { return String(s == null ? "" : s).replace(/[&<>"']/g, function (m) { return ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" })[m]; }); }
   function courseBySlug(slug) { return COURSES.filter(function (c) { return c.slug === slug; })[0]; }
@@ -352,6 +353,33 @@
     });
   }
 
+  // Bump the header binder counter after a card lands in it.
+  function pulseBinder() {
+    var chip = $(".hdr-binder"); if (!chip) return;
+    chip.classList.remove("pop"); void chip.offsetWidth; chip.classList.add("pop");
+  }
+  // Fly a clone of the card up into the header binder chip, then run `done`.
+  function flyToBinder(cardEl, done) {
+    var reduced = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+    var chip = $(".hdr-binder");
+    if (!cardEl || !chip || reduced) { pulseBinder(); done(); return; }
+    var cr = cardEl.getBoundingClientRect(), tr = chip.getBoundingClientRect();
+    var clone = cardEl.cloneNode(true);
+    clone.classList.add("fly-clone");
+    clone.style.cssText = "position:fixed;left:" + cr.left + "px;top:" + cr.top + "px;width:" + cr.width +
+      "px;height:" + cr.height + "px;margin:0;z-index:200;pointer-events:none;" +
+      "transition:transform .7s cubic-bezier(.5,0,.25,1), opacity .7s ease;";
+    document.body.appendChild(clone);
+    var dx = (tr.left + tr.width / 2) - (cr.left + cr.width / 2);
+    var dy = (tr.top + tr.height / 2) - (cr.top + cr.height / 2);
+    var modal = cardEl.closest(".pull-modal"); if (modal) modal.classList.add("fading");
+    requestAnimationFrame(function () {
+      clone.style.transform = "translate(" + dx + "px," + dy + "px) scale(.05) rotate(-14deg)";
+      clone.style.opacity = "0.15";
+    });
+    setTimeout(function () { clone.remove(); pulseBinder(); sfx.play("tick"); done(); }, 640);
+  }
+
   /* The card-pull moment. Used when you certify (product card) and when you
      solve a trivia egg (trainer card). The card flips in out of a foil pack. */
   function showPull(kicker, cardHTML, footNote, saveSlug) {
@@ -392,8 +420,14 @@
     function close() { m.remove(); document.body.classList.remove("noscroll"); }
     var save = $(".pull-save", m);
     if (save) save.addEventListener("click", function (ev) { ev.stopPropagation(); saveCardImage(saveSlug); });
+    // "Add to binder" flies the card up into the header binder chip.
+    var ok = $(".pull-ok", m);
+    if (ok) ok.addEventListener("click", function (ev) {
+      ev.stopPropagation();
+      flyToBinder($(".pull-card > *", m), close);
+    });
     m.addEventListener("click", function (ev) {
-      if (ev.target === m || ev.target.closest(".modal-x") || ev.target.closest(".pull-ok")) close();
+      if (ev.target === m || ev.target.closest(".modal-x")) close();
     });
     document.addEventListener("keydown", function onEsc(ev) {
       if (ev.key === "Escape") { close(); document.removeEventListener("keydown", onEsc); }
@@ -1804,10 +1838,10 @@
 
         '<div class="binder-book">' +
           '<div class="binder-rings" aria-hidden="true">' + ringsHTML(6) + "</div>" +
-          '<div class="binder-pages">' +
+          '<div class="binder-viewport">' +
 
             // Page 1 \u2014 the 6-card Base Set (5 products + the secret rare as 6/6)
-            '<div class="sleeve-page">' +
+            '<div class="sleeve-page active" data-page="0">' +
               '<div class="page-head"><span class="page-tab"><span class="tab-no">Page 1</span>' + esc(SET.name) + "</span>" +
                 '<span class="page-status">' + (base + (st !== "locked" ? 1 : 0)) + " of 6 collected</span></div>" +
               '<div class="tcg-grid pockets">' +
@@ -1817,7 +1851,7 @@
             "</div>" +
 
             // Page 2 \u2014 Trainers & Energy (one per hidden egg)
-            '<div class="sleeve-page">' +
+            '<div class="sleeve-page" data-page="1">' +
               '<div class="page-head"><span class="page-tab"><span class="tab-no">Page 2</span>Trainers &amp; Energy</span>' +
                 '<span class="page-status">' + tr + " of " + TRAINERS.length + " found</span></div>" +
               '<p class="catalog-lede">One card for every hidden trivia egg on the site. They&rsquo;re tucked in different places on every page &mdash; look for something that doesn&rsquo;t belong.</p>' +
@@ -1827,6 +1861,12 @@
               eggHTML("collection", "binder") +
             "</div>" +
 
+          "</div>" +
+          '<div class="binder-nav">' +
+            '<button class="bn-arrow" data-flip="-1" aria-label="Previous page">' + ic("back") + "</button>" +
+            '<div class="bn-dots"><button class="bn-dot active" data-page="0" aria-label="Base Set page"></button><button class="bn-dot" data-page="1" aria-label="Trainers page"></button></div>' +
+            '<span class="bn-label">Page <b>1</b> / 2</span>' +
+            '<button class="bn-arrow" data-flip="1" aria-label="Next page">' + ic("arrow") + "</button>" +
           "</div>" +
         "</div>" +
 
@@ -1846,10 +1886,74 @@
     if (brag) brag.addEventListener("click", function () { copyText(bragText(), "Brag copied — go post it \uD83C\uDCCF"); });
     var sv = $("#savecard");
     if (sv) sv.addEventListener("click", function () { saveCardImage(rarestOwned()); });
+    bindBinderFlip();
     // They've now seen the new cards in the binder — retire the stickers, but
     // leave them on screen long enough to be noticed.
     if (Object.keys(getState().fresh).length) setTimeout(clearFresh, 4500);
     revealOnScroll();
+  }
+  /* Flip through the binder like real sleeve pages. Pages are absolutely stacked
+     in a perspective viewport; the active one turns on its left-edge hinge. */
+  function bindBinderFlip() {
+    var book = $(".binder-book"); if (!book) return;
+    var vp = $(".binder-viewport", book);
+    var pages = $$(".sleeve-page", vp);
+    if (!vp || pages.length < 2) return;
+    var reduced = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+    var cur = 0, flipping = false;
+
+    function fit() { if (pages[cur]) vp.style.height = pages[cur].offsetHeight + "px"; }
+    function setNav() {
+      $$(".bn-dot", book).forEach(function (d, i) { d.classList.toggle("active", i === cur); });
+      var lbl = $(".bn-label b", book); if (lbl) lbl.textContent = cur + 1;
+      $$(".bn-arrow", book).forEach(function (arr) {
+        var dir = parseInt(arr.getAttribute("data-flip"), 10);
+        arr.disabled = (cur + dir < 0 || cur + dir >= pages.length);
+      });
+    }
+    function go(target) {
+      if (flipping || target === cur || target < 0 || target >= pages.length) return;
+      var dir = target > cur ? 1 : -1, from = pages[cur], to = pages[target];
+      flipping = true;
+      vp.style.height = to.offsetHeight + "px"; // grow/shrink to the incoming page
+
+      if (reduced) {
+        from.classList.remove("active"); to.classList.add("active");
+        cur = target; flipping = false; setNav(); fit(); return;
+      }
+      sfx.play("tick");
+      if (dir === 1) {
+        to.classList.add("under");            // reveal the next page beneath
+        from.classList.add("turning-out");    // current page turns away to the left
+      } else {
+        from.classList.add("under");          // current page waits beneath
+        to.classList.add("turning-in");       // previous page turns back onto the stack
+      }
+      setTimeout(function () {
+        from.classList.remove("active", "turning-out", "under");
+        to.classList.remove("under", "turning-in");
+        to.classList.add("active");
+        cur = target; flipping = false; setNav(); fit();
+      }, 620);
+    }
+
+    $$(".bn-arrow", book).forEach(function (arr) {
+      arr.addEventListener("click", function () { go(cur + parseInt(arr.getAttribute("data-flip"), 10)); });
+    });
+    $$(".bn-dot", book).forEach(function (d) {
+      d.addEventListener("click", function () { go(parseInt(d.getAttribute("data-page"), 10)); });
+    });
+    document.addEventListener("keydown", function binderKey(ev) {
+      if (!document.body.contains(book)) { document.removeEventListener("keydown", binderKey); return; }
+      if (ev.key === "ArrowRight") go(cur + 1);
+      else if (ev.key === "ArrowLeft") go(cur - 1);
+    });
+
+    fit(); setNav();
+    setTimeout(fit, 350); // re-fit once images/fonts settle
+    if (binderResize) window.removeEventListener("resize", binderResize);
+    binderResize = function () { if (!flipping) fit(); };
+    window.addEventListener("resize", binderResize, { passive: true });
   }
   // The best card they hold: the secret rare if revealed, else the rarest product card.
   function rarestOwned() {
@@ -1905,6 +2009,7 @@
     var parts = h.split("/").filter(Boolean); // e.g. ["course","dash-ii"]
     window.scrollTo(0, 0);
     setTitleDoc(CFG.programName);
+    if (binderResize) { window.removeEventListener("resize", binderResize); binderResize = null; }
     var pageKey = "home";
     if (parts[0] === "course" && parts[1]) { renderCourse(parts[1]); pageKey = "course:" + parts[1]; }
     else if (parts[0] === "certified") { renderCertified(); pageKey = ""; }
