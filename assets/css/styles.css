@@ -1626,3 +1626,88 @@ h1, h2, h3, h4 { margin: 0; line-height: 1.08; letter-spacing: -.02em; }
   .og-mini { width: 36px; height: 40px; }
 }
 @media (prefers-reduced-motion: reduce) { .og-art .og-svg { animation: none; } }
+
+/* ==================== O.G. — blink, tap, bounce =========================== */
+.og-eyes { transform-box: view-box; transform-origin: 110px 110px; animation: og-blink 5.4s infinite; }
+@keyframes og-blink { 0%, 93%, 100% { transform: scaleY(1); } 96% { transform: scaleY(.08); } }
+.og-m-proud .og-eyes { animation: none; }
+/* he's a button now */
+.og-block { width: 100%; text-align: left; cursor: pointer; font: inherit; }
+.og-block:hover .og-art { transform: scale(1.06) rotate(-3deg); }
+.og-art { transition: transform .25s cubic-bezier(.2,1.4,.4,1); }
+.og-block.pop { animation: og-pop .5s cubic-bezier(.2,1.5,.4,1); }
+@keyframes og-pop { 0% { transform: scale(1); } 40% { transform: scale(1.02); } 100% { transform: scale(1); } }
+.og-hint { display: inline-flex; align-items: center; gap: 5px; margin-top: 6px; font-size: 11px; font-weight: 800; letter-spacing: .07em; text-transform: uppercase; color: var(--gold); opacity: .75; }
+.og-hint svg { width: 12px; height: 12px; }
+@media (prefers-reduced-motion: reduce) { .og-eyes, .og-block.pop { animation: none; } }
+
+/* ==================== CARD INSPECTOR ==================================== */
+.insp-modal .insp-in { display: grid; gap: 16px; justify-items: center; width: min(400px, 92vw); position: relative; }
+.insp-modal .modal-x { position: absolute; top: -8px; right: -4px; z-index: 6; color: #fff; }
+.insp-stage { width: 100%; perspective: 1400px; touch-action: none; }
+.insp-card {
+  --rx: 0deg; --ry: 0deg; --flip: 0deg;
+  position: relative; transform-style: preserve-3d; width: 100%;
+  transform: rotateX(var(--rx)) rotateY(calc(var(--ry) + var(--flip)));
+  transition: transform .5s cubic-bezier(.25,.8,.3,1);
+  animation: insp-in .55s cubic-bezier(.2,.9,.25,1) both;
+}
+@keyframes insp-in { 0% { opacity: 0; transform: translateY(24px) scale(.86); } 100% { opacity: 1; } }
+/* Don't rely on backface culling (it doesn't reliably hide the back face here) —
+   the faces are swapped by `.show-back` at the midpoint of the turn, while the
+   card is edge-on and invisible anyway. Bulletproof in every engine. */
+.insp-face { backface-visibility: hidden; }
+.insp-face.back { position: absolute; inset: 0; transform: rotateY(180deg); visibility: hidden; }
+.insp-card.show-back .insp-face.back { visibility: visible; }
+.insp-card.show-back .insp-face.front { visibility: hidden; }
+/* The .tcg carries its own `transform` + `transform-style: preserve-3d` (for the
+   hover tilt), which builds a nested 3D context that defeats the face's
+   backface-visibility — the back would show through mirrored. Flatten it here;
+   the inspector card does the tilting now. */
+.insp-face .tcg {
+  pointer-events: none; transform: none !important; transform-style: flat;
+  backface-visibility: hidden; animation: none;
+}
+.insp-face.back .tcg.cardback { height: 100%; }
+/* crank the holo up — this is the "really look at it" moment */
+.insp-face.front .tcg.owned .tcg-art::before, .insp-face.front .tcg.secret .tcg-art::before { opacity: .8; }
+.insp-face.front .tcg.owned .tcg-art::after, .insp-face.front .tcg.secret .tcg-art::after { opacity: .34; }
+.insp-face.front .tcg.owned .tcg-shine, .insp-face.front .tcg.secret .tcg-shine {
+  background:
+    radial-gradient(circle at var(--mx) var(--my), rgba(255,255,255,.55) 0%, rgba(255,255,255,0) 40%),
+    conic-gradient(from 200deg at var(--mx) var(--my),
+      rgba(255,0,128,.16), rgba(255,214,0,.16), rgba(0,255,196,.16),
+      rgba(0,153,255,.16), rgba(190,0,255,.16), rgba(255,0,128,.16));
+  mix-blend-mode: color-dodge;
+}
+.insp-card { box-shadow: 0 40px 70px rgba(0,0,0,.5); border-radius: 16px; }
+
+/* the card back */
+.tcg.cardback { background: linear-gradient(150deg, #c8952f, #8a6b28 45%, #f2c75a 70%, #8a6b28); }
+.tcg.cardback .tcg-inner {
+  background:
+    repeating-linear-gradient(45deg, rgba(200,149,47,.12) 0 12px, transparent 12px 24px),
+    linear-gradient(170deg, #1d1913, #0c0a07);
+  align-items: center; justify-content: center; text-align: center; gap: 14px; padding: 34px 18px;
+}
+.cb-art { position: relative; display: grid; place-items: center; }
+.cb-art img { width: 96px; height: 96px; object-fit: contain; opacity: .95; }
+.cb-name { font-size: 17px; font-weight: 900; letter-spacing: .12em; text-transform: uppercase; color: var(--gold-bright); }
+.cb-sub { font-size: 10.5px; font-weight: 800; letter-spacing: .12em; text-transform: uppercase; color: #8d7a4f; }
+
+.insp-meta { display: grid; gap: 2px; text-align: center; color: #fff; }
+.insp-meta b { font-size: 21px; font-weight: 900; }
+.insp-meta span { font-size: 12px; font-weight: 800; letter-spacing: .08em; text-transform: uppercase; color: var(--gold-bright); }
+.insp-actions { display: flex; gap: 9px; flex-wrap: wrap; justify-content: center; width: 100%; }
+.insp-actions .btn { flex: 1; min-width: 108px; white-space: nowrap; padding-left: 14px; padding-right: 14px; }
+/* owned cards in the binder invite a tap */
+.pocket .tcg.owned, .pocket .tcg.secret { cursor: zoom-in; }
+@media (prefers-reduced-motion: reduce) { .insp-card { animation: none; transition: none; } }
+
+/* inspector on small screens: let tall cards scroll, and stack the actions */
+.insp-modal { overflow-y: auto; }
+@media (max-width: 460px) {
+  .insp-actions { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; }
+  .insp-actions .btn { min-width: 0; flex: none; width: 100%; }
+  .insp-actions .btn:last-child { grid-column: 1 / -1; }
+}

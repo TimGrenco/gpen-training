@@ -643,13 +643,13 @@
         '<circle cx="' + cx + '" cy="110" r="24" fill="none" stroke="#c8952f" stroke-width="3.5"/>';
     }
 
-    return '<svg class="og-svg" viewBox="0 0 220 240" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">' +
+    return '<svg class="og-svg og-m-' + mood + '" viewBox="0 0 220 240" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">' +
       '<path d="M52 92 L34 52 L82 74 Z" fill="#2b2b2b"/><path d="M168 92 L186 52 L138 74 Z" fill="#2b2b2b"/>' +
       '<ellipse cx="110" cy="138" rx="72" ry="76" fill="#2b2b2b"/>' +
       '<path d="M40 132 Q24 172 48 206 Q42 164 56 134 Z" fill="#1e1e1e"/>' +
       '<path d="M180 132 Q196 172 172 206 Q178 164 164 134 Z" fill="#1e1e1e"/>' +
       '<ellipse cx="110" cy="110" rx="60" ry="48" fill="#f3efe3"/>' +
-      eye(86) + eye(134) +
+      '<g class="og-eyes">' + eye(86) + eye(134) + "</g>" +
       '<path d="' + brows[0] + '" stroke="#2b2b2b" stroke-width="6.5" stroke-linecap="round" fill="none"/>' +
       '<path d="' + brows[1] + '" stroke="#2b2b2b" stroke-width="6.5" stroke-linecap="round" fill="none"/>' +
       '<path d="M110 128 L100 144 L120 144 Z" fill="#FEC870"/>' +
@@ -673,13 +673,26 @@
   function ogMini(mood) { return '<span class="og-mini">' + mascotSVG(mood) + "</span>"; }
   // O.G. with a speech bubble — his "office hours" block on the hub.
   function ogSays(mood, line) {
-    return '<div class="og-block reveal">' +
+    return '<button class="og-block reveal" type="button" aria-label="Tap Professor O.G. for a tip">' +
       '<span class="og-art">' + mascotSVG(mood) + "</span>" +
       '<div class="og-bubble">' +
         '<span class="og-name">' + esc(MASCOT.short || "Prof. O.G.") + '<em>' + esc(MASCOT.title || "") + "</em></span>" +
         "<p>" + line + "</p>" +
+        '<span class="og-hint">' + ic("spark") + " Tap the Prof</span>" +
       "</div>" +
-    "</div>";
+    "</button>";
+  }
+  // Tap him: he hoots, changes his face, and drops a fresh bit of wisdom.
+  function bindMascot() {
+    $$(".og-block").forEach(function (b) {
+      b.addEventListener("click", function () {
+        sfx.play("hoot");
+        var art = $(".og-art", b), p = $(".og-bubble p", b);
+        if (p) p.innerHTML = ogLine("idle");
+        if (art) art.innerHTML = mascotSVG(pick(["hyped", "think", "chill", "proud"]));
+        b.classList.remove("pop"); void b.offsetWidth; b.classList.add("pop");
+      });
+    });
   }
   // Which greeting he opens with, based on how far along they are.
   function ogGreeting() {
@@ -732,6 +745,10 @@
       gold: function () { [659, 784, 988, 1319, 1568].forEach(function (f, i) { tone(f, i * 0.09, 0.3, "triangle", 0.16); }); },
       copy: function () { tone(880, 0, 0.05, "square", 0.09); tone(1320, 0.04, 0.05, "square", 0.07); },
       tick: function () { tone(660, 0, 0.04, "sine", 0.07); },
+      // Prof. O.G.'s two-note hoot
+      hoot: function () { tone(392, 0, 0.16, "sine", 0.13); tone(330, 0.17, 0.26, "sine", 0.12); },
+      flip: function () { noise(0, 0.13, 0.11, 1600); },              // card / page turn
+      whoosh: function () { noise(0, 0.3, 0.1, 500); tone(520, 0.04, 0.22, "sine", 0.08); },
     };
     return {
       play: function (name) {
@@ -1098,6 +1115,7 @@
         factCard() +
 
         secHead(++n, "Get certified") +
+        ogSays("think", ogLine("quizIntro")) +
         '<div id="quiz-zone"></div>' +
       "</section>" +
       (rec && rec.passed ? "" : '<button class="sticky-cta" id="sticky-cta">' + ic("cap") + " Get certified · <b>25% off</b></button>") +
@@ -1802,6 +1820,7 @@
           "<h1>You're Certified G</h1>" +
           "<p>Congratulations, " + esc(e.name.split(" ")[0]) + " — you've completed every course in " + esc(CFG.programName) + " and are officially a <strong>fully trained G Pen Product Specialist</strong>. You know the whole lineup cold.</p>" +
         "</div>" +
+        ogSays("proud", ogLine("done")) +
         '<div class="tcg-grid single">' + secretCardHTML() + "</div>" +
         (allEggsSolved() ? "" : '<a class="master-nudge" href="#/collection">' + ic("spark") + " Your Certified G card is <b>holo</b>. Find the last " + (TRAINERS.length - trainersOwned()) + " Trainer card" + (TRAINERS.length - trainersOwned() === 1 ? "" : "s") + " to turn it <b>gold</b> and unlock 40% off " + ic("arrow") + "</a>") +
         '<div id="mcert"></div>' +
@@ -1947,6 +1966,7 @@
           '<div class="bn-count"><b>' + owned + "</b> of " + total + " cards &middot; " + pct + "% complete</div>" +
         "</div>" +
 
+        ogSays(owned === total ? "proud" : "chill", ogLine(owned === total ? "binderFull" : "binder")) +
         '<div class="binder-book">' +
           '<div class="binder-rings" aria-hidden="true">' + ringsHTML(6) + "</div>" +
           '<div class="binder-viewport">' +
@@ -1998,11 +2018,104 @@
     var sv = $("#savecard");
     if (sv) sv.addEventListener("click", function () { saveCardImage(rarestOwned()); });
     bindBinderFlip();
+    bindCardInspect();
     // They've now seen the new cards in the binder — retire the stickers, but
     // leave them on screen long enough to be noticed.
     if (Object.keys(getState().fresh).length) setTimeout(clearFresh, 4500);
     revealOnScroll();
   }
+  /* =========================================================================
+     CARD INSPECTOR — pull a card out of the sleeve and really look at it.
+     Big, holographic, tilts with your pointer/finger, and flips to the back.
+     ====================================================================== */
+  function cardBackHTML() {
+    return '<div class="tcg cardback"><span class="tcg-inner">' +
+      '<span class="cb-art"><img src="assets/img/gpen-g-white.png" alt=""/></span>' +
+      '<span class="cb-name">G Pen University</span>' +
+      '<span class="cb-sub">' + esc(SET.name) + " · Product Specialist Program</span>" +
+    "</span></div>";
+  }
+  function openCardInspector(slug) {
+    var isSecret = slug === "secret";
+    var c = isSecret ? null : courseBySlug(slug);
+    if (!isSecret && !c) return;
+    var cd = isSecret ? SECRET_CARD : CARDS[slug];
+    var name = isSecret ? (SECRET_CARD && SECRET_CARD.name) || "Certified G" : c.name;
+    var rar = (RARITY[cd && cd.rarity] || {}).label || "";
+    var no = cd ? cd.no + "/" + SET.total : "";
+
+    var m = document.createElement("div");
+    m.className = "modal insp-modal";
+    m.innerHTML = '<div class="insp-in">' +
+      '<button class="modal-x" aria-label="Close">×</button>' +
+      '<div class="insp-stage">' +
+        '<div class="insp-card" id="insp-card">' +
+          '<div class="insp-face front">' + (isSecret ? secretCardHTML() : tcgCard(c)) + "</div>" +
+          '<div class="insp-face back">' + cardBackHTML() + "</div>" +
+        "</div>" +
+      "</div>" +
+      '<div class="insp-meta"><b>' + esc(name) + "</b><span>" + esc(no) + (rar ? " · " + esc(rar) : "") + "</span></div>" +
+      '<div class="insp-actions">' +
+        '<button class="btn ghost-dark insp-flip">' + ic("refresh") + " Flip</button>" +
+        '<button class="btn ghost-dark insp-save">' + ic("dl") + " Save</button>" +
+        (isSecret ? '<a class="btn" href="#/certified">View certificate ' + ic("arrow") + "</a>"
+                  : '<a class="btn" href="#/course/' + esc(slug) + '">Review course ' + ic("arrow") + "</a>") +
+      "</div>" +
+    "</div>";
+    document.body.appendChild(m); document.body.classList.add("noscroll");
+    sfx.play("whoosh");
+
+    // the card inside is a link — neutralise it so clicking just inspects
+    var inner = $(".insp-face.front .tcg", m);
+    if (inner) { inner.removeAttribute("href"); inner.style.cursor = "default"; }
+
+    var card = $("#insp-card", m), stage = $(".insp-stage", m);
+    var flipped = false;
+    function close() { m.remove(); document.body.classList.remove("noscroll"); }
+    $(".modal-x", m).addEventListener("click", close);
+    m.addEventListener("click", function (ev) { if (ev.target === m) close(); });
+    document.addEventListener("keydown", function onEsc(ev) {
+      if (ev.key === "Escape") { close(); document.removeEventListener("keydown", onEsc); }
+    });
+    $(".insp-flip", m).addEventListener("click", function () {
+      flipped = !flipped;
+      card.style.setProperty("--flip", flipped ? "180deg" : "0deg");
+      sfx.play("flip");
+      // swap the faces while the card is edge-on (mid-turn)
+      setTimeout(function () { card.classList.toggle("show-back", flipped); }, 230);
+    });
+    $(".insp-save", m).addEventListener("click", function () { saveCardImage(slug); });
+
+    // tilt + holo follow the pointer (and finger)
+    var reduced = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+    function track(px, py) {
+      if (reduced) return;
+      card.style.setProperty("--rx", ((0.5 - py) * 22).toFixed(2) + "deg");
+      card.style.setProperty("--ry", ((px - 0.5) * 26).toFixed(2) + "deg");
+      var t = $(".insp-face.front .tcg", m);
+      if (t) { t.style.setProperty("--mx", (px * 100).toFixed(1) + "%"); t.style.setProperty("--my", (py * 100).toFixed(1) + "%"); }
+    }
+    function fromEvent(ev) {
+      var r = stage.getBoundingClientRect();
+      var pt = ev.touches ? ev.touches[0] : ev;
+      track((pt.clientX - r.left) / r.width, (pt.clientY - r.top) / r.height);
+    }
+    stage.addEventListener("pointermove", fromEvent);
+    stage.addEventListener("touchmove", function (ev) { ev.preventDefault(); fromEvent(ev); }, { passive: false });
+    stage.addEventListener("pointerleave", function () {
+      card.style.setProperty("--rx", "0deg"); card.style.setProperty("--ry", "0deg");
+    });
+  }
+  // In the binder, a card you OWN opens the inspector instead of navigating away.
+  function bindCardInspect() {
+    $$(".pocket .tcg[data-card]").forEach(function (el) {
+      var slug = el.getAttribute("data-card");
+      var owned = slug === "secret" ? secretCardState() !== "locked" : cardOwned(slug);
+      if (!owned) return; // not earned yet — let the link take them to the course
+      el.addEventListener("click", function (ev) { ev.preventDefault(); openCardInspector(slug); });
+    });
+  }
+
   /* Flip through the binder like real sleeve pages. Pages are absolutely stacked
      in a perspective viewport; the active one turns on its left-edge hinge. */
   function bindBinderFlip() {
@@ -2135,6 +2248,7 @@
     bindFacts();
     bindLogoFun();
     bindCardTilt();
+    bindMascot();
   }
   function boot() {
     app = $("#app"); // re-resolve in case the script loaded before #app parsed

@@ -821,4 +821,29 @@ window.GPEN_MASCOT = {
     "Certified. Add it to the collection.",
   ],
   perfect: ["Perfect score?! Save some knowledge for the rest of us."],
+  // tap him for a random one of these
+  idle: [
+    "Terpenes are why one jar smells like diesel and the next like mango. Same plant. Wild.",
+    "Pop quiz: a customer says their vape &ldquo;died.&rdquo; Nine times out of ten? It&rsquo;s just dirty. Clean the chamber.",
+    "The trick to selling isn&rsquo;t talking more. It&rsquo;s knowing the answer before they finish asking.",
+    "Vapor isn&rsquo;t smoke. Stay under the combustion point and you&rsquo;ve got a whole different product category.",
+    "I&rsquo;ve been tenured since 2012. That&rsquo;s a whole degree in staying calm.",
+    "Yes, the chain is real. No, you cannot borrow it.",
+    "Grind it, don&rsquo;t pack it. Airflow is the whole ballgame.",
+    "Hoo. Sorry &mdash; occupational hazard.",
+  ],
+  // his line on the binder page, by how full it is
+  binder: [
+    "That&rsquo;s a clean collection you&rsquo;ve got there. Tap a card to really look at it.",
+    "Sleeves on, corners sharp. This is how you treat a set.",
+  ],
+  binderFull: [
+    "Every slot filled. I&rsquo;d frame it, but you already sleeved it.",
+  ],
+  // right before the quiz on a course page
+  quizIntro: [
+    "Alright. Show me what you picked up. 80% and the card&rsquo;s yours.",
+    "No pressure. Well &mdash; a little. There&rsquo;s a card on the line.",
+    "You&rsquo;ve read the material. Now go earn the sleeve.",
+  ],
 };
