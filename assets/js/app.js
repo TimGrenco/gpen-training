@@ -868,35 +868,29 @@
           crestSVG("hero-crest") +
           '<div class="hero-eyebrow">' + ic("cap") + " " + esc(CFG.programName) + "</div>" +
           "<h1>Become a <span class=\"gold\">Certified G</span>.</h1>" +
-          '<p class="hero-sub" id="hero-say">Every product course is a collectible card. Watch the videos, learn the specs, then pass the quiz to pull the card. Stack them up and climb the ladder — <strong>25%</strong> to <strong>40% off</strong> gpen.com.</p>' +
+          '<p class="hero-sub" id="hero-say">Free product training for G Pen retailers. Learn a product, pass a short quiz, and unlock <strong>25%</strong> to <strong>40% off</strong> gpen.com — plus a collectible card for your binder.</p>' +
           '<div class="hero-cta">' +
-            '<button class="btn xl" id="browse-btn">Browse courses ' + ic("arrow") + "</button>" +
+            '<button class="btn xl" id="browse-btn">Start training ' + ic("arrow") + "</button>" +
             '<a class="btn xl ghost-dark" href="#/about">About G Pen</a>' +
           "</div>" +
         "</div>" +
       "</section>" +
+      howItWorks() +
       '<section class="hub reveal">' +
         progressBlock +
         nextUpBlock() +
-        '<div class="sec-h" id="courses"><h2>Course catalog</h2><span>' + esc(SET.name) + " · " + ownedCards() + " of " + totalCards() + " cards collected</span></div>" +
-        '<p class="catalog-lede">Every course is a collectible card. Pass its quiz at ' + (COURSES[0] ? COURSES[0].passPct : 80) + '%+ to pull it. Collect all ' + total + ' and the <b>Certified G</b> secret rare reveals itself — find every hidden Trainer card and it turns <b>gold</b>.</p>' +
-        '<div class="tcg-grid">' + COURSES.map(function (c) { return tcgCard(c); }).join("") + secretCardHTML() + "</div>" +
+        '<div class="sec-h" id="courses"><h2>The courses</h2><span>' + done + " of " + total + " certified</span></div>" +
+        '<p class="catalog-lede">Five products, about ' + (COURSES[0] ? COURSES[0].minutes : 9) + '&ndash;10 minutes each. Take them in any order &mdash; each one you pass is a certification and a bigger discount.</p>' +
+        '<div class="course-grid">' + COURSES.map(courseCard).join("") + "</div>" +
         eggHTML("home", "courses") +
-        factCard() +
         rewardsSection(done, master) +
         eggHTML("home", "rewards") +
+        factCard() +
         (hasProgress ? '<button class="linklike reset" id="reset">Reset my progress</button>' : "") +
       "</section>" +
-      lifestyleShowcase() +   // sits under the courses now, and runs tighter
+      binderTeaser() +
+      lifestyleShowcase() +
       lifestyleCinema((window.GPEN_LIFESTYLE || [])[9] || "", "The G Pen life", "Learn it. Live it. Sell it.") +
-      '<section class="why">' +
-        '<div class="why-grid">' +
-          why(ic("play"), "Explore free", "Open any course and watch the how-to videos, browse specs, cleaning, and FAQs — no account required.") +
-          why(ic("cap"), "Pull the card", "When you're ready, pass an 80% quiz to pull that product's card and earn a Product Specialist certificate.") +
-          why(ic("tag"), "Climb the ladder", "1 card unlocks 25% off gpen.com, 3 cards gets 30%, and the full " + total + "-card Base Set gets 35%.") +
-          why(ic("spark"), "Chase the gold", "Hidden trivia across the site drops Trainer cards. Collect all " + TRAINERS.length + " and your Certified G card turns gold — 40% off.") +
-        "</div>" +
-      "</section>" +
       footer();
 
     if (hasProgress) {
@@ -955,7 +949,68 @@
     var match = all.filter(function (u) { return folder && u.indexOf(folder) >= 0 && u !== exclude; })[0];
     return match || all.filter(function (u) { return u !== exclude; })[0] || "";
   }
-  function why(i, t, s) { return '<div class="why-card reveal"><span class="why-ic">' + i + "</span><h3>" + t + "</h3><p>" + s + "</p></div>"; }
+  /* The three steps, stated plainly and up front. This is the first thing a
+     budtender should read — it answers "what is this and how does it work". */
+  function howItWorks() {
+    var steps = [
+      { n: 1, ic: "play", t: "Learn it", s: "Open any product course. Watch the how-to videos, read the specs, cleaning and FAQs. No sign-up, no cost." },
+      { n: 2, ic: "cap", t: "Prove it", s: "When you're ready, take the quiz. Score " + (COURSES[0] ? COURSES[0].passPct : 80) + "% or better and you're a certified Product Specialist on that product." },
+      { n: 3, ic: "tag", t: "Get paid", s: "Every course you pass unlocks a bigger discount at gpen.com — from <b>25%</b> up to <b>40% off</b> — plus a collectible card for your binder." },
+    ];
+    return '<section class="hiw reveal">' +
+      '<div class="hiw-head"><span class="hiw-eyebrow">' + ic("spark") + " How it works</span>" +
+        "<h2>Three steps. That&rsquo;s it.</h2></div>" +
+      '<div class="hiw-grid">' + steps.map(function (s) {
+        return '<div class="hiw-step">' +
+          '<span class="hiw-n">' + s.n + "</span>" +
+          '<span class="hiw-ic">' + ic(s.ic) + "</span>" +
+          "<h3>" + esc(s.t) + "</h3><p>" + s.s + "</p>" +
+        "</div>";
+      }).join("") + "</div>" +
+    "</section>";
+  }
+
+  /* A plain, readable course card — the home page lists COURSES, not cards.
+     The trading card is the reward you get for finishing one. */
+  function courseCard(c) {
+    var s = getState(), rec = s.courses[c.slug], done = !!(rec && rec.passed);
+    return '<a class="cc' + (done ? " done" : "") + (c.featured && !done ? " featured" : "") + '" href="#/course/' + c.slug + '">' +
+      '<span class="cc-media">' +
+        '<img src="' + esc(c.cover) + '" alt="' + esc(c.name) + '" loading="lazy"/>' +
+        (done ? '<span class="cc-badge">' + ic("check") + " Certified " + rec.score + "%</span>"
+              : (c.featured ? '<span class="cc-featured">' + ic("star") + " " + esc(c.featured) + "</span>" : "")) +
+      "</span>" +
+      '<span class="cc-body">' +
+        '<span class="cc-cat">' + esc(c.category) + "</span>" +
+        "<h3>" + esc(c.name) + "</h3>" +
+        "<p>" + esc(c.tagline) + "</p>" +
+        '<span class="cc-meta">' + c.videos.length + " videos · " + c.quiz.length + "-question quiz · ~" + c.minutes + " min</span>" +
+        '<span class="cc-foot">' +
+          '<span class="cc-reward' + (done ? " earned" : "") + '">' + ic(done ? "check" : "tag") +
+            "<span>" + (done ? "25% off earned" : "Pass → 25% off") + "</span></span>" +
+          '<span class="cc-go">' + (done ? "Review " : "Start ") + ic("arrow") + "</span>" +
+        "</span>" +
+      "</span>" +
+    "</a>";
+  }
+
+  /* The binder, teased — cards stay face-down here on purpose. Pulling one is
+     the surprise; the binder is where you go to actually look at them. */
+  function binderTeaser() {
+    var owned = baseSetOwned(), total = COURSES.length;
+    var backs = "";
+    for (var i = 0; i < 3; i++) backs += '<span class="bt-back"><img src="assets/img/gpen-g-white.png" alt=""/></span>';
+    return '<section class="bt reveal">' +
+      '<div class="bt-copy">' +
+        '<span class="bt-eyebrow">' + ic("award") + " Your binder</span>" +
+        "<h2>Pass a course, pull a card.</h2>" +
+        "<p>Every course you finish drops a collectible card into your binder &mdash; you rip it out of a foil pack, holo and all. It&rsquo;s also the fastest cheat sheet you&rsquo;ll ever have: specs, key features and talking points for that product, on one card.</p>" +
+        '<div class="bt-stat"><b>' + owned + "</b> of " + total + " product cards collected</div>" +
+        '<a class="btn xl" href="#/collection">Open the binder ' + ic("arrow") + "</a>" +
+      "</div>" +
+      '<div class="bt-deck" aria-hidden="true">' + backs + "</div>" +
+    "</section>";
+  }
   function step(n, t, s) { return '<li class="step reveal"><span class="step-n">' + n + "</span><div><h4>" + t + "</h4><p>" + s + "</p></div></li>"; }
   function footer() {
     return '<footer class="foot"><img src="assets/img/gpen-g-black.png" class="foot-g light" alt=""/><img src="assets/img/gpen-g-white.png" class="foot-g dark" alt=""/>' +
