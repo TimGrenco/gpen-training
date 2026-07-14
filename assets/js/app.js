@@ -608,24 +608,28 @@
   function ic(n) { return '<span class="ic">' + (IC[n] || "") + "</span>"; }
 
   /* =========================================================================
-     PROFESSOR O.G. — the mascot. A tenured owl in a grad cap with a G Pen
-     gold chain. Drawn as inline SVG so he recolours/scales anywhere.
-     Moods: chill | hyped | think | proud | oops
+     PROFESSOR O.G. — the mascot. A tenured owl in a black G Pen beanie with a
+     gold chain and a G Pen logo pendant, and he is visibly baked. Drawn as
+     inline SVG so he scales and reads on light, dark, and at 40px.
+     Moods: chill (his default, heavy-lidded) | hyped | think | proud | oops
      ====================================================================== */
   var MASCOT = window.GPEN_MASCOT || {};
   function mascotSVG(mood) {
     mood = mood || "chill";
     var closed = mood === "proud";
-    var lid = ({ chill: 14, hyped: 0, think: 9, proud: 0, oops: 6 })[mood] || 0;
+    // "chill" is his default — and he is comfortably baked
+    var lid = ({ chill: 22, hyped: 2, think: 14, proud: 0, oops: 8 })[mood] || 0;
     var pupR = mood === "hyped" ? 12 : 10;
     var pupDX = mood === "think" ? 5 : 0;
+    // droopy, uneven lids do most of the heavy lifting on the stoned look
+    var tilt = ({ chill: 7, hyped: 0, think: 4, proud: 0, oops: 2 })[mood] || 0;
     var brows = ({
-      chill: ["M66 86 L104 80", "M154 86 L116 80"],
-      hyped: ["M64 80 L104 74", "M156 80 L116 74"],
-      think: ["M66 92 L104 76", "M154 82 L116 80"],
-      proud: ["M66 86 L104 82", "M154 86 L116 82"],
-      oops: ["M66 78 L104 88", "M154 78 L116 88"],
-    })[mood] || ["M66 86 L104 80", "M154 86 L116 80"];
+      chill: ["M66 88 L104 83", "M154 88 L116 83"],
+      hyped: ["M64 82 L104 76", "M156 82 L116 76"],
+      think: ["M66 94 L104 78", "M154 84 L116 82"],
+      proud: ["M66 88 L104 84", "M154 88 L116 84"],
+      oops: ["M66 80 L104 90", "M154 80 L116 90"],
+    })[mood] || ["M66 88 L104 83", "M154 88 L116 83"];
     var uid = "og" + mood + (mascotSVG.n = (mascotSVG.n || 0) + 1);
 
     function eye(cx) {
@@ -636,35 +640,47 @@
       return '<clipPath id="' + id + '"><circle cx="' + cx + '" cy="110" r="24"/></clipPath>' +
         '<circle cx="' + cx + '" cy="110" r="24" fill="#ffffff"/>' +
         '<g clip-path="url(#' + id + ')">' +
-          '<circle cx="' + (cx + pupDX) + '" cy="112" r="' + pupR + '" fill="#1a1a1a"/>' +
-          '<circle cx="' + (cx + pupDX + 4) + '" cy="108" r="4" fill="#fff"/>' +
-          (lid ? '<rect x="' + (cx - 26) + '" y="' + (86 - (14 - lid)) + '" width="52" height="' + lid + '" fill="#e2dccc"/>' : "") +
+          // warm, faintly bloodshot wash in the eye
+          '<circle cx="' + cx + '" cy="118" r="24" fill="#f6dcd4" opacity=".55"/>' +
+          '<circle cx="' + (cx + pupDX) + '" cy="116" r="' + pupR + '" fill="#1a1a1a"/>' +
+          '<circle cx="' + (cx + pupDX + 4) + '" cy="112" r="4" fill="#fff"/>' +
+          (lid ? '<rect x="' + (cx - 28) + '" y="' + (84 - (22 - lid)) + '" width="56" height="' + lid + '" fill="#e2dccc"' +
+            (tilt ? ' transform="rotate(' + (cx < 110 ? tilt : -tilt) + " " + cx + " " + (84 + lid) + ')"' : "") + "/>" : "") +
         "</g>" +
         '<circle cx="' + cx + '" cy="110" r="24" fill="none" stroke="#c8952f" stroke-width="3.5"/>';
     }
 
     return '<svg class="og-svg og-m-' + mood + '" viewBox="0 0 220 240" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">' +
-      '<path d="M52 92 L34 52 L82 74 Z" fill="#2b2b2b"/><path d="M168 92 L186 52 L138 74 Z" fill="#2b2b2b"/>' +
+      // body + wings
       '<ellipse cx="110" cy="138" rx="72" ry="76" fill="#2b2b2b"/>' +
       '<path d="M40 132 Q24 172 48 206 Q42 164 56 134 Z" fill="#1e1e1e"/>' +
       '<path d="M180 132 Q196 172 172 206 Q178 164 164 134 Z" fill="#1e1e1e"/>' +
+      // facial disc
       '<ellipse cx="110" cy="110" rx="60" ry="48" fill="#f3efe3"/>' +
+      // eyes + brows
       '<g class="og-eyes">' + eye(86) + eye(134) + "</g>" +
       '<path d="' + brows[0] + '" stroke="#2b2b2b" stroke-width="6.5" stroke-linecap="round" fill="none"/>' +
       '<path d="' + brows[1] + '" stroke="#2b2b2b" stroke-width="6.5" stroke-linecap="round" fill="none"/>' +
+      // beak
       '<path d="M110 128 L100 144 L120 144 Z" fill="#FEC870"/>' +
       '<path d="M110 144 L105 151 L115 151 Z" fill="#c8952f"/>' +
-      '<path d="M72 168 Q110 206 148 168" fill="none" stroke="#FEC870" stroke-width="5" stroke-linecap="round"/>' +
-      '<circle cx="110" cy="200" r="16" fill="#FEC870" stroke="#c8952f" stroke-width="2.5"/>' +
-      '<text x="110" y="207" text-anchor="middle" font-size="20" font-weight="900" font-family="Archivo, system-ui, sans-serif" fill="#1a1a1a">G</text>' +
-      '<g transform="translate(110,48) rotate(-9)">' +
-        '<path d="M-32 0 L32 0 L32 12 Q0 25 -32 12 Z" fill="#151515"/>' +
-        '<path d="M-58 -2 L0 -24 L58 -2 L0 20 Z" fill="#111"/>' +
-        '<path d="M-58 -2 L0 -24 L58 -2 L0 20 Z" fill="none" stroke="#c8952f" stroke-width="1.5" opacity=".55"/>' +
-        '<circle cx="0" cy="-2" r="4" fill="#c8952f"/>' +
-        '<path d="M54 -1 Q66 16 62 32" stroke="#FEC870" stroke-width="3" fill="none" stroke-linecap="round"/>' +
-        '<path d="M62 32 l-5 13 M62 32 l0 14 M62 32 l5 13" stroke="#FEC870" stroke-width="3" stroke-linecap="round"/>' +
-      "</g>" +
+      // extremely relaxed cheeks
+      '<ellipse cx="66" cy="136" rx="15" ry="8" fill="#e0725f" opacity=".32"/>' +
+      '<ellipse cx="154" cy="136" rx="15" ry="8" fill="#e0725f" opacity=".32"/>' +
+      // gold chain with a G Pen logo pendant
+      '<path d="M72 166 Q110 204 148 166" fill="none" stroke="#FEC870" stroke-width="5" stroke-linecap="round"/>' +
+      '<circle cx="110" cy="198" r="18" fill="#FEC870" stroke="#c8952f" stroke-width="2.5"/>' +
+      '<image href="assets/img/gpen-g-black.png" x="97" y="185" width="26" height="26" preserveAspectRatio="xMidYMid meet"/>' +
+      // black G Pen beanie — snug dome + folded cuff, sits clear of the brows
+      '<path d="M52 56 Q50 10 110 8 Q170 10 168 56 Z" fill="#1c1c1c"/>' +
+      '<path d="M80 54 Q75 28 94 14" stroke="#2e2e2e" stroke-width="3.5" fill="none" stroke-linecap="round"/>' +
+      '<path d="M110 54 L110 9" stroke="#2e2e2e" stroke-width="3.5" stroke-linecap="round"/>' +
+      '<path d="M140 54 Q145 28 126 14" stroke="#2e2e2e" stroke-width="3.5" fill="none" stroke-linecap="round"/>' +
+      '<rect x="44" y="42" width="132" height="28" rx="14" fill="#111"/>' +
+      '<rect x="44" y="42" width="132" height="28" rx="14" fill="none" stroke="#343434" stroke-width="1.5"/>' +
+      '<path d="M62 47 L62 65 M78 47 L78 65 M94 47 L94 65 M142 47 L142 65 M158 47 L158 65" stroke="#2b2b2b" stroke-width="2" stroke-linecap="round"/>' +
+      '<image href="assets/img/gpen-g-white.png" x="99" y="45" width="22" height="22" preserveAspectRatio="xMidYMid meet"/>' +
+      // talons
       '<path d="M88 212 l0 11 M83 223 l10 0 M132 212 l0 11 M127 223 l10 0" stroke="#c8952f" stroke-width="4" stroke-linecap="round"/>' +
     "</svg>";
   }
