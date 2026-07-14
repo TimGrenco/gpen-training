@@ -682,6 +682,18 @@
       "</div>" +
     "</button>";
   }
+  // The big O.G. in the hero: tap him and he hoots + speaks through the sub-line.
+  function bindHeroMascot() {
+    var hero = $(".hero-og"); if (!hero) return;
+    var say = $("#hero-say"), art = $(".hero-og-art", hero);
+    var original = say ? say.innerHTML : "";
+    hero.addEventListener("click", function () {
+      sfx.play("hoot");
+      if (art) art.innerHTML = mascotSVG(pick(["hyped", "think", "proud", "chill"]));
+      if (say) { say.innerHTML = "&ldquo;" + ogLine("idle") + "&rdquo;"; say.classList.add("og-quote"); }
+      hero.classList.remove("pop"); void hero.offsetWidth; hero.classList.add("pop");
+    });
+  }
   // Tap him: he hoots, changes his face, and drops a fresh bit of wisdom.
   function bindMascot() {
     $$(".og-block").forEach(function (b) {
@@ -843,27 +855,28 @@
         collectionStrip()
       : "";
 
-    var heroBg = (window.GPEN_LIFESTYLE || [])[2] || "";
-
     app.innerHTML = header() +
       '<section class="hero">' +
-        (heroBg ? '<div class="hero-bg" style="background-image:url(\'' + esc(heroBg) + '\')"></div>' : "") +
         vaporHTML(6) +
+        // Professor O.G. is the face of the landing page now — tap him for a line.
+        '<button class="hero-og" type="button" aria-label="Tap Professor O.G.">' +
+          '<span class="hero-og-glow" aria-hidden="true"></span>' +
+          '<span class="hero-og-art">' + mascotSVG("chill") + "</span>" +
+          '<span class="hero-og-tag">' + ic("spark") + " Tap the Prof</span>" +
+        "</button>" +
         '<div class="hero-inner reveal">' +
           crestSVG("hero-crest") +
           '<div class="hero-eyebrow">' + ic("cap") + " " + esc(CFG.programName) + "</div>" +
           "<h1>Become a <span class=\"gold\">Certified G</span>.</h1>" +
-          "<p class=\"hero-sub\">Every product course is a collectible card. Watch the videos, learn the specs, then pass the quiz to pull the card. Stack them up and climb the ladder — <strong>25%</strong> to <strong>40% off</strong> gpen.com.</p>" +
+          '<p class="hero-sub" id="hero-say">Every product course is a collectible card. Watch the videos, learn the specs, then pass the quiz to pull the card. Stack them up and climb the ladder — <strong>25%</strong> to <strong>40% off</strong> gpen.com.</p>' +
           '<div class="hero-cta">' +
             '<button class="btn xl" id="browse-btn">Browse courses ' + ic("arrow") + "</button>" +
             '<a class="btn xl ghost-dark" href="#/about">About G Pen</a>' +
           "</div>" +
         "</div>" +
       "</section>" +
-      lifestyleShowcase() +
       '<section class="hub reveal">' +
         progressBlock +
-        ogGreeting() +
         nextUpBlock() +
         '<div class="sec-h" id="courses"><h2>Course catalog</h2><span>' + esc(SET.name) + " · " + ownedCards() + " of " + totalCards() + " cards collected</span></div>" +
         '<p class="catalog-lede">Every course is a collectible card. Pass its quiz at ' + (COURSES[0] ? COURSES[0].passPct : 80) + '%+ to pull it. Collect all ' + total + ' and the <b>Certified G</b> secret rare reveals itself — find every hidden Trainer card and it turns <b>gold</b>.</p>' +
@@ -874,6 +887,7 @@
         eggHTML("home", "rewards") +
         (hasProgress ? '<button class="linklike reset" id="reset">Reset my progress</button>' : "") +
       "</section>" +
+      lifestyleShowcase() +   // sits under the courses now, and runs tighter
       lifestyleCinema((window.GPEN_LIFESTYLE || [])[9] || "", "The G Pen life", "Learn it. Live it. Sell it.") +
       '<section class="why">' +
         '<div class="why-grid">' +
@@ -919,11 +933,11 @@
   }
   // The "the lifestyle" showcase section that replaced the scrolling marquee.
   function lifestyleShowcase() {
-    var m = lifestyleMosaic(7, 0); if (!m) return "";
-    return '<section class="life-showcase reveal">' +
+    var m = lifestyleMosaic(8, 0); if (!m) return "";
+    return '<section class="life-showcase compact reveal">' +
       '<div class="ls-head"><span class="ls-eyebrow">' + ic("spark") + " The lifestyle</span>" +
         "<h2>Real people. Real sessions.</h2>" +
-        "<p>This is the world you&rsquo;re repping &mdash; G Pen in the wild, from the couch to the function.</p></div>" +
+        "<p>This is the world you&rsquo;re repping.</p></div>" +
       m +
     "</section>";
   }
@@ -1920,17 +1934,20 @@
     }
     return '<div class="vapor" aria-hidden="true">' + out + "</div>";
   }
+  // The Grenco University seal. Ids are made unique \u2014 the crest appears more than
+  // once per page and duplicate <defs> ids make later copies reuse the first path.
   function crestSVG(cls) {
+    var u = "cr" + (crestSVG.n = (crestSVG.n || 0) + 1);
     return '<svg class="crest ' + (cls || "") + '" viewBox="0 0 120 120" aria-hidden="true">' +
-      '<defs>' +
-        '<path id="crest-top" d="M16,60 A44,44 0 0 1 104,60" fill="none"/>' +
-        '<path id="crest-bot" d="M19,60 A41,41 0 0 0 101,60" fill="none"/>' +
+      "<defs>" +
+        '<path id="' + u + 't" d="M16,60 A44,44 0 0 1 104,60" fill="none"/>' +
+        '<path id="' + u + 'b" d="M19,60 A41,41 0 0 0 101,60" fill="none"/>' +
       "</defs>" +
       '<circle cx="60" cy="60" r="58" class="cr-ring"/>' +
       '<circle cx="60" cy="60" r="49" class="cr-ring thin"/>' +
       '<circle cx="60" cy="60" r="34" class="cr-disc"/>' +
-      '<text class="cr-t"><textPath href="#crest-top" startOffset="50%" text-anchor="middle">G PEN UNIVERSITY</textPath></text>' +
-      '<text class="cr-t sm"><textPath href="#crest-bot" startOffset="50%" text-anchor="middle">IN VAPORE VERITAS</textPath></text>' +
+      '<text class="cr-t"><textPath href="#' + u + 't" startOffset="50%" text-anchor="middle">GRENCO UNIVERSITY</textPath></text>' +
+      '<text class="cr-t sm"><textPath href="#' + u + 'b" startOffset="50%" text-anchor="middle">IN VAPORE VERITAS</textPath></text>' +
       '<text class="cr-star" x="14" y="64">\u2726</text><text class="cr-star" x="100" y="64">\u2726</text>' +
       '<text class="cr-est" x="60" y="54" text-anchor="middle">EST.</text>' +
       '<text class="cr-yr" x="60" y="74" text-anchor="middle">2012</text>' +
@@ -2249,6 +2266,7 @@
     bindLogoFun();
     bindCardTilt();
     bindMascot();
+    bindHeroMascot();
   }
   function boot() {
     app = $("#app"); // re-resolve in case the script loaded before #app parsed

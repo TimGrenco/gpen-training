@@ -1711,3 +1711,79 @@ h1, h2, h3, h4 { margin: 0; line-height: 1.08; letter-spacing: -.02em; }
   .insp-actions .btn { min-width: 0; flex: none; width: 100%; }
   .insp-actions .btn:last-child { grid-column: 1 / -1; }
 }
+
+/* ============ HERO v2: Grenco crest + a big animated Professor O.G. ======= */
+/* The lifestyle photo is gone; the hero is a dark stage for the mascot. */
+.hero {
+  display: grid; align-items: center; gap: clamp(18px, 3vw, 48px);
+  padding: clamp(34px, 5vw, 64px) clamp(16px, 4vw, 40px) clamp(36px, 5vw, 60px);
+  background: radial-gradient(120% 90% at 20% 0%, #1b1710 0%, #0b0b0b 55%), #0b0b0b;
+}
+.hero::after {
+  background:
+    radial-gradient(90% 80% at 78% 12%, rgba(254,200,112,.16), transparent 58%),
+    radial-gradient(70% 60% at 12% 92%, rgba(200,149,47,.10), transparent 60%);
+}
+.hero-inner { max-width: 620px; margin: 0; text-align: left; }
+.hero-sub { margin: 20px 0 0; }
+.hero-cta { align-items: flex-start; }
+.hero-crest { margin: 0 0 18px; width: 108px; height: 108px; }
+/* his line takes over the sub-headline when you tap him */
+.hero-sub.og-quote { font-style: italic; color: var(--gold-bright); }
+
+/* the mascot stage */
+.hero-og {
+  position: relative; justify-self: center; border: 0; padding: 0; cursor: pointer;
+  background: none; display: grid; justify-items: center; gap: 10px;
+  width: clamp(190px, 26vw, 290px);
+}
+.hero-og-art { position: relative; z-index: 1; display: block; width: 100%; }
+.hero-og-art .og-svg { width: 100%; height: auto; display: block; animation: og-float 5s ease-in-out infinite; transform-origin: 50% 88%; }
+@keyframes og-float {
+  0%, 100% { transform: translateY(0) rotate(-2deg); }
+  50% { transform: translateY(-12px) rotate(2deg); }
+}
+/* warm glow behind him so he pops off the dark stage */
+.hero-og-glow {
+  position: absolute; left: 50%; top: 52%; transform: translate(-50%, -50%);
+  width: 118%; aspect-ratio: 1; border-radius: 50%; z-index: 0; pointer-events: none;
+  background: radial-gradient(circle, rgba(254,200,112,.28), rgba(254,200,112,0) 62%);
+  animation: og-halo 5s ease-in-out infinite;
+}
+@keyframes og-halo { 0%, 100% { opacity: .75; transform: translate(-50%,-50%) scale(1); } 50% { opacity: 1; transform: translate(-50%,-50%) scale(1.08); } }
+.hero-og-tag {
+  position: relative; z-index: 1; display: inline-flex; align-items: center; gap: 6px;
+  font-size: 11px; font-weight: 900; letter-spacing: .12em; text-transform: uppercase;
+  color: var(--gold-bright); background: rgba(254,200,112,.12);
+  border: 1px solid rgba(254,200,112,.4); padding: 6px 13px; border-radius: 999px;
+}
+.hero-og-tag svg { width: 12px; height: 12px; }
+.hero-og:hover .hero-og-art { transform: scale(1.04); }
+.hero-og-art { transition: transform .3s cubic-bezier(.2,1.3,.4,1); }
+.hero-og.pop .hero-og-art { animation: og-pop .5s cubic-bezier(.2,1.5,.4,1); }
+
+@media (min-width: 900px) {
+  .hero { grid-template-columns: 1.15fr .85fr; }
+  /* O.G. is first in the DOM (so he greets you first on mobile) — put the copy
+     back in column 1 on desktop. */
+  .hero-inner { grid-column: 1; grid-row: 1; }
+  .hero-og { grid-column: 2; grid-row: 1; justify-self: center; }
+}
+@media (max-width: 899px) {
+  .hero { justify-items: center; text-align: center; gap: 14px; padding-top: clamp(24px, 5vw, 40px); }
+  .hero-inner { text-align: center; margin: 0 auto; }
+  .hero-crest { margin: 0 auto 12px; width: 86px; height: 86px; }
+  .hero-eyebrow { margin-bottom: 16px; padding: 8px 16px; }
+  .hero-cta { align-items: center; margin-top: 20px; }
+  .hero-og { order: -1; width: clamp(148px, 40vw, 200px); gap: 6px; } /* he greets you first */
+}
+@media (prefers-reduced-motion: reduce) {
+  .hero-og-art .og-svg, .hero-og-glow, .hero-og.pop .hero-og-art { animation: none; }
+}
+
+/* the lifestyle grid now sits under the courses and runs tighter */
+.life-showcase.compact { margin: 30px auto 4px; }
+.life-showcase.compact .life-mosaic { columns: 4; column-gap: 10px; }
+.life-showcase.compact .lm-cell { margin-bottom: 10px; border-radius: 13px; }
+@media (max-width: 980px) { .life-showcase.compact .life-mosaic { columns: 3; } }
+@media (max-width: 640px) { .life-showcase.compact .life-mosaic { columns: 2; } }
