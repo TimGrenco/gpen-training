@@ -604,6 +604,8 @@
     spark: '<svg viewBox="0 0 24 24" fill="currentColor"><path d="M12 2l1.9 5.4L19 9l-5.1 1.6L12 16l-1.9-5.4L5 9l5.1-1.6z"/><path d="M18.5 14l.9 2.4 2.6.8-2.6.8-.9 2.4-.9-2.4-2.6-.8 2.6-.8z"/><path d="M5 15l.7 1.9 2 .6-2 .6L5 20l-.7-1.9-2-.6 2-.6z"/></svg>',
     sound: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M11 5L6 9H3v6h3l5 4z"/><path d="M15.5 8.5a5 5 0 010 7"/><path d="M18.5 5.5a9 9 0 010 13"/></svg>',
     mute: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M11 5L6 9H3v6h3l5 4z"/><path d="M22 9l-6 6M16 9l6 6"/></svg>',
+    globe: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><path d="M3.6 9h16.8M3.6 15h16.8"/><path d="M12 3a14 14 0 0 1 0 18a14 14 0 0 1 0-18Z"/></svg>',
+    caret: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="m6 9 6 6 6-6"/></svg>',
   };
   function ic(n) { return '<span class="ic">' + (IC[n] || "") + "</span>"; }
 
@@ -731,6 +733,71 @@
     return ogSays("chill", ogLine("started"));
   }
 
+  /* =========================================================================
+     LANGUAGE SELECTOR — same language set + endonym pattern as assets.gpen.com.
+     PLACEHOLDER: the UI is real, but no translations exist yet, so picking a
+     non-English language says so honestly instead of half-translating the page.
+     To go live: add assets/data/i18n/<lang>.js and swap the body of setLang().
+     ====================================================================== */
+  var LANGS = { en: "English", es: "Espa\u00f1ol", de: "Deutsch", it: "Italiano", fr: "Fran\u00e7ais" };
+  var LANG_ORDER = ["en", "es", "de", "it", "fr"];
+  var curLang = "en";
+  function langSelHTML() {
+    return '<div class="langsel" id="lang-select">' +
+      '<button type="button" class="langsel-btn" id="lang-btn" aria-haspopup="true" aria-expanded="false" aria-label="Language: ' + LANGS[curLang] + '">' +
+        '<span class="langsel-globe" aria-hidden="true">' + IC.globe + "</span>" +
+        '<span class="langsel-code" id="lang-btn-code">' + curLang.toUpperCase() + "</span>" +
+        '<span class="langsel-caret" aria-hidden="true">' + IC.caret + "</span>" +
+      "</button>" +
+      '<div class="langsel-menu" id="lang-menu" role="menu" aria-label="Select language">' +
+        LANG_ORDER.map(function (l) {
+          var on = l === curLang;
+          return '<button type="button" role="menuitemradio" aria-checked="' + (on ? "true" : "false") +
+            '" class="langmenu-item' + (on ? " on" : "") + '" data-lang="' + l + '">' +
+            '<span class="langmenu-code">' + l.toUpperCase() + "</span>" +
+            '<span class="langmenu-name">' + LANGS[l] + "</span>" +
+            (on ? '<span class="langmenu-tick">' + ic("check") + "</span>" : "") +
+            (l !== "en" ? '<span class="langmenu-soon">Soon</span>' : "") +
+          "</button>";
+        }).join("") +
+      "</div>" +
+    "</div>";
+  }
+  function setLang(l) {
+    if (!Object.prototype.hasOwnProperty.call(LANGS, l)) return;
+    if (l !== "en") { toast(LANGS[l] + " is coming soon \u2014 translations are on the way."); return; }
+    curLang = l;
+  }
+  function bindLangSel() {
+    document.addEventListener("click", function (ev) {
+      var wrap = $("#lang-select"); if (!wrap) return;
+      var btn = ev.target.closest && ev.target.closest("#lang-btn");
+      var item = ev.target.closest && ev.target.closest(".langmenu-item");
+      if (btn) {
+        var open = wrap.classList.toggle("open");
+        btn.setAttribute("aria-expanded", open ? "true" : "false");
+        sfx.play("tick");
+        return;
+      }
+      if (item) {
+        wrap.classList.remove("open");
+        $("#lang-btn").setAttribute("aria-expanded", "false");
+        setLang(item.getAttribute("data-lang"));
+        return;
+      }
+      if (!ev.target.closest("#lang-select")) {   // click-away closes
+        wrap.classList.remove("open");
+        var b = $("#lang-btn"); if (b) b.setAttribute("aria-expanded", "false");
+      }
+    });
+    document.addEventListener("keydown", function (ev) {
+      if (ev.key !== "Escape") return;
+      var wrap = $("#lang-select"); if (!wrap) return;
+      wrap.classList.remove("open");
+      var b = $("#lang-btn"); if (b) b.setAttribute("aria-expanded", "false");
+    });
+  }
+
   /* ---- sound fx (synthesized Web Audio; no asset files, gesture-triggered) - */
   var sfx = (function () {
     var KEY = "gpt.sound";
@@ -828,6 +895,7 @@
         '<img src="assets/img/gpen-g-white.png" class="hdr-logo dark" alt="G Pen"/>' +
         '<span class="hdr-name">G Pen <em>University</em></span>' +
       "</a>" +
+      langSelHTML() +
       '<button class="hdr-sound" id="sound-toggle" title="' + (sfx.isOn() ? "Sound on" : "Sound off") + '" aria-label="Toggle sound">' + ic(sfx.isOn() ? "sound" : "mute") + "</button>" +
       '<a class="hdr-binder" href="#/collection" title="Your binder"><span class="hb-em">\uD83C\uDCCF</span><b>' + ownedCards() + "/" + totalCards() + "</b></a>" +
       (e ? '<a class="hdr-user" href="#/"><span class="hdr-u-name">' + esc(e.name) + '</span><span class="hdr-u-store">' + esc(e.store || "") + "</span></a>"
@@ -2346,6 +2414,7 @@
     if (getEnroll()) { maybeReportTier(); maybeReportSecret(); }
     if (!app) { return document.addEventListener("DOMContentLoaded", boot, { once: true }); }
     bindSoundToggle();
+    bindLangSel();
     window.addEventListener("hashchange", route);
     route();
   }
