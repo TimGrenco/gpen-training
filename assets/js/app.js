@@ -239,39 +239,20 @@
     return c ? c.name : "course";
   }
 
-  // Pulling a card mid-page must update the counters that are already on screen.
+  // Pulling a card mid-page must update whatever counters are already on screen.
   function refreshCounters() {
-    var chip = $(".hdr-binder b");
-    if (chip) chip.textContent = ownedCards() + "/" + totalCards();
-    var head = $(".col-strip .cs-head b");
-    if (head) head.textContent = ownedCards() + " / " + totalCards() + " cards collected";
-    var slots = $(".col-strip .cs-slots");
-    if (slots) {
-      var cs = $$(".cs-slot", slots);
-      COURSES.forEach(function (c, i) { if (cs[i] && cardOwned(c.slug)) cs[i].classList.add("on"); });
-      TRAINERS.forEach(function (t, i) {
-        var el = cs[COURSES.length + i];
-        if (el && eggSolved(t.egg)) el.classList.add("on");
-      });
-      var sec = cs[COURSES.length + TRAINERS.length];
-      if (sec) sec.className = "cs-slot s " + secretCardState();
-    }
+    var pips = $$(".hdr-binder .pip");
+    COURSES.forEach(function (c, i) { if (pips[i] && cardOwned(c.slug)) pips[i].classList.add("on"); });
+    var link = $(".hdr-binder");
+    if (link) link.setAttribute("aria-label", completedCount() + " of " + COURSES.length + " products certified — open your binder");
+    // the Loop's binder slots, if the home page is what's showing
+    $$(".lb-slots .lp-slot").forEach(function (el, i) {
+      var c = COURSES[i];
+      if (c && cardOwned(c.slug)) el.classList.add("on");
+    });
   }
 
   /* Tiny 16-slot progress strip: 5 product + 10 trainer + 1 secret. */
-  function collectionStrip() {
-    var slots = COURSES.map(function (c) {
-      return '<i class="cs-slot p' + (cardOwned(c.slug) ? " on" : "") + '" title="' + esc(c.name) + '"></i>';
-    }).join("") +
-    TRAINERS.map(function (t) {
-      return '<i class="cs-slot t' + (eggSolved(t.egg) ? " on" : "") + '" title="Trainer — ' + esc(t.name) + '"></i>';
-    }).join("") +
-    '<i class="cs-slot s ' + secretCardState() + '" title="Certified G"></i>';
-    return '<a class="col-strip" href="#/collection">' +
-      '<span class="cs-head"><b>' + ownedCards() + " / " + totalCards() + " cards collected</b><em>Open the binder " + ic("arrow") + "</em></span>" +
-      '<span class="cs-slots">' + slots + "</span>" +
-    "</a>";
-  }
 
   /* Holo tilt: the card leans toward the pointer and the shine follows it.
      Pointer-only and motion-safe — touch and reduced-motion get a flat card. */
@@ -308,14 +289,6 @@
   function quip(kind) {
     var q = (window.GPEN_QUIPS || {})[kind];
     return pick(q) || (kind === "correct" ? "Correct!" : "Not quite.");
-  }
-  function rankChip(done) {
-    var r = rankFor(done); if (!r) return "";
-    var nx = nextRank(done);
-    return '<div class="rank-chip"><span class="rank-em">' + r.emoji + "</span>" +
-      '<span class="rank-txt"><b>' + esc(r.name) + "</b>" +
-        "<em>" + esc(nx ? (nx.at - done) + " more to make " + nx.name : r.blurb) + "</em>" +
-      "</span></div>";
   }
   // A rotating trivia card. No points, no quiz — just something to enjoy.
   function factCard() {
@@ -700,14 +673,13 @@
       "</div>" +
     "</button>";
   }
-  // The big O.G. in the hero: tap him and he hoots + speaks through the sub-line.
+  // The O.G. sticker on the hat seam: tap him and he hoots + speaks through the sub-line.
   function bindHeroMascot() {
-    var hero = $(".hero-og"); if (!hero) return;
-    var say = $("#hero-say"), art = $(".hero-og-art", hero);
-    var original = say ? say.innerHTML : "";
+    var hero = $(".hat-og"); if (!hero) return;
+    var say = $("#hero-say");
     hero.addEventListener("click", function () {
       sfx.play("hoot");
-      if (art) art.innerHTML = mascotSVG(pick(["hyped", "think", "proud", "chill"]));
+      hero.innerHTML = mascotSVG(pick(["hyped", "think", "proud", "chill"]));
       if (say) { say.innerHTML = "&ldquo;" + ogLine("idle") + "&rdquo;"; say.classList.add("og-quote"); }
       hero.classList.remove("pop"); void hero.offsetWidth; hero.classList.add("pop");
     });
@@ -897,10 +869,20 @@
       "</a>" +
       langSelHTML() +
       '<button class="hdr-sound" id="sound-toggle" title="' + (sfx.isOn() ? "Sound on" : "Sound off") + '" aria-label="Toggle sound">' + ic(sfx.isOn() ? "sound" : "mute") + "</button>" +
-      '<a class="hdr-binder" href="#/collection" title="Your binder"><span class="hb-em">\uD83C\uDCCF</span><b>' + ownedCards() + "/" + totalCards() + "</b></a>" +
-      (e ? '<a class="hdr-user" href="#/"><span class="hdr-u-name">' + esc(e.name) + '</span><span class="hdr-u-store">' + esc(e.store || "") + "</span></a>"
-         : '<a class="hdr-cta" href="#/">Browse courses</a>') +
+      binderPips() +
+      (e ? '<a class="hdr-user" href="#/"><span class="hdr-u-name">' + esc(e.name) + '</span><span class="hdr-u-store">' + esc(e.store || "") + "</span></a>" : "") +
     "</header>";
+  }
+  /* Five pips, one per product — always five, never a number. A stranger reads
+     "there are five of these and I have two" instantly; "3/16" means nothing. */
+  function binderPips() {
+    var pips = COURSES.map(function (c) {
+      return '<i class="pip' + (cardOwned(c.slug) ? " on" : "") + '"></i>';
+    }).join("");
+    return '<a class="hdr-binder" href="#/collection" aria-label="' + completedCount() + " of " + COURSES.length + ' products certified — open your binder">' +
+      '<span class="pips" aria-hidden="true">' + pips + "</span>" +
+      '<span class="hb-word">Binder</span>' +
+    "</a>";
   }
   // Sound toggle survives re-renders via a single delegated listener (bound in boot).
   function bindSoundToggle() {
@@ -916,83 +898,94 @@
 
   /* ---- HOME (browse-first hub) ------------------------------------------- */
   function renderHome() {
-    var e = getEnroll(), s = getState(), done = completedCount(), total = COURSES.length;
-    var hasProgress = !!e || done > 0;
+    var e = getEnroll(), done = completedCount(), total = COURSES.length;
     var master = isMasterEarned();
-    var pct = Math.round((done / total) * 100), streak = s.streak.count || 0;
-    var R = 54, C = 2 * Math.PI * R, off = C * (1 - done / total);
-
-    var progressBlock = hasProgress
-      ? '<div class="dash-head">' +
-          '<div class="dash-hi"><span class="dash-hello">' + (e ? "Welcome back," : "Your progress") + "</span><h1>" + esc(e ? e.name.split(" ")[0] : "Keep going") + "</h1>" + (e ? '<span class="dash-store">' + esc(e.store) + "</span>" : "") + rankChip(done) + "</div>" +
-          '<div class="ring">' +
-            '<svg viewBox="0 0 128 128"><circle class="ring-bg" cx="64" cy="64" r="' + R + '"/>' +
-            '<circle class="ring-fg" cx="64" cy="64" r="' + R + '" stroke-dasharray="' + C.toFixed(1) + '" stroke-dashoffset="' + C.toFixed(1) + '" data-off="' + off.toFixed(1) + '"/></svg>' +
-            '<div class="ring-txt"><strong>' + done + "<span>/" + total + "</span></strong><em>certified</em></div>" +
-          "</div>" +
-        "</div>" +
-        '<div class="stat-row">' +
-          stat(done, "Courses passed", done, "") +
-          stat(pct + "%", "Program complete", pct, "%") +
-          stat('<span class="st-fire">' + (streak ? ic("fire") : "") + streak + "</span>", "Day streak") +
-        "</div>" +
-        collectionStrip()
-      : "";
+    var totalMin = COURSES.reduce(function (a, c) { return a + (c.minutes || 0); }, 0);
 
     app.innerHTML = header() +
-      '<section class="hero">' +
-        vaporHTML(6) +
-        // Professor O.G. is the face of the landing page now — tap him for a line.
-        '<button class="hero-og" type="button" aria-label="Tap Professor O.G.">' +
-          '<span class="hero-og-glow" aria-hidden="true"></span>' +
-          '<span class="hero-og-art">' + mascotSVG("chill") + "</span>" +
-          '<span class="hero-og-tag">' + ic("spark") + " Tap the Prof</span>" +
-        "</button>" +
-        '<div class="hero-inner reveal">' +
-          crestSVG("hero-crest") +
-          '<div class="hero-eyebrow">' + ic("cap") + " " + esc(CFG.programName) + "</div>" +
-          "<h1>Become a <span class=\"gold\">Certified G</span>.</h1>" +
-          '<p class="hero-sub" id="hero-say">Free product training for G Pen retailers. Learn a product, pass a short quiz, and unlock <strong>25%</strong> to <strong>40% off</strong> gpen.com — plus a collectible card for your binder.</p>' +
-          '<div class="hero-cta">' +
-            '<button class="btn xl" id="browse-btn">Start training ' + ic("arrow") + "</button>" +
-            '<a class="btn xl ghost-dark" href="#/about">About G Pen</a>' +
-          "</div>" +
+      // ---- The hat. Deliberately short: the first product card must peek above
+      // the fold on a phone. No crest, no eyebrow, no buttons — the cards are the CTA.
+      '<section class="hat">' +
+        vaporHTML(5) +
+        '<div class="hat-inner reveal">' +
+          "<h1>Learn all five G&nbsp;Pen products.</h1>" +
+          '<p class="hat-sub" id="hero-say">Free. No sign-up to browse. Start anywhere &mdash; the whole lineup is about ' + totalMin + " minutes.</p>" +
+          '<p class="hat-hook">Pass the quizzes and you unlock up to <b>40% off</b> gpen.com &mdash; buy the gear cheap and actually rip it.</p>' +
         "</div>" +
+        // O.G. rides along as a sticker on the seam, not a barricade.
+        '<button class="hat-og" type="button" aria-label="Tap Professor O.G. for a tip">' + mascotSVG("chill") + "</button>" +
       "</section>" +
-      howItWorks() +
+
       '<section class="hub reveal">' +
-        progressBlock +
-        nextUpBlock() +
-        '<div class="sec-h" id="courses"><h2>The courses</h2><span>' + done + " of " + total + " certified</span></div>" +
-        '<p class="catalog-lede">Five products, about ' + (COURSES[0] ? COURSES[0].minutes : 9) + '&ndash;10 minutes each. Take them in any order &mdash; each one you pass is a certification and a bigger discount.</p>' +
+        resumeStrip() +
+        '<div class="sec-h" id="courses"><h2>The shelf <span class="sh-all">&middot; all 5 products</span></h2></div>' +
+        '<p class="catalog-lede">No order, no locks. Start with whatever&rsquo;s on your counter.</p>' +
         '<div class="course-grid">' + COURSES.map(courseCard).join("") + "</div>" +
         eggHTML("home", "courses") +
-        rewardsSection(done, master) +
-        eggHTML("home", "rewards") +
-        factCard() +
-        (hasProgress ? '<button class="linklike reset" id="reset">Reset my progress</button>' : "") +
       "</section>" +
-      binderTeaser() +
-      lifestyleShowcase() +
-      lifestyleCinema((window.GPEN_LIFESTYLE || [])[9] || "", "The G Pen life", "Learn it. Live it. Sell it.") +
+
+      theLoop(done, master) +
+      lifestyleCinema((window.GPEN_LIFESTYLE || [])[9] || "", "The G Pen life", "Made in Venice, CA. Sold by you.") +
       footer();
 
-    if (hasProgress) {
-      requestAnimationFrame(function () { var r = $(".ring-fg"); if (r) r.style.strokeDashoffset = r.getAttribute("data-off"); });
-      countUp();
-      if (pendingCelebrate) {
-        pendingCelebrate = false;
-        var ring = $(".ring");
-        if (ring) { ring.classList.add("celebrate"); confetti(); toast("Badge earned! 🎉"); setTimeout(function () { ring.classList.remove("celebrate"); }, 2400); }
-      }
-    }
     fillRewards();
-    var bb = $("#browse-btn"); if (bb) bb.addEventListener("click", function () { scrollToId("courses"); });
     $$("[data-goto]").forEach(function (el) { el.addEventListener("click", function () { go("#/course/" + el.getAttribute("data-goto")); }); });
     var rst = $("#reset"); if (rst) rst.addEventListener("click", function () {
       if (confirm("Reset ALL your training progress and certificates on this device?")) { localStorage.removeItem(K_STATE); localStorage.removeItem(K_ENROLL); go("#/"); }
     });
     revealOnScroll();
+  }
+
+  /* Only for someone mid-course. Someone with passes but nothing in flight doesn't
+     need a nag — their state is the header pips and the binder. */
+  function resumeStrip() {
+    var s = getState();
+    var open = COURSES.filter(function (c) {
+      var r = s.courses[c.slug];
+      return r && !r.passed;   // started, not passed
+    })[0];
+    if (!open) return "";
+    return '<a class="resume" href="#/course/' + open.slug + '" style="--accent:' + open.accent + '">' +
+      '<span class="rs-txt"><b>Back for more.</b> ' + esc(open.name) + " is still open.</span>" +
+      '<span class="rs-go">Pick it up ' + ic("arrow") + "</span>" +
+    "</a>";
+  }
+
+  /* The Loop — the incentive story, told exactly once, below the shelf.
+     Merges what used to be the reward ladder AND the binder teaser. */
+  function theLoop(done, master) {
+    var slots = COURSES.map(function (c) {
+      var owned = cardOwned(c.slug);
+      return '<span class="lp-slot' + (owned ? " on" : "") + '" style="--accent:' + c.accent + '" title="' + esc(c.name) + '">' +
+        (owned ? '<img src="' + esc(c.cover) + '" alt=""/>' : '<i>?</i>') + "</span>";
+    }).join("");
+
+    var steps = [
+      { n: 1, ic: "play", t: "Learn", s: "Read the specs, watch the two videos, learn how to clean it. Free, no sign-up, no account." },
+      { n: 2, ic: "cap", t: "Pass", s: "10 to 12 questions, 80% to pass. Name, email, store &mdash; the only time we ask for anything." },
+      { n: 3, ic: "award", t: "Collect", s: "Every pass drops that product&rsquo;s card in your binder &mdash; specs and talking points on one card." },
+      { n: 4, ic: "tag", t: "Rip it", s: "Certifications stack into a bigger code at gpen.com. Buy the gear cheap and actually use it." },
+    ];
+
+    return '<section class="loop reveal">' +
+      '<div class="loop-head">' +
+        "<h2>Get certified. Get it cheap. Actually rip it.</h2>" +
+        '<p class="loop-sub">You sell it better when you&rsquo;ve owned it.</p>' +
+      "</div>" +
+      '<div class="loop-steps">' + steps.map(function (st) {
+        return '<div class="loop-step"><span class="lp-n">' + st.n + "</span>" +
+          '<span class="lp-ic">' + ic(st.ic) + "</span>" +
+          "<h3>" + st.t + "</h3><p>" + st.s + "</p></div>";
+      }).join("") + "</div>" +
+      // the binder, as five slots you can see are empty. Never a 0/5 counter.
+      '<div class="loop-binder">' +
+        '<div class="lb-slots">' + slots + "</div>" +
+        '<a class="linklike lb-link" href="#/collection">Open your binder ' + ic("arrow") + "</a>" +
+      "</div>" +
+      rewardsSection(done, master) +
+      '<p class="loop-eggs">' + ic("spark") + " The ten Trainer cards are product trivia hiding inside the courses. Read properly and you&rsquo;ll trip over them.</p>" +
+      eggHTML("home", "rewards") +
+    "</section>";
   }
   function scrollToId(id) { var el = document.getElementById(id); if (el) el.scrollIntoView({ behavior: "smooth", block: "start" }); }
   function lifestyleImgs() {
@@ -1008,16 +1001,6 @@
     return '<div class="life-mosaic">' + imgs.map(function (u) {
       return '<figure class="lm-cell"><img src="' + esc(u) + '" alt="Real people using G Pen products" loading="lazy" decoding="async"/></figure>';
     }).join("") + "</div>";
-  }
-  // The "the lifestyle" showcase section that replaced the scrolling marquee.
-  function lifestyleShowcase() {
-    var m = lifestyleMosaic(8, 0); if (!m) return "";
-    return '<section class="life-showcase compact reveal">' +
-      '<div class="ls-head"><span class="ls-eyebrow">' + ic("spark") + " The lifestyle</span>" +
-        "<h2>Real people. Real sessions.</h2>" +
-        "<p>This is the world you&rsquo;re repping.</p></div>" +
-      m +
-    "</section>";
   }
   // A full-width cinematic lifestyle band used as a divider / on course pages.
   function lifestyleCinema(img, eyebrow, line) {
@@ -1035,44 +1018,30 @@
   }
   /* The three steps, stated plainly and up front. This is the first thing a
      budtender should read — it answers "what is this and how does it work". */
-  function howItWorks() {
-    var steps = [
-      { n: 1, ic: "play", t: "Learn it", s: "Open any product course. Watch the how-to videos, read the specs, cleaning and FAQs. No sign-up, no cost." },
-      { n: 2, ic: "cap", t: "Prove it", s: "When you're ready, take the quiz. Score " + (COURSES[0] ? COURSES[0].passPct : 80) + "% or better and you're a certified Product Specialist on that product." },
-      { n: 3, ic: "tag", t: "Get paid", s: "Every course you pass unlocks a bigger discount at gpen.com — from <b>25%</b> up to <b>40% off</b> — plus a collectible card for your binder." },
-    ];
-    return '<section class="hiw reveal">' +
-      '<div class="hiw-head"><span class="hiw-eyebrow">' + ic("spark") + " How it works</span>" +
-        "<h2>Three steps. That&rsquo;s it.</h2></div>" +
-      '<div class="hiw-grid">' + steps.map(function (s) {
-        return '<div class="hiw-step">' +
-          '<span class="hiw-n">' + s.n + "</span>" +
-          '<span class="hiw-ic">' + ic(s.ic) + "</span>" +
-          "<h3>" + esc(s.t) + "</h3><p>" + s.s + "</p>" +
-        "</div>";
-      }).join("") + "</div>" +
-    "</section>";
-  }
 
   /* A plain, readable course card — the home page lists COURSES, not cards.
      The trading card is the reward you get for finishing one. */
   function courseCard(c) {
-    var s = getState(), rec = s.courses[c.slug], done = !!(rec && rec.passed);
-    return '<a class="cc' + (done ? " done" : "") + (c.featured && !done ? " featured" : "") + '" href="#/course/' + c.slug + '">' +
-      '<span class="cc-media">' +
-        '<img src="' + esc(c.cover) + '" alt="' + esc(c.name) + '" loading="lazy"/>' +
-        (done ? '<span class="cc-badge">' + ic("check") + " Certified " + rec.score + "%</span>"
-              : (c.featured ? '<span class="cc-featured">' + ic("star") + " " + esc(c.featured) + "</span>" : "")) +
-      "</span>" +
+    var st = getState(), rec = st.courses[c.slug], done = !!(rec && rec.passed);
+    // Rigidly uniform: same fields, same order, same scale on every card. No price
+    // (buy signifier), no discount (that story lives in the Loop), no favourite.
+    return '<a class="cc' + (done ? " done" : "") + '" href="#/course/' + c.slug + '" style="--accent:' + c.accent + '">' +
+      '<span class="cc-accent" aria-hidden="true"></span>' +
+      '<span class="cc-media"><img src="' + esc(c.cover) + '" alt="' + esc(c.name) + '" loading="lazy"/></span>' +
       '<span class="cc-body">' +
-        '<span class="cc-cat">' + esc(c.category) + "</span>" +
         "<h3>" + esc(c.name) + "</h3>" +
-        "<p>" + esc(c.tagline) + "</p>" +
-        '<span class="cc-meta">' + c.videos.length + " videos · " + c.quiz.length + "-question quiz · ~" + c.minutes + " min</span>" +
+        '<span class="cc-cat">' + esc(c.category) + "</span>" +
+        '<p class="cc-diff">' + esc(c.differentiator || c.tagline) + "</p>" +
+        // read from the data — minutes and question counts are NOT uniform
+        '<span class="cc-meta">' +
+          '<span class="ccm">' + ic("play") + c.videos.length + " videos</span>" +
+          '<span class="ccm">' + ic("cap") + c.quiz.length + " questions</span>" +
+          '<span class="ccm">~' + c.minutes + " min</span>" +
+        "</span>" +
         '<span class="cc-foot">' +
-          '<span class="cc-reward' + (done ? " earned" : "") + '">' + ic(done ? "check" : "tag") +
-            "<span>" + (done ? "25% off earned" : "Pass → 25% off") + "</span></span>" +
-          '<span class="cc-go">' + (done ? "Review " : "Start ") + ic("arrow") + "</span>" +
+          (done ? '<span class="cc-status on">' + ic("check") + " Certified " + rec.score + "%</span>"
+                : '<span class="cc-status">Not yet certified</span>') +
+          '<span class="cc-go">' + (done ? "Review" : "Open") + " " + esc(c.name) + " " + ic("arrow") + "</span>" +
         "</span>" +
       "</span>" +
     "</a>";
@@ -1080,21 +1049,6 @@
 
   /* The binder, teased — cards stay face-down here on purpose. Pulling one is
      the surprise; the binder is where you go to actually look at them. */
-  function binderTeaser() {
-    var owned = baseSetOwned(), total = COURSES.length;
-    var backs = "";
-    for (var i = 0; i < 3; i++) backs += '<span class="bt-back"><img src="assets/img/gpen-g-white.png" alt=""/></span>';
-    return '<section class="bt reveal">' +
-      '<div class="bt-copy">' +
-        '<span class="bt-eyebrow">' + ic("award") + " Your binder</span>" +
-        "<h2>Pass a course, pull a card.</h2>" +
-        "<p>Every course you finish drops a collectible card into your binder &mdash; you rip it out of a foil pack, holo and all. It&rsquo;s also the fastest cheat sheet you&rsquo;ll ever have: specs, key features and talking points for that product, on one card.</p>" +
-        '<div class="bt-stat"><b>' + owned + "</b> of " + total + " product cards collected</div>" +
-        '<a class="btn xl" href="#/collection">Open the binder ' + ic("arrow") + "</a>" +
-      "</div>" +
-      '<div class="bt-deck" aria-hidden="true">' + backs + "</div>" +
-    "</section>";
-  }
   function step(n, t, s) { return '<li class="step reveal"><span class="step-n">' + n + "</span><div><h4>" + t + "</h4><p>" + s + "</p></div></li>"; }
   function footer() {
     return '<footer class="foot"><img src="assets/img/gpen-g-black.png" class="foot-g light" alt=""/><img src="assets/img/gpen-g-white.png" class="foot-g dark" alt=""/>' +
@@ -1109,59 +1063,9 @@
       '<input id="f-' + id + '" type="' + type + '" value="' + esc(val || "") + '" placeholder="' + esc(ph) + '" autocomplete="' + ac + '" /></label>';
   }
 
-  function stat(v, l, to, suf) {
-    return '<div class="stat"><strong' + (to != null ? ' data-to="' + to + '" data-suffix="' + (suf || "") + '"' : "") + ">" + v + "</strong><span>" + l + "</span></div>";
-  }
-  function countUp() {
-    $$(".stat strong[data-to]").forEach(function (el) {
-      var to = parseInt(el.getAttribute("data-to"), 10) || 0, suf = el.getAttribute("data-suffix") || "";
-      var setFinal = function () { el.textContent = to + suf; };
-      // In hidden/inactive tabs rAF is paused — just show the real value.
-      if (document.hidden || to <= 0) { setFinal(); return; }
-      var start = null, dur = 850;
-      requestAnimationFrame(function step(ts) {
-        if (!start) start = ts;
-        var p = Math.min((ts - start) / dur, 1);
-        el.textContent = Math.round(p * to) + suf;
-        if (p < 1) requestAnimationFrame(step);
-      });
-      // Failsafe: never leave a stat stuck mid-animation (wrong value).
-      setTimeout(setFinal, 1200);
-    });
-  }
   // The three-tier discount reward, shown as an "earn it" tracker on the home hub.
   /* The reward ladder climbs with the collection:
        1 card -> 25%   3 cards -> 30%   full Base Set -> 35%   + all Trainers -> 40% gold */
-  // "Next up": the single clearest next step + how close the next reward is.
-  // The engagement hook — always one tappable "just one more" away from a payoff.
-  function nextUpBlock() {
-    if (isSecretUnlocked()) {
-      return '<a class="nextup done" href="#/collection">' +
-        '<span class="nu-badge">' + ic("award") + " Certified G</span>" +
-        '<span class="nu-main"><b>You collected everything. 👑</b><em>Every card, every Trainer, the gold foil — you&rsquo;re a fully loaded G.</em></span>' +
-        '<span class="nu-cta">Open the binder ' + ic("arrow") + "</span></a>";
-    }
-    var done = completedCount(), total = COURSES.length;
-    var headline, sub, ctaLabel, ctaHref;
-    if (!isMasterEarned()) {
-      var next = COURSES.filter(function (c) { return !cardOwned(c.slug); })[0] || COURSES[0];
-      ctaHref = "#/course/" + next.slug;
-      ctaLabel = (cardScore(next.slug) ? "Review " : "Start ") + next.name;
-      if (done === 0) { headline = "Pull your first card"; sub = "Pass any course quiz to bag your first card and unlock 25% off gpen.com."; }
-      else if (done < 3) { var t3 = 3 - done; headline = t3 + " more card" + (t3 === 1 ? "" : "s") + " to 30% off"; sub = "You&rsquo;re building the set — keep the combo rolling with " + esc(next.name) + "."; }
-      else { var ts = total - done; headline = ts + " more to finish the Base Set"; sub = "Collect all " + total + " for 35% off and reveal the Certified G secret rare."; }
-    } else {
-      var left = TRAINERS.length - trainersOwned();
-      headline = left + " Trainer card" + (left === 1 ? "" : "s") + " to go gold";
-      sub = "You&rsquo;ve got the Base Set. Find the last hidden trivia across the site to flip Certified G to gold — 40% off.";
-      ctaLabel = "Hunt in the binder"; ctaHref = "#/collection";
-    }
-    return '<a class="nextup" href="' + ctaHref + '">' +
-      '<span class="nu-badge">' + ic("spark") + " Next up</span>" +
-      '<span class="nu-main"><b>' + headline + "</b><em>" + sub + "</em></span>" +
-      '<span class="nu-cta">' + esc(ctaLabel) + " " + ic("arrow") + "</span>" +
-    "</a>";
-  }
   function rewardsSection(done, master) {
     var core = coreSlugs().length;
     var trio = done >= 3, c25 = done >= 1, c35 = master;
