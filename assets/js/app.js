@@ -942,7 +942,7 @@
       "</section>" +
 
       theLoop(done, master) +
-      lifestyleCinema((window.GPEN_LIFESTYLE || [])[9] || "", "The G Pen life", "Made in Venice, CA. Sold by you.") +
+      lifestyleCinema((window.GPEN_LIFESTYLE || [])[9] || "", "The G Pen life", "Become a Certified G. Spread the knowledge.") +
       footer();
 
     fillRewards();
