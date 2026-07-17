@@ -50,15 +50,32 @@ window.TRAINING_CONFIG = {
       label: "35% off your entire order at gpen.com",
       note: "Four products certified. One more and you unlock the full 40%.",
     },
-    // Unlocked once ALL 5 courses are complete — the whole lineup. 40% off.
+    // Unlocked once ALL 5 courses are complete — the whole lineup. 40% off,
+    // PLUS an entry to win a free G Pen (see the sweepstakes block below).
     secret: {
       code: "CERTIFIEDG40",
-      label: "40% off — the full-lineup reward",
-      note: "You certified on the entire G Pen lineup. This is the top reward in the program.",
+      label: "40% off gpen.com — plus your entry to win a free G Pen",
+      note: "You certified on the whole lineup. That puts you in the draw for a free G Pen — and drops 40% off into your hands right now. Go get one in your pocket.",
     },
     // OPTIONAL: give a specific product its own course code. Keyed by course slug.
     // e.g. perCourse: { "dash-ii": { code: "DASH2PRO", label: "...", note: "..." } }
     perCourse: {},
+  },
+
+  /* >>> FREE-G-PEN SWEEPSTAKES <<<
+     Certify on all 5 products and you're auto-entered to win a free G Pen (and
+     you still get the 40% code no matter what). It's a SWEEPSTAKES, not a raffle
+     (no purchase, equal odds). Entries log via the reporting webhook below — no
+     server needed. Draw is run off-platform by the client. Edit freely.
+       enabled  : master switch for the whole feature
+       cadence  : how often you draw (shown in copy + rules)
+       prize    : what they win (shown in copy)
+       rulesUrl : the static Official Rules page (rules.html ships with the site) */
+  sweepstakes: {
+    enabled: true,
+    cadence: "monthly",
+    prize: "a free G Pen",
+    rulesUrl: "rules.html",
   },
 
   /* >>> COMPLETION REPORTING <<<

@@ -963,7 +963,7 @@
       '<section class="mast reveal">' +
         '<div class="mast-inner">' +
           '<div class="mast-lead">' +
-            '<span class="mast-kicker">G Pen University &middot; Certification for budtenders &middot; Est. 2012</span>' +
+            '<span class="mast-kicker">G Pen University &middot; Certification for budtenders &amp; smoke-shop reps &middot; Est. 2012</span>' +
             '<div class="mast-say"><h1 class="mast-h1">' + ogGreetingLine(done, total) + "</h1></div>" +
             '<div class="mast-dean">' +
               '<button class="mast-og" type="button" aria-label="Tap the Dean for a field note">' + mascotSVG("chill") + "</button>" +
@@ -975,8 +975,8 @@
             "</div>" +
           "</div>" +
           '<div class="mast-aside">' +
-            '<p class="mast-deck">Free training on all five G&nbsp;Pen products &mdash; no sign-up to browse, about ' + totalMin + ' minutes end to end. Pass the quizzes and unlock up to <b>40% off</b> gpen.com.</p>' +
-            '<ul class="mast-stats"><li>5 products</li><li>~' + totalMin + ' min</li><li class="gold">up to 40% off</li></ul>' +
+            '<p class="mast-deck">Free training on all five G&nbsp;Pen products &mdash; for anyone behind the counter, dispensary or smoke shop. About ' + totalMin + ' min end to end, no sign-up to browse. Pass the quizzes to unlock up to <b>40% off</b> gpen.com, and certify the whole lineup for a shot at a <b>free G&nbsp;Pen</b>. The best pitch is the one in your own pocket.</p>' +
+            '<ul class="mast-stats"><li>5 products</li><li>~' + totalMin + ' min</li><li class="gold">up to 40% off + a free-device draw</li></ul>' +
             '<div class="og-fact" id="og-fact" role="status" aria-live="polite"></div>' +
             '<button class="mast-cta" type="button" data-scroll="courses">Show me the shelf ' + ic("arrow") + "</button>" +
           "</div>" +
@@ -993,7 +993,7 @@
 
       floorDrill() +
       theLoop(done, master) +
-      '<section class="signoff reveal">' + ogSays("proud", "That&rsquo;s the syllabus. Now go run the floor.") + "</section>" +
+      '<section class="signoff reveal"><div class="signoff-inner">' + ogSays("proud", "That&rsquo;s the syllabus. You can&rsquo;t sell what you&rsquo;ve never ripped &mdash; now go run the floor.") + "</div></section>" +
       footer();
 
     fillRewards();
@@ -1028,8 +1028,8 @@
   function theLoop(done, master) {
     return '<section class="loop reveal">' +
       '<div class="loop-head">' +
-        "<h2>Get certified. Get it cheap. Actually rip it.</h2>" +
-        '<p class="loop-sub">You sell it better when you&rsquo;ve owned it.</p>' +
+        "<h2>Get certified. Get it cheap. Rip it yourself.</h2>" +
+        '<p class="loop-sub">Customers trust the staff who actually use it. Put a G&nbsp;Pen in your pocket and you&rsquo;re the rec.</p>' +
       "</div>" +
       '<div class="loop-rail">' +
         '<span class="lr-beat"><i>1</i>Learn it</span>' +
@@ -1117,17 +1117,15 @@
       '<input id="f-' + id + '" type="' + type + '" value="' + esc(val || "") + '" placeholder="' + esc(ph) + '" autocomplete="' + ac + '" /></label>';
   }
 
-  // The three-tier discount reward, shown as an "earn it" tracker on the home hub.
-  /* The reward ladder climbs with the collection:
-       1 card -> 25%   3 cards -> 30%   full Base Set -> 35%   + all Trainers -> 40% gold */
+  /* The reward ladder, shown as an "earn it" tracker on the home hub:
+       1 course -> 25%   2 -> 30%   4 -> 35%   all 5 -> 40% + free-G Pen draw entry */
   function rewardsSection(done, master) {
     var total = COURSES.length;                 // 5 = the full lineup
-    // Pure course-count ladder: 1 → 25%, 2 → 30%, 4 → 35%, all 5 → 40%.
-    // The card types (course/trio/master/secret) are legacy plumbing keys that
-    // map to the discount codes in config.js — only the thresholds live here.
+    // Course-count ladder: 1 → 25%, 2 → 30%, 4 → 35%. All 5 is the grand prize:
+    // the 40% code PLUS an entry to win a free G Pen (the capstone below).
     var c25 = done >= 1, c30 = done >= 2, c35 = done >= 4, c40 = done >= total;
-    var head = c40 ? "Full lineup certified — 40% off 👑"
-      : (c35 ? "35% off unlocked — one more for the full 40%"
+    var head = c40 ? "Full lineup certified — you're in the draw 👑"
+      : (c35 ? "35% off unlocked — one more for the grand prize"
       : (c30 ? "30% off unlocked — keep certifying"
       : (c25 ? "25% off unlocked — keep going"
       : "Pass your first course to start earning")));
@@ -1137,8 +1135,23 @@
         rewardCard("course", c25, "25% OFF", "Pass any 1 course", need(1)) +
         rewardCard("trio", c30, "30% OFF", "Certify on any 2 products", need(2)) +
         rewardCard("master", c35, "35% OFF", "Certify on any 4 products", need(4)) +
-        rewardCard("secret", c40, "40% OFF", "Certify on all " + total + " — the whole lineup", need(total)) +
-      "</div>";
+      "</div>" +
+      grandCard(c40, done, total);
+  }
+  // The all-5 capstone: a free-G-Pen draw entry + the guaranteed 40% code.
+  function grandCard(unlocked, done, total) {
+    var sw = CFG.sweepstakes || {}, d = total - done;
+    var draw = sw.enabled !== false;
+    return '<div class="rw-card grand ' + (unlocked ? "on" : "off") + '">' +
+      '<div class="rw-top"><span class="rw-ic">' + ic(unlocked ? "award" : "lock") + "</span>" +
+        '<span class="rw-status">' + (unlocked ? (draw ? "You're in the draw" : "Unlocked") : "Grand prize") + "</span></div>" +
+      '<div class="rw-big">' + (draw ? "FREE G PEN <em>+ 40%</em>" : "40% OFF") + "</div>" +
+      '<div class="rw-sub">Certify all ' + total + " &mdash; " + (draw ? "you&rsquo;re entered to win a free G&nbsp;Pen, and 40% off is yours no matter what." : "the whole lineup unlocks 40% off gpen.com.") + "</div>" +
+      (unlocked
+        ? '<button class="rw-code" data-rwcode="secret"><span class="rw-code-v">••••••</span><em>' + ic("tag") + " Tap to copy</em></button>" +
+          '<a class="rw-cert" href="#/certified">' + (draw ? "Enter the draw + view certificate" : "View master certificate") + " &rarr;</a>"
+        : '<div class="rw-lock">' + ic("spark") + " " + d + " more course" + (d === 1 ? "" : "s") + (draw ? " to enter the draw" : " to unlock") + "</div>") +
+    "</div>";
   }
   function rewardCard(type, unlocked, big, sub, lockMsg) {
     var isSecret = type === "secret";
@@ -1552,7 +1565,7 @@
       "</div>" +
       '<div id="cert-zone"></div>' +
       '<div id="reward-zone" class="reward-wrap"></div>' +
-      (master ? '<a class="master-unlock" href="#/certified">' + ic("award") + " Base Set complete — you pulled the <strong>Certified G</strong> secret rare! Certificate & 35% off " + ic("arrow") + "</a>"
+      (master ? '<a class="master-unlock" href="#/certified">' + ic("award") + " Full lineup certified — you pulled the <strong>Certified G</strong>! Your certificate, <strong>40% off</strong> & your free-G&nbsp;Pen draw entry " + ic("arrow") + "</a>"
               : '<a class="btn ghost xl backdash" href="#/">Back to all courses ' + ic("arrow") + "</a>");
     showCertificate(c, e.name, date, pct, cid, $("#cert-zone"));
     revealReward("course", { courseSlug: c.slug, name: e.name, email: e.email, store: e.store, certId: cid }, $("#reward-zone"));
@@ -1954,6 +1967,22 @@
     return "rgb(" + A.map(function (v, i) { return Math.round(v + (B[i] - v) * t); }).join(",") + ")";
   }
 
+  /* The finish-line sweepstakes moment: you're entered to win a free G Pen, and
+     the 40% code is yours either way. No backend — entry logged via the webhook. */
+  function sweepsPanelHTML(e) {
+    var sw = CFG.sweepstakes || {};
+    return '<div class="sweeps reveal">' +
+      '<span class="sw-eyebrow">' + ic("spark") + " Full lineup certified &mdash; you&rsquo;re in the draw</span>" +
+      '<h2 class="sw-h">You&rsquo;re entered to win ' + esc(sw.prize || "a free G Pen") + ". 🦉</h2>" +
+      '<p class="sw-body">That&rsquo;s the whole shelf, certified. Every fully-certified specialist is entered to win ' + esc(sw.prize || "a free G Pen") + ", drawn " + esc(sw.cadence || "monthly") + ". Didn&rsquo;t win? Your <b>40% off</b> is live today &mdash; grab one, put it in your pocket, and let &ldquo;this is the one I use&rdquo; close the sale.</p>" +
+      '<div class="sw-actions">' +
+        '<button class="btn xl sw-copy">' + ic("tag") + " Copy your 40% code</button>" +
+        '<a class="btn xl ghost" href="' + esc(CFG.shopUrl) + '" target="_blank" rel="noopener">Shop &amp; test on gpen.com ' + ic("arrow") + "</a>" +
+      "</div>" +
+      '<p class="sw-fine">No purchase necessary. Open to authorized G&nbsp;Pen retail staff (dispensary &amp; smoke shop), 21+, US, void where prohibited. Winners drawn ' + esc(sw.cadence || "monthly") + ". <a href=\"" + esc(sw.rulesUrl || "rules.html") + '" target="_blank" rel="noopener">Official Rules</a>.</p>' +
+    "</div>";
+  }
+
   /* ---- CERTIFIED (master) ------------------------------------------------ */
   function renderCertified() {
     if (!isMasterEarned()) return go("#/");
@@ -1964,6 +1993,11 @@
     if (!s.master) {
       s.master = { certId: cid, date: date, name: e.name }; setState(s); logEvent("master", { certId: cid });
       if (window.reportCompletion) window.reportCompletion({ type: "master", name: e.name, email: e.email, store: e.store, product: "Certified G", score: 100, certId: cid, date: date });
+      // Full-lineup certification = one automatic entry in the free-G-Pen draw.
+      // The reporting webhook IS the entry pool; no separate server needed.
+      if ((CFG.sweepstakes || {}).enabled !== false && window.reportCompletion) {
+        window.reportCompletion({ type: "sweepstakes_entry", name: e.name, email: e.email, store: e.store, product: "Free G Pen draw", score: 100, certId: cid, date: date });
+      }
     }
     else { cid = s.master.certId; date = s.master.date; }
 
@@ -1976,6 +2010,7 @@
         "</div>" +
         ogSays("proud", ogLine("done")) +
         '<div class="tcg-grid single">' + secretCardHTML() + "</div>" +
+        ((CFG.sweepstakes || {}).enabled !== false ? sweepsPanelHTML(e) : "") +
         '<div id="mcert"></div>' +
         '<div id="mreward" class="reward-wrap"></div>' +
       "</section>" + footer();
@@ -2011,7 +2046,12 @@
       var body = "I'm now a G Pen Certified Specialist!\n\nName: " + e.name + "\nStore: " + (e.store || "") + "\nEmail: " + (e.email || "") + "\nDate: " + date + "\nCertificate ID: " + cid;
       window.location.href = "mailto:" + CFG.contactEmail + "?subject=" + encodeURIComponent("G Pen Certified Specialist") + "&body=" + encodeURIComponent(body);
     });
-    revealReward("master", { name: e.name, email: e.email, store: e.store, certId: cid }, $("#mreward"));
+    // The all-5 code is the 40% (CERTIFIEDG40), not the 4-course 35% — reconcile it here.
+    revealReward("secret", { name: e.name, email: e.email, store: e.store, certId: cid }, $("#mreward"));
+    var swc = $(".sw-copy");
+    if (swc) swc.addEventListener("click", function () {
+      Promise.resolve(window.issueRewardCode("secret", { name: e.name, email: e.email, store: e.store })).then(function (r) { if (r && r.code) copyCode(r.code); });
+    });
     confetti();
     revealOnScroll();
   }
@@ -2024,7 +2064,7 @@
     var founding = (Array.isArray(a.foundingStory) ? a.foundingStory : [a.foundingStory || ""]).map(function (p) { return "<p>" + esc(p) + "</p>"; }).join("");
     app.innerHTML = header() +
       '<section class="about reveal">' +
-        '<a class="back" href="#/' + (e ? "dashboard" : "") + '">' + ic("back") + " " + (e ? "Dashboard" : "Home") + "</a>" +
+        '<a class="back" href="#/">' + ic("back") + " Home</a>" +
         '<div class="about-hero">' +
           '<img class="about-g" src="assets/img/gpen-g-white.png" alt="G Pen"/>' +
           '<span class="ch-eyebrow">' + ic("cap") + " About the brand</span>" +
