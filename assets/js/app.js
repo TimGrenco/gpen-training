@@ -20,6 +20,9 @@
 
   function esc(s) { return String(s == null ? "" : s).replace(/[&<>"']/g, function (m) { return ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" })[m]; }); }
   function courseBySlug(slug) { return COURSES.filter(function (c) { return c.slug === slug; })[0]; }
+  // The next product still to certify (skipping `afterSlug`) — drives the
+  // "Next up →" hand-off so the journey always has a forward edge.
+  function nextCourse(afterSlug) { return COURSES.filter(function (c) { return c.slug !== afterSlug && !cardOwned(c.slug); })[0] || null; }
   function coreSlugs() { return CFG.coreCourses && CFG.coreCourses.length ? CFG.coreCourses : COURSES.map(function (c) { return c.slug; }); }
   function todayKey() { var d = new Date(); return d.getFullYear() + "-" + (d.getMonth() + 1) + "-" + d.getDate(); }
   function niceDate() { return new Date().toLocaleDateString(undefined, { year: "numeric", month: "long", day: "numeric" }); }
@@ -239,12 +242,9 @@
     var pips = $$(".hdr-binder .pip");
     COURSES.forEach(function (c, i) { if (pips[i] && cardOwned(c.slug)) pips[i].classList.add("on"); });
     var link = $(".hdr-binder");
-    if (link) link.setAttribute("aria-label", completedCount() + " of " + COURSES.length + " products certified — open your binder");
-    // the Loop's binder slots, if the home page is what's showing
-    $$(".lb-slots .lp-slot").forEach(function (el, i) {
-      var c = COURSES[i];
-      if (c && cardOwned(c.slug)) el.classList.add("on");
-    });
+    if (link) link.setAttribute("aria-label", completedCount() + " of " + COURSES.length + " products certified — open your card binder");
+    var word = $(".hdr-binder .hb-word b");
+    if (word) word.textContent = completedCount();
   }
 
   /* Tiny 16-slot progress strip: 5 product + 10 trainer + 1 secret. */
@@ -281,6 +281,25 @@
   }
   function nextRank(done) { return RANKS.filter(function (x) { return x.at > done; })[0] || null; }
   function pick(arr) { return arr && arr.length ? arr[Math.floor(Math.random() * arr.length)] : ""; }
+  // Fisher–Yates — used to shuffle quiz question + choice order per attempt so a
+  // retake isn't byte-identical (reps learn the material, not answer positions).
+  function shuffle(arr) { var a = arr.slice(); for (var j = a.length - 1; j > 0; j--) { var k = Math.floor(Math.random() * (j + 1)); var t = a[j]; a[j] = a[k]; a[k] = t; } return a; }
+  // The questions a rep missed, with the right answer + why — shown on the
+  // results screen so every attempt teaches, on a pass AND a fail.
+  function missedReviewHTML(c, order, answers) {
+    if (!order || !answers) return "";
+    var rows = order.map(function (qi, pos) {
+      var q = c.quiz[qi];
+      if (answers[pos] === q.answer) return "";
+      return '<div class="qr-item">' +
+        '<div class="qr-q">' + esc(q.q) + "</div>" +
+        '<div class="qr-a"><em>Answer</em><span>' + esc(q.choices[q.answer]) + "</span></div>" +
+        (q.why ? '<div class="qr-why">' + ic("spark") + "<span>" + esc(q.why) + "</span></div>" : "") +
+      "</div>";
+    }).filter(Boolean);
+    if (!rows.length) return "";
+    return '<div class="qreview"><h4>' + ic("cap") + " Worth another look &middot; " + rows.length + " to review</h4>" + rows.join("") + "</div>";
+  }
   function quip(kind) {
     var q = (window.GPEN_QUIPS || {})[kind];
     return pick(q) || (kind === "correct" ? "Correct!" : "Not quite.");
@@ -933,9 +952,9 @@
     var pips = COURSES.map(function (c) {
       return '<i class="pip' + (cardOwned(c.slug) ? " on" : "") + '"></i>';
     }).join("");
-    return '<a class="hdr-binder" href="#/collection" aria-label="' + completedCount() + " of " + COURSES.length + ' products certified — open your binder">' +
+    return '<a class="hdr-binder" href="#/collection" aria-label="' + completedCount() + " of " + COURSES.length + ' products certified — open your card binder">' +
       '<span class="pips" aria-hidden="true">' + pips + "</span>" +
-      '<span class="hb-word">Binder</span>' +
+      '<span class="hb-word"><b>' + completedCount() + "</b>/" + COURSES.length + "</span>" +
     "</a>";
   }
   // Sound toggle survives re-renders via a single delegated listener (bound in boot).
@@ -1424,7 +1443,7 @@
     });
   }
   function runQuiz(c) {
-    var order = c.quiz.map(function (_, i) { return i; });
+    var order = shuffle(c.quiz.map(function (_, i) { return i; }));
     var i = 0, answers = [], streak = 0, points = 0, zone = $("#quiz-zone");
     step();
     zone.scrollIntoView({ behavior: "smooth", block: "start" });
@@ -1437,8 +1456,10 @@
           (streak >= 2 ? '<span class="quiz-streak">' + ic("fire") + " ×" + Math.min(streak, 5) + " combo</span>" : "") +
           '<span class="quiz-score">' + ic("spark") + ' <b id="qscore">' + points + "</b> pts</span></div>" +
         '<div class="quiz-q">' + esc(q.q) + "</div>" +
-        '<div class="quiz-choices">' + q.choices.map(function (ch, ci) {
-          return '<button class="choice" data-ci="' + ci + '"><span class="ch-key">' + String.fromCharCode(65 + ci) + "</span><span>" + esc(ch) + "</span></button>";
+        // Choices render in a shuffled order, but data-ci keeps each choice's
+        // ORIGINAL index so the answer check (ci === q.answer) is unaffected.
+        '<div class="quiz-choices">' + shuffle(q.choices.map(function (_, ci) { return ci; })).map(function (ci, pos) {
+          return '<button class="choice" data-ci="' + ci + '"><span class="ch-key">' + String.fromCharCode(65 + pos) + "</span><span>" + esc(q.choices[ci]) + "</span></button>";
         }).join("") + "</div>" +
         '<div class="quiz-why" hidden></div>' +
         '<button class="btn xl next" id="q-next" hidden></button>' +
@@ -1471,10 +1492,11 @@
         points += gain; flyPoints(gain, mult, btn); bumpScore();
         sfx.play(streak >= 3 ? "combo" : "correct");
       } else { streak = 0; sfx.play("wrong"); }
-      $$(".choice", zone).forEach(function (b, bi) {
+      $$(".choice", zone).forEach(function (b) {
+        var bci = parseInt(b.getAttribute("data-ci"), 10);
         b.disabled = true;
-        if (bi === q.answer) b.classList.add("correct");
-        else if (bi === ci) b.classList.add("wrong");
+        if (bci === q.answer) b.classList.add("correct");
+        else if (bci === ci) b.classList.add("wrong");
       });
       var why = $(".quiz-why", zone); why.hidden = false;
       why.className = "quiz-why " + (correct ? "ok" : "no");
@@ -1487,11 +1509,13 @@
       n.onclick = function () { i++; if (i < c.quiz.length) step(); else finish(); };
     }
     function finish() {
-      var correct = 0; c.quiz.forEach(function (q, qi) { if (answers[qi] === q.answer) correct++; });
+      // answers[] is indexed by STEP position; order[pos] is the question shown
+      // there, so map through `order` (not data order) to score.
+      var correct = 0; order.forEach(function (qi, pos) { if (answers[pos] === c.quiz[qi].answer) correct++; });
       var pct = Math.round((correct / c.quiz.length) * 100), passed = pct >= c.passPct;
       logEvent("quiz", { course: c.slug, score: pct, passed: passed });
-      if (!passed) return quizFail(c, correct, pct, points);
-      quizPass(c, correct, pct, points);
+      if (!passed) return quizFail(c, correct, pct, points, order, answers);
+      quizPass(c, correct, pct, points, order, answers);
     }
   }
   // Letter grade for the results screen — a little arcade payoff.
@@ -1511,22 +1535,31 @@
         (points != null ? '<em>' + ic("spark") + " " + points.toLocaleString() + " pts</em>" : "") + "</span>" +
     "</div>";
   }
-  function quizFail(c, correct, pct, points) {
+  function quizFail(c, correct, pct, points, order, answers) {
     var zone = $("#quiz-zone");
+    var needCorrect = Math.ceil((c.passPct / 100) * c.quiz.length);
+    var away = Math.max(1, needCorrect - correct);
     zone.innerHTML = '<div class="result fail">' +
       gradeHTML(pct, points) +
       '<div class="result-score">' + pct + '%<span>' + correct + "/" + c.quiz.length + "</span></div>" +
-      "<h3>" + esc(quip("fail")) + "</h3><p>You need " + c.passPct + "% to certify. Review the lessons above and give it another shot — you've got this.</p>" +
+      "<h3>" + esc(quip("fail")) + "</h3><p>So close &mdash; you were <b>" + away + "</b> question" + (away === 1 ? "" : "s") + " from the " + c.passPct + "% you need. Look over the ones below and run it back.</p>" +
       '<button class="btn xl" id="retry">' + ic("refresh") + " Retry quiz</button>" +
-    "</div>";
+    "</div>" +
+    missedReviewHTML(c, order, answers);
     $("#retry").addEventListener("click", function () { runQuiz(c); });
     zone.scrollIntoView({ behavior: "smooth", block: "start" });
   }
-  function quizPass(c, correct, pct, points) {
+  function quizPass(c, correct, pct, points, order, answers) {
     var e = getEnroll();
     var date = niceDate(), cid = certId(e.name + "|" + c.name + "|" + date);
-    var s = getState(); var firstTime = !(s.courses[c.slug] && s.courses[c.slug].passed);
-    s.courses[c.slug] = { passed: true, score: pct, certId: cid, date: date, name: e.name };
+    var s = getState();
+    var prev = s.courses[c.slug];
+    var firstTime = !(prev && prev.passed);
+    // Keep the higher score AND its certificate — a lower retake never downgrades
+    // a rep who already certified (the certified screen invites retakes).
+    var improved = !prev || !prev.passed || pct > (prev.score || 0);
+    var rec = improved ? { passed: true, score: pct, certId: cid, date: date, name: e.name } : prev;
+    s.courses[c.slug] = rec;
     if (s.badges.indexOf(c.slug) < 0) s.badges.push(c.slug);
     setState(s);
     if (firstTime) {
@@ -1557,17 +1590,23 @@
     } else {
       confetti();
     }
+    var progNote = firstTime ? ""
+      : (improved ? " <b>New personal best!</b>" : " Your best score of <b>" + rec.score + "%</b> stays on your certificate.");
+    var next = firstTime && !master ? nextCourse(c.slug) : null;
     var zone = $("#quiz-zone");
     zone.innerHTML = '<div class="result pass">' +
         gradeHTML(pct, points) +
         '<div class="result-score">' + pct + '%<span>' + correct + "/" + c.quiz.length + "</span></div>" +
-        "<h3>" + ic("check") + " " + esc(quip("pass")) + "</h3><p>You're now a certified <strong>" + esc(c.name) + "</strong> Product Specialist" + (firstTime ? "" : " (progress refreshed)") + ".</p>" +
+        "<h3>" + ic("check") + " " + esc(quip("pass")) + "</h3><p>You're now a certified <strong>" + esc(c.name) + "</strong> Product Specialist." + progNote + "</p>" +
       "</div>" +
       '<div id="cert-zone"></div>' +
       '<div id="reward-zone" class="reward-wrap"></div>' +
+      missedReviewHTML(c, order, answers) +
       (master ? '<a class="master-unlock" href="#/certified">' + ic("award") + " Full lineup certified — you pulled the <strong>Certified G</strong>! Your certificate, <strong>40% off</strong> & your free-G&nbsp;Pen draw entry " + ic("arrow") + "</a>"
+              : next ? '<a class="btn xl nextup-cta" href="#/course/' + next.slug + '">Next up: ' + esc(next.name) + " " + ic("arrow") + "</a>" +
+                       '<a class="linklike backdash" href="#/">or back to all courses</a>'
               : '<a class="btn ghost xl backdash" href="#/">Back to all courses ' + ic("arrow") + "</a>");
-    showCertificate(c, e.name, date, pct, cid, $("#cert-zone"));
+    showCertificate(c, e.name, rec.date, rec.score, rec.certId, $("#cert-zone"));
     revealReward("course", { courseSlug: c.slug, name: e.name, email: e.email, store: e.store, certId: cid }, $("#reward-zone"));
     zone.scrollIntoView({ behavior: "smooth", block: "start" });
   }

@@ -280,6 +280,22 @@ h1, h2, h3, h4 { margin: 0; line-height: 1.08; letter-spacing: -.02em; }
 .result.pass .result-score { color: var(--ok); }
 .result.fail .result-score { color: var(--bad); }
 .backdash { margin-top: 20px; width: 100%; }
+.result p b { color: var(--ink); }
+/* Next-up hand-off after a pass — the journey always has a forward edge. */
+.nextup-cta { margin-top: 20px; width: 100%; }
+a.linklike.backdash { display: block; width: auto; margin-top: 10px; text-align: center; font-size: 13.5px; }
+
+/* Post-quiz "worth another look" — the missed questions + why, on pass and fail. */
+.qreview { margin-top: 20px; border: 1px solid var(--line); border-radius: var(--radius); background: #fff; overflow: hidden; box-shadow: var(--shadow); }
+.qreview h4 { display: flex; align-items: center; gap: 8px; font-size: 13px; font-weight: 900; text-transform: uppercase; letter-spacing: .05em; color: var(--stone); padding: 14px 16px; border-bottom: 1px solid var(--line); margin: 0; }
+.qreview h4 svg { width: 16px; height: 16px; color: var(--gold); }
+.qr-item { padding: 14px 16px; border-bottom: 1px solid var(--line); }
+.qr-item:last-child { border-bottom: 0; }
+.qr-q { font-size: 14.5px; font-weight: 800; color: var(--ink); line-height: 1.4; }
+.qr-a { display: flex; gap: 8px; margin-top: 8px; font-size: 14px; font-weight: 700; color: #17402a; background: #f0f8f2; border-radius: 10px; padding: 8px 12px; }
+.qr-a em { font-style: normal; font-size: 10.5px; font-weight: 900; text-transform: uppercase; letter-spacing: .05em; color: var(--ok); padding-top: 3px; flex: none; }
+.qr-why { display: flex; gap: 8px; margin-top: 8px; font-size: 13.5px; line-height: 1.5; color: var(--stone); }
+.qr-why svg { width: 14px; height: 14px; flex: none; color: var(--gold); margin-top: 2px; }
 .master-unlock { display: flex; align-items: center; gap: 12px; margin-top: 20px; background: var(--ink); color: #fff; border-radius: var(--radius); padding: 18px 20px; font-size: 14.5px; box-shadow: var(--shadow); }
 .master-unlock svg { width: 26px; height: 26px; flex: none; color: var(--gold-bright); }
 .master-unlock strong { color: var(--gold-bright); }
