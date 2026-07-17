@@ -22,6 +22,15 @@ window.TRAINING_CONFIG = {
   // Where "Email my certification" / support requests go.
   contactEmail: "pr@grencoscience.com",
 
+  /* >>> "TALK TO OUR TEAM" CONTACT BAND <<<
+     The customer-service block at the very bottom of every page. Edit the
+     phone/email/hours here — the tel: and mailto: links build from these. */
+  support: {
+    phone: "+1 833-691-3224",
+    email: "help@gpen.com",
+    hours: "Mon–Fri · 10:00 AM – 6:00 PM EST",
+  },
+
   // Master certification = finish every course in data.js (all 5 are "core").
   // Set to a list of slugs to require only some; null = require them all.
   coreCourses: null,

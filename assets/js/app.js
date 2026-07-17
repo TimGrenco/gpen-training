@@ -437,6 +437,7 @@
     print: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M6 9V2h12v7"/><rect x="4" y="9" width="16" height="8" rx="2"/><path d="M6 14h12v8H6z"/></svg>',
     dl: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3v12M7 10l5 5 5-5"/><path d="M4 21h16"/></svg>',
     mail: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="5" width="18" height="14" rx="2"/><path d="M3 7l9 6 9-6"/></svg>',
+    phone: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M22 16.9v3a2 2 0 0 1-2.2 2 19.8 19.8 0 0 1-8.6-3.1 19.5 19.5 0 0 1-6-6 19.8 19.8 0 0 1-3.1-8.7A2 2 0 0 1 4.1 2h3a2 2 0 0 1 2 1.7c.1.9.3 1.8.6 2.7a2 2 0 0 1-.5 2.1L8 9.7a16 16 0 0 0 6 6l1.2-1.2a2 2 0 0 1 2.1-.5c.9.3 1.8.5 2.7.6a2 2 0 0 1 1.7 2z"/></svg>',
     refresh: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 12a9 9 0 11-3-6.7L21 8"/><path d="M21 3v5h-5"/></svg>',
     share: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="4" y="3" width="16" height="18" rx="3"/><circle cx="12" cy="10" r="3"/><path d="M8.5 20a3.5 3.5 0 017 0"/></svg>',
     star: '<svg viewBox="0 0 24 24" fill="currentColor"><path d="M12 2l2.9 6.3 6.9.8-5.1 4.7 1.4 6.8L12 17.8 5.9 21.4l1.4-6.8L2.2 9.9l6.9-.8z"/></svg>',
@@ -992,11 +993,35 @@
   /* The binder, teased — cards stay face-down here on purpose. Pulling one is
      the surprise; the binder is where you go to actually look at them. */
   function step(n, t, s) { return '<li class="step reveal"><span class="step-n">' + n + "</span><div><h4>" + t + "</h4><p>" + s + "</p></div></li>"; }
+  /* "Talk to our team" — a warm CS contact band above the footer on every page.
+     For reps who want to go deeper on a product, or just say hi. Details live in
+     CFG.support so they're editable in config.js. */
+  function supportBand() {
+    var s = CFG.support || {};
+    var phone = s.phone || "";
+    var email = s.email || CFG.contactEmail || "";
+    var tel = "tel:" + phone.replace(/[^\d+]/g, "");
+    return '<section class="cs-band reveal">' +
+      '<div class="cs-inner">' +
+        '<div class="cs-copy">' +
+          '<span class="eyebrow cs-eyebrow">Questions about a product?</span>' +
+          "<h2>Talk to our team.</h2>" +
+          "<p>Want to go deeper on a device, talk through a customer question, or just say hi? Our customer-service crew has been here since day one and loves talking all things cannabis and vaporizers. Call or email anytime — we love hearing from the people on the floor.</p>" +
+        "</div>" +
+        '<div class="cs-actions">' +
+          (phone ? '<a class="cs-btn cs-btn-primary" href="' + esc(tel) + '">' + ic("phone") + "<span>" + esc(phone) + "</span></a>" : "") +
+          (email ? '<a class="cs-btn cs-btn-ghost" href="mailto:' + esc(email) + '">' + ic("mail") + "<span>" + esc(email) + "</span></a>" : "") +
+          (s.hours ? '<p class="cs-hours">' + esc(s.hours) + "</p>" : "") +
+        "</div>" +
+      "</div>" +
+    "</section>";
+  }
   function footer() {
     // Once there's any progress or enrollment, always offer a way to wipe it and
     // re-do the training (also lets a shared/kiosk device hand off to the next rep).
     var hasProgress = !!getEnroll() || (getState().courses && Object.keys(getState().courses).length > 0);
-    return '<footer class="foot"><img src="assets/img/gpen-g-black.png" class="foot-g light" alt=""/><img src="assets/img/gpen-g-white.png" class="foot-g dark" alt=""/>' +
+    return supportBand() +
+      '<footer class="foot"><img src="assets/img/gpen-g-black.png" class="foot-g light" alt=""/><img src="assets/img/gpen-g-white.png" class="foot-g dark" alt=""/>' +
       '<div class="foot-nav"><a href="#/">Courses</a><a href="#/collection">The Binder</a><a href="#/about">About G Pen</a><a href="' + esc(CFG.shopUrl) + '" target="_blank" rel="noopener">Shop gpen.com</a></div>' +
       (hasProgress ? '<button class="foot-reset" id="reset" type="button">' + ic("refresh") + " Reset my progress &amp; start over</button>" : "") +
       "<p>" + esc(CFG.programName) + " · for authorized G Pen retail partners. Questions? <a href=\"mailto:" + esc(CFG.contactEmail) + "\">" + esc(CFG.contactEmail) + "</a></p>" +
