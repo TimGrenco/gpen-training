@@ -26,34 +26,35 @@ window.TRAINING_CONFIG = {
   // Set to a list of slugs to require only some; null = require them all.
   coreCourses: null,
 
-  /* The reward ladder climbs with your card collection:
-       1 card  -> 25%   3 cards -> 30%   full Base Set (5) -> 35%
-       Base Set + every Trainer card (all 10 trivia eggs) -> 40% gold */
+  /* The reward ladder climbs with the number of products you certify on:
+       1 course -> 25%   2 courses -> 30%   4 courses -> 35%   all 5 -> 40%
+     (The tier keys below — course / trio / master / secret — are just the
+      internal names the code uses to look up each discount; the course-count
+      thresholds live in rewardsSection() in app.js.) */
   discount: {
-    // Shown after passing ANY single course quiz — your first card. 25% off.
+    // Unlocked after passing ANY single course quiz. 25% off.
     course: {
       code: "GPENPRO25",
       label: "25% off your next order at gpen.com",
       note: "Use this code at checkout on gpen.com to buy and test the product you just got certified on.",
     },
-    // Shown at 3 collected product cards. 30% off.
+    // Unlocked at 2 certified products. 30% off.
     trio: {
       code: "GPENHOLO30",
       label: "30% off your next order at gpen.com",
-      note: "Three cards deep. You know the lineup better than most of the floor — here's a bigger cut.",
+      note: "Two products deep. You know the lineup better than most of the floor — here's a bigger cut.",
     },
-    // Shown once ALL courses are complete (the full Base Set). 35% off.
+    // Unlocked at 4 certified products. 35% off.
     master: {
       code: "GPENELITE35",
       label: "35% off your entire order at gpen.com",
-      note: "You collected the whole Base Set and pulled the Certified G card. This is the top public reward in the program.",
+      note: "Four products certified. One more and you unlock the full 40%.",
     },
-    // The hidden reward: the Certified G card upgraded to full gold. Requires
-    // certifying on EVERY course AND finding every hidden trivia egg. 40% off.
+    // Unlocked once ALL 5 courses are complete — the whole lineup. 40% off.
     secret: {
       code: "CERTIFIEDG40",
-      label: "40% off — the gold Certified G reward",
-      note: "You collected the Base Set AND every Trainer card. Your Certified G card is now full gold — the rarest thing in the program.",
+      label: "40% off — the full-lineup reward",
+      note: "You certified on the entire G Pen lineup. This is the top reward in the program.",
     },
     // OPTIONAL: give a specific product its own course code. Keyed by course slug.
     // e.g. perCourse: { "dash-ii": { code: "DASH2PRO", label: "...", note: "..." } }

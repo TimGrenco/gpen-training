@@ -527,8 +527,8 @@
     markFresh("t:" + id);
     if (isSecretUnlocked()) markFresh("secret"); // that egg turned the card gold
     var found = eggsSolvedCount();
-    if (isSecretUnlocked()) { sfx.play("gold"); toast("Certified G went GOLD — 40% off unlocked! 👑"); }
-    else if (allEggsSolved() && !isMasterEarned()) { sfx.play("egg"); toast("All " + EGGS.length + " Trainer cards! Collect the Base Set to go gold."); }
+    if (isSecretUnlocked()) { sfx.play("gold"); toast("Every Trainer card found — Certified G is now GOLD! 👑"); }
+    else if (allEggsSolved() && !isMasterEarned()) { sfx.play("egg"); toast("All " + EGGS.length + " Trainer cards! Certify on the whole lineup to go gold."); }
     else { sfx.play("egg"); toast("Trainer card " + found + " of " + EGGS.length + " 🃏"); }
     refreshCounters();
     // reflect the found state on the page without a full re-render
@@ -539,14 +539,14 @@
     });
     maybeReportSecret();
   }
-  // The 30% tier fires once, the first time a third card lands in the binder.
+  // The 30% tier fires once, the first time a second card lands in the binder.
   function maybeReportTier() {
-    if (baseSetOwned() < 3) return;
+    if (baseSetOwned() < 2) return;
     var s = getState(); if (s.trio) return;
     var e = getEnroll() || {};
     s.trio = { at: new Date().toISOString() }; setState(s);
     logEvent("trio", {});
-    if (window.reportCompletion) window.reportCompletion({ type: "trio", name: e.name, email: e.email, store: e.store, product: "30% reward (3 cards)", score: 100, certId: "", date: niceDate() });
+    if (window.reportCompletion) window.reportCompletion({ type: "trio", name: e.name, email: e.email, store: e.store, product: "30% reward (2 courses)", score: 100, certId: "", date: niceDate() });
   }
   function maybeReportSecret() {
     if (!isSecretUnlocked()) return;
@@ -554,7 +554,7 @@
     var e = getEnroll() || {};
     s.secret = { at: new Date().toISOString() }; setState(s);
     logEvent("secret", {});
-    if (window.reportCompletion) window.reportCompletion({ type: "secret", name: e.name, email: e.email, store: e.store, product: "Secret 40% reward", score: 100, certId: "", date: niceDate() });
+    if (window.reportCompletion) window.reportCompletion({ type: "secret", name: e.name, email: e.email, store: e.store, product: "Gold Certified G (all Trainer cards)", score: 100, certId: "", date: niceDate() });
   }
 
   /* ---- icons (inline SVG) ------------------------------------------------ */
@@ -1067,34 +1067,37 @@
   /* The reward ladder climbs with the collection:
        1 card -> 25%   3 cards -> 30%   full Base Set -> 35%   + all Trainers -> 40% gold */
   function rewardsSection(done, master) {
-    var core = coreSlugs().length;
-    var trio = done >= 3, c25 = done >= 1, c35 = master;
-    var secret = isSecretUnlocked();
-    var trLeft = TRAINERS.length - trainersOwned();
-    var head = secret ? "Gold Certified G unlocked 👑"
-      : (c35 ? "Base Set complete — 35% off" : (trio ? "30% off unlocked — two cards to go" : (c25 ? "25% off unlocked — keep pulling cards" : "Pull your first card to start earning")));
-    var secretLock = trLeft > 0
-      ? trLeft + " Trainer card" + (trLeft === 1 ? "" : "s") + " still hidden…"
-      : "All Trainers found — collect the Base Set";
+    var total = COURSES.length;                 // 5 = the full lineup
+    // Pure course-count ladder: 1 → 25%, 2 → 30%, 4 → 35%, all 5 → 40%.
+    // The card types (course/trio/master/secret) are legacy plumbing keys that
+    // map to the discount codes in config.js — only the thresholds live here.
+    var c25 = done >= 1, c30 = done >= 2, c35 = done >= 4, c40 = done >= total;
+    var head = c40 ? "Full lineup certified — 40% off 👑"
+      : (c35 ? "35% off unlocked — one more for the full 40%"
+      : (c30 ? "30% off unlocked — keep certifying"
+      : (c25 ? "25% off unlocked — keep going"
+      : "Pass your first course to start earning")));
+    function need(n) { var d = n - done; return d + " more course" + (d === 1 ? "" : "s") + " to unlock"; }
     return '<div class="sec-h"><h2>The reward ladder</h2><span>' + head + "</span></div>" +
       '<div class="rewards">' +
-        rewardCard("course", c25, "25% OFF", "Your first card — pass any single course", "Collect 1 card to unlock") +
-        rewardCard("trio", trio, "30% OFF", "Three cards deep into the Base Set", (3 - done) + " more card" + (3 - done === 1 ? "" : "s") + " to unlock") +
-        rewardCard("master", c35, "35% OFF", "The full " + core + "-card Base Set — pulls the <em>Certified G</em> secret rare", (core - done) + " more card" + (core - done === 1 ? "" : "s") + " to unlock") +
-        (EGGS.length ? rewardCard("secret", secret, "40% OFF", "Certified G in <em>gold foil</em> — the Base Set <em>and</em> every Trainer card", secretLock) : "") +
+        rewardCard("course", c25, "25% OFF", "Pass any 1 course", need(1)) +
+        rewardCard("trio", c30, "30% OFF", "Certify on any 2 products", need(2)) +
+        rewardCard("master", c35, "35% OFF", "Certify on any 4 products", need(4)) +
+        rewardCard("secret", c40, "40% OFF", "Certify on all " + total + " — the whole lineup", need(total)) +
       "</div>";
   }
   function rewardCard(type, unlocked, big, sub, lockMsg) {
     var isSecret = type === "secret";
     if (unlocked) lockMsg = "";
     return '<div class="rw-card ' + (unlocked ? "on" : "off") + (isSecret ? " secret" : "") + '">' +
-      '<div class="rw-top"><span class="rw-ic">' + ic(unlocked ? (isSecret ? "spark" : "tag") : "lock") + '</span><span class="rw-status">' + (unlocked ? "Unlocked" : (isSecret ? "Secret" : "Locked")) + "</span></div>" +
+      '<div class="rw-top"><span class="rw-ic">' + ic(unlocked ? (isSecret ? "spark" : "tag") : "lock") + '</span><span class="rw-status">' + (unlocked ? "Unlocked" : "Locked") + "</span></div>" +
       '<div class="rw-big">' + big + "</div>" +
       '<div class="rw-sub">' + sub + "</div>" +
       (unlocked
         ? '<button class="rw-code" data-rwcode="' + type + '"><span class="rw-code-v">••••••</span><em>' + ic("tag") + " Tap to copy</em></button>" +
           '<a class="rw-shop" href="' + esc(CFG.shopUrl) + '" target="_blank" rel="noopener">Shop gpen.com ' + ic("arrow") + "</a>" +
-          (type === "master" ? '<a class="rw-cert" href="#/certified">View master certificate →</a>' : "")
+          // The master certificate needs all 5 courses — it belongs on the 40% (all-lineup) card.
+          (isSecret ? '<a class="rw-cert" href="#/certified">View master certificate →</a>' : "")
         : '<div class="rw-lock">' + ic(isSecret ? "spark" : "lock") + " " + lockMsg + "</div>") +
     "</div>";
   }
