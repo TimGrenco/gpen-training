@@ -1010,6 +1010,9 @@
         eggHTML("home", "courses") +
       "</section>" +
 
+      // A single refined lifestyle moment — the gear in real hands, so the scale
+      // and the vibe land before the reward story. Not a marquee; one editorial shot.
+      lifestyleCinema((window.GPEN_LIFESTYLE || [])[0], "The G Pen life", "This is the gear, in real hands.", "See how it sits in a palm — then get one in yours.", "home") +
       floorDrill() +
       theLoop(done, master) +
       '<section class="signoff reveal"><div class="signoff-inner">' + ogSays("proud", "That&rsquo;s the syllabus. You can&rsquo;t sell what you&rsquo;ve never ripped &mdash; now go run the floor.") + "</div></section>" +
@@ -1076,11 +1079,12 @@
     }).join("") + "</div>";
   }
   // A full-width cinematic lifestyle band used as a divider / on course pages.
-  function lifestyleCinema(img, eyebrow, line) {
+  function lifestyleCinema(img, eyebrow, line, sub, cls) {
     if (!img) return "";
-    return '<section class="life-cinema reveal" style="background-image:url(\'' + esc(img) + '\')">' +
-      '<div class="lc-inner"><span class="lc-eyebrow">' + esc(eyebrow) + "</span><h2>" + esc(line) + "</h2></div>" +
-    "</section>";
+    return '<section class="life-cinema reveal ' + (cls || "") + '" style="background-image:url(\'' + esc(img) + '\')">' +
+      '<div class="lc-inner"><span class="lc-eyebrow">' + esc(eyebrow) + "</span><h2>" + esc(line) + "</h2>" +
+      (sub ? '<p class="lc-sub">' + esc(sub) + "</p>" : "") +
+    "</div></section>";
   }
   // A lifestyle shot of a specific product (matched by folder in the CDN path).
   function productLifeImg(slug, exclude) {
