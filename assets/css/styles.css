@@ -1731,38 +1731,73 @@ h1, h2, h3, h4 { margin: 0; line-height: 1.08; letter-spacing: -.02em; }
    above the fold, or the page reads as a marketing splash instead of a
    catalog. No crest, no eyebrow, no buttons: the cards are the CTA.
    ====================================================================== */
-/* No overflow:hidden — O.G. hangs over the seam on purpose, and .vapor already
-   clips itself. */
+/* No overflow:hidden — the fact bubble pops up out of the header, and .vapor
+   already clips itself. */
 .hat {
   position: relative; color: #fff;
   background: radial-gradient(120% 150% at 12% 0%, #262626 0%, #0e0e0e 62%);
-  padding: clamp(22px,5vw,38px) clamp(16px,4vw,40px) clamp(28px,4.5vw,40px);
+  padding: clamp(20px,4.5vw,36px) clamp(16px,4vw,40px) clamp(22px,4vw,34px);
 }
 .hat .vapor .vap { background: radial-gradient(circle, rgba(254,200,112,.2), rgba(254,200,112,0) 66%); }
-/* Lift the copy over the vapor. Scoped to .hat-inner on purpose: a blanket
-   `.hat > *` rule outranks `.hat-og` and pins O.G. back into the flow. */
-.hat-inner { position: relative; z-index: 1; max-width: var(--maxw); margin: 0 auto; }
-.hat-inner h1 { font-size: clamp(27px,6.2vw,44px); font-weight: 900; letter-spacing: -.025em; line-height: 1.05; max-width: 16ch; }
-.hat-sub { margin: 10px 0 0; color: #d7d6cf; font-size: clamp(14.5px,2.2vw,16.5px); line-height: 1.5; max-width: 56ch; }
-.hat-hook { margin: 7px 0 0; color: #a8a7a0; font-size: 13.5px; line-height: 1.5; max-width: 56ch; }
+/* Co-star layout: value prop left, Professor O.G. right. */
+.hat-grid {
+  position: relative; z-index: 1; max-width: var(--maxw); margin: 0 auto;
+  display: grid; grid-template-columns: 1fr auto; gap: clamp(10px,3vw,32px); align-items: center;
+}
+.hat-inner h1 { font-size: clamp(25px,5.6vw,44px); font-weight: 900; letter-spacing: -.025em; line-height: 1.05; max-width: 15ch; }
+.hat-sub { margin: 10px 0 0; color: #d7d6cf; font-size: clamp(14px,2.1vw,16.5px); line-height: 1.5; max-width: 46ch; }
+.hat-hook { margin: 7px 0 0; color: #a8a7a0; font-size: 13px; line-height: 1.5; max-width: 46ch; }
 .hat-hook b { color: var(--gold-bright); font-weight: 900; }
-/* When you tap him he answers here, in his own voice. */
-.hat-sub.og-quote { font-style: italic; color: var(--gold-bright); }
 
-/* O.G. rides the seam as a sticker, not a barricade in front of the copy. */
+/* O.G. co-star column: mascot + name badge + tap nudge, stacked. */
+.hat-og-wrap { position: relative; flex: none; display: flex; flex-direction: column; align-items: center; gap: 8px; }
 .hat-og {
-  position: absolute; z-index: 2; right: clamp(10px,3vw,30px); bottom: -12px;
-  width: clamp(76px,11vw,112px); padding: 0; border: 0; background: none; line-height: 0;
-  cursor: pointer; filter: drop-shadow(0 10px 22px rgba(0,0,0,.55)); transition: transform .2s;
+  width: clamp(96px,15vw,176px); padding: 0; border: 0; background: none; line-height: 0;
+  cursor: pointer; filter: drop-shadow(0 12px 24px rgba(0,0,0,.5)); transition: transform .2s;
 }
 .hat-og svg { width: 100%; height: auto; display: block; }
 .hat-og:hover { transform: translateY(-3px) rotate(-3deg); }
 .hat-og.pop { animation: og-pop .5s cubic-bezier(.2,1.7,.4,1); }
-@keyframes og-pop { 0% { transform: scale(1); } 40% { transform: scale(1.14) rotate(-5deg); } 100% { transform: scale(1); } }
-@media (prefers-reduced-motion: reduce) { .hat-og.pop { animation: none; } }
-/* He's anchored bottom-right, so only the last block can collide with him.
-   Reserving on .hat-inner instead would needlessly wrap the headline too. */
-@media (max-width: 720px) { .hat-hook { padding-right: 84px; } }
+@keyframes og-pop { 0% { transform: scale(1); } 40% { transform: scale(1.12) rotate(-5deg); } 100% { transform: scale(1); } }
+
+/* Name badge under him — appears everywhere he greets. */
+.og-badge {
+  display: inline-flex; align-items: center; padding: 4px 13px; border-radius: 999px;
+  background: var(--gold-bright); color: #1a1509; font-size: 12px; font-weight: 900;
+  white-space: nowrap; box-shadow: 0 3px 10px rgba(0,0,0,.35);
+}
+.og-poke { display: inline-flex; align-items: center; gap: 4px; font-size: 11px; font-weight: 700; color: #a8a7a0; }
+.og-poke svg { width: 12px; height: 12px; color: var(--gold-bright); }
+.hat-og-wrap.tapped .og-poke { visibility: hidden; }
+
+/* The fun-fact speech bubble. Desktop: to O.G.'s LEFT (empty dark space, and it
+   can't ride up under the sticky nav), tail pointing right at him. */
+.og-fact {
+  position: absolute; top: 2px; right: calc(100% + 16px); width: min(300px, 42vw); z-index: 3;
+  display: flex; gap: 10px; text-align: left; padding: 13px 15px; border-radius: 16px;
+  background: #fff; color: var(--ink); box-shadow: var(--shadow-lg);
+  font-size: 13.5px; line-height: 1.5;
+  opacity: 0; transform: translateX(10px) scale(.96); transform-origin: right center; pointer-events: none;
+  transition: opacity .25s ease, transform .25s ease;
+}
+.og-fact.show { opacity: 1; transform: none; }
+.og-fact::after {
+  content: ""; position: absolute; top: 24px; left: 100%;
+  border: 9px solid transparent; border-left-color: #fff;
+}
+.ogf-emoji { font-size: 22px; line-height: 1; flex: none; }
+.og-fact.pop { animation: og-fact-pop .4s cubic-bezier(.2,1.7,.4,1); }
+@keyframes og-fact-pop { 0% { transform: scale(.92); } 45% { transform: scale(1.03); } 100% { transform: none; } }
+@media (prefers-reduced-motion: reduce) { .hat-og.pop, .og-fact.pop { animation: none; } .og-fact { transition: none; } }
+
+/* Phones: O.G. shrinks + the header stays compact enough that a product card
+   still peeks. The bubble keeps the same left-of-O.G. placement (it overlays
+   the copy as a tap popover), just narrower so it fits the screen. */
+@media (max-width: 560px) {
+  .hat-grid { grid-template-columns: 1fr clamp(90px,25vw,116px); gap: 10px; }
+  .hat-inner h1 { max-width: 12ch; }
+  .og-fact { width: min(240px, 66vw); top: 8px; }
+}
 
 /* ---- Resume strip: only for someone mid-course ------------------------- */
 .resume {

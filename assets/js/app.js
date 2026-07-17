@@ -673,15 +673,26 @@
       "</div>" +
     "</button>";
   }
-  // The O.G. sticker on the hat seam: tap him and he hoots + speaks through the sub-line.
+  // Tap the Professor: he hoots, changes his face, and pops a fun cannabis /
+  // G Pen history fact in a speech bubble (he no longer rewrites the header copy).
   function bindHeroMascot() {
     var hero = $(".hat-og"); if (!hero) return;
-    var say = $("#hero-say");
+    var wrap = hero.closest(".hat-og-wrap"), bubble = $("#og-fact");
+    var last = -1;
     hero.addEventListener("click", function () {
       sfx.play("hoot");
       hero.innerHTML = mascotSVG(pick(["hyped", "think", "proud", "chill"]));
-      if (say) { say.innerHTML = "&ldquo;" + ogLine("idle") + "&rdquo;"; say.classList.add("og-quote"); }
       hero.classList.remove("pop"); void hero.offsetWidth; hero.classList.add("pop");
+      if (wrap) wrap.classList.add("tapped");   // hide the "tap me" nudge once discovered
+      if (bubble && FACTS.length) {
+        var i; do { i = Math.floor(Math.random() * FACTS.length); } while (FACTS.length > 1 && i === last);
+        last = i;
+        var f = FACTS[i];
+        bubble.innerHTML = '<span class="ogf-emoji" aria-hidden="true">' + esc(f.emoji || "🦉") + '</span>' +
+          '<span class="ogf-text">' + esc(f.text) + "</span>";
+        bubble.classList.add("show");
+        bubble.classList.remove("pop"); void bubble.offsetWidth; bubble.classList.add("pop");
+      }
     });
   }
   // Tap him: he hoots, changes his face, and drops a fresh bit of wisdom.
@@ -903,17 +914,23 @@
     var totalMin = COURSES.reduce(function (a, c) { return a + (c.minutes || 0); }, 0);
 
     app.innerHTML = header() +
-      // ---- The hat. Deliberately short: the first product card must peek above
-      // the fold on a phone. No crest, no eyebrow, no buttons — the cards are the CTA.
+      // ---- The hat. O.G. is the co-star: value prop on the left, Professor O.G.
+      // on the right with his name badge. Tap him for a hoot + a fun-fact bubble.
       '<section class="hat">' +
         vaporHTML(5) +
-        '<div class="hat-inner reveal">' +
-          "<h1>Learn all five G&nbsp;Pen products.</h1>" +
-          '<p class="hat-sub" id="hero-say">Free. No sign-up to browse. Start anywhere &mdash; the whole lineup is about ' + totalMin + " minutes.</p>" +
-          '<p class="hat-hook">Pass the quizzes and you unlock up to <b>40% off</b> gpen.com &mdash; buy the gear cheap and actually rip it.</p>' +
+        '<div class="hat-grid reveal">' +
+          '<div class="hat-inner">' +
+            "<h1>Learn all five G&nbsp;Pen products.</h1>" +
+            '<p class="hat-sub">Free. No sign-up to browse. Start anywhere &mdash; the whole lineup is about ' + totalMin + " minutes.</p>" +
+            '<p class="hat-hook">Pass the quizzes and you unlock up to <b>40% off</b> gpen.com &mdash; buy the gear cheap and actually rip it.</p>' +
+          "</div>" +
+          '<div class="hat-og-wrap">' +
+            '<div class="og-fact" id="og-fact" role="status" aria-live="polite"></div>' +
+            '<button class="hat-og" type="button" aria-label="Tap Professor O.G. for a fun fact">' + mascotSVG("chill") + "</button>" +
+            '<span class="og-badge">' + esc(MASCOT.name || "Professor O.G.") + "</span>" +
+            '<span class="og-poke">' + ic("spark") + " Tap me for a fact</span>" +
+          "</div>" +
         "</div>" +
-        // O.G. rides along as a sticker on the seam, not a barricade.
-        '<button class="hat-og" type="button" aria-label="Tap Professor O.G. for a tip">' + mascotSVG("chill") + "</button>" +
       "</section>" +
 
       '<section class="hub reveal">' +
