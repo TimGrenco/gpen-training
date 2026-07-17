@@ -849,7 +849,7 @@
             '<p class="mast-deck">Free training on all five G&nbsp;Pen products &mdash; for anyone behind the counter, dispensary or smoke shop. About ' + totalMin + ' min end to end, no sign-up to browse. Pass the quizzes to unlock up to <b>40% off</b> gpen.com' + (drawLive() ? ', and certify the whole lineup for a shot at a <b>free G&nbsp;Pen</b>' : "") + ". The best pitch is the one in your own pocket.</p>" +
             '<ul class="mast-stats"><li>5 products</li><li>~' + totalMin + ' min</li><li class="gold">up to 40% off' + (drawLive() ? " + a free-device draw" : "") + "</li></ul>" +
             '<div class="og-fact" id="og-fact" role="status" aria-live="polite"></div>' +
-            '<button class="mast-cta" type="button" data-scroll="courses">Show me the shelf ' + ic("arrow") + "</button>" +
+            '<button class="btn mt" type="button" data-scroll="courses">Show me the shelf ' + ic("arrow") + "</button>" +
           "</div>" +
         "</div>" +
       "</section>" +
