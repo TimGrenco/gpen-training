@@ -12,7 +12,6 @@
   var $$ = function (s, c) { return Array.prototype.slice.call((c || document).querySelectorAll(s)); };
   var CFG = window.TRAINING_CONFIG;
   var COURSES = window.GPEN_COURSES || [];
-  var EGGS = window.GPEN_EGGS || [];
   var app = $("#app");
   var pendingCelebrate = false; // set when a new cert is earned → ring pulses on next home view
   var stickyHandler = null;     // scroll handler for the course "get certified" nudge
@@ -64,14 +63,12 @@
 
   /* =========================================================================
      THE COLLECTION — trading cards
-     Every course is a card you pull by passing its quiz at 80%+. Every trivia
-     egg is a Trainer card. Collect the 5-card Base Set to reveal the Certified
-     G secret rare; find all 10 eggs to upgrade that card to full gold.
+     Every course is a card you pull by passing its quiz at 80%+. Collect all
+     five to reveal the gold Certified G — the 6th card and the program's top reward.
      ====================================================================== */
   var CARDS = window.GPEN_CARDS || {};
   var ELEMENTS = window.GPEN_ELEMENTS || {};
   var RARITY = window.GPEN_RARITY || {};
-  var TRAINERS = window.GPEN_TRAINERS || [];
   var SET = window.GPEN_SET || { name: "Base Set", total: 6, illus: "" };
   var SECRET_CARD = window.GPEN_SECRET_CARD || null;
 
@@ -89,7 +86,6 @@
   function newSticker() { return '<span class="tcg-new">New!</span>'; }
   function cardScore(slug) { var r = getState().courses[slug]; return r && r.passed ? r.score : 0; }
   function baseSetOwned() { return COURSES.filter(function (c) { return cardOwned(c.slug); }).length; }
-  function trainersOwned() { return eggsSolvedCount(); }
   // The 6th card, the gold Certified G, appears once the whole lineup is certified.
   function secretCardState() { return isMasterEarned() ? "gold" : "locked"; }
   function totalCards() { return COURSES.length + 1; }
@@ -215,31 +211,6 @@
         (mini ? "" : '<span class="tcg-cta"><em>' + ic("spark") + " Gold — 40% off gpen.com</em><b>View " + ic("arrow") + "</b></span>") +
       "</span>" +
     "</a>";
-  }
-
-  /* Trainer / Energy cards — one per solved trivia egg. */
-  function trainerCardHTML(t) {
-    var egg = EGGS.filter(function (e) { return e.id === t.egg; })[0];
-    var owned = eggSolved(t.egg);
-    var fresh = owned && isFresh("t:" + t.egg);
-    return '<div class="trn' + (owned ? " owned" : "") + (fresh ? " is-new" : "") + '" data-trainer="' + esc(t.egg) + '">' +
-      (fresh ? newSticker() : "") +
-      '<span class="trn-inner">' +
-        '<span class="trn-shine" aria-hidden="true"></span>' +
-        '<span class="trn-kind">' + esc(t.kind) + "</span>" +
-        '<span class="trn-em">' + (owned ? (egg ? egg.emoji : "✨") : "?") + "</span>" +
-        '<b class="trn-name">' + (owned ? esc(t.name) : "Undiscovered") + "</b>" +
-        '<em class="trn-text">' + (owned ? esc(t.text) : esc(egg ? "Hidden somewhere on the " + eggPageLabel(egg) + " page" : "Keep looking…")) + "</em>" +
-        '<span class="trn-foot">' + t.no + "/" + TRAINERS.length + "</span>" +
-      "</span>" +
-    "</div>";
-  }
-  function eggPageLabel(egg) {
-    if (egg.on === "home") return "home";
-    if (egg.on === "about") return "About G Pen";
-    if (egg.on === "collection") return "binder";
-    var c = courseBySlug((egg.on || "").replace("course:", ""));
-    return c ? c.name : "course";
   }
 
   // Pulling a card mid-page must update whatever counters are already on screen.
@@ -442,122 +413,6 @@
     autoT = setTimeout(open, 4600); // safety: open it for them if they just stare
   }
 
-  /* ---- hidden trivia easter eggs ----------------------------------------- */
-  // A page may hide more than one egg, so eggs are looked up by (page, slot).
-  function eggsFor(pageKey) { return EGGS.filter(function (e) { return e.on === pageKey; }); }
-  function eggAt(pageKey, slot) {
-    return eggsFor(pageKey).filter(function (e) { return (e.slot || "") === (slot || ""); })[0] || null;
-  }
-  function eggSolved(id) { return !!getState().eggs[id]; }
-  function eggsSolvedCount() { var s = getState(); return EGGS.filter(function (e) { return s.eggs[e.id]; }).length; }
-  function allEggsSolved() { return EGGS.length > 0 && eggsSolvedCount() === EGGS.length; }
-  // The hidden 40% reward: every course certified (80%+ to pass) AND every egg found.
-  function isSecretUnlocked() { return isMasterEarned() && allEggsSolved(); }
-
-  // Each egg names the section it hides behind (`slot`) and the side it sits on
-  // (`align`), so no two pages stash their secret in the same place.
-  function eggHTML(pageKey, slot) {
-    var egg = eggAt(pageKey, slot); if (!egg) return "";
-    var solved = eggSolved(egg.id);
-    var emoji = egg.emoji || "✨";
-    var align = egg.align === "left" || egg.align === "right" ? egg.align : "center";
-    return '<div class="egg-row ' + align + '">' +
-      '<button class="egg' + (solved ? " found" : "") + '" data-egg="' + esc(egg.id) + '" ' +
-        'aria-label="' + (solved ? "Trivia solved" : "Hidden trivia") + '" title="' + (solved ? "Solved!" : "Hidden trivia — tap me") + '">' +
-        '<span class="egg-emoji">' + emoji + "</span>" +
-        '<span class="egg-chk">' + ic("check") + "</span>" +
-      "</button>" +
-      '<span class="egg-hint">' + (solved ? "Secret found" : esc(egg.hint || "Psst… tap me")) + "</span>" +
-    "</div>";
-  }
-  // Failsafe: a page missing the section an egg hides behind must not lose the
-  // egg — the gold Certified G card requires that all of them stay findable.
-  function ensureEgg(pageKey) {
-    var host = $(".hub") || $(".course") || $(".about") || $(".binder"); if (!host) return;
-    eggsFor(pageKey).forEach(function (egg) {
-      if ($('[data-egg="' + egg.id + '"]')) return;
-      var wrap = document.createElement("div");
-      wrap.innerHTML = eggHTML(pageKey, egg.slot);
-      if (wrap.firstChild) host.appendChild(wrap.firstChild);
-    });
-  }
-  function bindEggs() {
-    $$("[data-egg]").forEach(function (b) {
-      b.addEventListener("click", function () {
-        var egg = EGGS.filter(function (e) { return e.id === b.getAttribute("data-egg"); })[0];
-        if (egg) openEgg(egg);
-      });
-    });
-  }
-  function openEgg(egg) {
-    var solved = eggSolved(egg.id);
-    var m = document.createElement("div"); m.className = "modal egg-modal";
-    m.innerHTML = '<div class="modal-in egg-card">' +
-      '<button class="modal-x" aria-label="Close">×</button>' +
-      '<div class="egg-eyebrow"><span class="egg-eyebrow-em">' + (egg.emoji || "✨") + "</span> Hidden trivia · " + eggsSolvedCount() + " of " + EGGS.length + " found</div>" +
-      '<h3 class="egg-q">' + esc(egg.q) + "</h3>" +
-      (solved
-        ? '<div class="egg-fact ok"><strong>' + ic("check") + " You already nailed this one.</strong> " + esc(egg.fact) + "</div>"
-        : '<div class="egg-choices">' + egg.choices.map(function (ch, i) {
-            return '<button class="choice" data-ci="' + i + '"><span class="ch-key">' + String.fromCharCode(65 + i) + "</span><span>" + esc(ch) + "</span></button>";
-          }).join("") + "</div><div class=\"egg-fact\" hidden></div>") +
-    "</div>";
-    document.body.appendChild(m); document.body.classList.add("noscroll");
-    function close() { m.remove(); document.body.classList.remove("noscroll"); }
-    m.addEventListener("click", function (ev) { if (ev.target === m || ev.target.closest(".modal-x")) close(); });
-    document.addEventListener("keydown", function esc2(ev) { if (ev.key === "Escape") { close(); document.removeEventListener("keydown", esc2); } });
-    if (solved) return;
-
-    $$(".choice", m).forEach(function (b) {
-      b.addEventListener("click", function () {
-        var ci = parseInt(b.getAttribute("data-ci"), 10);
-        var right = ci === egg.answer;
-        var fact = $(".egg-fact", m);
-        if (!right) {
-          b.classList.add("wrong"); b.disabled = true;
-          fact.hidden = false; fact.className = "egg-fact no";
-          fact.innerHTML = "<strong>" + esc(quip("wrong")) + "</strong>";
-          return;
-        }
-        $$(".choice", m).forEach(function (x, xi) { x.disabled = true; if (xi === egg.answer) x.classList.add("correct"); });
-        fact.hidden = false; fact.className = "egg-fact ok";
-        fact.innerHTML = "<strong>" + ic("check") + " " + esc(quip("correct")) + "</strong> " + esc(egg.fact);
-        solveEgg(egg.id);
-        // hand off to the card-pull moment once they've read the fact
-        var t = trainerFor(egg.id);
-        if (!t) confetti(); // egg with no Trainer card — still celebrate the find
-        if (t) setTimeout(function () {
-          if (!document.body.contains(m)) return;
-          close();
-          var left = TRAINERS.length - trainersOwned();
-          showPull("Trainer card pulled!", trainerCardHTML(t),
-            left ? "<b>" + left + "</b> Trainer card" + (left === 1 ? "" : "s") + " still hidden across the site."
-                 : "<b>Every Trainer card found.</b> Your Certified G card is gold.");
-        }, 2100);
-      });
-    });
-  }
-  function trainerFor(eggId) { return TRAINERS.filter(function (t) { return t.egg === eggId; })[0] || null; }
-  function solveEgg(id) {
-    var s = getState();
-    if (s.eggs[id]) return;
-    s.eggs[id] = true; setState(s);
-    logEvent("egg", { egg: id });
-    markFresh("t:" + id);
-    if (isSecretUnlocked()) markFresh("secret"); // that egg turned the card gold
-    var found = eggsSolvedCount();
-    if (isSecretUnlocked()) { sfx.play("gold"); toast("Every Trainer card found — Certified G is now GOLD! 👑"); }
-    else if (allEggsSolved() && !isMasterEarned()) { sfx.play("egg"); toast("All " + EGGS.length + " Trainer cards! Certify on the whole lineup to go gold."); }
-    else { sfx.play("egg"); toast("Trainer card " + found + " of " + EGGS.length + " 🃏"); }
-    refreshCounters();
-    // reflect the found state on the page without a full re-render
-    $$('[data-egg="' + id + '"]').forEach(function (b) {
-      b.classList.add("found");
-      var h = b.parentElement && b.parentElement.querySelector(".egg-hint");
-      if (h) h.textContent = "Secret found";
-    });
-    maybeReportSecret();
-  }
   // The 30% tier fires once, the first time a second card lands in the binder.
   function maybeReportTier() {
     if (baseSetOwned() < 2) return;
@@ -566,14 +421,6 @@
     s.trio = { at: new Date().toISOString() }; setState(s);
     logEvent("trio", {});
     if (window.reportCompletion) window.reportCompletion({ type: "trio", name: e.name, email: e.email, store: e.store, product: "30% reward (2 courses)", score: 100, certId: "", date: niceDate() });
-  }
-  function maybeReportSecret() {
-    if (!isSecretUnlocked()) return;
-    var s = getState(); if (s.secret) return;
-    var e = getEnroll() || {};
-    s.secret = { at: new Date().toISOString() }; setState(s);
-    logEvent("secret", {});
-    if (window.reportCompletion) window.reportCompletion({ type: "secret", name: e.name, email: e.email, store: e.store, product: "Gold Certified G (all Trainer cards)", score: 100, certId: "", date: niceDate() });
   }
 
   /* ---- icons (inline SVG) ------------------------------------------------ */
@@ -730,7 +577,7 @@
   // Which greeting he opens with, based on how far along they are.
   function ogGreeting() {
     var done = completedCount(), total = COURSES.length;
-    if (isSecretUnlocked() || isMasterEarned()) return ogSays("proud", ogLine("done"));
+    if (isMasterEarned()) return ogSays("proud", ogLine("done"));
     if (done === 0) return ogSays("chill", ogLine("welcome"));
     if (done >= total - 1) return ogSays("hyped", ogLine("almost"));
     return ogSays("chill", ogLine("started"));
@@ -739,7 +586,7 @@
   // but returns a plain string for the <h1>. State-0 gets a fixed mission line so
   // a first-time visitor's headline copy is stable; returning staff hear him.
   function ogGreetingLine(done, total) {
-    if (isSecretUnlocked() || isMasterEarned()) return ogLine("done");
+    if (isMasterEarned()) return ogLine("done");
     if (done === 0) return "Know the whole shelf. I&rsquo;ll make you the one who sells it.";
     if (done >= total - 1) return ogLine("almost");
     return ogLine("started");
@@ -1012,7 +859,6 @@
         '<div class="sec-h" id="courses"><h2>The shelf <span class="sh-all">&middot; all 5 products</span></h2></div>' +
         '<p class="catalog-lede">No order, no locks. Start with whatever&rsquo;s on your counter.</p>' +
         '<div class="course-grid">' + COURSES.map(courseCard).join("") + "</div>" +
-        eggHTML("home", "courses") +
       "</section>" +
 
       // A single refined lifestyle moment — the gear in real hands, so the scale
@@ -1227,9 +1073,6 @@
     var hero = c.heroImg || c.cover;
     var descHTML = (Array.isArray(c.description) ? c.description : [c.description]).map(function (p) { return "<p>" + p + "</p>"; }).join("");
     var n = 0;
-    // Only the slot this course's egg claims returns markup; the rest are no-ops.
-    function egg(slot) { return eggHTML("course:" + c.slug, slot); }
-
     app.innerHTML = header() +
       '<section class="course reveal">' +
         '<a class="back" href="#/">' + ic("back") + " All courses</a>" +
@@ -1250,26 +1093,19 @@
             '<span class="vid-thumb"><img src="' + esc(v.thumb) + '" alt="" loading="lazy"/><span class="vid-play">' + ic("play") + "</span></span>" +
             '<span class="vid-title">' + esc(v.title) + "</span></button>";
         }).join("") + "</div>" +
-        egg("videos") +
 
         secHead(++n, "Get to know it") +
         '<div class="prose">' + descHTML + "</div>" +
         (c.highlights && c.highlights.length ? '<ul class="hl-list">' + c.highlights.map(function (h) { return "<li>" + ic("check") + "<span>" + esc(h) + "</span></li>"; }).join("") + "</ul>" : "") +
         galleryHTML(c) +
-        egg("overview") +
         lifestyleCinema(productLifeImg(c.slug, c.heroImg), "In the wild", "The " + c.name + " out in the world.") +
 
         (c.specs && c.specs.length ? secHead(++n, "Tech specs") + specTableHTML(c.specs) : "") +
-        egg("specs") +
         (c.howToUse && c.howToUse.length ? secHead(++n, "How to use it") + stepListHTML(c.howToUse) : "") +
-        egg("howto") +
         (c.howToClean && c.howToClean.length ? secHead(++n, "How to clean & care") + stepListHTML(c.howToClean) : "") +
-        egg("clean") +
         (c.faq && c.faq.length ? secHead(++n, "FAQ") + faqHTML(c.faq) : "") +
-        egg("faq") +
 
         (c.howToSell ? secHead(++n, "How to sell it") + howToSellHTML(c) : "") +
-        egg("sell") +
         factCard() +
 
         secHead(++n, "Get certified") +
@@ -1581,7 +1417,6 @@
       if (window.reportCompletion) window.reportCompletion({ type: "course", name: e.name, email: e.email, store: e.store, product: "G Pen " + c.name, courseSlug: c.slug, score: pct, certId: cid, date: date });
     }
     maybeReportTier();   // a third card unlocks the 30% tier
-    maybeReportSecret(); // finishing the last course can complete the secret too
     refreshCounters();
     var streak = touchStreak();
     logEvent("certified", { course: c.slug, certId: cid, score: pct });
@@ -2130,7 +1965,7 @@
         }).join("") + "</ol></div>" : "") +
         (a.collaborations ? '<div class="about-block"><h2>Iconic collaborations</h2><p class="lead">G Pen has partnered with some of the biggest names in music and cannabis:</p><div class="collabs">' +
           a.collaborations.map(function (c) { return '<span class="collab">' + esc(c) + "</span>"; }).join("") + "</div>" +
-          eggHTML("about", "collabs") + "</div>" : "") +
+          "</div>" : "") +
         (a.globalReach ? '<div class="about-block glob"><h2>A global brand</h2><p>' + esc(a.globalReach) + "</p></div>" : "") +
         (a.social ? '<div class="about-block"><h2>Join the movement</h2>' +
           (a.socialPitch ? '<p class="lead">' + esc(a.socialPitch) + "</p>" : "") +
@@ -2142,7 +1977,6 @@
               '<span class="soc-handle">' + esc(sc.handle) + " " + ic("arrow") + "</span>" +
             "</a>";
           }).join("") + "</div></div>" : "") +
-        eggHTML("about", "social") +
         factCard() +
         '<div class="about-close">' + ic("tag") + "<p>" + esc(a.closing || "") + "</p></div>" +
         '<a class="btn xl center-btn" href="#/">' + (e ? "Back to my courses" : "Browse courses") + " " + ic("arrow") + "</a>" +
@@ -2461,8 +2295,6 @@
     // Safety net: guarantee every view's reveal animation is initialized (and
     // its visibility failsafe armed) even if a render function forgets to call it.
     revealOnScroll();
-    if (pageKey) ensureEgg(pageKey);
-    bindEggs();
     bindFacts();
     bindLogoFun();
     bindCardTilt();
@@ -2474,7 +2306,7 @@
     app = $("#app"); // re-resolve in case the script loaded before #app parsed
     // Backfill: someone who earned a tier before it existed still gets reported
     // once. Both calls no-op unless the tier is newly reached and unrecorded.
-    if (getEnroll()) { maybeReportTier(); maybeReportSecret(); }
+    if (getEnroll()) maybeReportTier();
     if (!app) { return document.addEventListener("DOMContentLoaded", boot, { once: true }); }
     bindSoundToggle();
     bindLangSel();
