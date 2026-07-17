@@ -992,8 +992,8 @@
      product portal): 510 Batteries, Dry Herb Vaporizers, Concentrate. `match`
      buckets each course by its data.js category; groups with no products drop out. */
   var LINEUP_GROUPS = [
-    { key: "510", title: "510 Batteries", sub: "510-thread cartridge batteries", icon: "battery", match: function (c) { return /510/.test(c.category); } },
     { key: "dryherb", title: "Dry Herb Vaporizers", sub: "Portable dry-herb devices", icon: "leaf", match: function (c) { return /Dry Herb/i.test(c.category); } },
+    { key: "510", title: "510 Batteries", sub: "510-thread cartridge batteries", icon: "battery", match: function (c) { return /510/.test(c.category); } },
     { key: "concentrate", title: "Concentrate", sub: "Concentrate tools & accessories", icon: "drop", match: function (c) { return /Concentrate/i.test(c.category); } },
   ];
   function lineupHTML() {
