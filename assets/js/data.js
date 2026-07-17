@@ -548,119 +548,6 @@ window.GPEN_COURSES = [
 ];
 
 /* =============================================================================
-   HIDDEN TRIVIA EASTER EGGS
-   -----------------------------------------------------------------------------
-   One hidden trivia orb per page. Find + answer them ALL correctly, and certify
-   on every course (80%+), to unlock the secret 40% reward code.
-
-   `on` tells the app which page the orb hides on:
-     "home" | "about" | "course:<course-slug>"
-   Add/remove eggs freely — the "find them all" count updates automatically.
-   ========================================================================== */
-window.GPEN_EGGS = [
-  {
-    id: "egg-420", on: "home",
-    slot: "courses", align: "left",
-    emoji: "🕓", hint: "Psst… what time is it?",
-    q: "Where does “420” actually come from?",
-    choices: [
-      "A police radio code for cannabis",
-      "A group of ’70s California high schoolers who met at 4:20 p.m.",
-      "The number of compounds in cannabis",
-      "The date of the first legalization vote",
-    ],
-    answer: 1,
-    fact: "In 1971, a group of San Rafael High students called “the Waldos” met at 4:20 p.m. to hunt for a rumored hidden crop. The time became their code word — and eventually the whole culture's.",
-  },
-  {
-    id: "egg-snoop", on: "about",
-    slot: "collabs", align: "right",
-    emoji: "🎤", hint: "Drop the mic?",
-    q: "Which legend teamed up with G Pen for the original “Double G” series?",
-    choices: ["Wiz Khalifa", "B-Real", "Snoop Dogg", "Berner"],
-    answer: 2,
-    fact: "Snoop Dogg announced his official partnership with Grenco Science in 2013 — the “Double G” series put G Pen on the map.",
-  },
-  {
-    id: "egg-trichomes", on: "course:dash-ii",
-    slot: "overview", align: "right",
-    emoji: "❄️", hint: "Why so frosty?",
-    q: "What are the frosty, crystal-like resin glands on cannabis flower called?",
-    choices: ["Pistils", "Trichomes", "Stamens", "Nodes"],
-    answer: 1,
-    fact: "Trichomes are the tiny resin glands that hold most of the cannabinoids and terpenes — that “frost” is where the good stuff lives.",
-  },
-  {
-    id: "egg-combustion", on: "course:dash-plus",
-    slot: "specs", align: "left",
-    emoji: "🔥", hint: "Don't get burned",
-    q: "The whole point of a vaporizer is to heat material just below the point of…",
-    choices: ["Evaporation", "Combustion", "Condensation", "Sublimation"],
-    answer: 1,
-    fact: "Vaporizers heat material hot enough to release vapor but below combustion (~450°F/232°C), so you get vapor instead of smoke.",
-  },
-  {
-    id: "egg-terpenes", on: "course:melt-hot-knife",
-    slot: "clean", align: "right",
-    emoji: "👃", hint: "Take a whiff",
-    q: "Which compounds give each strain its distinct smell and flavor?",
-    choices: ["Flavonoids", "Chlorophyll", "Terpenes", "Cannabinoids"],
-    answer: 2,
-    fact: "Terpenes are the aromatic oils behind citrus, pine, and diesel notes. They're also delicate — which is exactly why lower-temp vaping preserves flavor.",
-  },
-  {
-    id: "egg-cbd", on: "course:hydout",
-    slot: "faq", align: "left",
-    emoji: "🌱", hint: "Grow your knowledge",
-    q: "Which well-known cannabinoid is non-intoxicating?",
-    choices: ["THC", "CBD", "THCa converted with heat", "Delta-8"],
-    answer: 1,
-    fact: "CBD won't get you high — it's the non-intoxicating cannabinoid most associated with wellness use.",
-  },
-  {
-    id: "egg-munchies", on: "home",
-    slot: "rewards", align: "right",
-    emoji: "🍕", hint: "Hungry?",
-    q: "Why do the munchies happen?",
-    choices: [
-      "Cannabis empties your stomach faster",
-      "THC activates receptors that heighten smell, taste, and hunger signals",
-      "It lowers your blood sugar",
-      "It's purely psychological",
-    ],
-    answer: 1,
-    fact: "THC binds to CB1 receptors in the brain — including the olfactory bulb and hypothalamus — which sharpens smell and taste and ramps up ghrelin, the hormone that tells you you're hungry.",
-  },
-  {
-    id: "egg-global", on: "about",
-    slot: "social", align: "left",
-    emoji: "🌍", hint: "Think globally",
-    q: "Uruguay legalized nationwide adult-use cannabis first. Which country was second?",
-    choices: ["The Netherlands", "Portugal", "Canada", "Thailand"],
-    answer: 2,
-    fact: "Canada legalized nationwide adult-use cannabis in October 2018, five years after Uruguay became the first country in the world to do it.",
-  },
-  {
-    id: "egg-binder", on: "collection",
-    slot: "binder", align: "center",
-    emoji: "🃏", hint: "One more for the set…",
-    q: "Cannabis sativa and Cannabis indica were first named by botanists in which century?",
-    choices: ["The 1500s", "The 1700s", "The 1800s", "The 1900s"],
-    answer: 1,
-    fact: "Carl Linnaeus named Cannabis sativa in 1753, and Jean-Baptiste Lamarck named Cannabis indica in 1785 — both in the 18th century, long before anyone argued about them on a dispensary menu.",
-  },
-  {
-    id: "egg-entourage", on: "course:510-original",
-    slot: "videos", align: "center",
-    emoji: "🤝", hint: "Better together",
-    q: "What's the term for cannabinoids and terpenes working better together than alone?",
-    choices: ["The entourage effect", "The halo effect", "Synergy bloom", "The full-spectrum rule"],
-    answer: 0,
-    fact: "The “entourage effect” is the theory that the full mix of cannabinoids and terpenes produces a richer experience than any isolated compound.",
-  },
-];
-
-/* =============================================================================
    ABOUT G PEN — brand story shown on the "#/about" page. Edit freely.
    ========================================================================== */
 window.GPEN_ABOUT = {
@@ -827,8 +714,8 @@ window.GPEN_CARDS = {
   },
 };
 
-/* The 6th card. Two states: Holo (collect the Base Set) and Gold (also find
-   every hidden trivia egg). The gold face carries the program's top reward. */
+/* The 6th card, the Certified G. Collect all five product cards and it reveals
+   in gold — it carries the program’s top reward: 40% off. */
 window.GPEN_SECRET_CARD = {
   no: 6, rarity: "secret", element: "gold", code: "G 420",
   name: "Certified G", power: "∞", powerUnit: "",
@@ -836,24 +723,9 @@ window.GPEN_SECRET_CARD = {
     { name: "Total Recall", cost: 3, dmg: "5/5", text: "Knows every G Pen product cold — specs, cleaning, objections, all of it." },
     { name: "House Discount", cost: 2, dmg: "40%", text: "The highest reward in the program. Nobody else on the floor has this card." },
   ],
-  statsRow: [{ k: "Base Set", v: "5/5" }, { k: "Trainers", v: "10/10" }, { k: "Rank", v: "👑" }],
+  statsRow: [{ k: "Lineup", v: "5/5" }, { k: "Reward", v: "40% off" }, { k: "Rank", v: "👑" }],
   flavor: "Fully trained. Fully loaded. A G Pen Product Specialist in every sense.",
 };
-
-/* Trainer & Energy cards — one for every hidden trivia egg you solve.
-   `egg` must match an id in GPEN_EGGS. Order here = card number. */
-window.GPEN_TRAINERS = [
-  { egg: "egg-420",        no: 1,  kind: "Supporter", name: "The Waldos",       text: "Five San Rafael teenagers, one 4:20pm meet-up, and a code word that outlived them all." },
-  { egg: "egg-snoop",      no: 2,  kind: "Supporter", name: "The Collab",       text: "When the culture's biggest name puts his name on your pen, the whole category moves." },
-  { egg: "egg-trichomes",  no: 3,  kind: "Energy",    name: "Trichome Frost",   text: "The frost is the point. Nearly every cannabinoid and terpene lives in those resin glands." },
-  { egg: "egg-combustion", no: 4,  kind: "Item",      name: "Low & Slow",       text: "Stay under the combustion point and vapor stays vapor. That's the whole product category." },
-  { egg: "egg-terpenes",   no: 5,  kind: "Energy",    name: "Terp Profile",     text: "Diesel, citrus, pine. Terpenes are why no two strains ever smell the same." },
-  { egg: "egg-cbd",        no: 6,  kind: "Energy",    name: "Full Spectrum",    text: "The whole plant, not just the headline compound." },
-  { egg: "egg-entourage",  no: 7,  kind: "Stadium",   name: "Entourage Effect", text: "Cannabinoids and terpenes, working the room together." },
-  { egg: "egg-munchies",   no: 8,  kind: "Item",      name: "The Munchies",     text: "Your own receptors turning the volume up on smell, taste, and hunger." },
-  { egg: "egg-global",     no: 9,  kind: "Stadium",   name: "Global Reach",     text: "From a Los Angeles garage in 2012 to shelves on nearly every continent." },
-  { egg: "egg-binder",     no: 10, kind: "Item",      name: "The Binder",       text: "Every collector needs somewhere to keep the set." },
-];
 
 /* =============================================================================
    PROFESSOR O.G. — the mascot (Original G, tenured owl, Dean of G Pen U)
