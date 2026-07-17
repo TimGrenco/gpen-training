@@ -185,11 +185,50 @@ h1, h2, h3, h4 { margin: 0; line-height: 1.08; letter-spacing: -.02em; }
 .mod-body li strong { color: var(--ink); }
 .mod-read { margin: 4px 20px 18px; }
 
-.sell { background: linear-gradient(160deg, #fff, #fbf6ea); border: 1px solid var(--line); border-left: 4px solid var(--gold-bright); border-radius: 14px; padding: 20px 22px; margin-top: 18px; box-shadow: var(--shadow); }
-.sell h3 { display: flex; align-items: center; gap: 8px; font-size: 17px; margin-bottom: 10px; }
-.sell h3 svg { width: 20px; height: 20px; color: var(--gold); }
-.sell ul { margin: 0; padding-left: 20px; }
-.sell li { margin: 0 0 8px; font-size: 14.5px; }
+/* ==================== THE SALES BATTLECARD (How to sell it) ============
+   Scan-in-seconds layout for a rep on the floor. Green = "say this out loud",
+   red = the customer's objection, gold = the product's own accent. */
+.sell2 { display: flex; flex-direction: column; gap: 14px; margin-top: 4px; }
+
+/* Pairing trigger — the whole thing hangs off "when they're buying X". */
+.sell-pair { background: linear-gradient(160deg, #fff, #fbf6ea); border: 1px solid var(--line); border-left: 5px solid var(--accent, var(--gold-bright)); border-radius: 14px; padding: 16px 18px; box-shadow: var(--shadow); }
+.sell-cue { display: flex; align-items: center; gap: 8px; flex-wrap: wrap; font-size: 13px; font-weight: 800; text-transform: uppercase; letter-spacing: .04em; color: var(--ink); }
+.sell-cue b { color: var(--gold); }
+.sell-cue svg { width: 15px; height: 15px; color: var(--gold); }
+.sell-cue-em { font-size: 20px; line-height: 1; }
+.sell-pair p { margin: 8px 0 0; font-size: 15px; line-height: 1.55; color: var(--ink-2); }
+.sell-sibs { display: flex; align-items: center; flex-wrap: wrap; gap: 8px; margin-top: 12px; }
+.sell-sibs span { font-size: 12px; font-weight: 800; text-transform: uppercase; letter-spacing: .05em; color: var(--stone); }
+.sell-sib { display: inline-flex; align-items: center; gap: 6px; padding: 6px 12px; border-radius: 999px; border: 1.5px solid var(--line); border-left: 4px solid var(--accent, var(--gold-bright)); font-size: 13px; font-weight: 800; color: var(--ink); text-decoration: none; }
+.sell-sib:hover { border-color: var(--gold-bright); border-left-color: var(--accent, var(--gold-bright)); }
+
+/* The 3 recite-facts. */
+.sell-facts { display: flex; flex-wrap: wrap; gap: 8px; }
+.sell-fact { display: inline-flex; align-items: center; padding: 7px 13px; border-radius: 999px; background: var(--ink); color: #fff; font-size: 13px; font-weight: 700; }
+
+/* "Say this" talk track — the read-aloud line. */
+.sell-say { position: relative; margin: 0; padding: 16px 18px; border-radius: 14px; background: #f0f8f2; border: 1px solid #cfe8d8; border-left: 5px solid var(--ok); font-size: 16px; line-height: 1.5; font-weight: 600; color: #17402a; }
+.sell-say em, .sell-close em { display: block; font-style: normal; font-size: 11px; font-weight: 900; text-transform: uppercase; letter-spacing: .08em; margin-bottom: 6px; }
+.sell-say em { color: var(--ok); }
+.sell-close { padding: 14px 18px; border-radius: 14px; background: var(--cream); border: 1px solid var(--line); font-size: 15px; line-height: 1.5; font-weight: 600; color: var(--ink-2); }
+.sell-close em { color: var(--gold); }
+
+/* Objection cards — trigger (red) → response (green). */
+.sell-objs h4 { font-size: 13px; font-weight: 900; text-transform: uppercase; letter-spacing: .05em; color: var(--stone); margin: 4px 0 10px; }
+.obj-card { border: 1px solid var(--line); border-radius: 14px; overflow: hidden; margin-bottom: 10px; box-shadow: var(--shadow); }
+.obj-card:last-child { margin-bottom: 0; }
+.obj-says, .obj-say, .obj-why { display: flex; gap: 10px; padding: 12px 15px; font-size: 14.5px; line-height: 1.5; }
+.obj-says em, .obj-say em { flex: none; width: 62px; font-style: normal; font-size: 10.5px; font-weight: 900; text-transform: uppercase; letter-spacing: .04em; padding-top: 3px; }
+.obj-says { background: #fcefec; color: #7a2e22; }
+.obj-says em { color: var(--bad); }
+.obj-say { background: #f0f8f2; color: #17402a; font-weight: 600; }
+.obj-say em { color: var(--ok); }
+.obj-why { background: #fff; color: var(--stone); font-size: 13px; align-items: center; }
+.obj-why svg { width: 14px; height: 14px; flex: none; color: var(--gold); }
+
+/* AOV micro-note. */
+.sell-aov { display: flex; gap: 9px; align-items: flex-start; margin: 0; padding: 13px 16px; border-radius: 12px; background: rgba(254,200,112,.14); border: 1px solid rgba(200,149,47,.28); font-size: 13.5px; line-height: 1.5; color: #6a5220; }
+.sell-aov svg { width: 15px; height: 15px; flex: none; color: var(--gold); margin-top: 2px; }
 
 /* quiz */
 .quiz-intro { background: #fff; border: 1px solid var(--line); border-radius: var(--radius); padding: 24px; text-align: center; box-shadow: var(--shadow); }

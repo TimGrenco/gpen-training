@@ -1170,7 +1170,7 @@
         (c.faq && c.faq.length ? secHead(++n, "FAQ") + faqHTML(c.faq) : "") +
         egg("faq") +
 
-        (c.sell && c.sell.length ? '<div class="sell"><h3>' + ic("tag") + " How to sell it</h3><ul>" + c.sell.map(function (x) { return "<li>" + esc(x) + "</li>"; }).join("") + "</ul></div>" : "") +
+        (c.howToSell ? secHead(++n, "How to sell it") + howToSellHTML(c) : "") +
         egg("sell") +
         factCard() +
 
@@ -1204,6 +1204,38 @@
     setTimeout(stickyHandler, 500);
   }
   function secHead(n, t) { return '<div class="sec-h big"><span class="sec-n">' + n + "</span><h2>" + t + "</h2></div>"; }
+  /* The sales battlecard. A rep should be able to scan it in seconds and read
+     the "say this" lines out loud verbatim. Fixed block order so muscle memory
+     builds: trigger → 3 facts → talk track → which-one close → objections → AOV. */
+  function howToSellHTML(c) {
+    var h = c.howToSell; if (!h) return "";
+    var facts = (h.keyFacts || []).map(function (f) {
+      return '<span class="sell-fact">' + esc(f) + "</span>";
+    }).join("");
+    var sibs = (h.pairsWith || []).map(function (sl) {
+      var sc = courseBySlug(sl);
+      return sc ? '<a class="sell-sib" href="#/course/' + sl + '" style="--accent:' + sc.accent + '">' + esc(sc.name) + "</a>" : "";
+    }).join("");
+    var objs = (h.objections || []).map(function (o) {
+      return '<div class="obj-card">' +
+        '<div class="obj-says"><em>They say</em><span>&ldquo;' + esc(o.says) + '&rdquo;</span></div>' +
+        '<div class="obj-say"><em>You say</em><span>' + esc(o.say) + "</span></div>" +
+        (o.why ? '<div class="obj-why">' + ic("spark") + "<span>" + esc(o.why) + "</span></div>" : "") +
+      "</div>";
+    }).join("");
+    return '<div class="sell2" style="--accent:' + (c.accent || "var(--gold-bright)") + '">' +
+      '<div class="sell-pair">' +
+        '<div class="sell-cue"><span class="sell-cue-em">' + esc(h.cue || "") + "</span>When they're buying <b>" + esc((h.upsellFrom || "").toUpperCase()) + "</b> " + ic("arrow") + "</div>" +
+        "<p>" + esc(h.vital) + "</p>" +
+        (sibs ? '<div class="sell-sibs"><span>Pair with</span>' + sibs + "</div>" : "") +
+      "</div>" +
+      (facts ? '<div class="sell-facts">' + facts + "</div>" : "") +
+      (h.talkTrack && h.talkTrack.say ? '<blockquote class="sell-say"><em>Say this</em>&ldquo;' + esc(h.talkTrack.say) + "&rdquo;</blockquote>" : "") +
+      (h.whichClose ? '<div class="sell-close"><em>The &ldquo;which one&rdquo; close</em>&ldquo;' + esc(h.whichClose) + "&rdquo;</div>" : "") +
+      (objs ? '<div class="sell-objs"><h4>When they hesitate</h4>' + objs + "</div>" : "") +
+      (h.aov ? '<p class="sell-aov">' + ic("tag") + "<span>" + esc(h.aov) + "</span></p>" : "") +
+    "</div>";
+  }
   function galleryHTML(c) {
     if (!c.gallery || !c.gallery.length) return "";
     return '<div class="gallery">' + c.gallery.map(function (g) {
