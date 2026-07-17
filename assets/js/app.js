@@ -588,7 +588,7 @@
   // a first-time visitor's headline copy is stable; returning staff hear him.
   function ogGreetingLine(done, total) {
     if (isMasterEarned()) return ogLine("done");
-    if (done === 0) return "Know the whole shelf. I&rsquo;ll make you the one who sells it.";
+    if (done === 0) return "Get certified on the whole G&nbsp;Pen shelf.";
     if (done >= total - 1) return ogLine("almost");
     return ogLine("started");
   }
@@ -839,7 +839,6 @@
   function renderHome() {
     var e = getEnroll(), done = completedCount(), total = COURSES.length;
     var master = isMasterEarned();
-    var totalMin = COURSES.reduce(function (a, c) { return a + (c.minutes || 0); }, 0);
 
     app.innerHTML = header() +
       // ---- The masthead. Professor O.G. is the SPEAKER: his speech bubble holds
@@ -848,7 +847,7 @@
       '<section class="mast reveal">' +
         '<div class="mast-inner">' +
           '<div class="mast-lead">' +
-            '<span class="mast-kicker">G Pen University &middot; Certification for budtenders &amp; smoke-shop reps &middot; Est. 2012</span>' +
+            '<span class="mast-kicker">G Pen University &middot; Certification for budtenders &amp; smoke-shop reps</span>' +
             '<div class="mast-say"><h1 class="mast-h1">' + ogGreetingLine(done, total) + "</h1></div>" +
             '<div class="mast-dean">' +
               '<button class="mast-og" type="button" aria-label="Tap the Dean for a field note">' + mascotSVG("chill") + "</button>" +
@@ -860,8 +859,8 @@
             "</div>" +
           "</div>" +
           '<div class="mast-aside">' +
-            '<p class="mast-deck">Free training on all five G&nbsp;Pen products &mdash; for anyone behind the counter, dispensary or smoke shop. About ' + totalMin + ' min end to end, no sign-up to browse. Pass the quizzes to unlock up to <b>40% off</b> gpen.com' + (drawLive() ? ', and certify the whole lineup for a shot at a <b>free G&nbsp;Pen</b>' : "") + ". The best pitch is the one in your own pocket.</p>" +
-            '<ul class="mast-stats"><li>5 products</li><li>~' + totalMin + ' min</li><li class="gold">up to 40% off' + (drawLive() ? " + a free-device draw" : "") + "</li></ul>" +
+            '<p class="mast-deck">Free training on all five G&nbsp;Pen products. Pass the quizzes, unlock up to <b>40% off</b> gpen.com' + (drawLive() ? ' &mdash; plus a shot at a <b>free G&nbsp;Pen</b>' : "") + ".</p>" +
+            '<ul class="mast-stats"><li>5 products</li><li>No sign-up</li><li class="gold">up to 40% off' + (drawLive() ? " + a free-device draw" : "") + "</li></ul>" +
             '<div class="og-fact" id="og-fact" role="status" aria-live="polite"></div>' +
             '<button class="btn mt" type="button" data-scroll="courses">Show me the shelf ' + ic("arrow") + "</button>" +
           "</div>" +
