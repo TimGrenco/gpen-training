@@ -1512,22 +1512,31 @@ a.linklike.backdash { display: block; width: auto; margin-top: 10px; text-align:
 /* Columns change in concert with the rest of the page (560 / 760 / 1080). The
    old 2-up-until-1280 rule stranded the 5th card as a 2+2+1 orphan on every
    tablet; 3-up at tablet makes it a clean 3+2, then the full lineup on a laptop. */
-/* Product-family sections (510 Batteries / Dry Herb Vaporizers / Concentrate) —
-   a labelled header band over each group's card grid. */
-.lineup-group { margin-bottom: 30px; }
-.lineup-group:last-child { margin-bottom: 8px; }
-.lg-head { display: flex; align-items: center; gap: 11px; margin: 26px 0 16px; padding-bottom: 12px; border-bottom: 1px solid var(--line); }
-.lineup-group:first-child .lg-head { margin-top: 4px; }
-.lg-icon { width: 36px; height: 36px; flex: none; display: grid; place-items: center; border-radius: var(--r-sm); background: var(--cream); border: 1px solid var(--line); color: var(--ink); }
-.lg-icon svg { width: 19px; height: 19px; }
-.lg-title { display: inline-flex; align-items: center; gap: 9px; font-size: 19px; font-weight: 900; letter-spacing: -.015em; }
-.lg-count { font-size: 12px; font-weight: 800; color: var(--stone); background: var(--cream); border: 1px solid var(--line); border-radius: var(--r-pill); padding: 1px 9px; }
-.lg-sub { margin-left: auto; font-size: 12.5px; font-weight: 600; color: var(--stone); }
-@media (max-width: 600px) { .lg-sub { display: none; } }
+/* Product-family panels (510 Batteries / Dry Herb Vaporizers / Concentrate),
+   ported from the G Pen asset portal: each family is a bordered card with a
+   tinted header band; small families (≤2 products) pair up two-across on desktop
+   so a 1–2 item group never spans a full row of empty space. */
+.prodgroups { display: flex; flex-wrap: wrap; align-items: flex-start; gap: 18px; margin-bottom: 24px; }
+.famgroup {
+  --fam: #8a8a8a; --fam-ink: #5f5f5f; --fam-tint: rgba(138,138,138,0.07); --fam-line: rgba(138,138,138,0.20);
+  flex: 1 1 100%; border: 1px solid var(--line); border-radius: var(--r-lg); overflow: hidden; background: var(--paper);
+}
+@media (min-width: 1000px) { .famgroup.fam-narrow { flex: 0 1 calc(50% - 9px); } }
+.fam-510         { --fam: #2b2b2b; --fam-ink: #1c1c1c; --fam-tint: rgba(30,30,30,0.05);  --fam-line: rgba(30,30,30,0.15); }
+.fam-dryherb     { --fam: #1f8a4c; --fam-ink: #15703c; --fam-tint: rgba(31,138,76,0.09); --fam-line: rgba(31,138,76,0.20); }
+.fam-concentrate { --fam: #d98324; --fam-ink: #8a5000; --fam-tint: rgba(217,131,36,0.12); --fam-line: rgba(217,131,36,0.24); }
+.fam-head { display: flex; align-items: center; gap: 12px; padding: 13px 18px; background: var(--fam-tint); border-bottom: 1px solid var(--fam-line); }
+.fam-ic { flex: 0 0 auto; width: 42px; height: 42px; border-radius: var(--r-sm); display: inline-flex; align-items: center; justify-content: center; background: #fff; border: 1px solid var(--fam-line); color: var(--fam); box-shadow: 0 1px 2px rgba(15,15,15,0.05); }
+.fam-ic svg { width: 22px; height: 22px; }
+.fam-name { font-size: 17px; font-weight: 900; letter-spacing: -.01em; color: var(--fam-ink); }
+.fam-count { flex: 0 0 auto; min-width: 20px; height: 20px; padding: 0 7px; border-radius: var(--r-pill); display: inline-flex; align-items: center; justify-content: center; font-size: 11px; font-weight: 800; color: #fff; background: var(--fam-ink); }
+.fam-blurb { margin-left: auto; font-size: 12.5px; font-weight: 600; color: var(--fam-ink); }
+.fam-body { padding: 20px 18px; }
+@media (max-width: 600px) { .fam-head { padding: 12px 14px; } .fam-body { padding: 16px 14px; } .fam-blurb { display: none; } }
 
-/* Cards are now grouped by product family, so the grid packs left at a fixed
-   card size instead of stretching N-across — a group of 1 or 2 still looks right. */
-.course-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(210px, 244px)); justify-content: start; gap: 16px; margin-bottom: 8px; }
+/* Inside each panel, cards fill the available width (auto-fill keeps them
+   card-sized rather than stretching a lone card across the whole panel). */
+.course-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(190px, 1fr)); gap: 16px; margin-bottom: 0; }
 @media (max-width: 460px) { .course-grid { grid-template-columns: 1fr; } }
 .cc {
   position: relative; display: flex; flex-direction: column; text-decoration: none; color: var(--ink);

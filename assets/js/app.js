@@ -459,7 +459,7 @@
     dl: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3v12M7 10l5 5 5-5"/><path d="M4 21h16"/></svg>',
     mail: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="5" width="18" height="14" rx="2"/><path d="M3 7l9 6 9-6"/></svg>',
     phone: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M22 16.9v3a2 2 0 0 1-2.2 2 19.8 19.8 0 0 1-8.6-3.1 19.5 19.5 0 0 1-6-6 19.8 19.8 0 0 1-3.1-8.7A2 2 0 0 1 4.1 2h3a2 2 0 0 1 2 1.7c.1.9.3 1.8.6 2.7a2 2 0 0 1-.5 2.1L8 9.7a16 16 0 0 0 6 6l1.2-1.2a2 2 0 0 1 2.1-.5c.9.3 1.8.5 2.7.6a2 2 0 0 1 1.7 2z"/></svg>',
-    battery: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="7" width="16" height="10" rx="2"/><path d="M22 10v4"/><path d="M7 12h4"/></svg>',
+    battery: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="7" width="15" height="10" rx="2"/><path d="M20 10.5v3"/><path d="m9.5 9-2 3.2h2.8l-2 2.8"/></svg>',
     leaf: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M11 20A7 7 0 0 1 4 13C4 7 11 3 20 3c0 9-5 16-9 17z"/><path d="M9 15c2-3 5-5.5 8.5-6.5"/></svg>',
     drop: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3s6.5 6.2 6.5 11a6.5 6.5 0 0 1-13 0C5.5 9.2 12 3 12 3z"/></svg>',
     refresh: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 12a9 9 0 11-3-6.7L21 8"/><path d="M21 3v5h-5"/></svg>',
@@ -992,23 +992,27 @@
      product portal): 510 Batteries, Dry Herb Vaporizers, Concentrate. `match`
      buckets each course by its data.js category; groups with no products drop out. */
   var LINEUP_GROUPS = [
-    { title: "510 Batteries", sub: "510-thread cartridge batteries", icon: "battery", match: function (c) { return /510/.test(c.category); } },
-    { title: "Dry Herb Vaporizers", sub: "Portable dry-herb devices", icon: "leaf", match: function (c) { return /Dry Herb/i.test(c.category); } },
-    { title: "Concentrate", sub: "Concentrate tools & accessories", icon: "drop", match: function (c) { return /Concentrate/i.test(c.category); } },
+    { key: "510", title: "510 Batteries", sub: "510-thread cartridge batteries", icon: "battery", match: function (c) { return /510/.test(c.category); } },
+    { key: "dryherb", title: "Dry Herb Vaporizers", sub: "Portable dry-herb devices", icon: "leaf", match: function (c) { return /Dry Herb/i.test(c.category); } },
+    { key: "concentrate", title: "Concentrate", sub: "Concentrate tools & accessories", icon: "drop", match: function (c) { return /Concentrate/i.test(c.category); } },
   ];
   function lineupHTML() {
-    return LINEUP_GROUPS.map(function (g) {
+    var panels = LINEUP_GROUPS.map(function (g) {
       var items = COURSES.filter(g.match);
       if (!items.length) return "";
-      return '<div class="lineup-group">' +
-        '<div class="lg-head">' +
-          '<span class="lg-icon" aria-hidden="true">' + ic(g.icon) + "</span>" +
-          '<h3 class="lg-title">' + esc(g.title) + ' <span class="lg-count">' + items.length + "</span></h3>" +
-          '<span class="lg-sub">' + esc(g.sub) + "</span>" +
-        "</div>" +
-        '<div class="course-grid">' + items.map(courseCard).join("") + "</div>" +
-      "</div>";
+      // ≤2 products pair up two-across on desktop so a small family doesn't span an empty row.
+      var narrow = items.length <= 2 ? " fam-narrow" : "";
+      return '<section class="famgroup fam-' + g.key + narrow + '">' +
+          '<div class="fam-head">' +
+            '<span class="fam-ic" aria-hidden="true">' + ic(g.icon) + "</span>" +
+            '<h3 class="fam-name">' + esc(g.title) + "</h3>" +
+            '<span class="fam-count">' + items.length + "</span>" +
+            '<span class="fam-blurb">' + esc(g.sub) + "</span>" +
+          "</div>" +
+          '<div class="fam-body"><div class="course-grid">' + items.map(courseCard).join("") + "</div></div>" +
+        "</section>";
     }).join("");
+    return '<div class="prodgroups">' + panels + "</div>";
   }
   function courseCard(c) {
     var st = getState(), rec = st.courses[c.slug], done = !!(rec && rec.passed);
