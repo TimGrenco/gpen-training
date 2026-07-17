@@ -558,7 +558,7 @@ window.GPEN_ABOUT = {
   ],
   stats: [
     { number: "2012", label: "Founded" },
-    { number: "15+", label: "Years leading the industry" },
+    { number: "14+", label: "Years leading the industry" },
     { number: "7+", label: "Major artist & brand collaborations" },
     { number: "Global", label: "Sold worldwide (US · Canada · EU)" },
   ],
@@ -589,17 +589,6 @@ window.GPEN_ABOUT = {
    FUN LAYER — ranks, quips & trivia. All editable, none of it affects scoring.
    ========================================================================== */
 
-/* Class ranks — you move up the ladder as you certify on courses.
-   `at` = number of courses passed needed to hold this rank. */
-window.GPEN_RANKS = [
-  { at: 0, emoji: "🌱", name: "Freshman",   blurb: "Just got your syllabus." },
-  { at: 1, emoji: "🍃", name: "Sophomore",  blurb: "One course down. Momentum." },
-  { at: 2, emoji: "💨", name: "Junior",     blurb: "You're starting to talk like a pro." },
-  { at: 3, emoji: "🔥", name: "Senior",     blurb: "Customers trust you now." },
-  { at: 4, emoji: "🎓", name: "Dean's List", blurb: "One away from glory." },
-  { at: 5, emoji: "👑", name: "Certified G", blurb: "Fully trained. Fully loaded." },
-];
-
 /* Randomized feedback copy — keeps quizzes from feeling like a compliance module. */
 window.GPEN_QUIPS = {
   correct: [
@@ -624,7 +613,7 @@ window.GPEN_FACTS = [
   { emoji: "❄️", text: "Those frosty crystals on good flower are trichomes — the resin glands where nearly all the cannabinoids and terpenes actually live." },
   { emoji: "👃", text: "Terpenes are why one strain smells like diesel and another like mango. Limonene, myrcene, pinene — they're in your citrus peel too." },
   { emoji: "🌡️", text: "Vaporizers heat below the combustion point (~450°F / 232°C), which is exactly why vapor isn't smoke." },
-  { emoji: "🎤", text: "Snoop Dogg partnered with G Pen in 2014 — one of the first true celebrity collaborations in the vaporizer world." },
+  { emoji: "🎤", text: "Snoop Dogg partnered with G Pen in 2013 — one of the first true celebrity collaborations in the vaporizer world." },
   { emoji: "🍫", text: "Anandamide, one of your body's own cannabinoids, is named after the Sanskrit word for \"bliss.\" It's also found in chocolate." },
   { emoji: "🌿", text: "Hemp is one of the oldest cultivated crops on Earth — woven fabric samples date back roughly 10,000 years." },
   { emoji: "🫙", text: "Light and heat degrade cannabinoids faster than anything else. Cool, dark, airtight — that's the whole storage lecture." },

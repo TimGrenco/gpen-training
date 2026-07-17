@@ -15,7 +15,6 @@
   var app = $("#app");
   var pendingCelebrate = false; // set when a new cert is earned → ring pulses on next home view
   var stickyHandler = null;     // scroll handler for the course "get certified" nudge
-  var binderResize = null;      // resize handler that keeps the flip viewport fitted
 
   function esc(s) { return String(s == null ? "" : s).replace(/[&<>"']/g, function (m) { return ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" })[m]; }); }
   function courseBySlug(slug) { return COURSES.filter(function (c) { return c.slug === slug; })[0]; }
@@ -36,10 +35,9 @@
   function getEnroll() { try { return JSON.parse(localStorage.getItem(K_ENROLL) || "null"); } catch (e) { return null; } }
   function setEnroll(v) { try { localStorage.setItem(K_ENROLL, JSON.stringify(v)); } catch (e) {} }
   function getState() {
-    var d = { courses: {}, badges: [], streak: { count: 0, last: null }, master: null, eggs: {}, trio: null, secret: null, fresh: {}, log: [] };
+    var d = { courses: {}, badges: [], streak: { count: 0, last: null }, master: null, trio: null, fresh: {}, log: [] };
     var s;
     try { s = Object.assign(d, JSON.parse(localStorage.getItem(K_STATE) || "{}")); } catch (e) { return d; }
-    if (!s.eggs) s.eggs = {};
     if (!s.fresh) s.fresh = {};
     return s;
   }
@@ -246,16 +244,8 @@
     });
   }
 
-  /* ---- fun layer: class ranks, quips, "did you know" ---------------------- */
-  var RANKS = window.GPEN_RANKS || [];
+  /* ---- fun layer: quips, "did you know" ---------------------------------- */
   var FACTS = window.GPEN_FACTS || [];
-  // Highest rank whose threshold you've cleared.
-  function rankFor(done) {
-    var r = RANKS[0] || null;
-    RANKS.forEach(function (x) { if (done >= x.at) r = x; });
-    return r;
-  }
-  function nextRank(done) { return RANKS.filter(function (x) { return x.at > done; })[0] || null; }
   function pick(arr) { return arr && arr.length ? arr[Math.floor(Math.random() * arr.length)] : ""; }
   // Fisher–Yates — used to shuffle quiz question + choice order per attempt so a
   // retake isn't byte-identical (reps learn the material, not answer positions).
@@ -343,6 +333,36 @@
     setTimeout(function () { clone.remove(); pulseBinder(); sfx.play("tick"); done(); }, 640);
   }
 
+  /* Dialog semantics + focus management for our overlays: mark the container as
+     a modal dialog, hide the background from assistive tech, pull focus into the
+     dialog, trap Tab inside it, and return a release() that restores focus to the
+     element that opened it. */
+  function manageModalFocus(m) {
+    var app = document.getElementById("app");
+    var trigger = document.activeElement;
+    m.setAttribute("role", "dialog");
+    m.setAttribute("aria-modal", "true");
+    if (app) app.setAttribute("aria-hidden", "true");
+    function focusables() {
+      return [].slice.call(m.querySelectorAll('a[href],button:not([disabled]),iframe,input,select,textarea,[tabindex]:not([tabindex="-1"])'))
+        .filter(function (el) { return el.tagName === "IFRAME" || el.offsetParent !== null; });
+    }
+    var first = m.querySelector(".modal-x") || focusables()[0] || m;
+    setTimeout(function () { if (first && first.focus) first.focus(); }, 0);
+    function onKey(ev) {
+      if (ev.key !== "Tab") return;
+      var f = focusables(); if (!f.length) return;
+      var a = f[0], z = f[f.length - 1];
+      if (ev.shiftKey && document.activeElement === a) { ev.preventDefault(); z.focus(); }
+      else if (!ev.shiftKey && document.activeElement === z) { ev.preventDefault(); a.focus(); }
+    }
+    m.addEventListener("keydown", onKey);
+    return function release() {
+      if (app) app.removeAttribute("aria-hidden");
+      if (trigger && trigger.focus) trigger.focus();
+    };
+  }
+
   /* The card-pull moment. Used when you certify (product card) and when you
      solve a trivia egg (trainer card). The card flips in out of a foil pack. */
   function showPull(kicker, cardHTML, footNote, saveSlug) {
@@ -379,8 +399,9 @@
       '<div class="pull-stage">' + packHTML + revealHTML + "</div>" +
     "</div>";
     document.body.appendChild(m); document.body.classList.add("noscroll");
+    var release = manageModalFocus(m);
 
-    function close() { m.remove(); document.body.classList.remove("noscroll"); }
+    function close() { release(); m.remove(); document.body.classList.remove("noscroll"); }
     var save = $(".pull-save", m);
     if (save) save.addEventListener("click", function (ev) { ev.stopPropagation(); saveCardImage(saveSlug); });
     // "Add to binder" flies the card up into the header binder chip.
@@ -761,7 +782,7 @@
   /* ---- toast + confetti -------------------------------------------------- */
   var toastT;
   function toast(msg) {
-    var t = $("#toast"); if (!t) { t = document.createElement("div"); t.id = "toast"; document.body.appendChild(t); }
+    var t = $("#toast"); if (!t) { t = document.createElement("div"); t.id = "toast"; t.setAttribute("role", "status"); t.setAttribute("aria-live", "polite"); document.body.appendChild(t); }
     t.textContent = msg; t.classList.add("show"); clearTimeout(toastT);
     toastT = setTimeout(function () { t.classList.remove("show"); }, 2600);
   }
@@ -794,7 +815,7 @@
         '<span class="hdr-name">G Pen <em>University</em></span>' +
       "</a>" +
       langSelHTML() +
-      '<button class="hdr-sound" id="sound-toggle" title="' + (sfx.isOn() ? "Sound on" : "Sound off") + '" aria-label="Toggle sound">' + ic(sfx.isOn() ? "sound" : "mute") + "</button>" +
+      '<button class="hdr-sound" id="sound-toggle" title="' + (sfx.isOn() ? "Sound on" : "Sound off") + '" aria-label="Toggle sound" aria-pressed="' + (sfx.isOn() ? "true" : "false") + '">' + ic(sfx.isOn() ? "sound" : "mute") + "</button>" +
       binderPips() +
       (e ? '<a class="hdr-user" href="#/"><span class="hdr-u-name">' + esc(e.name) + '</span><span class="hdr-u-store">' + esc(e.store || "") + "</span></a>" : "") +
     "</header>";
@@ -818,6 +839,7 @@
       var nowOn = sfx.toggle();
       btn.innerHTML = ic(nowOn ? "sound" : "mute");
       btn.title = nowOn ? "Sound on" : "Sound off";
+      btn.setAttribute("aria-pressed", nowOn ? "true" : "false");
       toast(nowOn ? "\uD83D\uDD0A Sound on" : "\uD83D\uDD07 Sound off");
     });
   }
@@ -989,9 +1011,6 @@
     "</a>";
   }
 
-  /* The binder, teased — cards stay face-down here on purpose. Pulling one is
-     the surprise; the binder is where you go to actually look at them. */
-  function step(n, t, s) { return '<li class="step reveal"><span class="step-n">' + n + "</span><div><h4>" + t + "</h4><p>" + s + "</p></div></li>"; }
   /* "Talk to our team" — a warm CS contact band above the footer on every page.
      For reps who want to go deeper on a product, or just say hi. Details live in
      CFG.support so they're editable in config.js. */
@@ -1023,7 +1042,7 @@
       '<footer class="foot"><img src="assets/img/gpen-g-black.png" class="foot-g light" alt=""/><img src="assets/img/gpen-g-white.png" class="foot-g dark" alt=""/>' +
       '<div class="foot-nav"><a href="#/">Courses</a><a href="#/collection">The Binder</a><a href="#/about">About G Pen</a><a href="' + esc(CFG.shopUrl) + '" target="_blank" rel="noopener">Shop gpen.com</a></div>' +
       (hasProgress ? '<button class="foot-reset" id="reset" type="button">' + ic("refresh") + " Reset my progress &amp; start over</button>" : "") +
-      "<p>" + esc(CFG.programName) + " · for authorized G Pen retail partners. Questions? <a href=\"mailto:" + esc(CFG.contactEmail) + "\">" + esc(CFG.contactEmail) + "</a></p>" +
+      "<p>" + esc(CFG.programName) + " · for authorized G Pen retail partners. Program &amp; press: <a href=\"mailto:" + esc(CFG.contactEmail) + "\">" + esc(CFG.contactEmail) + "</a></p>" +
       '<p class="foot-motto">A Grenco Science joint · est. 2012 · <em>In Vapore Veritas</em></p>' +
       "</footer>";
   }
@@ -1236,13 +1255,16 @@
   }
   function faqHTML(faq) {
     return '<div class="faq">' + faq.map(function (f, i) {
-      return '<div class="faq-item"><button class="faq-q" data-faq="' + i + '"><span>' + esc(f.q) + '</span><span class="faq-caret">+</span></button>' +
-        '<div class="faq-a"><p>' + esc(f.a) + "</p></div></div>";
+      return '<div class="faq-item"><button class="faq-q" data-faq="' + i + '" aria-expanded="false" aria-controls="faq-a-' + i + '"><span>' + esc(f.q) + '</span><span class="faq-caret" aria-hidden="true">+</span></button>' +
+        '<div class="faq-a" id="faq-a-' + i + '"><p>' + esc(f.a) + "</p></div></div>";
     }).join("") + "</div>";
   }
   function bindFaq() {
     $$(".faq-q").forEach(function (b) {
-      b.addEventListener("click", function () { b.closest(".faq-item").classList.toggle("open"); });
+      b.addEventListener("click", function () {
+        var open = b.closest(".faq-item").classList.toggle("open");
+        b.setAttribute("aria-expanded", open ? "true" : "false");
+      });
     });
   }
 
@@ -1260,26 +1282,10 @@
       '<div class="modal-frame"><iframe src="https://www.youtube.com/embed/' + esc(yt) + '?autoplay=1&rel=0" title="' + esc(title) + '" allow="autoplay; encrypted-media; fullscreen" allowfullscreen></iframe></div>' +
       '<div class="modal-t">' + esc(title) + "</div></div>";
     document.body.appendChild(m); document.body.classList.add("noscroll");
-    function close() { m.remove(); document.body.classList.remove("noscroll"); }
+    var release = manageModalFocus(m);
+    function close() { release(); m.remove(); document.body.classList.remove("noscroll"); }
     m.addEventListener("click", function (ev) { if (ev.target === m || ev.target.closest(".modal-x")) close(); });
     document.addEventListener("keydown", function esc(ev) { if (ev.key === "Escape") { close(); document.removeEventListener("keydown", esc); } });
-  }
-  function bindModules() {
-    $$(".mod").forEach(function (mod) {
-      $(".mod-h", mod).addEventListener("click", function (ev) {
-        if (ev.target.closest(".mod-read")) return;
-        mod.classList.toggle("open");
-      });
-    });
-    $$(".mod-read").forEach(function (b) {
-      b.addEventListener("click", function (ev) {
-        ev.stopPropagation();
-        var mod = b.closest(".mod"); mod.classList.add("read"); mod.classList.remove("open");
-        b.innerHTML = ic("check") + " Read";
-        // reveal next
-        var next = mod.nextElementSibling; if (next && next.classList.contains("mod")) next.classList.add("open");
-      });
-    });
   }
 
   /* ---- QUIZ (stepped, one question at a time) ---------------------------- */
@@ -1455,7 +1461,7 @@
       if (isMasterEarned()) markFresh("secret"); // that pull revealed the secret rare
       if (window.reportCompletion) window.reportCompletion({ type: "course", name: e.name, email: e.email, store: e.store, product: "G Pen " + c.name, courseSlug: c.slug, score: pct, certId: cid, date: date });
     }
-    maybeReportTier();   // a third card unlocks the 30% tier
+    maybeReportTier();   // a second certified course unlocks the 30% tier
     refreshCounters();
     var streak = touchStreak();
     logEvent("certified", { course: c.slug, certId: cid, score: pct });
@@ -2062,9 +2068,6 @@
   function pocket(inner, filled) {
     return '<div class="pocket' + (filled ? " filled" : "") + '">' + inner + "</div>";
   }
-  // Binding rings are drawn as a tiled CSS background on .binder-rings so they
-  // stay evenly spaced down the spine no matter how tall the pages get.
-  function ringsHTML() { return ""; }
   function renderCollection() {
     setTitleDoc("The Binder");
     var e = getEnroll();
@@ -2207,69 +2210,6 @@
     });
   }
 
-  /* Flip through the binder like real sleeve pages. Pages are absolutely stacked
-     in a perspective viewport; the active one turns on its left-edge hinge. */
-  function bindBinderFlip() {
-    var book = $(".binder-book"); if (!book) return;
-    var vp = $(".binder-viewport", book);
-    var pages = $$(".sleeve-page", vp);
-    if (!vp || pages.length < 2) return;
-    var reduced = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
-    var cur = 0, flipping = false;
-
-    function fit() { if (pages[cur]) vp.style.height = pages[cur].offsetHeight + "px"; }
-    function setNav() {
-      $$(".bn-dot", book).forEach(function (d, i) { d.classList.toggle("active", i === cur); });
-      var lbl = $(".bn-label b", book); if (lbl) lbl.textContent = cur + 1;
-      $$(".bn-arrow", book).forEach(function (arr) {
-        var dir = parseInt(arr.getAttribute("data-flip"), 10);
-        arr.disabled = (cur + dir < 0 || cur + dir >= pages.length);
-      });
-    }
-    function go(target) {
-      if (flipping || target === cur || target < 0 || target >= pages.length) return;
-      var dir = target > cur ? 1 : -1, from = pages[cur], to = pages[target];
-      flipping = true;
-      vp.style.height = to.offsetHeight + "px"; // grow/shrink to the incoming page
-
-      if (reduced) {
-        from.classList.remove("active"); to.classList.add("active");
-        cur = target; flipping = false; setNav(); fit(); return;
-      }
-      sfx.play("tick");
-      if (dir === 1) {
-        to.classList.add("under");            // reveal the next page beneath
-        from.classList.add("turning-out");    // current page turns away to the left
-      } else {
-        from.classList.add("under");          // current page waits beneath
-        to.classList.add("turning-in");       // previous page turns back onto the stack
-      }
-      setTimeout(function () {
-        from.classList.remove("active", "turning-out", "under");
-        to.classList.remove("under", "turning-in");
-        to.classList.add("active");
-        cur = target; flipping = false; setNav(); fit();
-      }, 620);
-    }
-
-    $$(".bn-arrow", book).forEach(function (arr) {
-      arr.addEventListener("click", function () { go(cur + parseInt(arr.getAttribute("data-flip"), 10)); });
-    });
-    $$(".bn-dot", book).forEach(function (d) {
-      d.addEventListener("click", function () { go(parseInt(d.getAttribute("data-page"), 10)); });
-    });
-    document.addEventListener("keydown", function binderKey(ev) {
-      if (!document.body.contains(book)) { document.removeEventListener("keydown", binderKey); return; }
-      if (ev.key === "ArrowRight") go(cur + 1);
-      else if (ev.key === "ArrowLeft") go(cur - 1);
-    });
-
-    fit(); setNav();
-    setTimeout(fit, 350); // re-fit once images/fonts settle
-    if (binderResize) window.removeEventListener("resize", binderResize);
-    binderResize = function () { if (!flipping) fit(); };
-    window.addEventListener("resize", binderResize, { passive: true });
-  }
   // The best card they hold: the secret rare if revealed, else the rarest product card.
   function rarestOwned() {
     if (secretCardState() !== "locked") return "secret";
@@ -2324,7 +2264,6 @@
     var parts = h.split("/").filter(Boolean); // e.g. ["course","dash-ii"]
     window.scrollTo(0, 0);
     setTitleDoc(CFG.programName);
-    if (binderResize) { window.removeEventListener("resize", binderResize); binderResize = null; }
     var pageKey = "home";
     if (parts[0] === "course" && parts[1]) { renderCourse(parts[1]); pageKey = "course:" + parts[1]; }
     else if (parts[0] === "certified") { renderCertified(); pageKey = ""; }

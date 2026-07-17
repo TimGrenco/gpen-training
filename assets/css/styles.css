@@ -17,9 +17,8 @@
   --shadow-lg: 0 20px 60px rgba(17,17,17,.16);
   --font: 'Archivo', system-ui, -apple-system, 'Segoe UI', sans-serif;
 
-  /* ---- DESIGN SYSTEM TOKENS (unify spacing / radius / type across pages) ---- */
-  /* spacing scale */
-  --s-1: 4px; --s-2: 8px; --s-3: 12px; --s-4: 16px; --s-5: 24px; --s-6: 32px; --s-7: 48px; --s-8: 64px;
+  /* ---- DESIGN SYSTEM TOKENS (unify radius / type / rhythm across pages) ---- */
+  /* section rhythm lives in --sec-y / --sec-y-end / --gutter below */
   /* radii — 3 real values + pill; --radius kept as an alias for existing rules */
   --r-sm: 12px; --r-md: 16px; --r-lg: 20px; --r-pill: 999px; --radius: var(--r-md);
   /* containers */
@@ -486,7 +485,7 @@ a.linklike.backdash { display: block; width: auto; margin-top: 10px; text-align:
 .about-hero { position: relative; overflow: hidden; border-radius: var(--r-lg); padding: clamp(30px,6vw,52px) clamp(22px,4vw,40px); color: #fff; text-align: center;
   background: radial-gradient(120% 120% at 80% -10%, rgba(254,200,112,.25), transparent 55%), radial-gradient(90% 90% at -10% 110%, rgba(215,93,67,.2), transparent 50%), #0e0e0e; }
 .about-g { width: 54px; height: 54px; object-fit: contain; margin: 0 auto 14px; }
-.about-hero .ch-eyebrow { display: inline-flex; align-items: center; gap: 6px; font-size: 12px; font-weight: 800; text-transform: uppercase; letter-spacing: .1em; color: var(--gold-bright); }
+.about-hero .ch-eyebrow { display: inline-flex; align-items: center; gap: 6px; font-size: var(--eyebrow-size); font-weight: var(--eyebrow-weight); text-transform: uppercase; letter-spacing: var(--eyebrow-tracking); color: var(--gold-bright); }
 .about-hero .ch-eyebrow svg { width: 15px; height: 15px; }
 .about-hero h1 { font-size: var(--h1); font-weight: 900; margin: 10px 0; }
 .about-hero p { color: #d7d6cf; max-width: 560px; margin: 0 auto; font-size: clamp(15px,2.4vw,17px); }
@@ -657,7 +656,7 @@ a.linklike.backdash { display: block; width: auto; margin-top: 10px; text-align:
 
 /* =============================== PRINT ================================== */
 @media print {
-  .hdr, .foot, .back, .cert-actions, .vid-grid, .mods, .sell, .reward-wrap, .quiz, .quiz-intro, .result, .sec-h, .course-hero, .master-hero, .master-unlock, .backdash, .lead { display: none !important; }
+  .hdr, .foot, .cs-band, .back, .cert-actions, .vid-grid, .mods, .sell, .reward-wrap, .quiz, .quiz-intro, .result, .sec-h, .course-hero, .master-hero, .master-unlock, .backdash, .lead { display: none !important; }
   body { background: #fff; }
   .cert { border-color: #000; box-shadow: none; margin: 0; }
   .cert.master { background: #fff; border-color: #000; }
