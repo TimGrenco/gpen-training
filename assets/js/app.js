@@ -820,6 +820,19 @@
       toast(nowOn ? "\uD83D\uDD0A Sound on" : "\uD83D\uDD07 Sound off");
     });
   }
+  // The footer "Reset my progress" control lives on every page \u2014 one delegated
+  // listener (bound once in boot) so a rep can wipe and re-do the training anytime.
+  function bindReset() {
+    document.addEventListener("click", function (ev) {
+      var btn = ev.target.closest && ev.target.closest("#reset");
+      if (!btn) return;
+      if (confirm("Reset ALL your training progress and certificates on this device? You can re-do the whole training from scratch afterward.")) {
+        localStorage.removeItem(K_STATE); localStorage.removeItem(K_ENROLL);
+        toast("Progress cleared \u2014 fresh start \uD83C\uDF31");
+        go("#/");
+      }
+    });
+  }
 
   /* ---- HOME (browse-first hub) ------------------------------------------- */
   function renderHome() {
@@ -872,9 +885,7 @@
     fillRewards();
     $$("[data-goto]").forEach(function (el) { el.addEventListener("click", function () { go("#/course/" + el.getAttribute("data-goto")); }); });
     $$("[data-scroll]").forEach(function (el) { el.addEventListener("click", function () { scrollToId(el.getAttribute("data-scroll")); }); });
-    var rst = $("#reset"); if (rst) rst.addEventListener("click", function () {
-      if (confirm("Reset ALL your training progress and certificates on this device?")) { localStorage.removeItem(K_STATE); localStorage.removeItem(K_ENROLL); go("#/"); }
-    });
+    // (footer "Reset my progress" is bound globally in boot via bindReset — works on every page)
     // Just certified a course? Land home with a little celebration (the masthead
     // redesign dropped the old progress ring, so this is now the payoff moment).
     if (pendingCelebrate) { pendingCelebrate = false; sfx.play("pass"); setTimeout(confetti, 350); }
@@ -982,8 +993,12 @@
      the surprise; the binder is where you go to actually look at them. */
   function step(n, t, s) { return '<li class="step reveal"><span class="step-n">' + n + "</span><div><h4>" + t + "</h4><p>" + s + "</p></div></li>"; }
   function footer() {
+    // Once there's any progress or enrollment, always offer a way to wipe it and
+    // re-do the training (also lets a shared/kiosk device hand off to the next rep).
+    var hasProgress = !!getEnroll() || (getState().courses && Object.keys(getState().courses).length > 0);
     return '<footer class="foot"><img src="assets/img/gpen-g-black.png" class="foot-g light" alt=""/><img src="assets/img/gpen-g-white.png" class="foot-g dark" alt=""/>' +
       '<div class="foot-nav"><a href="#/">Courses</a><a href="#/collection">The Binder</a><a href="#/about">About G Pen</a><a href="' + esc(CFG.shopUrl) + '" target="_blank" rel="noopener">Shop gpen.com</a></div>' +
+      (hasProgress ? '<button class="foot-reset" id="reset" type="button">' + ic("refresh") + " Reset my progress &amp; start over</button>" : "") +
       "<p>" + esc(CFG.programName) + " · for authorized G Pen retail partners. Questions? <a href=\"mailto:" + esc(CFG.contactEmail) + "\">" + esc(CFG.contactEmail) + "</a></p>" +
       '<p class="foot-motto">A Grenco Science joint · est. 2012 · <em>In Vapore Veritas</em></p>' +
       "</footer>";
@@ -2309,6 +2324,7 @@
     if (getEnroll()) maybeReportTier();
     if (!app) { return document.addEventListener("DOMContentLoaded", boot, { once: true }); }
     bindSoundToggle();
+    bindReset();
     bindLangSel();
     window.addEventListener("hashchange", route);
     route();

@@ -395,6 +395,13 @@ a.linklike.backdash { display: block; width: auto; margin-top: 10px; text-align:
 .foot-nav { display: flex; flex-wrap: wrap; gap: 6px 20px; justify-content: center; margin-bottom: 14px; }
 .foot-nav a { font-weight: 700; font-size: 13px; color: var(--ink); text-decoration: none; }
 .foot-nav a:hover { color: var(--gold); }
+/* Reset progress — always available in the footer, understated so it's not a
+   trap, but reachable from any page. */
+.foot-reset { display: inline-flex; align-items: center; gap: 6px; margin: 2px auto 14px; padding: 8px 16px;
+  border: 1px solid var(--line); border-radius: var(--r-pill); background: #fff; color: var(--stone);
+  font: inherit; font-size: 12.5px; font-weight: 700; cursor: pointer; transition: color .2s, border-color .2s; }
+.foot-reset:hover { color: var(--bad); border-color: var(--bad); }
+.foot-reset .ic svg { width: 14px; height: 14px; }
 
 .cx-hero { position: relative; border-radius: var(--r-lg); overflow: hidden; margin-bottom: 8px; box-shadow: var(--shadow); min-height: 340px; display: flex; align-items: flex-end; }
 .cx-hero-media { position: absolute; inset: 0; }
@@ -412,7 +419,7 @@ a.linklike.backdash { display: block; width: auto; margin-top: 10px; text-align:
 .ch-done { color: #fff; display: inline-flex; align-items: center; gap: 3px; }
 .ch-done svg { width: 13px; height: 13px; }
 
-.prose p { margin: 0 0 12px; font-size: 15.5px; color: var(--ink-2); line-height: 1.6; }
+.prose p { margin: 0 0 12px; font-size: 15.5px; color: var(--ink-2); line-height: 1.6; max-width: 64ch; }
 .prose p strong { color: var(--ink); }
 .hl-list { list-style: none; margin: 8px 0 0; padding: 0; display: grid; gap: 8px; }
 .hl-list li { display: flex; align-items: flex-start; gap: 10px; font-size: 14.5px; font-weight: 600; }
@@ -465,7 +472,7 @@ a.linklike.backdash { display: block; width: auto; margin-top: 10px; text-align:
 .astat span { font-size: 12px; color: var(--stone); font-weight: 600; }
 .about-block { margin: 30px 0; }
 .about-block h2 { font-size: var(--h2); margin-bottom: 12px; }
-.about-block p { color: var(--ink-2); font-size: 15.5px; line-height: 1.6; margin: 0 0 12px; }
+.about-block p { color: var(--ink-2); font-size: 15.5px; line-height: 1.6; margin: 0 0 12px; max-width: 64ch; }
 .about-block.glob { background: linear-gradient(160deg,#fff,#fbf6ea); border: 1px solid var(--line); border-left: 4px solid var(--gold-bright); border-radius: var(--r-md); padding: 22px; box-shadow: var(--shadow); }
 .timeline { list-style: none; margin: 0; padding: 0; }
 .timeline li { position: relative; display: grid; grid-template-columns: 64px 1fr; gap: 14px; padding: 0 0 22px; }
@@ -509,7 +516,9 @@ a.linklike.backdash { display: block; width: auto; margin-top: 10px; text-align:
 .life-cinema::before { content: ""; position: absolute; inset: 0; background: linear-gradient(180deg, rgba(10,10,10,.12), rgba(10,10,10,.34) 44%, rgba(10,10,10,.86)); }
 .lc-inner { position: relative; z-index: 1; padding: clamp(22px, 4vw, 42px); color: #fff; }
 .lc-eyebrow { display: block; font-size: var(--eyebrow-size); font-weight: var(--eyebrow-weight); letter-spacing: var(--eyebrow-tracking); text-transform: uppercase; color: var(--gold-bright); margin-bottom: 8px; }
-.lc-inner h2 { font-size: var(--h2); font-weight: 900; letter-spacing: -.02em; line-height: 1.06; max-width: 18ch; }
+/* Cinematic lifestyle-band headline — a hero moment, intentionally larger than
+   the section --h2 cap so the "in real hands" photos land with impact. */
+.lc-inner h2 { font-size: clamp(24px, 4.4vw, 42px); font-weight: 900; letter-spacing: -.02em; line-height: 1.06; max-width: 18ch; }
 .lc-sub { margin: 8px 0 0; font-size: clamp(14px, 1.8vw, 16px); line-height: 1.5; color: #e3e2db; max-width: 40ch; }
 /* course pages already sit in a padded section, so trim the cinema's side margin */
 .course .life-cinema { margin: 26px 0; }
@@ -992,7 +1001,7 @@ a.linklike.backdash { display: block; width: auto; margin-top: 10px; text-align:
   text-align: center; border-radius: var(--r-lg); padding: clamp(28px,5vw,48px) clamp(18px,4vw,40px);
   background: linear-gradient(165deg,#191919,#0b0b0b); color: #fff; margin-bottom: 26px;
 }
-.bn-hero h1 { font-size: var(--h1); font-weight: 900; margin: 6px 0 8px; }
+.bn-hero h1 { font-size: var(--h1); font-weight: 900; letter-spacing: -.03em; margin: 6px 0 8px; }
 .bn-hero p { color: #cfc9bb; font-size: 15px; line-height: 1.6; max-width: 52ch; margin: 0 auto; }
 .bn-hero .ch-eyebrow { justify-content: center; }
 .bn-meter { height: 10px; border-radius: 999px; background: rgba(255,255,255,.13); overflow: hidden; margin: 22px auto 10px; max-width: 460px; }
