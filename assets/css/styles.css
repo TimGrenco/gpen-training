@@ -1512,10 +1512,23 @@ a.linklike.backdash { display: block; width: auto; margin-top: 10px; text-align:
 /* Columns change in concert with the rest of the page (560 / 760 / 1080). The
    old 2-up-until-1280 rule stranded the 5th card as a 2+2+1 orphan on every
    tablet; 3-up at tablet makes it a clean 3+2, then the full lineup on a laptop. */
-.course-grid { display: grid; grid-template-columns: 1fr; gap: 16px; margin-bottom: 8px; }
-@media (min-width: 560px)  { .course-grid { grid-template-columns: repeat(2, 1fr); } }
-@media (min-width: 760px)  { .course-grid { grid-template-columns: repeat(3, 1fr); } }
-@media (min-width: 1080px) { .course-grid { grid-template-columns: repeat(5, 1fr); gap: 12px; } }
+/* Product-family sections (510 Batteries / Dry Herb Vaporizers / Concentrate) —
+   a labelled header band over each group's card grid. */
+.lineup-group { margin-bottom: 30px; }
+.lineup-group:last-child { margin-bottom: 8px; }
+.lg-head { display: flex; align-items: center; gap: 11px; margin: 26px 0 16px; padding-bottom: 12px; border-bottom: 1px solid var(--line); }
+.lineup-group:first-child .lg-head { margin-top: 4px; }
+.lg-icon { width: 36px; height: 36px; flex: none; display: grid; place-items: center; border-radius: var(--r-sm); background: var(--cream); border: 1px solid var(--line); color: var(--ink); }
+.lg-icon svg { width: 19px; height: 19px; }
+.lg-title { display: inline-flex; align-items: center; gap: 9px; font-size: 19px; font-weight: 900; letter-spacing: -.015em; }
+.lg-count { font-size: 12px; font-weight: 800; color: var(--stone); background: var(--cream); border: 1px solid var(--line); border-radius: var(--r-pill); padding: 1px 9px; }
+.lg-sub { margin-left: auto; font-size: 12.5px; font-weight: 600; color: var(--stone); }
+@media (max-width: 600px) { .lg-sub { display: none; } }
+
+/* Cards are now grouped by product family, so the grid packs left at a fixed
+   card size instead of stretching N-across — a group of 1 or 2 still looks right. */
+.course-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(210px, 244px)); justify-content: start; gap: 16px; margin-bottom: 8px; }
+@media (max-width: 460px) { .course-grid { grid-template-columns: 1fr; } }
 .cc {
   position: relative; display: flex; flex-direction: column; text-decoration: none; color: var(--ink);
   background: var(--paper); border: 1px solid var(--line); border-radius: var(--r-md); overflow: hidden;
@@ -1538,27 +1551,17 @@ a.linklike.backdash { display: block; width: auto; margin-top: 10px; text-align:
 /* Two products share "Dry Herb" and two share "510 Battery" — this line is
    what actually tells them apart. It earns its space. */
 .cc-diff { margin: 4px 0 0; color: var(--stone); font-size: 13.5px; line-height: 1.45; }
-.cc-meta { margin-top: 10px; display: flex; flex-wrap: wrap; gap: 5px; }
-.ccm {
-  display: inline-flex; align-items: center; gap: 4px; white-space: nowrap;
-  padding: 3px 8px; border-radius: 999px; background: var(--cream); border: 1px solid var(--line);
-  font-size: 11.5px; font-weight: 700; color: var(--stone);
-}
-.ccm svg { width: 11px; height: 11px; flex: none; }
-.cc-foot { margin-top: auto; padding-top: 14px; display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: 6px 10px; }
+/* MSRP (from gpen.com) — the price a rep quotes on the floor. */
+.cc-price { margin-top: 10px; font-size: 16px; font-weight: 900; color: var(--ink); letter-spacing: -.01em; }
+.cc-price em { font-style: normal; font-size: 10px; font-weight: 800; letter-spacing: .08em; text-transform: uppercase; color: var(--stone); margin-left: 5px; }
+/* Fixed ~220px cards, so the foot stacks (status over CTA) — a side-by-side row
+   truncates "Open Melt Hot Knife →" at this width. */
+.cc-foot { margin-top: auto; padding-top: 14px; display: flex; flex-direction: column; align-items: flex-start; gap: 6px; }
 .cc-status { display: inline-flex; align-items: center; gap: 4px; font-size: 12px; font-weight: 800; color: var(--stone); }
 .cc-status.on { color: var(--ok); }
 .cc-status svg { width: 13px; height: 13px; flex: none; }
 .cc-go { display: inline-flex; align-items: center; gap: 5px; font-size: 13.5px; font-weight: 900; }
 .cc-go svg { width: 14px; height: 14px; flex: none; }
-/* At five across a card is ~195px — the foot has to stack or the CTA truncates. */
-/* When the 5 products sit in one tight row (1080+), the cards get narrow: pad
-   down, stack the foot, and reserve two lines for the category so names align. */
-@media (min-width: 1080px) {
-  .cc-body { padding: 14px 14px 16px; }
-  .cc-foot { flex-direction: column; align-items: flex-start; }
-  .cc-cat { line-height: 1.25; min-height: 2.5em; }
-}
 
 /* ==================== BINDER TEASER (cards stay face-down) ============== */
 /* a fanned deck of face-down cards — the reveal stays in the pack */
@@ -1754,8 +1757,6 @@ a.linklike.backdash { display: block; width: auto; margin-top: 10px; text-align:
 .rs-go { display: inline-flex; align-items: center; gap: 5px; font-size: 13.5px; font-weight: 900; white-space: nowrap; }
 .rs-go svg { width: 14px; height: 14px; flex: none; }
 @media (max-width: 560px) { .resume { flex-direction: column; align-items: flex-start; gap: 6px; } }
-
-.sh-all { font-size: 14px; font-weight: 700; color: var(--stone); letter-spacing: 0; }
 
 /* =========================================================================
    THE LOOP — the incentive story, told exactly once, below the shelf.

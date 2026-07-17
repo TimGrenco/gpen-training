@@ -459,6 +459,9 @@
     dl: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3v12M7 10l5 5 5-5"/><path d="M4 21h16"/></svg>',
     mail: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="5" width="18" height="14" rx="2"/><path d="M3 7l9 6 9-6"/></svg>',
     phone: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M22 16.9v3a2 2 0 0 1-2.2 2 19.8 19.8 0 0 1-8.6-3.1 19.5 19.5 0 0 1-6-6 19.8 19.8 0 0 1-3.1-8.7A2 2 0 0 1 4.1 2h3a2 2 0 0 1 2 1.7c.1.9.3 1.8.6 2.7a2 2 0 0 1-.5 2.1L8 9.7a16 16 0 0 0 6 6l1.2-1.2a2 2 0 0 1 2.1-.5c.9.3 1.8.5 2.7.6a2 2 0 0 1 1.7 2z"/></svg>',
+    battery: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="7" width="16" height="10" rx="2"/><path d="M22 10v4"/><path d="M7 12h4"/></svg>',
+    leaf: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M11 20A7 7 0 0 1 4 13C4 7 11 3 20 3c0 9-5 16-9 17z"/><path d="M9 15c2-3 5-5.5 8.5-6.5"/></svg>',
+    drop: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3s6.5 6.2 6.5 11a6.5 6.5 0 0 1-13 0C5.5 9.2 12 3 12 3z"/></svg>',
     refresh: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 12a9 9 0 11-3-6.7L21 8"/><path d="M21 3v5h-5"/></svg>',
     share: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="4" y="3" width="16" height="18" rx="3"/><circle cx="12" cy="10" r="3"/><path d="M8.5 20a3.5 3.5 0 017 0"/></svg>',
     star: '<svg viewBox="0 0 24 24" fill="currentColor"><path d="M12 2l2.9 6.3 6.9.8-5.1 4.7 1.4 6.8L12 17.8 5.9 21.4l1.4-6.8L2.2 9.9l6.9-.8z"/></svg>',
@@ -891,9 +894,9 @@
 
       '<section class="hub reveal">' +
         resumeStrip() +
-        '<div class="sec-h" id="courses"><h2>The shelf <span class="sh-all">&middot; all 5 products</span></h2></div>' +
-        '<p class="catalog-lede">No order, no locks. Start with whatever&rsquo;s on your counter.</p>' +
-        '<div class="course-grid">' + COURSES.map(courseCard).join("") + "</div>" +
+        '<div class="sec-h" id="courses"><h2>Learn the G Pen Lineup</h2></div>' +
+        '<p class="catalog-lede">Take training courses on all of our current products.</p>' +
+        lineupHTML() +
       "</section>" +
 
       // A single refined lifestyle moment — the gear in real hands, so the scale
@@ -985,10 +988,31 @@
 
   /* A plain, readable course card — the home page lists COURSES, not cards.
      The trading card is the reward you get for finishing one. */
+  /* The home lineup, sectioned by product family (mirrors the internal G Pen
+     product portal): 510 Batteries, Dry Herb Vaporizers, Concentrate. `match`
+     buckets each course by its data.js category; groups with no products drop out. */
+  var LINEUP_GROUPS = [
+    { title: "510 Batteries", sub: "510-thread cartridge batteries", icon: "battery", match: function (c) { return /510/.test(c.category); } },
+    { title: "Dry Herb Vaporizers", sub: "Portable dry-herb devices", icon: "leaf", match: function (c) { return /Dry Herb/i.test(c.category); } },
+    { title: "Concentrate", sub: "Concentrate tools & accessories", icon: "drop", match: function (c) { return /Concentrate/i.test(c.category); } },
+  ];
+  function lineupHTML() {
+    return LINEUP_GROUPS.map(function (g) {
+      var items = COURSES.filter(g.match);
+      if (!items.length) return "";
+      return '<div class="lineup-group">' +
+        '<div class="lg-head">' +
+          '<span class="lg-icon" aria-hidden="true">' + ic(g.icon) + "</span>" +
+          '<h3 class="lg-title">' + esc(g.title) + ' <span class="lg-count">' + items.length + "</span></h3>" +
+          '<span class="lg-sub">' + esc(g.sub) + "</span>" +
+        "</div>" +
+        '<div class="course-grid">' + items.map(courseCard).join("") + "</div>" +
+      "</div>";
+    }).join("");
+  }
   function courseCard(c) {
     var st = getState(), rec = st.courses[c.slug], done = !!(rec && rec.passed);
-    // Rigidly uniform: same fields, same order, same scale on every card. No price
-    // (buy signifier), no discount (that story lives in the Loop), no favourite.
+    // Uniform card: family (eyebrow), name, what sets it apart, MSRP, cert status.
     return '<a class="cc' + (done ? " done" : "") + '" href="#/course/' + c.slug + '" style="--accent:' + c.accent + '">' +
       '<span class="cc-accent" aria-hidden="true"></span>' +
       '<span class="cc-media"><img src="' + esc(c.cover) + '" alt="' + esc(c.name) + '" loading="lazy"/></span>' +
@@ -996,12 +1020,7 @@
         "<h3>" + esc(c.name) + "</h3>" +
         '<span class="cc-cat">' + esc(c.category) + "</span>" +
         '<p class="cc-diff">' + esc(c.differentiator || c.tagline) + "</p>" +
-        // read from the data — minutes and question counts are NOT uniform
-        '<span class="cc-meta">' +
-          '<span class="ccm">' + ic("play") + c.videos.length + " videos</span>" +
-          '<span class="ccm">' + ic("cap") + c.quiz.length + " questions</span>" +
-          '<span class="ccm">~' + c.minutes + " min</span>" +
-        "</span>" +
+        (c.msrp ? '<span class="cc-price">' + esc(c.msrp) + ' <em>MSRP</em></span>' : "") +
         '<span class="cc-foot">' +
           (done ? '<span class="cc-status on">' + ic("check") + " Certified " + rec.score + "%</span>"
                 : '<span class="cc-status">Not yet certified</span>') +
