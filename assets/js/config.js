@@ -50,12 +50,13 @@ window.TRAINING_CONFIG = {
       label: "35% off your entire order at gpen.com",
       note: "Four products certified. One more and you unlock the full 40%.",
     },
-    // Unlocked once ALL 5 courses are complete — the whole lineup. 40% off,
-    // PLUS an entry to win a free G Pen (see the sweepstakes block below).
+    // Unlocked once ALL 5 courses are complete — the whole lineup. 40% off.
+    // (The free-G-Pen DRAW is presented separately in the sweepstakes panel, which
+    // only appears once a reporting webhook is configured — see the sweepstakes block.)
     secret: {
       code: "CERTIFIEDG40",
-      label: "40% off gpen.com — plus your entry to win a free G Pen",
-      note: "You certified on the whole lineup. That puts you in the draw for a free G Pen — and drops 40% off into your hands right now. Go get one in your pocket.",
+      label: "40% off your entire order at gpen.com",
+      note: "You certified on the whole lineup — the top reward in the program. Put it toward your own device: the reps who sell the most are the ones who carry one.",
     },
     // OPTIONAL: give a specific product its own course code. Keyed by course slug.
     // e.g. perCourse: { "dash-ii": { code: "DASH2PRO", label: "...", note: "..." } }

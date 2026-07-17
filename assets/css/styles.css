@@ -587,7 +587,7 @@ a.linklike.backdash { display: block; width: auto; margin-top: 10px; text-align:
   .social-grid { grid-template-columns: repeat(4, 1fr); }
 }
 /* Three climbing tiers across from tablet up; the grand prize spans full-width below. */
-@media (min-width: 680px) { .rewards { grid-template-columns: repeat(3, 1fr); } }
+@media (min-width: 760px) { .rewards { grid-template-columns: repeat(3, 1fr); } }
 .rw-card.grand { margin-top: 12px; }
 .rw-card.grand.on { background: linear-gradient(150deg, #241a08, #0d0d0d); }
 .rw-card.grand.on::before { background: radial-gradient(70% 80% at 100% -10%, rgba(254,200,112,.35), transparent 60%); }
@@ -1020,14 +1020,15 @@ a.linklike.backdash { display: block; width: auto; margin-top: 10px; text-align:
   .tcg.owned .tcg-inner::after, .tcg.secret .tcg-inner::after { display: none; }
 }
 
-/* The binder chip joined the header, so the wordmark now competes for space.
-   The brand holds its natural width; the user chip yields first (their name is
-   already the first thing on the hub), then disappears on the narrowest phones. */
-.hdr-brand { flex: 0 0 auto; }
-.hdr-name { white-space: nowrap; }
-@media (max-width: 560px) {
-  .hdr-user { max-width: 32%; }
+/* The binder chip + N/5 count joined the header, so the wordmark competes for
+   space. Everything must be able to shrink so nothing gets clipped off the right
+   edge (html/body use overflow-x: clip, so overflow is invisible, not scrollable).
+   Order of yielding: user store → user name shrinks → wordmark ellipsizes last. */
+.hdr-brand { flex: 0 1 auto; }
+.hdr-name { white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+@media (max-width: 700px) {
   .hdr-u-store { display: none; }
+  .hdr-u-name { max-width: 92px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
 }
 @media (max-width: 430px) {
   .hdr-user { display: none; }

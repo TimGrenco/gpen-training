@@ -23,6 +23,11 @@
   // The next product still to certify (skipping `afterSlug`) — drives the
   // "Next up →" hand-off so the journey always has a forward edge.
   function nextCourse(afterSlug) { return COURSES.filter(function (c) { return c.slug !== afterSlug && !cardOwned(c.slug); })[0] || null; }
+  // The free-G-Pen draw is only "live" when it's enabled AND there's an entry pool
+  // to log into (the reporting webhook). Until the client pastes a webhook, the
+  // reward gracefully falls back to 40% off — we never promise an entry that goes
+  // nowhere. It auto-activates the moment a webhook is configured.
+  function drawLive() { var s = CFG.sweepstakes || {}; return s.enabled !== false && !!((CFG.reporting || {}).url); }
   function coreSlugs() { return CFG.coreCourses && CFG.coreCourses.length ? CFG.coreCourses : COURSES.map(function (c) { return c.slug; }); }
   function todayKey() { var d = new Date(); return d.getFullYear() + "-" + (d.getMonth() + 1) + "-" + d.getDate(); }
   function niceDate() { return new Date().toLocaleDateString(undefined, { year: "numeric", month: "long", day: "numeric" }); }
@@ -994,8 +999,8 @@
             "</div>" +
           "</div>" +
           '<div class="mast-aside">' +
-            '<p class="mast-deck">Free training on all five G&nbsp;Pen products &mdash; for anyone behind the counter, dispensary or smoke shop. About ' + totalMin + ' min end to end, no sign-up to browse. Pass the quizzes to unlock up to <b>40% off</b> gpen.com, and certify the whole lineup for a shot at a <b>free G&nbsp;Pen</b>. The best pitch is the one in your own pocket.</p>' +
-            '<ul class="mast-stats"><li>5 products</li><li>~' + totalMin + ' min</li><li class="gold">up to 40% off + a free-device draw</li></ul>' +
+            '<p class="mast-deck">Free training on all five G&nbsp;Pen products &mdash; for anyone behind the counter, dispensary or smoke shop. About ' + totalMin + ' min end to end, no sign-up to browse. Pass the quizzes to unlock up to <b>40% off</b> gpen.com' + (drawLive() ? ', and certify the whole lineup for a shot at a <b>free G&nbsp;Pen</b>' : "") + ". The best pitch is the one in your own pocket.</p>" +
+            '<ul class="mast-stats"><li>5 products</li><li>~' + totalMin + ' min</li><li class="gold">up to 40% off' + (drawLive() ? " + a free-device draw" : "") + "</li></ul>" +
             '<div class="og-fact" id="og-fact" role="status" aria-live="polite"></div>' +
             '<button class="mast-cta" type="button" data-scroll="courses">Show me the shelf ' + ic("arrow") + "</button>" +
           "</div>" +
@@ -1024,6 +1029,9 @@
     var rst = $("#reset"); if (rst) rst.addEventListener("click", function () {
       if (confirm("Reset ALL your training progress and certificates on this device?")) { localStorage.removeItem(K_STATE); localStorage.removeItem(K_ENROLL); go("#/"); }
     });
+    // Just certified a course? Land home with a little celebration (the masthead
+    // redesign dropped the old progress ring, so this is now the payoff moment).
+    if (pendingCelebrate) { pendingCelebrate = false; sfx.play("pass"); setTimeout(confetti, 350); }
     revealOnScroll();
   }
 
@@ -1163,8 +1171,8 @@
   }
   // The all-5 capstone: a free-G-Pen draw entry + the guaranteed 40% code.
   function grandCard(unlocked, done, total) {
-    var sw = CFG.sweepstakes || {}, d = total - done;
-    var draw = sw.enabled !== false;
+    var d = total - done;
+    var draw = drawLive();
     return '<div class="rw-card grand ' + (unlocked ? "on" : "off") + '">' +
       '<div class="rw-top"><span class="rw-ic">' + ic(unlocked ? "award" : "lock") + "</span>" +
         '<span class="rw-status">' + (unlocked ? (draw ? "You're in the draw" : "Unlocked") : "Grand prize") + "</span></div>" +
@@ -1606,7 +1614,7 @@
       '<div id="cert-zone"></div>' +
       '<div id="reward-zone" class="reward-wrap"></div>' +
       missedReviewHTML(c, order, answers) +
-      (master ? '<a class="master-unlock" href="#/certified">' + ic("award") + " Full lineup certified — you pulled the <strong>Certified G</strong>! Your certificate, <strong>40% off</strong> & your free-G&nbsp;Pen draw entry " + ic("arrow") + "</a>"
+      (master ? '<a class="master-unlock" href="#/certified">' + ic("award") + " Full lineup certified — you pulled the <strong>Certified G</strong>! Your certificate, <strong>40% off</strong>" + (drawLive() ? " & your free-G&nbsp;Pen draw entry" : "") + " " + ic("arrow") + "</a>"
               : next ? '<a class="btn xl nextup-cta" href="#/course/' + next.slug + '">Next up: ' + esc(next.name) + " " + ic("arrow") + "</a>" +
                        '<a class="linklike backdash" href="#/">or back to all courses</a>'
               : '<a class="btn ghost xl backdash" href="#/">Back to all courses ' + ic("arrow") + "</a>");
@@ -2037,8 +2045,8 @@
       s.master = { certId: cid, date: date, name: e.name }; setState(s); logEvent("master", { certId: cid });
       if (window.reportCompletion) window.reportCompletion({ type: "master", name: e.name, email: e.email, store: e.store, product: "Certified G", score: 100, certId: cid, date: date });
       // Full-lineup certification = one automatic entry in the free-G-Pen draw.
-      // The reporting webhook IS the entry pool; no separate server needed.
-      if ((CFG.sweepstakes || {}).enabled !== false && window.reportCompletion) {
+      // The reporting webhook IS the entry pool; only fires when the draw is live.
+      if (drawLive() && window.reportCompletion) {
         window.reportCompletion({ type: "sweepstakes_entry", name: e.name, email: e.email, store: e.store, product: "Free G Pen draw", score: 100, certId: cid, date: date });
       }
     }
@@ -2053,7 +2061,7 @@
         "</div>" +
         ogSays("proud", ogLine("done")) +
         '<div class="tcg-grid single">' + secretCardHTML() + "</div>" +
-        ((CFG.sweepstakes || {}).enabled !== false ? sweepsPanelHTML(e) : "") +
+        (drawLive() ? sweepsPanelHTML(e) : "") +
         '<div id="mcert"></div>' +
         '<div id="mreward" class="reward-wrap"></div>' +
       "</section>" + footer();
