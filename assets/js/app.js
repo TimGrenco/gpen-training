@@ -673,22 +673,23 @@
       "</div>" +
     "</button>";
   }
-  // Tap the Professor: he hoots, changes his face, and pops a fun cannabis /
-  // G Pen history fact in a speech bubble (he no longer rewrites the header copy).
+  // Tap the Dean: he hoots, changes his face, and publishes a numbered "Field
+  // Note" — a fun cannabis / G Pen history fact — below his byline in the masthead.
   function bindHeroMascot() {
-    var hero = $(".hat-og"); if (!hero) return;
-    var wrap = hero.closest(".hat-og-wrap"), bubble = $("#og-fact");
-    var last = -1;
+    var hero = $(".mast-og"); if (!hero) return;
+    var dean = hero.closest(".mast-dean"), bubble = $("#og-fact");
+    var n = 0, last = -1;
     hero.addEventListener("click", function () {
       sfx.play("hoot");
       hero.innerHTML = mascotSVG(pick(["hyped", "think", "proud", "chill"]));
       hero.classList.remove("pop"); void hero.offsetWidth; hero.classList.add("pop");
-      if (wrap) wrap.classList.add("tapped");   // hide the "tap me" nudge once discovered
+      if (dean) dean.classList.add("tapped");   // hide the "tap the Dean" nudge once discovered
       if (bubble && FACTS.length) {
         var i; do { i = Math.floor(Math.random() * FACTS.length); } while (FACTS.length > 1 && i === last);
-        last = i;
-        var f = FACTS[i];
-        bubble.innerHTML = '<span class="ogf-emoji" aria-hidden="true">' + esc(f.emoji || "🦉") + '</span>' +
+        last = i; n++;
+        var f = FACTS[i], num = ("0" + n).slice(-2);
+        bubble.innerHTML = '<span class="ogf-eyebrow">Field note Nº ' + num + "</span>" +
+          '<span class="ogf-emoji" aria-hidden="true">' + esc(f.emoji || "🦉") + "</span>" +
           '<span class="ogf-text">' + esc(f.text) + "</span>";
         bubble.classList.add("show");
         bubble.classList.remove("pop"); void bubble.offsetWidth; bubble.classList.add("pop");
@@ -714,6 +715,53 @@
     if (done === 0) return ogSays("chill", ogLine("welcome"));
     if (done >= total - 1) return ogSays("hyped", ogLine("almost"));
     return ogSays("chill", ogLine("started"));
+  }
+  // The masthead headline IS the Dean's voice — same branch logic as ogGreeting,
+  // but returns a plain string for the <h1>. State-0 gets a fixed mission line so
+  // a first-time visitor's headline copy is stable; returning staff hear him.
+  function ogGreetingLine(done, total) {
+    if (isSecretUnlocked() || isMasterEarned()) return ogLine("done");
+    if (done === 0) return "Know the whole shelf. I&rsquo;ll make you the one who sells it.";
+    if (done >= total - 1) return ogLine("almost");
+    return ogLine("started");
+  }
+
+  /* The Floor Drill — the loved battlecard's pairing reflex, on the home page.
+     One question ("someone's buying…") → one answer (hand them X + the why +
+     a link into that product's full battlecard). Reuses howToSell data only. */
+  function floorDrill() {
+    // Ordered list, not an object — numeric-like keys ("510") would otherwise sort first.
+    var PAIR = [
+      { key: "flower", cue: "🌿", label: "Flower", slug: "dash-ii" },
+      { key: "cart", cue: "🛢", label: "510 cart", slug: "hydout" },
+      { key: "dabs", cue: "🍯", label: "Dabs", slug: "melt-hot-knife" },
+    ];
+    var chips = PAIR.map(function (p) {
+      return '<button class="fd-chip" type="button" data-pair="' + p.key + '"><span class="fd-cue">' + p.cue + "</span>" + p.label + "</button>";
+    }).join("");
+    return '<section class="floordrill reveal">' +
+      '<div class="sec-h"><h2>The floor drill</h2><span>What do you hand them?</span></div>' +
+      '<p class="fd-ask">A customer walks up buying&hellip;</p>' +
+      '<div class="fd-chips">' + chips + "</div>" +
+      '<div class="fd-answer" id="fd-answer" aria-live="polite"></div>' +
+    "</section>";
+  }
+  function bindFloorDrill() {
+    var PAIR = { flower: "dash-ii", cart: "hydout", dabs: "melt-hot-knife" };
+    var out = $("#fd-answer"); if (!out) return;
+    $$(".fd-chip").forEach(function (ch) {
+      ch.addEventListener("click", function () {
+        $$(".fd-chip").forEach(function (x) { x.classList.remove("on"); });
+        ch.classList.add("on");
+        var c = courseBySlug(PAIR[ch.getAttribute("data-pair")]); if (!c || !c.howToSell) return;
+        out.innerHTML = '<div class="fd-card" style="--accent:' + c.accent + '">' +
+          '<b class="fd-hand">Hand them the ' + esc(c.name) + "</b>" +
+          '<p class="fd-why">' + esc(c.howToSell.vital) + "</p>" +
+          '<a class="fd-more" href="#/course/' + c.slug + '">See the full battlecard ' + ic("arrow") + "</a>" +
+        "</div>";
+        out.classList.add("show");
+      });
+    });
   }
 
   /* =========================================================================
@@ -914,21 +962,28 @@
     var totalMin = COURSES.reduce(function (a, c) { return a + (c.minutes || 0); }, 0);
 
     app.innerHTML = header() +
-      // ---- The hat. O.G. is the co-star: value prop on the left, Professor O.G.
-      // on the right with his name badge. Tap him for a hoot + a fun-fact bubble.
-      '<section class="hat">' +
-        vaporHTML(5) +
-        '<div class="hat-grid reveal">' +
-          '<div class="hat-inner">' +
-            "<h1>Learn all five G&nbsp;Pen products.</h1>" +
-            '<p class="hat-sub">Free. No sign-up to browse. Start anywhere &mdash; the whole lineup is about ' + totalMin + " minutes.</p>" +
-            '<p class="hat-hook">Pass the quizzes and you unlock up to <b>40% off</b> gpen.com &mdash; buy the gear cheap and actually rip it.</p>' +
+      // ---- The masthead. Professor O.G. is the SPEAKER: his speech bubble holds
+      // the h1 (his voice, state-aware) on a light paper surface. Tap him → hoot +
+      // a numbered "Field Note" fact. The dark moment moves down to the reward + sign-off.
+      '<section class="mast reveal">' +
+        '<div class="mast-inner">' +
+          '<div class="mast-lead">' +
+            '<span class="mast-kicker">G Pen University &middot; Certification for budtenders &middot; Est. 2012</span>' +
+            '<div class="mast-say"><h1 class="mast-h1">' + ogGreetingLine(done, total) + "</h1></div>" +
+            '<div class="mast-dean">' +
+              '<button class="mast-og" type="button" aria-label="Tap the Dean for a field note">' + mascotSVG("chill") + "</button>" +
+              '<div class="mast-plate">' +
+                '<span class="og-badge">' + esc(MASCOT.name || "Professor O.G.") + "</span>" +
+                '<span class="mast-role">' + esc(MASCOT.title || "Dean of G Pen University") + "</span>" +
+                '<span class="og-poke">' + ic("spark") + " Tap the Dean for a field note</span>" +
+              "</div>" +
+            "</div>" +
           "</div>" +
-          '<div class="hat-og-wrap">' +
+          '<div class="mast-aside">' +
+            '<p class="mast-deck">Free training on all five G&nbsp;Pen products &mdash; no sign-up to browse, about ' + totalMin + ' minutes end to end. Pass the quizzes and unlock up to <b>40% off</b> gpen.com.</p>' +
+            '<ul class="mast-stats"><li>5 products</li><li>~' + totalMin + ' min</li><li class="gold">up to 40% off</li></ul>' +
             '<div class="og-fact" id="og-fact" role="status" aria-live="polite"></div>' +
-            '<button class="hat-og" type="button" aria-label="Tap Professor O.G. for a fun fact">' + mascotSVG("chill") + "</button>" +
-            '<span class="og-badge">' + esc(MASCOT.name || "Professor O.G.") + "</span>" +
-            '<span class="og-poke">' + ic("spark") + " Tap me for a fact</span>" +
+            '<button class="mast-cta" type="button" data-scroll="courses">Show me the shelf ' + ic("arrow") + "</button>" +
           "</div>" +
         "</div>" +
       "</section>" +
@@ -941,12 +996,14 @@
         eggHTML("home", "courses") +
       "</section>" +
 
+      floorDrill() +
       theLoop(done, master) +
-      lifestyleCinema((window.GPEN_LIFESTYLE || [])[9] || "", "The G Pen life", "Become a Certified G. Spread the knowledge.") +
+      '<section class="signoff reveal">' + ogSays("proud", "That&rsquo;s the syllabus. Now go run the floor.") + "</section>" +
       footer();
 
     fillRewards();
     $$("[data-goto]").forEach(function (el) { el.addEventListener("click", function () { go("#/course/" + el.getAttribute("data-goto")); }); });
+    $$("[data-scroll]").forEach(function (el) { el.addEventListener("click", function () { scrollToId(el.getAttribute("data-scroll")); }); });
     var rst = $("#reset"); if (rst) rst.addEventListener("click", function () {
       if (confirm("Reset ALL your training progress and certificates on this device?")) { localStorage.removeItem(K_STATE); localStorage.removeItem(K_ENROLL); go("#/"); }
     });
@@ -970,34 +1027,21 @@
 
   /* The Loop — the incentive story, told exactly once, below the shelf.
      Merges what used to be the reward ladder AND the binder teaser. */
+  /* The reward story, told ONCE. The collection is already signalled by the
+     header pips and the ladder, so the loop drops its 4 step-cards and binder for
+     a single 3-beat rail: learn → pass → get paid. */
   function theLoop(done, master) {
-    var slots = COURSES.map(function (c) {
-      var owned = cardOwned(c.slug);
-      return '<span class="lp-slot' + (owned ? " on" : "") + '" style="--accent:' + c.accent + '" title="' + esc(c.name) + '">' +
-        (owned ? '<img src="' + esc(c.cover) + '" alt=""/>' : '<i>?</i>') + "</span>";
-    }).join("");
-
-    var steps = [
-      { n: 1, ic: "play", t: "Learn", s: "Read the specs, watch the two videos, learn how to clean it. Free, no sign-up, no account." },
-      { n: 2, ic: "cap", t: "Pass", s: "10 to 12 questions, 80% to pass. Name, email, store &mdash; the only time we ask for anything." },
-      { n: 3, ic: "award", t: "Collect", s: "Every pass drops that product&rsquo;s card in your binder &mdash; specs and talking points on one card." },
-      { n: 4, ic: "tag", t: "Rip it", s: "Certifications stack into a bigger code at gpen.com. Buy the gear cheap and actually use it." },
-    ];
-
     return '<section class="loop reveal">' +
       '<div class="loop-head">' +
         "<h2>Get certified. Get it cheap. Actually rip it.</h2>" +
         '<p class="loop-sub">You sell it better when you&rsquo;ve owned it.</p>' +
       "</div>" +
-      '<div class="loop-steps">' + steps.map(function (st) {
-        return '<div class="loop-step"><span class="lp-n">' + st.n + "</span>" +
-          '<span class="lp-ic">' + ic(st.ic) + "</span>" +
-          "<h3>" + st.t + "</h3><p>" + st.s + "</p></div>";
-      }).join("") + "</div>" +
-      // the binder, as five slots you can see are empty. Never a 0/5 counter.
-      '<div class="loop-binder">' +
-        '<div class="lb-slots">' + slots + "</div>" +
-        '<a class="linklike lb-link" href="#/collection">Open your binder ' + ic("arrow") + "</a>" +
+      '<div class="loop-rail">' +
+        '<span class="lr-beat"><i>1</i>Learn it</span>' +
+        '<span class="lr-arw">' + ic("arrow") + "</span>" +
+        '<span class="lr-beat"><i>2</i>Pass the quiz</span>' +
+        '<span class="lr-arw">' + ic("arrow") + "</span>" +
+        '<span class="lr-beat gold"><i>%</i>Up to 40% off gpen.com</span>' +
       "</div>" +
       rewardsSection(done, master) +
       '<p class="loop-eggs">' + ic("spark") + " The ten Trainer cards are product trivia hiding inside the courses. Read properly and you&rsquo;ll trip over them.</p>" +
@@ -1240,14 +1284,22 @@
         (o.why ? '<div class="obj-why">' + ic("spark") + "<span>" + esc(o.why) + "</span></div>" : "") +
       "</div>";
     }).join("");
+    // "On the floor" — real-world register scenarios: what you SEE → what you say.
+    var sces = (h.scenarios || []).map(function (s) {
+      return '<div class="scn"><em>You see</em>' +
+        '<span class="scn-sees">' + esc(s.sees) + "</span>" +
+        '<span class="scn-say">&ldquo;' + esc(s.say) + "&rdquo;</span></div>";
+    }).join("");
     return '<div class="sell2" style="--accent:' + (c.accent || "var(--gold-bright)") + '">' +
       '<div class="sell-pair">' +
         '<div class="sell-cue"><span class="sell-cue-em">' + esc(h.cue || "") + "</span>When they're buying <b>" + esc((h.upsellFrom || "").toUpperCase()) + "</b> " + ic("arrow") + "</div>" +
         "<p>" + esc(h.vital) + "</p>" +
         (sibs ? '<div class="sell-sibs"><span>Pair with</span>' + sibs + "</div>" : "") +
       "</div>" +
+      (h.trap ? '<p class="sell-trap">' + ic("spark") + "<span><b>The trap:</b> " + esc(h.trap) + "</span></p>" : "") +
       (facts ? '<div class="sell-facts">' + facts + "</div>" : "") +
       (h.talkTrack && h.talkTrack.say ? '<blockquote class="sell-say"><em>Say this</em>&ldquo;' + esc(h.talkTrack.say) + "&rdquo;</blockquote>" : "") +
+      (sces ? '<div class="sell-scns"><h4>On the floor &mdash; real situations</h4>' + sces + "</div>" : "") +
       (h.whichClose ? '<div class="sell-close"><em>The &ldquo;which one&rdquo; close</em>&ldquo;' + esc(h.whichClose) + "&rdquo;</div>" : "") +
       (objs ? '<div class="sell-objs"><h4>When they hesitate</h4>' + objs + "</div>" : "") +
       (h.aov ? '<p class="sell-aov">' + ic("tag") + "<span>" + esc(h.aov) + "</span></p>" : "") +
@@ -2362,6 +2414,7 @@
     bindCardTilt();
     bindMascot();
     bindHeroMascot();
+    bindFloorDrill();
   }
   function boot() {
     app = $("#app"); // re-resolve in case the script loaded before #app parsed

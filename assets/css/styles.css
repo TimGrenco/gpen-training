@@ -230,6 +230,19 @@ h1, h2, h3, h4 { margin: 0; line-height: 1.08; letter-spacing: -.02em; }
 .sell-aov { display: flex; gap: 9px; align-items: flex-start; margin: 0; padding: 13px 16px; border-radius: 12px; background: rgba(254,200,112,.14); border: 1px solid rgba(200,149,47,.28); font-size: 13.5px; line-height: 1.5; color: #6a5220; }
 .sell-aov svg { width: 15px; height: 15px; flex: none; color: var(--gold); margin-top: 2px; }
 
+/* "The trap" — the one mistake that loses the sale (sits under the pair block). */
+.sell-trap { display: flex; gap: 9px; align-items: flex-start; margin: 0; padding: 11px 15px; border-radius: 12px; background: #fcefec; border: 1px solid #f0d3cc; font-size: 13.5px; line-height: 1.5; color: #7a2e22; }
+.sell-trap b { color: var(--bad); }
+.sell-trap svg { width: 14px; height: 14px; flex: none; color: var(--bad); margin-top: 2px; }
+
+/* "On the floor" — real register scenarios: what you SEE → what you say. */
+.sell-scns h4 { font-size: 13px; font-weight: 900; text-transform: uppercase; letter-spacing: .05em; color: var(--stone); margin: 4px 0 10px; }
+.scn { display: grid; gap: 5px; padding: 12px 15px; border: 1px solid var(--line); border-left: 4px solid var(--ok); border-radius: 12px; background: #f0f8f2; margin-bottom: 10px; }
+.scn:last-child { margin-bottom: 0; }
+.scn em { font-style: normal; font-size: 10.5px; font-weight: 900; text-transform: uppercase; letter-spacing: .06em; color: var(--gold); }
+.scn-sees { font-size: 13.5px; font-weight: 800; color: var(--ink); }
+.scn-say { font-size: 14.5px; line-height: 1.5; font-weight: 600; color: #17402a; }
+
 /* quiz */
 .quiz-intro { background: #fff; border: 1px solid var(--line); border-radius: var(--radius); padding: 24px; text-align: center; box-shadow: var(--shadow); }
 .quiz-intro .lead { margin-bottom: 16px; }
@@ -1726,78 +1739,108 @@ h1, h2, h3, h4 { margin: 0; line-height: 1.08; letter-spacing: -.02em; }
 @media (max-width: 400px) { .hdr-binder { display: none; } }
 
 /* =========================================================================
-   THE HAT — home page only.
-   Deliberately short. On a 390x844 phone the first product card has to peek
-   above the fold, or the page reads as a marketing splash instead of a
-   catalog. No crest, no eyebrow, no buttons: the cards are the CTA.
+   THE MASTHEAD — home page. Professor O.G. is the SPEAKER: his speech bubble
+   holds the h1, printed on a LIGHT paper surface (the old dark hero band — the
+   one that never landed — is gone). Single-column, text-first, so it stacks on
+   any width and the first product card still peeks above the fold on a phone.
    ====================================================================== */
-/* No overflow:hidden — the fact bubble pops up out of the header, and .vapor
-   already clips itself. */
-.hat {
-  position: relative; color: #fff;
-  background: radial-gradient(120% 150% at 12% 0%, #262626 0%, #0e0e0e 62%);
-  padding: clamp(20px,4.5vw,36px) clamp(16px,4vw,40px) clamp(22px,4vw,34px);
+.mast { background: var(--paper); color: var(--ink); border-bottom: 1px solid var(--line);
+  padding: clamp(18px,4.5vw,38px) clamp(16px,4vw,40px) clamp(20px,4vw,30px); }
+.mast-inner { max-width: var(--maxw); margin: 0 auto; }
+/* Magazine masthead: the Dean's bubble-headline + nameplate on the left, the
+   deck / stats / CTA / field note on the right. Stacks on phones. */
+@media (min-width: 880px) {
+  .mast-inner { display: grid; grid-template-columns: 1.15fr 1fr; gap: clamp(28px,4vw,60px); align-items: center; }
 }
-.hat .vapor .vap { background: radial-gradient(circle, rgba(254,200,112,.2), rgba(254,200,112,0) 66%); }
-/* Co-star layout: value prop left, Professor O.G. right. */
-.hat-grid {
-  position: relative; z-index: 1; max-width: var(--maxw); margin: 0 auto;
-  display: grid; grid-template-columns: 1fr auto; gap: clamp(10px,3vw,32px); align-items: center;
-}
-.hat-inner h1 { font-size: clamp(25px,5.6vw,44px); font-weight: 900; letter-spacing: -.025em; line-height: 1.05; max-width: 15ch; }
-.hat-sub { margin: 10px 0 0; color: #d7d6cf; font-size: clamp(14px,2.1vw,16.5px); line-height: 1.5; max-width: 46ch; }
-.hat-hook { margin: 7px 0 0; color: #a8a7a0; font-size: 13px; line-height: 1.5; max-width: 46ch; }
-.hat-hook b { color: var(--gold-bright); font-weight: 900; }
+.mast-kicker { display: block; font-size: 11px; font-weight: 900; letter-spacing: .13em; text-transform: uppercase; color: var(--stone); }
 
-/* O.G. co-star column: mascot + name badge + tap nudge, stacked. */
-.hat-og-wrap { position: relative; flex: none; display: flex; flex-direction: column; align-items: center; gap: 8px; }
-.hat-og {
-  width: clamp(96px,15vw,176px); padding: 0; border: 0; background: none; line-height: 0;
-  cursor: pointer; filter: drop-shadow(0 12px 24px rgba(0,0,0,.5)); transition: transform .2s;
-}
-.hat-og svg { width: 100%; height: auto; display: block; }
-.hat-og:hover { transform: translateY(-3px) rotate(-3deg); }
-.hat-og.pop { animation: og-pop .5s cubic-bezier(.2,1.7,.4,1); }
+/* O.G.'s speech bubble = the headline. Tail points DOWN at him (bordered). */
+.mast-say { position: relative; display: block; margin: 14px 0 0; max-width: 100%;
+  background: #fff; border: 1px solid var(--line); border-radius: 18px; padding: 16px 22px; box-shadow: var(--shadow); }
+.mast-say::before { content: ""; position: absolute; top: 100%; left: 40px; margin-top: 1px; border: 11px solid transparent; border-top-color: var(--line); }
+.mast-say::after  { content: ""; position: absolute; top: 100%; left: 40px; border: 11px solid transparent; border-top-color: #fff; }
+.mast-h1 { font-size: clamp(23px,3.6vw,40px); font-weight: 900; letter-spacing: -.025em; line-height: 1.08; }
+.mast-aside { margin-top: 20px; }
+@media (min-width: 880px) { .mast-aside { margin-top: 0; } }
+
+/* Speaker nameplate: owl + badge/role + tap nudge. */
+.mast-dean { display: flex; align-items: center; gap: 13px; margin-top: 14px; }
+.mast-og { width: clamp(76px,17vw,112px); flex: none; padding: 0; border: 0; background: none; line-height: 0;
+  cursor: pointer; filter: drop-shadow(0 10px 18px rgba(0,0,0,.2)); transition: transform .2s; }
+.mast-og svg { width: 100%; height: auto; display: block; }
+.mast-og:hover { transform: translateY(-3px) rotate(-3deg); }
+.mast-og.pop { animation: og-pop .5s cubic-bezier(.2,1.7,.4,1); }
 @keyframes og-pop { 0% { transform: scale(1); } 40% { transform: scale(1.12) rotate(-5deg); } 100% { transform: scale(1); } }
+.mast-plate { display: flex; flex-direction: column; align-items: flex-start; gap: 4px; }
+.mast-role { font-size: 12px; font-weight: 800; color: var(--stone); }
 
-/* Name badge under him — appears everywhere he greets. */
-.og-badge {
-  display: inline-flex; align-items: center; padding: 4px 13px; border-radius: 999px;
-  background: var(--gold-bright); color: #1a1509; font-size: 12px; font-weight: 900;
-  white-space: nowrap; box-shadow: 0 3px 10px rgba(0,0,0,.35);
-}
-.og-poke { display: inline-flex; align-items: center; gap: 4px; font-size: 11px; font-weight: 700; color: #a8a7a0; }
-.og-poke svg { width: 12px; height: 12px; color: var(--gold-bright); }
-.hat-og-wrap.tapped .og-poke { visibility: hidden; }
+/* Name badge — reused everywhere O.G. greets. */
+.og-badge { display: inline-flex; align-items: center; padding: 4px 13px; border-radius: 999px;
+  background: var(--gold-bright); color: #1a1509; font-size: 12px; font-weight: 900; white-space: nowrap;
+  box-shadow: 0 3px 10px rgba(0,0,0,.16); }
+.og-poke { display: inline-flex; align-items: center; gap: 4px; font-size: 11px; font-weight: 700; color: var(--stone); }
+.og-poke svg { width: 12px; height: 12px; color: var(--gold); }
+.mast-dean.tapped .og-poke { visibility: hidden; }
 
-/* The fun-fact speech bubble. Desktop: to O.G.'s LEFT (empty dark space, and it
-   can't ride up under the sticky nav), tail pointing right at him. */
-.og-fact {
-  position: absolute; top: 2px; right: calc(100% + 16px); width: min(300px, 42vw); z-index: 3;
-  display: flex; gap: 10px; text-align: left; padding: 13px 15px; border-radius: 16px;
-  background: #fff; color: var(--ink); box-shadow: var(--shadow-lg);
-  font-size: 13.5px; line-height: 1.5;
-  opacity: 0; transform: translateX(10px) scale(.96); transform-origin: right center; pointer-events: none;
-  transition: opacity .25s ease, transform .25s ease;
-}
-.og-fact.show { opacity: 1; transform: none; }
-.og-fact::after {
-  content: ""; position: absolute; top: 24px; left: 100%;
-  border: 9px solid transparent; border-left-color: #fff;
-}
-.ogf-emoji { font-size: 22px; line-height: 1; flex: none; }
+.mast-deck { margin: 16px 0 0; max-width: 54ch; font-size: clamp(14.5px,2vw,17px); line-height: 1.5; color: var(--ink-2); }
+.mast-deck b { color: var(--gold); font-weight: 900; }
+.mast-stats { display: flex; flex-wrap: wrap; align-items: center; gap: 0 16px; list-style: none;
+  margin: 14px 0 0; padding-top: 12px; border-top: 1px solid var(--gold-bright);
+  font-size: 13px; font-weight: 800; color: var(--ink); }
+.mast-stats li + li::before { content: "·"; color: var(--gold); margin-right: 16px; margin-left: -8px; }
+.mast-stats .gold { color: var(--gold); }
+.mast-cta { margin-top: 16px; display: inline-flex; align-items: center; gap: 7px; padding: 12px 20px; border-radius: 999px;
+  background: var(--ink); color: #fff; font-weight: 800; font-size: 14.5px; border: 0; cursor: pointer; transition: transform .15s; }
+.mast-cta:hover { transform: translateY(-2px); }
+.mast-cta svg { width: 15px; height: 15px; }
+
+/* The fun-fact bubble, restyled as a numbered "Field Note" card — full-width
+   BELOW the byline (never an overlay, never rides under the sticky nav). */
+.og-fact { display: none; grid-template-columns: auto 1fr; gap: 4px 11px; margin-top: 16px; max-width: 54ch;
+  background: #fff; border: 1px solid var(--line); border-left: 4px solid var(--gold-bright); border-radius: 14px;
+  padding: 14px 16px; box-shadow: var(--shadow); }
+.og-fact.show { display: grid; }
+.ogf-eyebrow { grid-column: 1 / -1; font-size: 10.5px; font-weight: 900; letter-spacing: .1em; text-transform: uppercase; color: var(--gold); }
+.ogf-emoji { font-size: 20px; line-height: 1.35; }
+.ogf-text { font-size: 14px; line-height: 1.5; color: var(--ink); }
 .og-fact.pop { animation: og-fact-pop .4s cubic-bezier(.2,1.7,.4,1); }
-@keyframes og-fact-pop { 0% { transform: scale(.92); } 45% { transform: scale(1.03); } 100% { transform: none; } }
-@media (prefers-reduced-motion: reduce) { .hat-og.pop, .og-fact.pop { animation: none; } .og-fact { transition: none; } }
+@keyframes og-fact-pop { 0% { transform: scale(.97); opacity: .4; } 100% { transform: none; opacity: 1; } }
+@media (prefers-reduced-motion: reduce) { .mast-og.pop, .og-fact.pop { animation: none; } }
 
-/* Phones: O.G. shrinks + the header stays compact enough that a product card
-   still peeks. The bubble keeps the same left-of-O.G. placement (it overlays
-   the copy as a tap popover), just narrower so it fits the screen. */
-@media (max-width: 560px) {
-  .hat-grid { grid-template-columns: 1fr clamp(90px,25vw,116px); gap: 10px; }
-  .hat-inner h1 { max-width: 12ch; }
-  .og-fact { width: min(240px, 66vw); top: 8px; }
-}
+/* =========================================================================
+   THE FLOOR DRILL — the battlecard's pairing reflex, on the home page.
+   ====================================================================== */
+.floordrill { max-width: var(--maxw); margin: 0 auto; padding: clamp(22px,4vw,38px) clamp(16px,4vw,40px) 4px; }
+.fd-ask { margin: -4px 0 12px; color: var(--stone); font-size: 15px; font-weight: 600; }
+.fd-chips { display: flex; flex-wrap: wrap; gap: 10px; }
+.fd-chip { display: inline-flex; align-items: center; gap: 8px; padding: 11px 18px; border-radius: 999px;
+  border: 1.5px solid var(--line); background: var(--paper); color: var(--ink); font-size: 15px; font-weight: 800;
+  cursor: pointer; transition: border-color .15s, transform .15s, background .15s, color .15s; }
+.fd-chip:hover { border-color: var(--gold-bright); transform: translateY(-2px); }
+.fd-chip.on { background: var(--ink); color: #fff; border-color: var(--ink); }
+.fd-cue { font-size: 18px; line-height: 1; }
+.fd-answer { display: none; margin-top: 14px; }
+.fd-answer.show { display: block; }
+.fd-card { border: 1px solid var(--line); border-left: 5px solid var(--accent, var(--gold-bright)); border-radius: 14px;
+  padding: 16px 18px; background: #fff; box-shadow: var(--shadow); }
+.fd-hand { display: block; font-size: 17px; font-weight: 900; letter-spacing: -.01em; }
+.fd-why { margin: 6px 0 10px; color: var(--ink-2); font-size: 14.5px; line-height: 1.5; }
+.fd-more { display: inline-flex; align-items: center; gap: 5px; font-size: 13.5px; font-weight: 900; color: var(--ink); text-decoration: none; }
+.fd-more svg { width: 14px; height: 14px; }
+
+/* The Loop's 3-beat rail (replaced the 4 step-cards + binder) — light ground. */
+.loop-rail { display: flex; flex-wrap: wrap; align-items: center; justify-content: center; gap: 10px 12px; margin: 2px 0 26px; }
+.lr-beat { display: inline-flex; align-items: center; gap: 9px; padding: 10px 16px; border-radius: 999px;
+  background: var(--paper); border: 1px solid var(--line); font-size: 15px; font-weight: 800; color: var(--ink); }
+.lr-beat i { display: inline-grid; place-items: center; width: 24px; height: 24px; border-radius: 50%;
+  background: var(--ink); color: #fff; font-style: normal; font-size: 13px; font-weight: 900; }
+.lr-beat.gold { background: rgba(254,200,112,.16); border-color: rgba(200,149,47,.4); color: var(--gold); }
+.lr-beat.gold i { background: var(--gold-bright); color: #1a1509; }
+.lr-arw { color: var(--stone); display: inline-flex; }
+.lr-arw svg { width: 18px; height: 18px; }
+
+/* O.G. sign-off — bookends the page with the same face that opened it. */
+.signoff { max-width: 640px; margin: 0 auto; padding: clamp(24px,4vw,40px) clamp(16px,4vw,40px) clamp(28px,4vw,44px); }
 
 /* ---- Resume strip: only for someone mid-course ------------------------- */
 .resume {
@@ -1824,46 +1867,10 @@ h1, h2, h3, h4 { margin: 0; line-height: 1.08; letter-spacing: -.02em; }
 .loop-head { text-align: center; margin-bottom: clamp(22px,3vw,32px); }
 .loop-head h2 { font-size: clamp(23px,4.2vw,34px); font-weight: 900; letter-spacing: -.02em; }
 .loop-sub { margin: 8px 0 0; color: var(--stone); font-size: 15px; }
-.loop-steps { display: grid; grid-template-columns: 1fr; gap: 14px; }
-@media (min-width: 620px) { .loop-steps { grid-template-columns: repeat(2, 1fr); } }
-@media (min-width: 1000px) { .loop-steps { grid-template-columns: repeat(4, 1fr); } }
-.loop-step {
-  position: relative; padding: 20px 18px 18px; border-radius: 16px;
-  background: var(--paper); border: 1px solid var(--line); box-shadow: var(--shadow);
-}
-.loop-step h3 { margin: 10px 0 5px; font-size: 17px; font-weight: 900; letter-spacing: -.01em; }
-.loop-step p { margin: 0; color: var(--stone); font-size: 13.5px; line-height: 1.5; }
-.lp-n {
-  position: absolute; top: 14px; right: 14px;
-  font-size: 12px; font-weight: 900; color: var(--stone); opacity: .5;
-}
-.lp-ic { display: inline-grid; place-items: center; width: 40px; height: 40px; border-radius: 12px; background: var(--ink); color: var(--gold-bright); }
-.lp-ic svg { width: 20px; height: 20px; }
-
-/* The binder as five visibly empty slots. Never a 0/5 counter — an empty slot
-   is a question, a zero is a chore. */
-.loop-binder {
-  display: flex; align-items: center; justify-content: center; flex-wrap: wrap; gap: 10px 18px;
-  margin: 22px 0 6px; padding: 16px; border-radius: 16px;
-  background: var(--cream); border: 1px dashed var(--line);
-}
-.lb-slots { display: flex; gap: 8px; }
-.lp-slot {
-  width: 46px; height: 62px; border-radius: 7px; flex: none;
-  display: grid; place-items: center; overflow: hidden;
-  background: #fff; border: 1.5px dashed #d8d7d0;
-  transition: border-color .3s, transform .3s;
-}
-.lp-slot i { font-style: normal; font-weight: 900; font-size: 15px; color: #cfcec6; }
-.lp-slot.on { border: 1.5px solid var(--accent, var(--gold-bright)); box-shadow: 0 3px 10px rgba(0,0,0,.1); }
-.lp-slot.on img { width: 100%; height: 100%; object-fit: contain; padding: 4px; }
-.lb-link { font-size: 13.5px; font-weight: 800; color: var(--ink); display: inline-flex; align-items: center; gap: 5px; }
-.lb-link svg { width: 14px; height: 14px; }
-/* The ladder is a separate beat from the binder — don't let them collide. */
-.loop .sec-h { margin-top: 36px; }
+/* The reward ladder gets breathing room below the 3-beat rail. */
+.loop .sec-h { margin-top: 32px; }
 .loop-eggs {
   display: flex; align-items: center; justify-content: center; gap: 7px;
   margin: 18px 0 0; color: var(--stone); font-size: 13px; text-align: center;
 }
 .loop-eggs svg { width: 15px; height: 15px; color: var(--gold); flex: none; }
-@media (max-width: 420px) { .lp-slot { width: 40px; height: 55px; } }

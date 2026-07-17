@@ -128,6 +128,11 @@ window.GPEN_COURSES = [
       keyFacts: ["Pocket dry-herb vape", "~30-sec heat-up · 0.4g oven", "$49.95 — the easy first yes"],
       talkTrack: { say: "You're grabbing flower anyway — the Dash II heats it clean instead of burning it, so that eighth lasts longer and actually tastes like the strain. Fifty bucks, fits your pocket." },
       whichClose: "For your flower, want the pocket Dash II or the bigger-oven Dash+?",
+      scenarios: [
+        { sees: "A half-ounce of flower + a grinder in their basket", say: "You're already grinding it — the Dash II's the next piece. Pack that ground flower, hit the button, you're vaping instead of burning. That half-oz lasts way longer when you're not torching it. Fifty bucks." },
+        { sees: "They mention joints make them cough or feel harsh", say: "That's the smoke, not the flower. The Dash II heats it instead of burning it — smooth on your throat, and you actually taste the strain. Fifty bucks, and it fixes exactly what you just described." },
+      ],
+      trap: "Don't call it 'like smoking' — it's the opposite. Say 'heats, doesn't burn.' That's the whole pitch.",
       objections: [
         { says: "I'll just roll it.", say: "Totally — and you still can. But rolling burns off the flavor and half goes up in smoke. The Dash II heats the same flower low and slow, so a gram goes further and you taste the strain. Want to see how small it is?", why: "Don't fight the joint — reframe around waste and flavor." },
         { says: "Is fifty bucks worth it?", say: "For a real temp-control vape with a screen, fifty's about as low as it gets — and it pays for itself in the flower you're not burning. Grab a USB-C cable with it and you're set.", why: "Price-anchor, then attach the cable — it's not in the box." },
@@ -222,6 +227,11 @@ window.GPEN_COURSES = [
       keyFacts: ["Titanium oven + hybrid heat", "~20-sec heat-up · color screen", "The flower-flavor upgrade ($99.95)"],
       talkTrack: { say: "If you care how your flower tastes, this is the one. Titanium oven, hybrid heat, ready in twenty seconds — flavor a little pocket vape can't touch. And the charging cable's in the box." },
       whichClose: "Everyday Dash II, or the flavor-chaser Dash+ with the titanium oven?",
+      scenarios: [
+        { sees: "A regular who buys top-shelf flower every week", say: "You're paying top-shelf prices — the Dash+ is what actually tastes it. Titanium oven, true convection, so the terpenes hit instead of going up in smoke. If you're buying the good flower, this is how you get your money's worth." },
+        { sees: "Buying a nice strain as a gift, or trading up from a Dash II", say: "If it's a gift or you want the 'wow' one, this is it. Color screen, buzzes when it's ready, full titanium oven. It feels premium because it is." },
+      ],
+      trap: "Don't sell it on specs. Sell the flavor jump — 'you taste the strain.' Nobody buys titanium, they buy taste.",
       objections: [
         { says: "Why is this double the Dash II?", say: "Titanium chamber and true convection — that's what you're paying for. It's the difference between 'it works' and 'wow, I taste the strain.' If flavor's your thing, worth the jump.", why: "Justify the price with the flavor mechanism, not a spec sheet." },
         { says: "Looks complicated.", say: "Three buttons, and it buzzes when it's ready. Load, double-click, draw. The color screen means you're never guessing your temp." },
@@ -311,6 +321,11 @@ window.GPEN_COURSES = [
       keyFacts: ["Electric hot knife — no torch", "Rapid-heat ceramic tip · pocket-size", "Clean, no-mess dabs ($24.95)"],
       talkTrack: { say: "Grabbing concentrate? The Melt's how you handle it without a torch — hot ceramic tip, scoop and drop, no sticky mess. Tiny, twenty-five bucks, works with any rig or banger." },
       whichClose: "Loading a rig or a banger? Either way the Melt's your no-torch tool — want one with that wax?",
+      scenarios: [
+        { sees: "A gram of rosin or live resin on the counter", say: "That rosin's too good to waste on a cold scoop. The Melt heats the tip so it drops clean into your rig — no stringy pull, no reclaim stuck to the tool. Twenty-five bucks and every dab lands where it should." },
+        { sees: "Concentrate + a banger or rig in the same sale", say: "You've got the rig — the Melt's how you load it without a torch. Heats in seconds, scoops, drops clean. Toss it in the bag and you're set. Twenty-five bucks." },
+      ],
+      trap: "Don't let them picture a torch. Lead with 'no torch, no mess' — that's what wins it.",
       objections: [
         { says: "I've got a dab tool already.", say: "A cold tool is where the mess and the string-cheese pull come from. The Melt heats the tip, so the concentrate releases clean every time — no torch, no reclaim disaster.", why: "Reframe: a cold tool is the problem, not the solution." },
         { says: "Do I need a torch?", say: "Nope — that's the whole point. Electric, USB-C, heats in seconds. No butane to buy or carry." },
@@ -404,6 +419,11 @@ window.GPEN_COURSES = [
       keyFacts: ["Mouthpiece hidden inside", "5 voltages + preheat for thick oil", "Discreet, protects the oil ($24.95)"],
       talkTrack: { say: "For your carts, the Hydout hides the whole mouthpiece inside — pocket it and no one knows. Five heat settings to dial in any oil. Twenty-five bucks, and it shields your cart from light too." },
       whichClose: "Everyday 510 Original, or the discreet Hydout for those carts?",
+      scenarios: [
+        { sees: "Buying a cart, mentions they vape at work or in public", say: "If you're hitting it out and about, the Hydout's your one — the mouthpiece hides inside, so it just looks like nothing in your pocket. Five heat settings too. Twenty-five bucks and nobody's the wiser." },
+        { sees: "A thick distillate cart", say: "Thicker oil needs a little heat to flow — the Hydout's got five voltages and a preheat, so it pulls instead of clogging. That cart'll hit way better on this than a basic battery." },
+      ],
+      trap: "Don't lead with price vs. the 510 — lead with discretion and voltage. Price-first loses the upgrade.",
       objections: [
         { says: "Why pay more than the 510?", say: "Discretion and control. Hides the mouthpiece so it's low-key in your pocket, and five voltages mean thick oils hit right. If you're out a lot, it's the one.", why: "Sell the two upgrades: discretion + voltage control." },
         { says: "Will it fit my cart?", say: "Fits most standard 510s up to 2g — basically anything on our shelf. Screw it in and go." },
@@ -496,6 +516,11 @@ window.GPEN_COURSES = [
       keyFacts: ["Smallest/cheapest G Pen battery ($12.95)", "Breath-activated — just inhale", "Fits any standard 510 cart"],
       talkTrack: { say: "That cart needs a battery to hit — you got one? The 510 Original's thirteen bucks, breath-activated, fits any cart. Just inhale and go." },
       whichClose: "For your carts, the simple 510 Original or the Hydout with the hidden mouthpiece?",
+      scenarios: [
+        { sees: "A first-timer buying their very first cart", say: "First cart? Then you need something to hit it with — this is the easy one. Screw the cart on, breathe in, done. No buttons to learn. Thirteen bucks, fits whatever cart you grab next." },
+        { sees: "Buying two or three carts at once", say: "Grabbing a few carts — you set for a battery? The 510's thirteen bucks and swaps between all of them. Cheap to keep one that fires clean instead of killing a good cart." },
+      ],
+      trap: "Don't ask 'do you need a battery?' — that invites a no. Ask 'you got a battery for that?' Assume it.",
       objections: [
         { says: "I've got an old battery at home.", say: "If it still hits, great — but a random one can burn the cart or leak. Thirteen bucks gets one that fires clean and fits everything. Cheap insurance on a forty-dollar cart.", why: "Dependency framing — protect the cart they already bought." },
         { says: "Do I really need it?", say: "You need something to hit the cart with — 510 Original or the Hydout? Either way you're covered.", why: "Assumptive close — skip the yes/no, ask which one." },
