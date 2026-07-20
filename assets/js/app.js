@@ -842,18 +842,41 @@
   }
 
   /* ---- header ------------------------------------------------------------ */
+  /* Which nav item is current. Derived from the hash rather than route()'s
+     pageKey because pageKey is assigned AFTER the render call that builds the
+     header. Home IS the course list, so "/" and "/course/*" both mark Courses. */
+  function navSection() {
+    var parts = location.hash.replace(/^#/, "").split("/").filter(Boolean);
+    if (parts[0] === "collection") return "collection";
+    if (parts[0] === "about") return "about";
+    if (parts[0] === "certified") return "";       // a leaf page, nothing to mark
+    return "courses";
+  }
   function header() {
-    var e = getEnroll();
+    var e = getEnroll(), here = navSection();
+    function nav(key, href, label) {
+      var on = key === here;
+      return '<a class="hdr-navlink' + (on ? " on" : "") + '" href="' + href + '"' + (on ? ' aria-current="page"' : "") + ">" + label + "</a>";
+    }
     return '<header class="hdr">' +
       '<a class="hdr-brand" href="#/">' +
         '<img src="assets/img/gpen-g-black.png" class="hdr-logo light" alt="G Pen"/>' +
-        '<img src="assets/img/gpen-g-white.png" class="hdr-logo dark" alt="G Pen"/>' +
         '<span class="hdr-name">G Pen <em>University</em></span>' +
       "</a>" +
-      langSelHTML() +
+      // Courses / Binder / About lived only in the footer, below a nine-section
+      // course page — effectively unreachable on a phone.
+      '<nav class="hdr-nav" aria-label="Main">' +
+        nav("courses", "#/", "Courses") +
+        nav("collection", "#/collection", '<span class="nl-the">The </span>Binder') +
+        nav("about", "#/about", "About") +
+      "</nav>" +
+      // The language selector only offers English today; picking anything else
+      // just toasts "coming soon", so it stays hidden until a locale file exists.
+      ((CFG.i18n && CFG.i18n.enabled) ? langSelHTML() : "") +
       '<button class="hdr-sound" id="sound-toggle" title="' + (sfx.isOn() ? "Sound on" : "Sound off") + '" aria-label="Toggle sound" aria-pressed="' + (sfx.isOn() ? "true" : "false") + '">' + ic(sfx.isOn() ? "sound" : "mute") + "</button>" +
       binderPips() +
-      (e ? '<a class="hdr-user" href="#/"><span class="hdr-u-name">' + esc(e.name) + '</span><span class="hdr-u-store">' + esc(e.store || "") + "</span></a>" : "") +
+      // Not a link: it pointed at #/, same as the logo and the Courses tab.
+      (e ? '<span class="hdr-user"><span class="hdr-u-name">' + esc(e.name) + '</span><span class="hdr-u-store">' + esc(e.store || "") + "</span></span>" : "") +
     "</header>";
   }
   /* Five pips, one per product — always five, never a number. A stranger reads

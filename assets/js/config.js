@@ -31,6 +31,14 @@ window.TRAINING_CONFIG = {
     hours: "Mon–Fri · 10:00 AM – 6:00 PM EST",
   },
 
+  /* >>> LANGUAGE SELECTOR <<<
+     Off until a real locale file exists. The picker's machinery (LANGS / setLang
+     / bindLangSel in app.js) is intact — only the header control is hidden. With
+     it on and no translations, four of five choices just toast "coming soon",
+     which reads as an unfinished feature in the highest-status slot on the page.
+     To ship a language: add assets/data/i18n/<lang>.js, then set enabled: true. */
+  i18n: { enabled: false },
+
   // Master certification = finish every course in data.js (all 5 are "core").
   // Set to a list of slugs to require only some; null = require them all.
   coreCourses: null,
