@@ -28,6 +28,17 @@
      sell        : "How to sell it" budtender talking points
      videos      : [{ title, thumb, youtube }]
      quiz        : [{ q, choices:[...], answer:<index>, why }]
+
+   ESCAPING CONVENTION — read before "fixing" anything here.
+   A few fields deliberately carry AUTHORED HTML and are interpolated raw:
+     specs[].value   (e.g. "dry herb <strong>only</strong>")
+     description[]   (paragraph markup)
+     the floor-drill cue/label glyphs, rarity symbols, and fact emoji
+   EVERYTHING ELSE is passed through esc() at render time — course names, captions,
+   FAQ text, quiz stems/choices/why, about stats. If you wrap a raw field in esc()
+   the markup prints literally across every spec sheet; if you leave a plain-text
+   field raw, an ampersand breaks the page. When adding a field, default to
+   plain text and esc() it.
    ========================================================================== */
 var CDN = "https://cdn.shopify.com/s/files/1/0185/1576/files/";
 // Real lifestyle photography served from the G Pen brand asset portal
@@ -151,7 +162,7 @@ window.GPEN_COURSES = [
       { q: "An existing owner asks whether trading up to the Dash+ gets them a bigger oven. What is accurate?", choices: ["It is roughly double, so a session lasts about twice as long", "It is smaller, near 0.3g — you are paying for heat quality", "It is bigger, since titanium walls are thinner than ceramic", "It is the same size; only the screen and the body change"], answer: 1, why: "Capacity is the one thing the Dash+ does not upgrade — a titanium hybrid-convection oven at roughly 0.3g against this device's 0.4g. Sell the upgrade on heat and flavour, because a capacity promise gets found out the first time they pack it." },
       { q: "A customer returns a few weeks after buying: \"It barely produces anything anymore.\" What is the first thing to check?", choices: ["Whether the battery has stopped holding a charge", "Whether spent material has built up in the chamber", "Whether they are running the temperature too low", "Whether they are packing the chamber too tightly"], answer: 1, why: "Check maintenance before hardware — residue in the ceramic chamber restricts airflow long before a battery or heater actually fails. Packing density matters too, which is why the Dash II is meant to be packed lightly rather than crammed." },
       { q: "Someone at the counter is buying a gram of wax and a 510 cartridge. They ask if this device handles both. What do you tell them?", choices: ["The cart threads right on, but the wax has to go elsewhere", "Dry herb only, so neither of those two goes in it", "Both are fine as long as you load them with the pick tool", "The wax goes in the chamber, but the cart needs a battery"], answer: 1, why: "Selling a device into the wrong material is the fastest way to turn a sale into a return. Name the limit first, then route them — wax to the Melt, the cart to a 510 battery — and you keep the customer instead of the refund." },
-      { q: "A customer tries your floor demo and says the first pull tasted like nothing. What do you correct?", choices: ["They packed the chamber too tightly for air to pull through", "They should have set a higher temperature before starting", "They were holding the button down through the whole draw", "They only filled the ceramic chamber about halfway"], answer: 0, why: "A dry-herb oven needs air moving across the load — cram it and heat never reaches the herb. Pack lightly, then take long, sustained draws instead of short quick puffs." },
+      { q: "A customer tries your floor demo, says the first pull tasted like nothing, and mentions they packed it in as firmly as they could and the draw felt tight. What do you correct?", choices: ["They packed the chamber too tightly for air to pull through", "They should have set a higher temperature before starting", "They were holding the button down through the whole draw", "They only filled the ceramic chamber about halfway"], answer: 0, why: "A dry-herb oven needs air moving across the load — cram it and heat never reaches the herb. Under-filling is wrong too (the spec is a full chamber, packed light), but that thins the vapour rather than killing the draw." },
       { q: "\"I've never used a dry-herb vape before\" — a hesitant first-timer. What framing closes them?", choices: ["Walk them through the settings menu so nothing is a surprise", "Frame it as the hard-to-mess-up one and keep it to a few steps", "Compare the temperature range against the higher-end model", "Steer them to the pricier one since it is more forgiving"], answer: 1, why: "Inexperience objections are fear of complexity, not a gap in information — so shrink the process (grind, pack, hold three seconds) instead of adding to it. Anything that piles on detail or price, like a settings tour or a step up in model, makes a nervous buyer more nervous." },
       { q: "A flower customer is clearly deciding between two dry-herb units. How should you present the choice?", choices: ["Lead with the Dash+ — it is the better vaporizer of the two", "Ask whether they want the pocket Dash II or the titanium Dash+", "Start at $49.95 and only mention the other if they object", "Ask their budget first, then show only the tier that fits it"], answer: 1, why: "A which-close beats a yes-or-no close because either answer is a sale. Framing the two units as a preference rather than a budget question also keeps the customer from feeling sold up or priced out." },
       { q: "\"Do I just drop a nug in?\" the customer asks, holding the open chamber. What do you say?", choices: ["Grind it first, then fill the chamber and pack it lightly", "A whole bud is fine as long as it fits the chamber", "Break it up by hand, since grinding makes it pack too tight", "Grind it and press it in firmly so it makes full contact"], answer: 0, why: "The load spec is two things at once: ground herb, filling the chamber, packed light with the pick tool. Both wrong instincts miss one half of it, and it is the natural moment to attach a grinder to the sale." },
@@ -307,7 +318,7 @@ window.GPEN_COURSES = [
       { q: "What is it compatible with?", a: "The Micro+, Connect, Hyer, traditional bangers, e-rigs and e-nails — it works with any concentrate you'd normally load by hand." },
       { q: "Does it have adjustable heat settings?", a: "No — it uses a precisely tuned heating element optimized for smooth, controlled melting without burning." },
       { q: "Can I use it while charging?", a: "Yes — USB-C pass-through lets you use it while it's plugged in. A USB-C cable is not included." },
-      { q: "Is it travel-friendly?", a: "Yes — it's tiny, has a travel lock, and comes with a protective travel cap." },
+      { q: "Is it travel-friendly?", a: "Yes — it's tiny, it only powers on after 5 button presses so it won't fire in a bag, and it comes with a protective travel cap." },
       { q: "What's the warranty?", a: "A 90-day limited warranty covering the electronics (physical damage not covered)." },
     ],
     howToSell: {
@@ -619,7 +630,7 @@ window.GPEN_FACTS = [
   { emoji: "🫙", text: "Light and heat degrade cannabinoids faster than anything else. Cool, dark, airtight — that's the whole storage lecture." },
   { emoji: "⚡", text: "A dirty chamber is the #1 cause of \"my vape stopped hitting.\" Nine times out of ten it's a cleaning issue, not a defect." },
   { emoji: "🤝", text: "The \"entourage effect\" is the theory that cannabinoids and terpenes work better together than any one compound alone." },
-  { emoji: "🔌", text: "Voltage is the whole game on a 510 cart: too low and it barely vapes, too high and you scorch the oil. That's why the Hydout gives you five settings instead of one." },
+  { emoji: "🔌", text: "Voltage is the whole game on a 510 cart: too low and it barely vapes, too high and you scorch the oil. That's why the Hydout gives you five settings instead of three." },
   { emoji: "🏭", text: "Grenco Science shipped its first G Pen in 2012, back when \"vape pen\" wasn't even a phrase people used." },
 ];
 
@@ -772,7 +783,9 @@ window.GPEN_MASCOT = {
     "Vapor isn&rsquo;t smoke. Stay under the combustion point and you&rsquo;ve got a whole different product category.",
     "I&rsquo;ve been tenured since 2012. That&rsquo;s a whole degree in staying calm.",
     "Yes, the chain is real. No, you cannot borrow it.",
-    "Grind it, don&rsquo;t pack it. Airflow is the whole ballgame.",
+    // "don't pack it" read as an instruction not to pack at all, which is the
+    // opposite verb from the Dash II step ("pack lightly with the pick tool").
+    "Grind it, pack it light. Airflow is the whole ballgame.",
     "Hoo. Sorry &mdash; occupational hazard.",
   ],
   // his line on the binder page, by how full it is

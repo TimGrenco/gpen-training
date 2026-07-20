@@ -474,8 +474,10 @@
      a modal dialog, hide the background from assistive tech, pull focus into the
      dialog, trap Tab inside it, and return a release() that restores focus to the
      element that opened it. */
-  function manageModalFocus(m) {
+  function manageModalFocus(m, label) {
     var app = document.getElementById("app");
+    // Without a name a screen reader announces only "dialog".
+    if (label) m.setAttribute("aria-label", label);
     var trigger = document.activeElement;
     m.setAttribute("role", "dialog");
     m.setAttribute("aria-modal", "true");
@@ -536,7 +538,7 @@
       '<div class="pull-stage">' + packHTML + revealHTML + "</div>" +
     "</div>";
     document.body.appendChild(m); document.body.classList.add("noscroll");
-    var release = manageModalFocus(m);
+    var release = manageModalFocus(m, kicker || "You pulled a card");
 
     var autoT;   // declared up here so close() can cancel the auto-open
     // close() tears down EVERYTHING: the old version only unbound the Escape
@@ -1033,7 +1035,12 @@
       var on = key === here;
       return '<a class="hdr-navlink' + (on ? " on" : "") + '" href="' + href + '"' + (on ? ' aria-current="page"' : "") + ">" + label + "</a>";
     }
-    return (DRAW_PREVIEW
+    /* header() opens <main> and footer() closes it. Every one of the five render
+       functions is header() + …content… + footer(), so the landmark wraps the
+       page content without touching all five — and the skip link gives keyboard
+       users a way past a nav that re-renders on every route. */
+    return '<a class="skip" href="#main">Skip to content</a>' +
+      (DRAW_PREVIEW
       ? '<div class="preview-bar">' + ic("spark") + " <b>Preview</b> — sweepstakes shown for review. Not live; no entries are recorded.</div>"
       : "") +
       // has-user tells the CSS the name/store block is competing for header room,
@@ -1057,7 +1064,8 @@
       binderPips() +
       // Not a link: it pointed at #/, same as the logo and the Courses tab.
       (e ? '<span class="hdr-user"><span class="hdr-u-name">' + esc(e.name) + '</span><span class="hdr-u-store">' + esc(e.store || "") + "</span></span>" : "") +
-    "</header>";
+    "</header>" +
+    '<main id="main" tabindex="-1">';
   }
   /* Five pips, one per product — always five, never a number. A stranger reads
      "there are five of these and I have two" instantly; "3/16" means nothing. */
@@ -1080,6 +1088,18 @@
       btn.title = nowOn ? "Sound on" : "Sound off";
       btn.setAttribute("aria-pressed", nowOn ? "true" : "false");
       toast(nowOn ? "\uD83D\uDD0A Sound on" : "\uD83D\uDD07 Sound off");
+    });
+  }
+  /* The skip link's href="#main" would otherwise be swallowed by the hash router
+     \u2014 route() would read "main" as a page and re-render home. Intercept it and
+     move focus directly. Delegated because the header re-renders every route. */
+  function bindSkipLink() {
+    document.addEventListener("click", function (ev) {
+      var a = ev.target.closest && ev.target.closest("a.skip");
+      if (!a) return;
+      ev.preventDefault();
+      var m = document.getElementById("main");
+      if (m) { m.focus(); m.scrollIntoView({ behavior: "instant", block: "start" }); }
     });
   }
   // The footer "Reset my progress" control lives on every page \u2014 one delegated
@@ -1302,7 +1322,7 @@
     // Once there's any progress or enrollment, always offer a way to wipe it and
     // re-do the training (also lets a shared/kiosk device hand off to the next rep).
     var hasProgress = !!getEnroll() || (getState().courses && Object.keys(getState().courses).length > 0);
-    return supportBand() +
+    return "</main>" + supportBand() +
       '<footer class="foot"><img src="assets/img/gpen-g-black.png" class="foot-g light" alt=""/><img src="assets/img/gpen-g-white.png" class="foot-g dark" alt=""/>' +
       '<div class="foot-nav"><a href="#/">Courses</a><a href="#/collection">The Binder</a><a href="#/about">About G Pen</a><a href="' + esc(CFG.shopUrl) + '" target="_blank" rel="noopener">Shop gpen.com</a></div>' +
       (hasProgress ? '<button class="foot-reset" id="reset" type="button">' + ic("refresh") + " Reset my progress &amp; start over</button>" : "") +
@@ -1577,7 +1597,7 @@
       '<div class="modal-frame"><iframe src="https://www.youtube.com/embed/' + esc(yt) + '?autoplay=1&rel=0" title="' + esc(title) + '" allow="autoplay; encrypted-media; fullscreen" allowfullscreen></iframe></div>' +
       '<div class="modal-t">' + esc(title) + "</div></div>";
     document.body.appendChild(m); document.body.classList.add("noscroll");
-    var release = manageModalFocus(m);
+    var release = manageModalFocus(m, title ? "Video: " + title : "Video");
     // Unbind on EVERY close path, not just Escape — otherwise each video opened
     // leaves a live keydown listener on document.
     function close() { document.removeEventListener("keydown", onEsc); release(); m.remove(); document.body.classList.remove("noscroll"); }
@@ -2435,7 +2455,7 @@
           "<h1>" + brandYears() + " years of leading the culture.</h1>" +
           "<p>" + esc(a.intro || "") + "</p>" +
         "</div>" +
-        (a.stats ? '<div class="about-stats">' + a.stats.map(function (s) { return '<div class="astat"><strong>' + s.number + "</strong><span>" + esc(s.label) + "</span></div>"; }).join("") + "</div>" : "") +
+        (a.stats ? '<div class="about-stats">' + a.stats.map(function (s) { return '<div class="astat"><strong>' + esc(s.number) + "</strong><span>" + esc(s.label) + "</span></div>"; }).join("") + "</div>" : "") +
         lifestyleMosaic(7, 0) +
         '<div class="about-block"><h2>Our story</h2>' + founding + "</div>" +
         (a.milestones ? '<div class="about-block"><h2>Milestones</h2><ol class="timeline">' + a.milestones.map(function (m) {
@@ -2600,7 +2620,7 @@
     var flipped = false;
     // This was the only overlay without dialog semantics or a focus trap, and its
     // Escape handler leaked unless Escape was the thing that closed it.
-    var release = manageModalFocus(m);
+    var release = manageModalFocus(m, "Card: " + name);
     function close() { document.removeEventListener("keydown", onEsc); release(); m.remove(); document.body.classList.remove("noscroll"); }
     function onEsc(ev) { if (ev.key === "Escape") close(); }
     $(".modal-x", m).addEventListener("click", close);
@@ -2744,6 +2764,7 @@
     if (!app) { return document.addEventListener("DOMContentLoaded", boot, { once: true }); }
     bindSoundToggle();
     bindReset();
+    bindSkipLink();
     bindLangSel();
     window.addEventListener("hashchange", route);
     route();

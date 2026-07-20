@@ -95,6 +95,13 @@ h1, h2, h3, h4 { margin: 0; line-height: 1.08; letter-spacing: -.02em; }
 .hdr-logo { width: 30px; height: 30px; object-fit: contain; flex: none; }
 .hdr-name { font-size: clamp(15px, 4vw, 20px); font-weight: 900; text-transform: uppercase; letter-spacing: .02em; line-height: 1.02; }
 .hdr-name em { color: var(--gold); font-style: normal; }
+/* Off-screen until focused, then lands under the sticky header. The nav
+   re-renders on every route, so keyboard users need a way past it. */
+.skip { position: absolute; left: -9999px; top: 0; z-index: 100; }
+.skip:focus { left: 12px; top: 12px; padding: 10px 16px; border-radius: var(--r-pill);
+  background: var(--ink); color: #fff; font-weight: 800; font-size: 14px; text-decoration: none; }
+#main:focus { outline: none; }
+
 /* ?preview=draw banner — makes it unmistakable that the sweepstakes treatment
    on screen is a review preview, not a live promotion. */
 .preview-bar { display: flex; align-items: center; justify-content: center; gap: 7px; flex-wrap: wrap;
