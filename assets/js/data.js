@@ -556,7 +556,9 @@ window.GPEN_ABOUT = {
   ],
   stats: [
     { number: "2012", label: "Founded" },
-    { number: "14+", label: "Years leading the industry" },
+    // Derived from the 2012 founding so it can never contradict the About
+    // headline or go stale — see brandYears() in app.js.
+    { number: (new Date().getFullYear() - 2012) + "+", label: "Years leading the industry" },
     { number: "7+", label: "Major artist & brand collaborations" },
     { number: "Global", label: "Sold worldwide (US · Canada · EU)" },
   ],
@@ -697,7 +699,9 @@ window.GPEN_CARDS = {
       { name: "Breath Activated", cost: 1, dmg: "—", text: "No buttons, no menus. Inhale and it fires." },
       { name: "Three Presets", cost: 1, dmg: "3.8V", text: "Cycle 3.2V / 3.6V / 3.8V to match any cartridge." },
     ],
-    statsRow: [{ k: "Presets", v: "3" }, { k: "Warranty", v: "90 d" }, { k: "Charge", v: "USB-C" }],
+    // No warranty stat here: the 510 Original course does not state one, and a
+    // card asserting "90 d" is a term a rep could repeat to a customer.
+    statsRow: [{ k: "Presets", v: "3" }, { k: "Auto-off", v: "10 min" }, { k: "Charge", v: "USB-C" }],
   },
 };
 

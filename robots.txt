@@ -1,0 +1,7 @@
+# G Pen University is a partner tool, not a public marketing page.
+# index.html already carries <meta name="robots" content="noindex">, but that tag
+# cannot cover the non-HTML files GitHub Pages also serves from this repo —
+# README.md and REPORTING.md among them, which describe the reward mechanics and
+# the internal setup. Disallow the whole origin.
+User-agent: *
+Disallow: /

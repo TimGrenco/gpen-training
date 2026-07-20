@@ -1447,6 +1447,10 @@ a.linklike.backdash { display: block; width: auto; margin-top: 10px; text-align:
 /* quiz feedback becomes a row: O.G. reacts, then explains */
 .quiz-why { display: flex; align-items: flex-start; gap: 12px; }
 .qw-text { flex: 1; min-width: 0; }
+/* The verdict in words, so right/wrong never depends on colour alone. */
+.qw-verdict { font-weight: 900; letter-spacing: -.01em; }
+.quiz-why.ok .qw-verdict { color: var(--ok); }
+.quiz-why.no .qw-verdict { color: var(--bad); }
 
 /* his line inside the card-pull note */
 .og-say { display: flex; align-items: center; gap: 9px; justify-content: center; margin-bottom: 8px; }

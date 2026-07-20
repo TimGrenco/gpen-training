@@ -112,6 +112,11 @@
   function coreSlugs() { return CFG.coreCourses && CFG.coreCourses.length ? CFG.coreCourses : COURSES.map(function (c) { return c.slug; }); }
   function todayKey() { var d = new Date(); return d.getFullYear() + "-" + (d.getMonth() + 1) + "-" + d.getDate(); }
   function niceDate() { return new Date().toLocaleDateString(undefined, { year: "numeric", month: "long", day: "numeric" }); }
+  // Grenco Science launched at the 2012 Cypress Hill Smoke Out. Every "years in
+  // the business" figure derives from this so none of them can drift apart or
+  // quietly go stale — the About h1 and its stat tile used to disagree by one.
+  var FOUNDED = 2012;
+  function brandYears() { return Math.max(1, new Date().getFullYear() - FOUNDED); }
 
   /* ---- persistence ------------------------------------------------------- */
   var K_ENROLL = "gpt.enrollment", K_STATE = "gpt.state";
@@ -1611,12 +1616,16 @@
           '<label class="attest"><input type="checkbox" id="f-attest" />' +
             "<span>I confirm I am 21 or older and currently work as authorized retail staff at a licensed dispensary or smoke shop.</span></label>" +
           '<button class="btn xl full" id="start-quiz">Start the quiz ' + ic("arrow") + "</button>" +
-          // Must stay true in BOTH webhook states — reporting.url may be set the
-          // same week, at which point "stays on your device" would be a lie.
-          '<p class="form-fine"><b>Use your own phone</b> — progress and certificates save to this browser only, so a shared tablet mixes reps together. ' +
-            ((CFG.reporting || {}).url
-              ? "Your name, email and store are also sent to G&nbsp;Pen so your completion can be recorded."
-              : "If your store enables completion reporting, your name, email and store are also sent to G&nbsp;Pen.") +
+          /* ONE unconditional disclosure, deliberately not branched on whether a
+             webhook is configured yet. The old copy reassured reps that data
+             "saves to this browser only" until a store "enables" reporting —
+             wrong twice over: reporting is a single global setting G Pen
+             controls, not a per-store one, and boot()'s backfill is RETROACTIVE,
+             so anyone who certified under that reassurance would have had their
+             details sent the moment a webhook was pasted, with no re-consent.
+             Everyone now agrees to the same thing up front. */
+          '<p class="form-fine"><b>Use your own phone</b> — progress and certificates save to this browser, so a shared tablet mixes reps together. ' +
+            "Your name, email and store are recorded so G&nbsp;Pen can credit the completion to your shop, and may be sent to G&nbsp;Pen for that purpose." +
             (CFG.privacyUrl ? ' <a href="' + esc(CFG.privacyUrl) + '" target="_blank" rel="noopener">Privacy</a>.' : "") + "</p>" +
         "</div>" +
       "</div>";
@@ -1710,14 +1719,22 @@
       $$(".choice", zone).forEach(function (b) {
         var bci = parseInt(b.getAttribute("data-ci"), 10);
         b.disabled = true;
-        if (bci === q.answer) b.classList.add("correct");
-        else if (bci === ci) b.classList.add("wrong");
+        // Right/wrong was carried by colour alone. Label it for anyone who can't
+        // use colour, and for screen readers reading back the options.
+        if (bci === q.answer) { b.classList.add("correct"); b.setAttribute("aria-label", b.textContent.trim() + " — correct answer"); }
+        else if (bci === ci) { b.classList.add("wrong"); b.setAttribute("aria-label", b.textContent.trim() + " — your answer, incorrect"); }
       });
       var why = $(".quiz-why", zone); why.hidden = false;
       why.className = "quiz-why " + (correct ? "ok" : "no");
+      // The verdict was carried by colour and a RANDOMISED quip, and was never
+      // announced. role=status makes the explainer speak, and the fixed word in
+      // front of the quip means the verdict never depends on which line came up.
+      why.setAttribute("role", "status");
+      why.setAttribute("aria-live", "polite");
       // Professor O.G. reacts to every answer, then explains.
       why.innerHTML = ogMini(correct ? "hyped" : "oops") +
-        '<span class="qw-text"><strong>' + (correct ? ic("check") + " " + ogLine("correct") : ogLine("wrong")) + "</strong> " +
+        '<span class="qw-text"><b class="qw-verdict">' + (correct ? "Correct." : "Incorrect.") + "</b> " +
+        '<strong>' + (correct ? ic("check") + " " + ogLine("correct") : ogLine("wrong")) + "</strong> " +
         (correct && streak >= 3 ? '<span class="streak-pop">' + ic("fire") + " ×" + Math.min(streak, 5) + " combo!</span> " : "") + esc(q.why) + "</span>";
       var n = $("#q-next", zone); n.hidden = false;
       n.innerHTML = (i + 1 < c.quiz.length ? "Next question " + ic("arrow") : "See my results " + ic("arrow"));
@@ -2398,7 +2415,10 @@
         '<div class="about-hero">' +
           '<img class="about-g" src="assets/img/gpen-g-white.png" alt="G Pen"/>' +
           '<span class="ch-eyebrow">' + ic("cap") + " About the brand</span>" +
-          "<h1>15 years of leading the culture.</h1>" +
+          // Derived, not hardcoded: this h1 said "15 years" while the stat tile
+          // directly below it said "14+" — a contradiction on one screen. Both
+          // now come from the founding year, so they cannot drift or go stale.
+          "<h1>" + brandYears() + " years of leading the culture.</h1>" +
           "<p>" + esc(a.intro || "") + "</p>" +
         "</div>" +
         (a.stats ? '<div class="about-stats">' + a.stats.map(function (s) { return '<div class="astat"><strong>' + s.number + "</strong><span>" + esc(s.label) + "</span></div>"; }).join("") + "</div>" : "") +
@@ -2703,6 +2723,10 @@
       if (!s.rulesUrl) console.warn("[gpen-training] sweepstakes.live is true but rulesUrl is empty, so the prize promotion is NOT rendering. Host the counsel-cleared rules page and set sweepstakes.rulesUrl. Preview it meanwhile with ?preview=draw.");
       else if (!(CFG.reporting || {}).url) console.warn("[gpen-training] sweepstakes is armed but reporting.url is empty — there is no counter, so no winner can be selected. See REPORTING.md.");
     }());
+    // The form collects name, email, store and a 21+ attestation and says they
+    // may be sent to G Pen. Shipping that with no privacy statement is the first
+    // thing a dispensary compliance lead will flag, so make it impossible to miss.
+    if (!CFG.privacyUrl) console.warn("[gpen-training] config.privacyUrl is empty — the certification form collects name/email/store and states the data may be sent to G Pen, but no privacy notice is linked anywhere. Host one and set privacyUrl before sharing this with partners.");
     if (!app) { return document.addEventListener("DOMContentLoaded", boot, { once: true }); }
     bindSoundToggle();
     bindReset();
