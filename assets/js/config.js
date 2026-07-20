@@ -65,7 +65,7 @@ window.TRAINING_CONFIG = {
     secret: {
       code: "CERTIFIEDG40",
       label: "40% off your entire order at gpen.com",
-      note: "You certified on the whole lineup — the top reward in the program. Put it toward your own device: the reps who sell the most are the ones who carry one.",
+      note: "You certified on the whole lineup — the top reward in the program. Put it toward your own device: the reps who know these products best are the ones who've actually used one.",
     },
     // OPTIONAL: give a specific product its own course code. Keyed by course slug.
     // e.g. perCourse: { "dash-ii": { code: "DASH2PRO", label: "...", note: "..." } }

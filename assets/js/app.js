@@ -937,7 +937,7 @@
       lifestyleCinema((window.GPEN_LIFESTYLE || [])[0], "The G Pen life", "This is the gear, in real hands.", "See how it sits in a palm — then get one in yours.", "home") +
       floorDrill() +
       theLoop(done, master) +
-      '<section class="signoff reveal"><div class="signoff-inner">' + ogSays("proud", "That&rsquo;s the syllabus. You can&rsquo;t sell what you&rsquo;ve never ripped &mdash; now go run the floor.") + "</div></section>" +
+      '<section class="signoff reveal"><div class="signoff-inner">' + ogSays("proud", "That&rsquo;s the syllabus. You can&rsquo;t sell what you&rsquo;ve never held &mdash; now go run the floor.") + "</div></section>" +
       footer();
 
     fillRewards();
@@ -973,7 +973,7 @@
   function theLoop(done, master) {
     return '<section class="loop reveal">' +
       '<div class="loop-head">' +
-        "<h2>Get certified. Get it cheap. Rip it yourself.</h2>" +
+        "<h2>Get certified. Get it cheap. Carry it yourself.</h2>" +
         '<p class="loop-sub">Customers trust the staff who actually use it. Put a G&nbsp;Pen in your pocket and you&rsquo;re the rec.</p>' +
       "</div>" +
       '<div class="loop-rail">' +
@@ -1394,10 +1394,14 @@
   function runQuiz(c) {
     var order = shuffle(c.quiz.map(function (_, i) { return i; }));
     var i = 0, answers = [], streak = 0, points = 0, zone = $("#quiz-zone");
-    step();
+    step(true);
     zone.scrollIntoView({ behavior: "smooth", block: "start" });
 
-    function step() {
+    // `first` skips the re-scroll on question 1 (the line above already framed it).
+    // Without this, answering renders the explainer + Next below the fold and the
+    // NEXT question renders shorter than the last, leaving the rep scrolled past
+    // it — a 13-question quiz became a scroll hunt in both directions on a phone.
+    function step(first) {
       var q = c.quiz[order[i]];
       zone.innerHTML = '<div class="quiz">' +
         '<div class="quiz-bar"><div class="quiz-bar-fill" style="width:' + Math.round((i / c.quiz.length) * 100) + '%"></div></div>' +
@@ -1414,6 +1418,7 @@
         '<button class="btn xl next" id="q-next" hidden></button>' +
       "</div>";
       $$(".choice", zone).forEach(function (b) { b.addEventListener("click", function () { choose(parseInt(b.getAttribute("data-ci"), 10), q, b); }); });
+      if (!first) zone.scrollIntoView({ behavior: "auto", block: "start" });
     }
     // A correct answer flings its points up from the tapped choice.
     function flyPoints(gain, mult, btn) {
@@ -1455,6 +1460,11 @@
         (correct && streak >= 3 ? '<span class="streak-pop">' + ic("fire") + " ×" + Math.min(streak, 5) + " combo!</span> " : "") + esc(q.why) + "</span>";
       var n = $("#q-next", zone); n.hidden = false;
       n.innerHTML = (i + 1 < c.quiz.length ? "Next question " + ic("arrow") : "See my results " + ic("arrow"));
+      // The explainer is the best teaching moment in the quiz and it renders
+      // below the fold on a phone. block:"end" (plus scroll-margin-bottom) lands
+      // the Next button fully on screen with the explainer above it — "nearest"
+      // left the button clipped by a few pixels at the viewport edge.
+      n.scrollIntoView({ behavior: "smooth", block: "end" });
       n.onclick = function () { i++; if (i < c.quiz.length) step(); else finish(); };
     }
     function finish() {
@@ -1573,6 +1583,7 @@
         '<button class="code" id="code-copy" title="Copy code"><span>' + esc(r.code) + '</span><em>Tap to copy</em></button>' +
         "<p>" + esc(r.note || "") + "</p>" +
         '<a class="btn xl" href="' + esc(CFG.shopUrl) + '" target="_blank" rel="noopener">Shop gpen.com ' + ic("arrow") + "</a>" +
+        '<p class="reward-terms">Earned by completing training — not tied to sales, orders, or product recommendations.</p>' +
       "</div>";
       $("#code-copy").addEventListener("click", function () {
         var t = r.code;
