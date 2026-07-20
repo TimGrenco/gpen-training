@@ -95,6 +95,14 @@ h1, h2, h3, h4 { margin: 0; line-height: 1.08; letter-spacing: -.02em; }
 .hdr-logo { width: 30px; height: 30px; object-fit: contain; flex: none; }
 .hdr-name { font-size: clamp(15px, 4vw, 20px); font-weight: 900; text-transform: uppercase; letter-spacing: .02em; line-height: 1.02; }
 .hdr-name em { color: var(--gold); font-style: normal; }
+/* ?preview=draw banner — makes it unmistakable that the sweepstakes treatment
+   on screen is a review preview, not a live promotion. */
+.preview-bar { display: flex; align-items: center; justify-content: center; gap: 7px; flex-wrap: wrap;
+  padding: 9px 16px; background: #241a08; color: #FEC870; font-size: 12.5px; font-weight: 700;
+  line-height: 1.4; text-align: center; }
+.preview-bar b { color: #fff; text-transform: uppercase; letter-spacing: .08em; }
+.preview-bar svg { width: 14px; height: 14px; }
+
 /* Primary nav. Courses / Binder / About previously existed only in the footer,
    which on a course page is nine sections down. */
 .hdr-nav { display: flex; align-items: center; gap: 4px; margin-left: 6px; min-width: 0; }

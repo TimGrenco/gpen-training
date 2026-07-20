@@ -27,8 +27,15 @@
   // a human (after counsel clears the rules page), AND there's an entry pool to log
   // into. Until then the reward is simply the guaranteed discount — we never
   // promise an entry that goes nowhere.
+  // PREVIEW MODE: ?preview=draw renders the whole sweepstakes treatment for THIS
+  // visit only, so the team can review and screenshot it without publishing a
+  // prize promotion to every visitor. A banner makes the state obvious, and entry
+  // reporting stays off (see reportMaster) so nobody is told they're entered when
+  // there is no entry pool. Share the link; it changes nothing for anyone else.
+  var DRAW_PREVIEW = /[?&]preview=draw(&|$)/.test(location.search);
   function drawLive() {
     var s = CFG.sweepstakes || {};
+    if (DRAW_PREVIEW) return s.enabled !== false;
     return s.enabled !== false && s.live === true && !!((CFG.reporting || {}).url);
   }
   function coreSlugs() { return CFG.coreCourses && CFG.coreCourses.length ? CFG.coreCourses : COURSES.map(function (c) { return c.slug; }); }
@@ -499,8 +506,9 @@
     logEvent("master", { certId: cid });
     if (window.reportCompletion) window.reportCompletion({ type: "master", name: e.name, email: e.email, store: e.store, product: "Certified G", score: 100, certId: cid, date: date });
     // Full-lineup certification = one automatic entry in the free-G-Pen draw.
-    // The reporting webhook IS the entry pool; only fires when the draw is live.
-    if (drawLive() && window.reportCompletion) {
+    // The reporting webhook IS the entry pool; only fires when the draw is really
+    // live — never in preview, where there is no pool to enter.
+    if (drawLive() && !DRAW_PREVIEW && window.reportCompletion) {
       window.reportCompletion({ type: "sweepstakes_entry", name: e.name, email: e.email, store: e.store, product: "Free G Pen draw", score: 100, certId: cid, date: date });
     }
     return s.master;
@@ -887,7 +895,10 @@
       var on = key === here;
       return '<a class="hdr-navlink' + (on ? " on" : "") + '" href="' + href + '"' + (on ? ' aria-current="page"' : "") + ">" + label + "</a>";
     }
-    return '<header class="hdr">' +
+    return (DRAW_PREVIEW
+      ? '<div class="preview-bar">' + ic("spark") + " <b>Preview</b> — sweepstakes shown for review. Not live; no entries are recorded.</div>"
+      : "") +
+      '<header class="hdr">' +
       '<a class="hdr-brand" href="#/">' +
         '<img src="assets/img/gpen-g-black.png" class="hdr-logo light" alt="G Pen"/>' +
         '<span class="hdr-name">G Pen <em>University</em></span>' +
