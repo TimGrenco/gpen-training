@@ -5,8 +5,9 @@
 > `config.sweepstakes.live` **and** `config.sweepstakes.rulesUrl` — `drawLive()`
 > requires a rules URL structurally, so no combination of config plus a webhook
 > can publish the promotion until a counsel-cleared rules page is hosted and
-> that URL is filled in. The draft is at `.claude/drafts/rules.draft.html` and is
-> deliberately not deployed. To review the treatment meanwhile, open the site
+> that URL is filled in. The draft is kept OUTSIDE this repo, at
+> `../gpen-training-legal/rules.draft.html` — GitHub Pages serves every committed
+> file, so a draft legal page cannot live in the repository. To review the treatment meanwhile, open the site
 > with `?preview=draw`.
 
 The training site is static (no backend), so it reports certifications by sending

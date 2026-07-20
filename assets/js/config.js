@@ -127,7 +127,8 @@ window.TRAINING_CONFIG = {
 
      ⚠️ `live: true` PUBLISHES A US PRIZE PROMOTION to whoever can reach the site.
      Have counsel clear the rules page first and host it at a real URL. The draft
-     is at .claude/drafts/rules.draft.html (deliberately not deployed — it still
+     is kept OUTSIDE this repo, at ../gpen-training-legal/rules.draft.html, because
+     GitHub Pages serves every committed file (.nojekyll is present) — it still
      has ~20 unfilled [bracketed] placeholders). Awarding a prize for completing
      five quizzes can count as consideration in around a dozen states without a
      genuine alternate method of entry, so the rules page is not optional.
