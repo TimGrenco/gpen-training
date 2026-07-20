@@ -8,16 +8,22 @@ printable **Certificate of Completion**, and unlock a **gpen.com discount code**
 
 ## What it does
 
-- **Landing → Enroll → Dashboard → Course → Quiz → Certificate → Discount code.**
-- One interactive course per product: Watch (how-to videos), Learn (lessons +
-  "how to sell it"), and a quiz (score 80%+ to certify).
+- **Browse-first, no sign-up gate.** Home → a product course → the quiz →
+  certificate + discount code. Name/email/store are collected just-in-time, only
+  when a rep opts into a quiz.
+- One course per product, ordered to lead with selling: three things to
+  remember → how to sell it → videos → the product itself → use → clean →
+  specs → FAQ → quiz (score 80%+ to certify).
 - **Certificates**: personalized Certificate of Completion with name, product,
   score, date, and a unique certificate ID. Printable + downloadable PNG.
-- **Master certification**: finish every core course to become a *G Pen
-  Certified Specialist* and unlock a bigger reward.
-- **Gamified**: progress ring, per-course badges, day streak, confetti.
-- **Progress** persists in the browser (localStorage), keyed to the employee's
-  name / email / store.
+- **Master certification**: finish all five to become a *G Pen Certified
+  Specialist* and unlock the top reward tier.
+- **Gamified**: a collectible card per product pulled from a foil booster pack,
+  the Binder, an arcade-scored quiz, day streak, confetti.
+- **Progress** persists in the browser (localStorage) **per device, not per
+  person** — there are no accounts. A shared counter tablet prompts an explicit
+  handover when a different rep starts, and clears the previous rep's progress.
+  Reps should use their own phones.
 
 No backend. Static HTML/CSS/vanilla JS, deployed on GitHub Pages.
 
@@ -69,3 +75,9 @@ python3 -m http.server 4753   # then open http://localhost:4753
 GitHub Pages serves `main`. `CNAME` pins the custom domain `training.gpen.com`.
 Add a DNS `CNAME` record: `training` → `<owner>.github.io`, then enable
 **Enforce HTTPS** in the repo's Pages settings once the certificate issues.
+
+**Push to `main` is the deploy.** `.github/workflows/stamp-version.yml` stamps
+the commit SHA into `version.json` automatically. `index.html` fetches that at
+runtime and loads the CSS/JS tagged with it, so a new build reaches open tabs
+without a hard refresh (and never reloads mid-quiz). **Never hand-edit
+`version.json`** — the workflow owns it.

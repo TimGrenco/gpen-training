@@ -1,8 +1,21 @@
 /* =============================================================================
    G PEN TRAINING PORTAL — APP
    A small hash-routed SPA. No framework, no backend. Progress in localStorage.
-   Views: Landing → Enroll → Dashboard → Course (Watch/Learn/Quiz) → Certificate
-          → Reward code → (all courses) → Certified Specialist.
+
+   Routes: "/" home (masthead + the product lineup, grouped by family)
+           "/course/<slug>"  sell-first course page, ending in the quiz
+           "/collection"     the Binder — the six collectible cards
+           "/certified"      the all-five master certificate
+           "/about"          brand story
+   There is no sign-up gate: everything is browsable, and name/email/store are
+   collected just-in-time when a rep opts into a quiz.
+
+   Two invariants worth knowing before editing (see also the memory notes):
+   - LADDER (below) is the single source of every reward percentage, including
+     the code actually issued on a pass. Never hardcode a percentage.
+   - sendReport() is the ONE place that talks to the reporting webhook, and
+     EARNED is tracked separately from REPORTED so anything earned before a
+     webhook exists is backfilled later rather than lost.
    ========================================================================== */
 (function () {
   "use strict";

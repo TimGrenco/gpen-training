@@ -29,7 +29,6 @@ window.TRAINING_CONFIG = {
   brand: "G Pen",
   programName: "G Pen University",
   shopUrl: "https://www.gpen.com",
-  registerUrl: "https://www.gpen.com/register",
   // Where "Email my certification" / support requests go.
   contactEmail: "pr@grencoscience.com",
 
