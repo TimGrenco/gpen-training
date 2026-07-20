@@ -105,9 +105,15 @@ h1, h2, h3, h4 { margin: 0; line-height: 1.08; letter-spacing: -.02em; }
 
 /* Primary nav. Courses / Binder / About previously existed only in the footer,
    which on a course page is nine sections down. */
-.hdr-nav { display: flex; align-items: center; gap: 4px; margin-left: 6px; min-width: 0; }
-.hdr-navlink { padding: 7px 12px; border-radius: var(--r-pill); font-size: 14px; font-weight: 800;
+/* ONE auto margin for the whole header: brand + nav hug the left, sound + binder
+   + name hug the right. Competing auto-margins further down used to cancel this
+   out and scatter the desktop header into four even gaps. */
+.hdr-nav { display: flex; align-items: center; gap: 4px; margin-left: 6px; margin-right: auto; min-width: 0; }
+.hdr-navlink { position: relative; padding: 7px 12px; border-radius: var(--r-pill); font-size: 14px; font-weight: 800;
   color: var(--stone); white-space: nowrap; transition: color .18s, background .18s; }
+/* Grows the tap target to ~45px without changing the rendered header height —
+   --hdr-h (and therefore scroll-padding-top) must stay valid. */
+.hdr-navlink::after { content: ""; position: absolute; inset: -7px 0; }
 .hdr-navlink:hover { color: var(--ink); background: rgba(17,17,17,.05); }
 .hdr-navlink.on { color: var(--ink); background: rgba(17,17,17,.07); }
 /* Phones: the nav is the one thing that must survive, so it scrolls rather than
@@ -285,7 +291,10 @@ h1, h2, h3, h4 { margin: 0; line-height: 1.08; letter-spacing: -.02em; }
 /* "Three things to remember" — the advance organizer at the top of a course.
    Big and few on purpose: this is what a rep should still know next shift. */
 .floorfacts { display: grid; grid-template-columns: 1fr; gap: 12px; margin-bottom: 6px; }
-@media (min-width: 760px) { .floorfacts { grid-template-columns: repeat(3, 1fr); } }
+/* Two-step ramp: 3-up at 760 gave each fact only ~146px of text on a portrait
+   tablet. Split to 2 when there's room, 3 only once .course is at full width. */
+@media (min-width: 600px) { .floorfacts { grid-template-columns: repeat(2, 1fr); } }
+@media (min-width: 900px) { .floorfacts { grid-template-columns: repeat(3, 1fr); } }
 .ff-card { display: flex; align-items: flex-start; gap: 12px; padding: 18px;
   background: var(--paper); border: 1px solid var(--line); border-left: 4px solid var(--gold-bright);
   border-radius: var(--r-md); box-shadow: var(--shadow); }
@@ -464,7 +473,8 @@ a.linklike.backdash { display: block; width: auto; margin-top: 10px; text-align:
 .cert-actions { display: flex; flex-wrap: wrap; gap: 10px; margin-top: 16px; justify-content: center; }
 
 /* =============================== MODAL ================================== */
-.modal { position: fixed; inset: 0; z-index: 90; background: rgba(10,10,10,.86); display: grid; place-items: center; padding: 16px; animation: fade .2s ease; }
+.modal { position: fixed; inset: 0; z-index: 90; background: rgba(10,10,10,.86); display: grid; place-items: center;
+  padding: 16px 16px calc(16px + env(safe-area-inset-bottom, 0px)); animation: fade .2s ease; }
 @keyframes fade { from { opacity: 0; } }
 .modal-in { width: 100%; max-width: var(--readw); }
 .modal-x { position: absolute; top: 14px; right: 16px; width: 42px; height: 42px; border-radius: 50%; border: 0; background: rgba(255,255,255,.14); color: #fff; font-size: 26px; cursor: pointer; line-height: 1; }
@@ -1054,7 +1064,7 @@ a.linklike.backdash { display: block; width: auto; margin-top: 10px; text-align:
 
 /* ---- the card-pull moment ---------------------------------------------- */
 .pull-modal .pull-in {
-  position: relative; width: min(380px, 92vw);
+  position: relative; width: min(380px, 100%);
   display: grid; gap: 16px; justify-items: center; text-align: center;
 }
 .pull-kicker {
@@ -1079,7 +1089,7 @@ a.linklike.backdash { display: block; width: auto; margin-top: 10px; text-align:
 
 /* ---- header binder counter --------------------------------------------- */
 .hdr-binder {
-  display: inline-flex; align-items: center; gap: 6px; margin-left: auto; margin-right: 12px;
+  display: inline-flex; align-items: center; gap: 6px; margin-right: 12px;
   padding: 7px 12px; border-radius: 999px; text-decoration: none;
   border: 1.5px solid var(--line); background: var(--paper); color: var(--ink);
   transition: border-color .2s, transform .2s;
@@ -1401,14 +1411,13 @@ a.linklike.backdash { display: block; width: auto; margin-top: 10px; text-align:
 
 /* ==================== SOUND TOGGLE ====================================== */
 .hdr-sound {
-  flex: none; width: 38px; height: 38px; margin-left: auto; margin-right: 4px;
+  flex: none; width: 38px; height: 38px; margin-right: 4px;
   display: grid; place-items: center; border-radius: 50%; cursor: pointer;
   border: 1.5px solid var(--line); background: var(--paper); color: var(--ink);
   transition: border-color .2s, transform .15s, color .2s;
 }
 .hdr-sound:hover { border-color: var(--gold-bright); color: var(--gold); transform: translateY(-1px); }
 .hdr-sound svg { width: 18px; height: 18px; }
-.hdr-binder { margin-left: 0; }
 @media (max-width: 400px) {
   .hdr-sound { width: 34px; height: 34px; }
 }
@@ -1494,7 +1503,7 @@ a.linklike.backdash { display: block; width: auto; margin-top: 10px; text-align:
 @media (prefers-reduced-motion: reduce) { .og-eyes, .og-block.pop { animation: none; } }
 
 /* ==================== CARD INSPECTOR ==================================== */
-.insp-modal .insp-in { display: grid; gap: 16px; justify-items: center; width: min(400px, 92vw); position: relative; }
+.insp-modal .insp-in { display: grid; gap: 16px; justify-items: center; width: min(400px, 100%); position: relative; }
 .insp-modal .modal-x { position: absolute; top: -8px; right: -4px; z-index: 6; color: #fff; }
 .insp-stage { width: 100%; perspective: 1400px; touch-action: none; }
 .insp-card {
@@ -1563,7 +1572,8 @@ a.linklike.backdash { display: block; width: auto; margin-top: 10px; text-align:
    both ends — the close X and "Add to binder" were BOTH unreachable, trapping the
    rep in the payoff moment. Scoped to .pull-modal so the video and certificate
    modals keep their centred behaviour. */
-.pull-modal { display: flex; flex-direction: column; align-items: center; overflow-y: auto; padding: 28px 16px; -webkit-overflow-scrolling: touch; }
+.pull-modal { display: flex; flex-direction: column; align-items: center; overflow-y: auto;
+  padding: 28px 16px calc(28px + env(safe-area-inset-bottom, 0px)); -webkit-overflow-scrolling: touch; }
 .pull-modal .pull-in { margin-block: auto; flex: none; }
 @media (max-width: 460px) {
   .insp-actions { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; }
@@ -1725,8 +1735,6 @@ a.linklike.backdash { display: block; width: auto; margin-top: 10px; text-align:
   padding: 2px 6px; border-radius: 999px;
 }
 .langmenu-item:hover .langmenu-soon { background: #fff; }
-/* the language selector now takes the auto margin in the header */
-.hdr-sound { margin-left: 0; }
 @media (max-width: 470px) {
   .langsel-btn { padding: 5px 7px; gap: 3px; }
   .langsel-globe svg { width: 15px; height: 15px; }

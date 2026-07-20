@@ -499,7 +499,17 @@
     document.body.appendChild(m); document.body.classList.add("noscroll");
     var release = manageModalFocus(m);
 
-    function close() { release(); m.remove(); document.body.classList.remove("noscroll"); }
+    var autoT;   // declared up here so close() can cancel the auto-open
+    // close() tears down EVERYTHING: the old version only unbound the Escape
+    // handler if Escape was actually pressed, so closing via the X or the
+    // backdrop leaked a document listener per pull — and left the 4.6s auto-open
+    // running, firing confetti and a sound into a dismissed modal.
+    function close() {
+      clearTimeout(autoT);
+      document.removeEventListener("keydown", onEsc);
+      release(); m.remove(); document.body.classList.remove("noscroll");
+    }
+    function onEsc(ev) { if (ev.key === "Escape") close(); }
     var save = $(".pull-save", m);
     if (save) save.addEventListener("click", function (ev) { ev.stopPropagation(); saveCardImage(saveSlug); });
     // "Add to binder" flies the card up into the header binder chip.
@@ -511,14 +521,12 @@
     m.addEventListener("click", function (ev) {
       if (ev.target === m || ev.target.closest(".modal-x")) close();
     });
-    document.addEventListener("keydown", function onEsc(ev) {
-      if (ev.key === "Escape") { close(); document.removeEventListener("keydown", onEsc); }
-    });
+    document.addEventListener("keydown", onEsc);
 
     var pack = $(".pull-pack", m), reveal = $(".pull-reveal", m);
     if (!pack) { sfx.play("pull"); confetti(); return; } // reduced-motion: card is already showing
 
-    var opened = false, autoT;
+    var opened = false;
     function open() {
       if (opened) return; opened = true;
       clearTimeout(autoT);
@@ -1532,9 +1540,12 @@
       '<div class="modal-t">' + esc(title) + "</div></div>";
     document.body.appendChild(m); document.body.classList.add("noscroll");
     var release = manageModalFocus(m);
-    function close() { release(); m.remove(); document.body.classList.remove("noscroll"); }
+    // Unbind on EVERY close path, not just Escape — otherwise each video opened
+    // leaves a live keydown listener on document.
+    function close() { document.removeEventListener("keydown", onEsc); release(); m.remove(); document.body.classList.remove("noscroll"); }
+    function onEsc(ev) { if (ev.key === "Escape") close(); }
     m.addEventListener("click", function (ev) { if (ev.target === m || ev.target.closest(".modal-x")) close(); });
-    document.addEventListener("keydown", function esc(ev) { if (ev.key === "Escape") { close(); document.removeEventListener("keydown", esc); } });
+    document.addEventListener("keydown", onEsc);
   }
 
   /* ---- QUIZ (stepped, one question at a time) ---------------------------- */
@@ -1835,6 +1846,7 @@
      the sticky CTA stamped on every sheet. Clone just the cert into a print sheet
      (the action buttons are a sibling, so they are excluded for free) and let the
      print stylesheet hide everything else. */
+  var printT;   // pending print-sheet cleanup, so a second print can cancel it
   function printCert() {
     var card = $("#cert-card");
     if (!card) return;   // never bare-print: that promises a cert and prints a page
@@ -1868,10 +1880,14 @@
       if (s) s.remove();
       document.body.classList.remove("printing");
       window.removeEventListener("afterprint", cleanup);
+      clearTimeout(printT);
     }
     window.addEventListener("afterprint", cleanup);
     window.print();
-    setTimeout(cleanup, 1500); // belt and braces where afterprint never fires
+    // Belt and braces where afterprint never fires. Cancelled in cleanup() so a
+    // second print inside the window can't tear down the new sheet mid-print.
+    clearTimeout(printT);
+    printT = setTimeout(cleanup, 1500);
   }
   function showCertificate(c, nm, date, pct, cid, box) {
     var product = "G Pen " + c.name;
@@ -2311,7 +2327,12 @@
     if (swc) swc.addEventListener("click", function () {
       Promise.resolve(window.issueRewardCode("secret", { name: e.name, email: e.email, store: e.store })).then(function (r) { if (r && r.code) copyCode(r.code); });
     });
-    confetti();
+    // Celebrate the achievement, not the page view. This fired on every visit and
+    // every Back-navigation to the certificate, which cheapens it fast.
+    if (!getState().masterCelebrated) {
+      var cs = getState(); cs.masterCelebrated = new Date().toISOString(); setState(cs);
+      confetti();
+    }
     revealOnScroll();
   }
 
@@ -2493,12 +2514,14 @@
 
     var card = $("#insp-card", m), stage = $(".insp-stage", m);
     var flipped = false;
-    function close() { m.remove(); document.body.classList.remove("noscroll"); }
+    // This was the only overlay without dialog semantics or a focus trap, and its
+    // Escape handler leaked unless Escape was the thing that closed it.
+    var release = manageModalFocus(m);
+    function close() { document.removeEventListener("keydown", onEsc); release(); m.remove(); document.body.classList.remove("noscroll"); }
+    function onEsc(ev) { if (ev.key === "Escape") close(); }
     $(".modal-x", m).addEventListener("click", close);
     m.addEventListener("click", function (ev) { if (ev.target === m) close(); });
-    document.addEventListener("keydown", function onEsc(ev) {
-      if (ev.key === "Escape") { close(); document.removeEventListener("keydown", onEsc); }
-    });
+    document.addEventListener("keydown", onEsc);
     $(".insp-flip", m).addEventListener("click", function () {
       flipped = !flipped;
       card.style.setProperty("--flip", flipped ? "180deg" : "0deg");
@@ -2534,7 +2557,13 @@
       var slug = el.getAttribute("data-card");
       var owned = slug === "secret" ? secretCardState() !== "locked" : cardOwned(slug);
       if (!owned) return; // not earned yet — let the link take them to the course
-      el.addEventListener("click", function (ev) { ev.preventDefault(); openCardInspector(slug); });
+      el.addEventListener("click", function (ev) {
+        ev.preventDefault();
+        // preventDefault can leave activeElement on <body>, so manageModalFocus
+        // would capture nothing and drop focus on close. Focus the card first.
+        if (el.focus) el.focus();
+        openCardInspector(slug);
+      });
     });
   }
 
@@ -2583,7 +2612,9 @@
     document.addEventListener("visibilitychange", function () { if (!document.hidden) revealAll(); }, { once: true });
     setTimeout(revealAll, 1600);
   }
-  function setTitleDoc(t) { document.title = t + " · " + CFG.programName; }
+  // Passing the program name itself produced "G Pen University · G Pen University"
+  // on home and the master certificate.
+  function setTitleDoc(t) { document.title = (t && t !== CFG.programName) ? t + " · " + CFG.programName : CFG.programName; }
 
   /* ---- router ------------------------------------------------------------ */
   function go(hash) { if (location.hash === hash) route(); else location.hash = hash; }

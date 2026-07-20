@@ -2,7 +2,8 @@
    G PEN TRAINING PORTAL — CONFIG  (edit me first!)
    -----------------------------------------------------------------------------
    Everything a non-developer needs to tweak lives here: the discount codes,
-   the pass mark, contact email, and where the "shop now" button points.
+   contact email, and where the "shop now" button points. (The per-course pass
+   mark lives with the course content in data.js, as `passPct`.)
 
    >>> DISCOUNT CODES — READ THIS BEFORE RAISING ANY REDEMPTION LIMIT <<<
    These are GENERIC shared codes. This file is served publicly at
@@ -64,7 +65,9 @@ window.TRAINING_CONFIG = {
        1 course -> 25%   2 courses -> 30%   4 courses -> 35%   all 5 -> 40%
      (The tier keys below — course / trio / master / secret — are just the
       internal names the code uses to look up each discount; the course-count
-      thresholds live in rewardsSection() in app.js.) */
+      thresholds live in the LADDER table near the top of app.js — add or move a rung
+      there and the ladder cards, the pre-quiz CTAs and the code actually issued all
+      follow.) */
   discount: {
     // Unlocked after passing ANY single course quiz. 25% off.
     course: {
@@ -88,8 +91,9 @@ window.TRAINING_CONFIG = {
       terms: "One use per person. Not combinable with other offers. Use your highest unlocked code.",
     },
     // Unlocked once ALL 5 courses are complete — the whole lineup. 40% off.
-    // (The free-G-Pen DRAW is presented separately in the sweepstakes panel, which
-    // only appears once a reporting webhook is configured — see the sweepstakes block.)
+    // (The free-device prize is presented separately in the finish-line panel,
+    // which needs sweepstakes.live AND sweepstakes.rulesUrl AND a reporting
+    // webhook — a webhook alone does NOT start it. See the sweepstakes block.)
     secret: {
       code: "CERTIFIEDG40",
       label: "40% off your entire order at gpen.com",
