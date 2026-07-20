@@ -1199,6 +1199,16 @@
           "</div>" +
         "</div>" +
 
+        // SELLING LEADS. The battlecard is the only floor-usable asset here and it
+        // used to sit below ~8 minutes of video, a gallery, an 11-row spec table,
+        // cleaning steps and an FAQ. Moving it up also makes it the advance
+        // organizer these courses lacked, and puts the memorable floor facts ahead
+        // of the spec dump instead of after it.
+        (c.howToSell && c.howToSell.keyFacts && c.howToSell.keyFacts.length
+          ? secHead(++n, "Three things to remember") + floorFactsHTML(c) : "") +
+
+        (c.howToSell ? secHead(++n, "How to sell it") + howToSellHTML(c) : "") +
+
         secHead(++n, "Watch & learn") +
         '<div class="vid-grid">' + c.videos.map(function (v) {
           return '<button class="vid" data-yt="' + esc(v.youtube || "") + '" data-title="' + esc(v.title) + '">' +
@@ -1212,12 +1222,10 @@
         galleryHTML(c) +
         lifestyleCinema(productLifeImg(c.slug, c.heroImg), "In the wild", "The " + c.name + " out in the world.") +
 
-        (c.specs && c.specs.length ? secHead(++n, "Tech specs") + specTableHTML(c.specs) : "") +
         (c.howToUse && c.howToUse.length ? secHead(++n, "How to use it") + stepListHTML(c.howToUse) : "") +
         (c.howToClean && c.howToClean.length ? secHead(++n, "How to clean & care") + stepListHTML(c.howToClean) : "") +
+        (c.specs && c.specs.length ? secHead(++n, "Tech specs") + specTableHTML(c.specs) : "") +
         (c.faq && c.faq.length ? secHead(++n, "FAQ") + faqHTML(c.faq) : "") +
-
-        (c.howToSell ? secHead(++n, "How to sell it") + howToSellHTML(c) : "") +
         factCard() +
 
         secHead(++n, "Get certified") +
@@ -1254,6 +1262,16 @@
   /* The sales battlecard. A rep should be able to scan it in seconds and read
      the "say this" lines out loud verbatim. Fixed block order so muscle memory
      builds: trigger → 3 facts → talk track → which-one close → objections → AOV. */
+  /* The three facts a rep should be able to say without looking. Same keyFacts
+     the battlecard reuses as chips further down — the repetition is the point:
+     this block is the advance organizer, the chips are the recall check. */
+  function floorFactsHTML(c) {
+    var facts = (c.howToSell && c.howToSell.keyFacts) || [];
+    if (!facts.length) return "";
+    return '<div class="floorfacts">' + facts.map(function (t, i) {
+      return '<div class="ff-card"><span class="ff-n" aria-hidden="true">' + (i + 1) + "</span><p>" + esc(t) + "</p></div>";
+    }).join("") + "</div>";
+  }
   function howToSellHTML(c) {
     var h = c.howToSell; if (!h) return "";
     var facts = (h.keyFacts || []).map(function (f) {

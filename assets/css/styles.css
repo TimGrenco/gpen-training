@@ -241,6 +241,17 @@ h1, h2, h3, h4 { margin: 0; line-height: 1.08; letter-spacing: -.02em; }
 /* ==================== THE SALES BATTLECARD (How to sell it) ============
    Scan-in-seconds layout for a rep on the floor. Green = "say this out loud",
    red = the customer's objection, gold = the product's own accent. */
+/* "Three things to remember" — the advance organizer at the top of a course.
+   Big and few on purpose: this is what a rep should still know next shift. */
+.floorfacts { display: grid; grid-template-columns: 1fr; gap: 12px; margin-bottom: 6px; }
+@media (min-width: 760px) { .floorfacts { grid-template-columns: repeat(3, 1fr); } }
+.ff-card { display: flex; align-items: flex-start; gap: 12px; padding: 18px;
+  background: var(--paper); border: 1px solid var(--line); border-left: 4px solid var(--gold-bright);
+  border-radius: var(--r-md); box-shadow: var(--shadow); }
+.ff-n { flex: none; width: 26px; height: 26px; display: grid; place-items: center; border-radius: 50%;
+  background: var(--gold-bright); color: #1a1509; font-weight: 900; font-size: 13px; }
+.ff-card p { margin: 0; font-size: 15px; font-weight: 700; line-height: 1.4; color: var(--ink); }
+
 .sell2 { display: flex; flex-direction: column; gap: 14px; margin-top: 4px; }
 
 /* Pairing trigger — the whole thing hangs off "when they're buying X". */
