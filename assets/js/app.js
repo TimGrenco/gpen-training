@@ -63,7 +63,15 @@
   function prizeCopy() {
     var s = CFG.sweepstakes || {};
     var prize = s.prize || "a free G Pen";
-    if (s.mode === "everyNth") {
+    // An unrecognised mode must never silently republish the OTHER mechanic: the
+    // Apps Script awards every Nth regardless, so falling through to "drawing"
+    // would put terms in the fine print that fulfilment does not follow.
+    var mode = String(s.mode || "everyNth").trim();
+    if (mode !== "everyNth" && mode !== "drawing") {
+      if (window.console) console.error('[gpen-training] config.sweepstakes.mode is "' + s.mode + '" — expected "everyNth" or "drawing". Falling back to "everyNth".');
+      mode = "everyNth";
+    }
+    if (mode === "everyNth") {
       var n = s.everyNth || 20;
       return {
         mode: "everyNth",
@@ -97,7 +105,7 @@
   function getEnroll() { try { return JSON.parse(localStorage.getItem(K_ENROLL) || "null"); } catch (e) { return null; } }
   function setEnroll(v) { try { localStorage.setItem(K_ENROLL, JSON.stringify(v)); } catch (e) {} }
   function getState() {
-    var d = { courses: {}, badges: [], streak: { count: 0, last: null }, master: null, trio: null, fresh: {}, log: [] };
+    var d = { courses: {}, streak: { count: 0, last: null }, master: null, trio: null, fresh: {}, log: [] };
     var s;
     try { s = Object.assign(d, JSON.parse(localStorage.getItem(K_STATE) || "{}")); } catch (e) { return d; }
     if (!s.fresh) s.fresh = {};
@@ -929,8 +937,6 @@
       combo: function () { [523, 659, 784, 1046].forEach(function (f, i) { tone(f, i * 0.055, 0.13, "triangle", 0.15); }); },
       pull: function () { noise(0, 0.26, 0.16, 900); [784, 1046, 1318].forEach(function (f, i) { tone(f, 0.14 + i * 0.05, 0.18, "sine", 0.15); }); },
       pass: function () { [523, 659, 784, 1046].forEach(function (f, i) { tone(f, i * 0.1, 0.24, "triangle", 0.17); }); },
-      egg: function () { tone(1046, 0, 0.18, "sine", 0.15); tone(1568, 0.1, 0.24, "sine", 0.13); },
-      gold: function () { [659, 784, 988, 1319, 1568].forEach(function (f, i) { tone(f, i * 0.09, 0.3, "triangle", 0.16); }); },
       copy: function () { tone(880, 0, 0.05, "square", 0.09); tone(1320, 0.04, 0.05, "square", 0.07); },
       tick: function () { tone(660, 0, 0.04, "sine", 0.07); },
       // Prof. O.G.'s two-note hoot
@@ -1572,11 +1578,17 @@
   }
   function showCertifyForm(c) {
     var zone = $("#quiz-zone"), e = getEnroll() || {};
+    // This is also the RETAKE entry point, where completedCount() cannot rise —
+    // so no new rung is reachable and promising a percentage would be false.
+    var owned = cardOwned(c.slug);
+    var pct = owned ? null : unlockPct(completedCount());
     zone.innerHTML =
       '<div class="certify">' +
         '<div class="certify-badge">' + ic("award") + "</div>" +
-        "<h3>Get certified" + (unlockPct(completedCount()) ? " &amp; unlock " + unlockPct(completedCount()) + "% off" : "") + "</h3>" +
-        '<p class="lead">Ready? Pass the ' + c.quiz.length + "-question quiz (score " + c.passPct + "%+) to earn your <strong>" + esc(c.name) + "</strong> Product Specialist certificate and a gpen.com discount code. Enter your details so we can put your name on the certificate.</p>" +
+        "<h3>" + (owned ? "Retake the quiz" : "Get certified" + (pct ? " &amp; unlock " + pct + "% off" : "")) + "</h3>" +
+        '<p class="lead">' + (owned
+          ? "Retake the " + c.quiz.length + "-question quiz (score " + c.passPct + "%+) to refresh your score on your <strong>" + esc(c.name) + "</strong> certificate. Your discount code is unchanged."
+          : "Ready? Pass the " + c.quiz.length + "-question quiz (score " + c.passPct + "%+) to earn your <strong>" + esc(c.name) + "</strong> Product Specialist certificate and a gpen.com discount code. Enter your details so we can put your name on the certificate.") + "</p>" +
         '<div class="certify-form">' +
           field("name", "Your full name", "text", e.name, "Jane Budtender", "name") +
           field("email", "Email address", "email", e.email, "you@store.com", "email") +
@@ -1602,13 +1614,19 @@
       if (!store) { toast("Enter your store name"); $("#f-store").focus(); return; }
       if (!$("#f-attest").checked) { toast("Please confirm you're 21+ and retail staff"); $("#f-attest").focus(); return; }
       var prev = getEnroll();
-      // Shared counter tablet: a second rep typing their own name would otherwise
-      // inherit the first rep's passed courses and mint certificates on top of
-      // them. Make the handover explicit, and start the newcomer clean.
-      var handover = prev && prev.name && prev.name.trim().toLowerCase() !== name.toLowerCase();
+      /* Shared counter tablet: a second rep would otherwise inherit the first
+         rep's passed courses and mint certificates on top of them. The form
+         PREFILLS all three fields, so testing the name alone missed the most
+         natural case — rep #2 changes only the email and store and leaves the
+         prefilled name, and every certificate goes out under rep #1's name.
+         Email counts as identity too. Prefill stays: this is also the retake
+         path, and the same rep shouldn't retype their details every course. */
+      function sameId(a, b) { return String(a || "").trim().toLowerCase() === String(b || "").trim().toLowerCase(); }
+      var handover = !!prev && (!sameId(prev.name, name) || !sameId(prev.email, email));
       if (handover) {
         var n = completedCount();
-        if (!confirm("This device is signed in as " + prev.name + ".\n\nStarting as " + name + " will clear " + prev.name + "'s progress on this device" +
+        var who = (prev.name || "someone else") + (sameId(prev.name, name) && prev.email ? " (" + prev.email + ")" : "");
+        if (!confirm("This device is signed in as " + who + ".\n\nContinuing as " + name + " will clear " + (prev.name || "their") + "'s progress on this device" +
             (n ? " — including " + n + " course certificate" + (n === 1 ? "" : "s") : "") + ". This can't be undone.\n\nContinue as " + name + "?")) return;
         localStorage.removeItem(K_STATE);
       }
@@ -1726,6 +1744,16 @@
   }
   function quizFail(c, correct, pct, points, order, answers) {
     var zone = $("#quiz-zone");
+    // Record the attempt so home can offer to pick it back up. resumeStrip() has
+    // always looked for a started-but-unpassed course, but nothing ever wrote
+    // one, so the returning-rep affordance never appeared. completedCount() and
+    // cardOwned() both gate on .passed, so this never counts as a certification —
+    // and the guard makes sure a failed RETAKE can't wipe an earned certificate.
+    var fs = getState();
+    if (!fs.courses[c.slug] || !fs.courses[c.slug].passed) {
+      fs.courses[c.slug] = { passed: false, attempted: new Date().toISOString(), score: pct };
+      setState(fs);
+    }
     var needCorrect = Math.ceil((c.passPct / 100) * c.quiz.length);
     var away = Math.max(1, needCorrect - correct);
     zone.innerHTML = '<div class="result fail">' +
@@ -1749,7 +1777,6 @@
     var improved = !prev || !prev.passed || pct > (prev.score || 0);
     var rec = improved ? { passed: true, score: pct, certId: cid, date: date, name: e.name } : prev;
     s.courses[c.slug] = rec;
-    if (s.badges.indexOf(c.slug) < 0) s.badges.push(c.slug);
     setState(s);
     if (firstTime) {
       pendingCelebrate = true; // ring pulses + confetti next time they hit home
@@ -1805,8 +1832,16 @@
 
   /* ---- REWARD (isolated issuance) --------------------------------------- */
   function revealReward(type, ctx, box) {
-    Promise.resolve(window.issueRewardCode(type, ctx)).then(function (r) {
-      if (!r || !r.code) return;
+    // new Promise (not Promise.resolve) so a SYNCHRONOUS throw inside
+    // issueRewardCode lands in the chain instead of propagating out and aborting
+    // the rest of the pass screen. Quiet on screen, loud in the console — a rep
+    // who just passed should never see an error, but whoever edits config.js
+    // is looking at the console.
+    new Promise(function (res) { res(window.issueRewardCode(type, ctx)); }).then(function (r) {
+      if (!r || !r.code) {
+        if (window.console) console.warn("[gpen-training] no reward code returned for tier '" + type + "' — check TRAINING_CONFIG.discount");
+        return;
+      }
       box.innerHTML = '<div class="reward">' +
         '<div class="reward-ic">' + ic("tag") + "</div>" +
         // Name the rung so climbing a tier reads as an event, not a repeat.
@@ -1822,6 +1857,8 @@
         if (navigator.clipboard) navigator.clipboard.writeText(t).then(function () { toast("Code copied!"); }, function () { toast(t); });
         else toast(t);
       });
+    }).catch(function (err) {
+      if (window.console) console.warn("[gpen-training] revealReward failed for tier '" + type + "'", err);
     });
   }
 

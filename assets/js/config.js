@@ -179,12 +179,21 @@ window.TRAINING_CONFIG = {
    The rest of the app already awaits this, so no other change is needed.
    --------------------------------------------------------------------------- */
 window.issueRewardCode = function (type, ctx) {
-  var d = window.TRAINING_CONFIG.discount;
-  if (type === "secret") return Object.assign({ type: "secret" }, d.secret);
-  if (type === "master") return Object.assign({ type: "master" }, d.master);
-  if (type === "trio") return Object.assign({ type: "trio" }, d.trio);
-  var perCourse = (ctx && ctx.courseSlug && d.perCourse[ctx.courseSlug]) || d.course;
-  return Object.assign({ type: "course" }, perCourse);
+  var d = (window.TRAINING_CONFIG && window.TRAINING_CONFIG.discount) || {};
+  // Missing tier = loud in the console, never a silent empty reward box.
+  function tier(key, obj) {
+    if (!obj || !obj.code) {
+      if (window.console) console.warn("[gpen-training] issueRewardCode: no code configured for tier '" + key + "' — check TRAINING_CONFIG.discount." + key);
+    }
+    return Object.assign({ type: key }, obj || {});
+  }
+  if (type === "secret") return tier("secret", d.secret);
+  if (type === "master") return tier("master", d.master);
+  if (type === "trio") return tier("trio", d.trio);
+  // `|| {}` so deleting the obviously-empty perCourse object can't throw on every pass.
+  var pc = d.perCourse || {};
+  var perCourse = (ctx && ctx.courseSlug && pc[ctx.courseSlug]) || d.course;
+  return tier("course", perCourse);
 };
 
 /* -----------------------------------------------------------------------------
