@@ -35,8 +35,13 @@
   var DRAW_PREVIEW = /[?&]preview=draw(&|$)/.test(location.search);
   function drawLive() {
     var s = CFG.sweepstakes || {};
-    if (DRAW_PREVIEW) return s.enabled !== false;
-    return s.enabled !== false && s.live === true && !!((CFG.reporting || {}).url);
+    if (DRAW_PREVIEW) return s.enabled !== false;   // review flow needs no rules URL
+    // rulesUrl is a STRUCTURAL precondition, not just documentation: without it the
+    // panel would publish a full eligibility/void-where-prohibited statement with no
+    // Official Rules behind it. With `live` already true, reporting.url was the only
+    // remaining gate — and pasting that webhook is the one step the client is told to
+    // do. No config combination can now publish the promotion without a rules page.
+    return s.enabled !== false && s.live === true && !!s.rulesUrl && !!((CFG.reporting || {}).url);
   }
   /* Prize copy, derived from config so every surface describes the SAME mechanic.
      "everyNth" is deterministic — every Nth full-lineup certification wins, and
@@ -2568,6 +2573,13 @@
     // Backfill: anyone who earned a tier before it reported (or before a webhook
     // existed) gets recorded on their next visit. Both calls are idempotent.
     if (getEnroll()) { maybeReportTier(); reportMaster(); }
+    // A half-armed prize config should never be silent in either direction.
+    (function () {
+      var s = CFG.sweepstakes || {};
+      if (s.enabled === false || s.live !== true) return;
+      if (!s.rulesUrl) console.warn("[gpen-training] sweepstakes.live is true but rulesUrl is empty, so the prize promotion is NOT rendering. Host the counsel-cleared rules page and set sweepstakes.rulesUrl. Preview it meanwhile with ?preview=draw.");
+      else if (!(CFG.reporting || {}).url) console.warn("[gpen-training] sweepstakes is armed but reporting.url is empty — there is no counter, so no winner can be selected. See REPORTING.md.");
+    }());
     if (!app) { return document.addEventListener("DOMContentLoaded", boot, { once: true }); }
     bindSoundToggle();
     bindReset();

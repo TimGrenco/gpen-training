@@ -144,6 +144,11 @@ window.TRAINING_CONFIG = {
     rotation: ["G Pen Dash II", "G Pen Dash+", "G Pen Melt Hot Knife", "G Pen Hydout", "G Pen 510 Original"],
     cadence: "monthly",
     prize: "a free G Pen",
+    // ⚠️ THE LAST GATE. The promotion cannot render until this points at a LIVE,
+    // counsel-cleared rules page — drawLive() requires it, so `live: true` above
+    // and a pasted reporting webhook are NOT enough on their own. Leave it empty
+    // and the site simply shows the guaranteed discount instead. Review the full
+    // treatment any time with ?preview=draw.
     rulesUrl: "",
   },
 

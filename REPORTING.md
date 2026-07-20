@@ -1,10 +1,13 @@
 # Completion reporting — see who got certified, per store
 
 > **Pasting a webhook URL turns on completion reporting and nothing else.**
-> It does **not** start the free-G-Pen sweepstakes. That draw is behind a separate
-> manual switch (`config.sweepstakes.live`) which must stay `false` until counsel
-> has cleared the Official Rules page — the draft is at
-> `.claude/drafts/rules.draft.html` and is deliberately not deployed.
+> It does **not** start the free-device promotion. That is gated on BOTH
+> `config.sweepstakes.live` **and** `config.sweepstakes.rulesUrl` — `drawLive()`
+> requires a rules URL structurally, so no combination of config plus a webhook
+> can publish the promotion until a counsel-cleared rules page is hosted and
+> that URL is filled in. The draft is at `.claude/drafts/rules.draft.html` and is
+> deliberately not deployed. To review the treatment meanwhile, open the site
+> with `?preview=draw`.
 
 The training site is static (no backend), so it reports certifications by sending
 a small POST to a **webhook URL you control**. You paste that URL into
