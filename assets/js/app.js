@@ -468,13 +468,42 @@
   }
 
   // The 30% tier fires once, the first time a second card lands in the binder.
+  /* Mid-funnel reward tiers, reported once each. Table-driven because the 4-course
+     rung previously had no reporting at all — the middle of the funnel was dark.
+     `elite` is deliberately not called "master": that type is the all-5 event. */
+  var REPORT_TIERS = [
+    { flag: "trio", type: "trio", at: 2, label: "30% reward (2 courses)" },
+    { flag: "elite", type: "elite", at: 4, label: "35% reward (4 courses)" },
+  ];
   function maybeReportTier() {
-    if (baseSetOwned() < 2) return;
-    var s = getState(); if (s.trio) return;
+    var done = baseSetOwned(), s = getState(), e = getEnroll() || {}, changed = false;
+    REPORT_TIERS.forEach(function (t) {
+      if (done < t.at || s[t.flag]) return;
+      s[t.flag] = { at: new Date().toISOString() };
+      changed = true;
+      logEvent(t.flag, {});
+      if (window.reportCompletion) window.reportCompletion({ type: t.type, name: e.name, email: e.email, store: e.store, product: t.label, score: 100, certId: "", date: niceDate() });
+    });
+    if (changed) setState(s);
+  }
+  /* The all-5 event used to fire ONLY inside renderCertified(), so a rep who
+     passed their fifth course and closed the tab was never recorded. Now called
+     from quizPass; renderCertified just displays what this stamped. */
+  function reportMaster() {
+    if (!isMasterEarned()) return null;
+    var s = getState();
+    if (s.master) return s.master;
     var e = getEnroll() || {};
-    s.trio = { at: new Date().toISOString() }; setState(s);
-    logEvent("trio", {});
-    if (window.reportCompletion) window.reportCompletion({ type: "trio", name: e.name, email: e.email, store: e.store, product: "30% reward (2 courses)", score: 100, certId: "", date: niceDate() });
+    var date = niceDate(), cid = certId((e.name || "") + "|G Pen Certified Specialist|" + date);
+    s.master = { certId: cid, date: date, name: e.name }; setState(s);
+    logEvent("master", { certId: cid });
+    if (window.reportCompletion) window.reportCompletion({ type: "master", name: e.name, email: e.email, store: e.store, product: "Certified G", score: 100, certId: cid, date: date });
+    // Full-lineup certification = one automatic entry in the free-G-Pen draw.
+    // The reporting webhook IS the entry pool; only fires when the draw is live.
+    if (drawLive() && window.reportCompletion) {
+      window.reportCompletion({ type: "sweepstakes_entry", name: e.name, email: e.email, store: e.store, product: "Free G Pen draw", score: 100, certId: cid, date: date });
+    }
+    return s.master;
   }
 
   /* ---- icons (inline SVG) ------------------------------------------------ */
@@ -1590,7 +1619,8 @@
       if (isMasterEarned()) markFresh("secret"); // that pull revealed the secret rare
       if (window.reportCompletion) window.reportCompletion({ type: "course", name: e.name, email: e.email, store: e.store, product: "G Pen " + c.name, courseSlug: c.slug, score: pct, certId: cid, date: date });
     }
-    maybeReportTier();   // a second certified course unlocks the 30% tier
+    maybeReportTier();   // 30% at 2 certified courses, 35% at 4
+    reportMaster();      // record the all-5 event here, not on a page they may never open
     refreshCounters();
     var streak = touchStreak();
     logEvent("certified", { course: c.slug, certId: cid, score: pct });
@@ -2077,19 +2107,10 @@
   function renderCertified() {
     if (!isMasterEarned()) return go("#/");
     var e = getEnroll() || { name: "", store: "", email: "" };
-    var s = getState();
-    // master cert date = latest course date; id from name + program
-    var date = niceDate(), cid = certId(e.name + "|G Pen Certified Specialist|" + date);
-    if (!s.master) {
-      s.master = { certId: cid, date: date, name: e.name }; setState(s); logEvent("master", { certId: cid });
-      if (window.reportCompletion) window.reportCompletion({ type: "master", name: e.name, email: e.email, store: e.store, product: "Certified G", score: 100, certId: cid, date: date });
-      // Full-lineup certification = one automatic entry in the free-G-Pen draw.
-      // The reporting webhook IS the entry pool; only fires when the draw is live.
-      if (drawLive() && window.reportCompletion) {
-        window.reportCompletion({ type: "sweepstakes_entry", name: e.name, email: e.email, store: e.store, product: "Free G Pen draw", score: 100, certId: cid, date: date });
-      }
-    }
-    else { cid = s.master.certId; date = s.master.date; }
+    // Display only — reportMaster() stamps + reports (idempotent) and quizPass
+    // already called it, so arriving here late never double-reports.
+    var m = reportMaster() || {};
+    var cid = m.certId, date = m.date;
 
     app.innerHTML = header() +
       '<section class="course reveal">' +
@@ -2443,7 +2464,9 @@
     app = $("#app"); // re-resolve in case the script loaded before #app parsed
     // Backfill: someone who earned a tier before it existed still gets reported
     // once. Both calls no-op unless the tier is newly reached and unrecorded.
-    if (getEnroll()) maybeReportTier();
+    // Backfill: anyone who earned a tier before it reported (or before a webhook
+    // existed) gets recorded on their next visit. Both calls are idempotent.
+    if (getEnroll()) { maybeReportTier(); reportMaster(); }
     if (!app) { return document.addEventListener("DOMContentLoaded", boot, { once: true }); }
     bindSoundToggle();
     bindReset();

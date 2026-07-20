@@ -14,10 +14,11 @@ certificate the site sends:
 ```json
 {
   "type": "course",              // see the table below
-  //  "course"  first time a product card is pulled (any single course passed)
-  //  "trio"    the 3rd product card is collected (30% tier)
-  //  "master"  the full 5-card Base Set is collected (35% tier)
-  //  "secret"  Base Set + every Trainer card, i.e. all 10 trivia eggs (40% gold tier)
+  //  "course"            a course was passed (fires on each first-time pass)
+  //  "trio"              2 courses certified — 30% tier
+  //  "elite"             4 courses certified — 35% tier
+  //  "master"            all 5 certified — "Certified G" (40% tier)
+  //  "sweepstakes_entry" all 5 certified AND the draw is switched live
   "name": "Jane Budtender",
   "email": "jane@store.com",
   "store": "Cloud 9 Smoke Shop",
