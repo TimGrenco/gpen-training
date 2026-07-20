@@ -736,6 +736,12 @@ a.linklike.backdash { display: block; width: auto; margin-top: 10px; text-align:
 #print-sheet { display: none; }
 @media print {
   @page { margin: 12mm; }
+  /* The cert clone is a fresh node that stays display:none until print media
+     applies, so cert-reveal's clock starts at pagination — and with
+     animation-fill-mode:both that paints the sheet at keyframe 0 (opacity:0),
+     i.e. a blank certificate. Freeze all motion and force the end state. */
+  *, *::before, *::after { animation: none !important; transition: none !important; }
+  .cert, .cert.master, .reveal { opacity: 1 !important; transform: none !important; }
   /* Only blacked out while printCert() is running. A plain Cmd/Ctrl+P prints the
      live page instead of an empty sheet — just without the chrome. */
   body.printing > *:not(#print-sheet) { display: none !important; }

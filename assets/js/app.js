@@ -33,6 +33,17 @@
   // reporting stays off (see reportMaster) so nobody is told they're entered when
   // there is no entry pool. Share the link; it changes nothing for anyone else.
   var DRAW_PREVIEW = /[?&]preview=draw(&|$)/.test(location.search);
+  /* The ONE place that knows about preview. Returning false (rather than
+     short-circuiting further up) is load-bearing: the *Reported flags stay unset,
+     so if a real rep arrives via a shared preview link nothing is lost — boot()'s
+     backfill resends everything on their next normal load. Without this, the
+     "master" event still fired in preview, and master is the event the winner
+     counter actually reads, so a reviewer screenshotting the flow could advance
+     the real queue — while the banner promised "no entries are recorded". */
+  function sendReport(payload) {
+    if (DRAW_PREVIEW) return false;
+    return !!(window.reportCompletion && window.reportCompletion(payload));
+  }
   function drawLive() {
     var s = CFG.sweepstakes || {};
     if (DRAW_PREVIEW) return s.enabled !== false;   // review flow needs no rules URL
@@ -539,8 +550,8 @@
     REPORT_TIERS.forEach(function (t) {
       if (done < t.at) return;
       if (!s[t.flag]) { s[t.flag] = { at: new Date().toISOString() }; changed = true; logEvent(t.flag, {}); }
-      if (!s[t.flag + "Reported"] && window.reportCompletion &&
-          window.reportCompletion({ type: t.type, name: e.name, email: e.email, store: e.store, product: t.label, score: 100, certId: "", date: niceDate() })) {
+      if (!s[t.flag + "Reported"] &&
+          sendReport({ type: t.type, name: e.name, email: e.email, store: e.store, product: t.label, score: 100, certId: "", date: niceDate() })) {
         s[t.flag + "Reported"] = new Date().toISOString();
         changed = true;
       }
@@ -564,19 +575,36 @@
     // Reporting is tracked separately from the stamp, and retried until it lands,
     // so certifications earned before the webhook existed are not lost. Reuses the
     // STORED certId/date so a late resend logs the certificate the rep is holding.
-    if (!s.masterReported && window.reportCompletion &&
-        window.reportCompletion({ type: "master", name: e.name, email: e.email, store: e.store, product: "Certified G", score: 100, certId: m.certId, date: m.date })) {
+    if (!s.masterReported &&
+        sendReport({ type: "master", name: e.name, email: e.email, store: e.store, product: "Certified G", score: 100, certId: m.certId, date: m.date })) {
       s.masterReported = new Date().toISOString(); changed = true;
     }
     // Full-lineup certification = one entry in the free-device prize. Never fires
     // in preview (no pool to enter), and stays pending so the rep is entered for
     // real the first time they load the page after the prize actually goes live.
-    if (!s.masterEntryReported && drawLive() && !DRAW_PREVIEW && window.reportCompletion &&
-        window.reportCompletion({ type: "sweepstakes_entry", name: e.name, email: e.email, store: e.store, product: "Free device prize", score: 100, certId: m.certId, date: m.date })) {
+    if (!s.masterEntryReported && drawLive() &&
+        sendReport({ type: "sweepstakes_entry", name: e.name, email: e.email, store: e.store, product: "Free device prize", score: 100, certId: m.certId, date: m.date })) {
       s.masterEntryReported = new Date().toISOString(); changed = true;
     }
     if (changed) setState(s);
     return m;
+  }
+  /* Per-course events needed the same earned-vs-reported split as the tiers. They
+     used to fire inline in quizPass behind `if (firstTime)` with the result
+     discarded — so with no webhook yet (the shipping state) every course row was
+     lost forever, and a later backfill would resurrect a rep's trio/elite/master
+     rows with no course history behind them. Idempotent; safe to call anywhere. */
+  function reportCourses() {
+    var s = getState(), e = getEnroll() || {}, changed = false;
+    COURSES.forEach(function (c) {
+      var r = s.courses[c.slug];
+      if (!r || !r.passed || r.reported) return;
+      if (sendReport({ type: "course", name: r.name || e.name, email: e.email, store: e.store,
+            product: "G Pen " + c.name, courseSlug: c.slug, score: r.score, certId: r.certId, date: r.date })) {
+        r.reported = new Date().toISOString(); changed = true;
+      }
+    });
+    if (changed) setState(s);
   }
 
   /* ---- icons (inline SVG) ------------------------------------------------ */
@@ -1716,8 +1744,9 @@
       pendingCelebrate = true; // ring pulses + confetti next time they hit home
       markFresh(c.slug);
       if (isMasterEarned()) markFresh("secret"); // that pull revealed the secret rare
-      if (window.reportCompletion) window.reportCompletion({ type: "course", name: e.name, email: e.email, store: e.store, product: "G Pen " + c.name, courseSlug: c.slug, score: pct, certId: cid, date: date });
     }
+    // Courses first, so a late webhook receives them ahead of the tier rows they justify.
+    reportCourses();
     maybeReportTier();   // 30% at 2 certified courses, 35% at 4
     reportMaster();      // record the all-5 event here, not on a page they may never open
     refreshCounters();
@@ -1815,6 +1844,19 @@
     sheet.id = "print-sheet";
     var clone = card.cloneNode(true);
     clone.removeAttribute("id");    // don't duplicate #cert-card in the DOM
+    // ...and don't duplicate any id INSIDE it either. The seal's <defs> arc is
+    // referenced by <textPath href="#…">, and a duplicated id resolves to the
+    // FIRST match in document order — the original, which body.printing has just
+    // hidden — so the ring text can drop out of the printed sheet.
+    var seq = 0;
+    Array.prototype.forEach.call(clone.querySelectorAll("[id]"), function (n) {
+      var was = n.id, now = "pr" + (++seq) + "-" + was;
+      n.id = now;
+      Array.prototype.forEach.call(clone.querySelectorAll('[href="#' + was + '"]'), function (ref) {
+        ref.setAttribute("href", "#" + now);
+        if (ref.hasAttribute("xlink:href")) ref.setAttribute("xlink:href", "#" + now);
+      });
+    });
     sheet.appendChild(clone);
     document.body.appendChild(sheet);
     // The print blackout is gated on this class, NOT on the sheet existing —
@@ -2572,7 +2614,7 @@
     // once. Both calls no-op unless the tier is newly reached and unrecorded.
     // Backfill: anyone who earned a tier before it reported (or before a webhook
     // existed) gets recorded on their next visit. Both calls are idempotent.
-    if (getEnroll()) { maybeReportTier(); reportMaster(); }
+    if (getEnroll()) { reportCourses(); maybeReportTier(); reportMaster(); }
     // A half-armed prize config should never be silent in either direction.
     (function () {
       var s = CFG.sweepstakes || {};

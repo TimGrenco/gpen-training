@@ -95,11 +95,28 @@ function doPost(e) {
   // Only full-lineup certifications ("master") are in the running.
   if (d.type !== "master") return ContentService.createTextOutput("ok");
 
-  // How many people have now certified on the whole lineup?
-  var types = sheet.getRange(2, 2, Math.max(sheet.getLastRow() - 1, 1), 1).getValues();
-  var position = types.filter(function (r) { return r[0] === "master"; }).length;
-
   var row = sheet.getLastRow();
+
+  // Count DISTINCT people, not rows. A rep can reset their progress and re-certify
+  // (the site offers both a reset button and a device handover), which appends a
+  // second master row with a fresh certId — so counting rows would let anyone walk
+  // the counter to a multiple of 20 and win on demand, and would inflate the queue
+  // even innocently. Position is therefore the number of distinct emails.
+  var rows = sheet.getRange(2, 2, Math.max(sheet.getLastRow() - 1, 1), 3).getValues(); // B:D = type,name,email
+  var seen = {}, position = 0, mine = String(d.email || "").trim().toLowerCase(), already = false;
+  rows.forEach(function (r) {
+    if (r[0] !== "master") return;
+    var em = String(r[2] || "").trim().toLowerCase();
+    if (!em || seen[em]) { if (em === mine) already = true; return; }
+    seen[em] = true;
+    position++;
+    if (em === mine && position < rows.length) { /* first time for this person */ }
+  });
+  if (already) {                                        // re-certification: log it, don't count it
+    sheet.getRange(row, 11).setValue("duplicate — not counted");
+    return ContentService.createTextOutput("ok");
+  }
+
   sheet.getRange(row, 10).setValue(position);          // col J: their position in line
 
   if (position % WIN_EVERY === 0) {
@@ -129,6 +146,11 @@ Then mirror the same numbers in `assets/js/config.js` so the site's copy matches
 sweepstakes: { enabled: true, live: true, mode: "everyNth", everyNth: 20,
                rotation: ["G Pen Dash II", "G Pen Dash+", ...] },
 ```
+
+**Column K is authoritative, not row order.** A rep can reset their progress and
+re-certify, which appends another `master` row — the script marks those
+"duplicate — not counted" and they do not advance the queue. When you fulfil, go
+by the row flagged `WINNER — <device>`.
 
 **Fulfilment is manual and that's deliberate** — you get the winner email, you
 confirm they're real authorized retail staff, then you ship the device or send a
