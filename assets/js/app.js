@@ -38,6 +38,40 @@
     if (DRAW_PREVIEW) return s.enabled !== false;
     return s.enabled !== false && s.live === true && !!((CFG.reporting || {}).url);
   }
+  /* Prize copy, derived from config so every surface describes the SAME mechanic.
+     "everyNth" is deterministic — every Nth full-lineup certification wins, and
+     the device rotates with each winner. The browser cannot know a rep's position
+     in that queue (it only knows about itself, and anything it did know could be
+     faked by clearing site data), so we describe the rule and never claim a
+     standing. The count and the winner are decided in the sheet — see REPORTING.md. */
+  function prizeCopy() {
+    var s = CFG.sweepstakes || {};
+    var prize = s.prize || "a free G Pen";
+    if (s.mode === "everyNth") {
+      var n = s.everyNth || 20;
+      return {
+        mode: "everyNth",
+        n: n,
+        short: "every " + ordinal(n) + " specialist wins a free device",
+        statusOn: "You're in line",
+        headline: "You're in line for a free device.",
+        rule: "Every " + ordinal(n) + " person to certify on the whole lineup wins a free G&nbsp;Pen device, and the device rotates with each winner.",
+        fine: "No purchase necessary. Open to authorized G Pen retail staff (dispensary & smoke shop), 21+, US, void where prohibited. Every " + ordinal(n) + " full-lineup certification wins; winners are notified by email at the address on their certificate.",
+      };
+    }
+    return {
+      mode: "drawing",
+      short: "a shot at " + prize,
+      statusOn: "You're in the draw",
+      headline: "You're entered to win " + prize + ".",
+      rule: "Every fully-certified specialist is entered to win " + prize + ", drawn " + (s.cadence || "monthly") + ".",
+      fine: "No purchase necessary. Open to authorized G Pen retail staff (dispensary & smoke shop), 21+, US, void where prohibited. Winners drawn " + (s.cadence || "monthly") + ".",
+    };
+  }
+  function ordinal(n) {
+    var s = ["th", "st", "nd", "rd"], v = n % 100;
+    return n + (s[(v - 20) % 10] || s[v] || s[0]);
+  }
   function coreSlugs() { return CFG.coreCourses && CFG.coreCourses.length ? CFG.coreCourses : COURSES.map(function (c) { return c.slug; }); }
   function todayKey() { var d = new Date(); return d.getFullYear() + "-" + (d.getMonth() + 1) + "-" + d.getDate(); }
   function niceDate() { return new Date().toLocaleDateString(undefined, { year: "numeric", month: "long", day: "numeric" }); }
@@ -980,8 +1014,8 @@
             "</div>" +
           "</div>" +
           '<div class="mast-aside">' +
-            '<p class="mast-deck">Free training on all five G&nbsp;Pen products. Pass the quizzes, unlock up to <b>40% off</b> gpen.com' + (drawLive() ? ' &mdash; plus a shot at a <b>free G&nbsp;Pen</b>' : "") + ".</p>" +
-            '<ul class="mast-stats"><li>5 products</li><li>No sign-up</li><li class="gold">up to 40% off' + (drawLive() ? " + a free-device draw" : "") + "</li></ul>" +
+            '<p class="mast-deck">Free training on all five G&nbsp;Pen products. Pass the quizzes, unlock up to <b>40% off</b> gpen.com' + (drawLive() ? ' &mdash; and ' + prizeCopy().short : "") + ".</p>" +
+            '<ul class="mast-stats"><li>5 products</li><li>No sign-up</li><li class="gold">up to 40% off' + (drawLive() ? " + a free device" : "") + "</li></ul>" +
             '<div class="og-fact" id="og-fact" role="status" aria-live="polite"></div>' +
             '<button class="btn mt" type="button" data-scroll="courses">Show me the shelf ' + ic("arrow") + "</button>" +
           "</div>" +
@@ -1198,15 +1232,15 @@
     var draw = drawLive();
     return '<div class="rw-card grand ' + (unlocked ? "on" : "off") + '">' +
       '<div class="rw-top"><span class="rw-ic">' + ic(unlocked ? "award" : "lock") + "</span>" +
-        '<span class="rw-status">' + (unlocked ? (draw ? "You're in the draw" : "Unlocked") : "Grand prize") + "</span></div>" +
+        '<span class="rw-status">' + (unlocked ? (draw ? prizeCopy().statusOn : "Unlocked") : "Grand prize") + "</span></div>" +
       '<div class="rw-big">' + (draw ? "FREE G PEN <em>+ 40%</em>" : "40% OFF") + "</div>" +
-      '<div class="rw-sub">Certify all ' + total + " &mdash; " + (draw ? "you&rsquo;re entered to win a free G&nbsp;Pen, and 40% off is yours no matter what." : "the whole lineup unlocks 40% off gpen.com.") + "</div>" +
+      '<div class="rw-sub">Certify all ' + total + " &mdash; " + (draw ? prizeCopy().rule + " 40% off is yours either way." : "the whole lineup unlocks 40% off gpen.com.") + "</div>" +
       (unlocked
         ? '<button class="rw-code" data-rwcode="secret"><span class="rw-code-v">••••••</span><em>' + ic("tag") + " Tap to copy</em></button>" +
-          '<a class="rw-cert" href="#/certified">' + (draw ? "Enter the draw + view certificate" : "View master certificate") + " &rarr;</a>" +
+          '<a class="rw-cert" href="#/certified">View master certificate &rarr;</a>' +
           // grandCard bypasses rewardCard, so it needs its own terms line.
           rwTermsHTML("secret")
-        : '<div class="rw-lock">' + ic("spark") + " " + d + " more course" + (d === 1 ? "" : "s") + (draw ? " to enter the draw" : " to unlock") + "</div>") +
+        : '<div class="rw-lock">' + ic("spark") + " " + d + " more course" + (d === 1 ? "" : "s") + " to unlock</div>") +
     "</div>";
   }
   // "Whether it expires / stacks / is single-use" is the first thing a dispensary
@@ -1664,7 +1698,7 @@
       '<div id="cert-zone"></div>' +
       '<div id="reward-zone" class="reward-wrap"></div>' +
       missedReviewHTML(c, order, answers) +
-      (master ? '<a class="master-unlock" href="#/certified">' + ic("award") + " Full lineup certified — you pulled the <strong>Certified G</strong>! Your certificate, <strong>40% off</strong>" + (drawLive() ? " & your free-G&nbsp;Pen draw entry" : "") + " " + ic("arrow") + "</a>"
+      (master ? '<a class="master-unlock" href="#/certified">' + ic("award") + " Full lineup certified — you pulled the <strong>Certified G</strong>! Your certificate, <strong>40% off</strong>" + (drawLive() ? " &amp; your shot at a free device" : "") + " " + ic("arrow") + "</a>"
               : next ? '<a class="btn xl nextup-cta" href="#/course/' + next.slug + '">Next up: ' + esc(next.name) + " " + ic("arrow") + "</a>" +
                        '<a class="linklike backdash" href="#/">or back to all courses</a>'
               : '<a class="btn ghost xl backdash" href="#/">Back to all courses ' + ic("arrow") + "</a>");
@@ -2096,21 +2130,21 @@
     return "rgb(" + A.map(function (v, i) { return Math.round(v + (B[i] - v) * t); }).join(",") + ")";
   }
 
-  /* The finish-line sweepstakes moment: you're entered to win a free G Pen, and
-     the 40% code is yours either way. No backend — entry logged via the webhook. */
+  /* The finish-line moment. Copy comes from prizeCopy() so it always matches the
+     configured mechanic; the completion is logged via the webhook, which is also
+     what counts positions and picks winners (see REPORTING.md). */
   function sweepsPanelHTML(e) {
-    var sw = CFG.sweepstakes || {};
+    var p = prizeCopy();
     return '<div class="sweeps reveal">' +
-      '<span class="sw-eyebrow">' + ic("spark") + " Full lineup certified &mdash; you&rsquo;re in the draw</span>" +
-      '<h2 class="sw-h">You&rsquo;re entered to win ' + esc(sw.prize || "a free G Pen") + ". 🦉</h2>" +
-      '<p class="sw-body">That&rsquo;s the whole shelf, certified. Every fully-certified specialist is entered to win ' + esc(sw.prize || "a free G Pen") + ", drawn " + esc(sw.cadence || "monthly") + ". Didn&rsquo;t win? Your <b>40% off</b> is live today &mdash; grab one, put it in your pocket, and let &ldquo;this is the one I use&rdquo; close the sale.</p>" +
+      '<span class="sw-eyebrow">' + ic("spark") + " Full lineup certified &mdash; " + esc(p.statusOn.toLowerCase()) + "</span>" +
+      '<h2 class="sw-h">' + p.headline + " 🦉</h2>" +
+      '<p class="sw-body">That&rsquo;s the whole shelf, certified. ' + p.rule + " We&rsquo;ll email you if it&rsquo;s you. Either way your <b>40% off</b> is live today &mdash; grab one, put it in your pocket, and let &ldquo;this is the one I use&rdquo; close the sale.</p>" +
       '<div class="sw-actions">' +
         '<button class="btn xl sw-copy">' + ic("tag") + " Copy your 40% code</button>" +
         '<a class="btn xl ghost" href="' + esc(CFG.shopUrl) + '" target="_blank" rel="noopener">Shop &amp; test on gpen.com ' + ic("arrow") + "</a>" +
       "</div>" +
-      // No rulesUrl fallback: the draft rules page is deliberately not deployed,
-      // and drawLive() cannot be true without a human setting sweepstakes.live.
-      '<p class="sw-fine">No purchase necessary. Open to authorized G&nbsp;Pen retail staff (dispensary &amp; smoke shop), 21+, US, void where prohibited. Winners drawn ' + esc(sw.cadence || "monthly") + "." + (sw.rulesUrl ? " <a href=\"" + esc(sw.rulesUrl) + '" target="_blank" rel="noopener">Official Rules</a>.' : "") + "</p>" +
+      // No rulesUrl fallback: the draft rules page is deliberately not deployed.
+      '<p class="sw-fine">' + esc(prizeCopy().fine) + (CFG.sweepstakes && CFG.sweepstakes.rulesUrl ? " <a href=\"" + esc(CFG.sweepstakes.rulesUrl) + '" target="_blank" rel="noopener">Official Rules</a>.' : "") + "</p>" +
     "</div>";
   }
 

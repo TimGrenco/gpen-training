@@ -101,26 +101,47 @@ window.TRAINING_CONFIG = {
     perCourse: {},
   },
 
-  /* >>> FREE-G-PEN SWEEPSTAKES — OFF, AND INTENTIONALLY HARD TO TURN ON <<<
-     Certify on all 5 products and you're auto-entered to win a free G Pen (and
-     you still get the 40% code no matter what). It's a SWEEPSTAKES, not a raffle
-     (no purchase, equal odds). Entries log via the reporting webhook below.
+  /* >>> FREE-DEVICE PRIZE — every Nth full-lineup certification wins <<<
+     Certify on all 5 products and you're in line for a free device (the 40% code
+     is yours either way). Two modes:
 
-     ⚠️ SETTING `live: true` PUBLISHES A US PRIZE PROMOTION. Do not flip it until
-     counsel has cleared the Official Rules page and you have hosted it at a real
-     URL. The draft lives at .claude/drafts/rules.draft.html — it is deliberately
-     NOT deployed, because it still contains ~20 unfilled [bracketed] placeholders.
-     Requiring five quizzes to enter counts as non-monetary consideration in around
-     a dozen states without a genuine alternate method of entry, so the rules page
-     is not optional. Pasting a reporting webhook alone will NOT start the draw.
+       mode: "everyNth"  — every Nth person to certify on the whole lineup wins a
+                           free device, and the device ROTATES with each winner
+                           (winner 1 gets rotation[0], winner 2 gets rotation[1], …).
+                           Deterministic and auditable: no drawing to administer,
+                           no winner-selection dispute, and the sheet shows exactly
+                           who won and why. This is the recommended mode.
+       mode: "drawing"   — a periodic random draw (uses `cadence`).
+
+     ⚠️ THE WINNER IS DECIDED IN YOUR SHEET, NOT IN THE BROWSER. A rep's browser
+     only knows about itself — it cannot know whether it is completion #3 or #300,
+     and anything it did know could be faked by clearing site data. The counting
+     and selection live in the Apps Script that receives the webhook; REPORTING.md
+     has the exact script, and it reads `everyNth` / `rotation` from here so this
+     file stays the single source of truth. That is also why `live` alone does
+     nothing without `reporting.url` — with no webhook there is no counter, so
+     there is no way to run the promotion at all.
+
+     ⚠️ `live: true` PUBLISHES A US PRIZE PROMOTION to whoever can reach the site.
+     Have counsel clear the rules page first and host it at a real URL. The draft
+     is at .claude/drafts/rules.draft.html (deliberately not deployed — it still
+     has ~20 unfilled [bracketed] placeholders). Awarding a prize for completing
+     five quizzes can count as consideration in around a dozen states without a
+     genuine alternate method of entry, so the rules page is not optional.
+     Reviewing before then: open the site with ?preview=draw.
        enabled  : master switch for the whole feature
-       live     : the human "counsel has signed off" gate (keep false until then)
-       cadence  : how often you draw (shown in copy + rules)
-       prize    : what they win (shown in copy)
-       rulesUrl : where the CLEARED Official Rules are hosted (fill in when live) */
+       live     : the human "counsel has signed off" gate
+       mode     : "everyNth" (recommended) or "drawing"
+       everyNth : N — every Nth full-lineup certification wins (mode "everyNth")
+       rotation : which device each successive winner gets, in order; loops
+       cadence  : how often you draw (mode "drawing" only)
+       rulesUrl : where the CLEARED Official Rules are hosted */
   sweepstakes: {
     enabled: true,
-    live: false,
+    live: true,
+    mode: "everyNth",
+    everyNth: 20,
+    rotation: ["G Pen Dash II", "G Pen Dash+", "G Pen Melt Hot Knife", "G Pen Hydout", "G Pen 510 Original"],
     cadence: "monthly",
     prize: "a free G Pen",
     rulesUrl: "",

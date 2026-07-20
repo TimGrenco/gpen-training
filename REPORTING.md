@@ -64,6 +64,76 @@ public page. Pick **one** of the options below.
 
 ---
 
+## Picking the free-device winners ("every 20th person")
+
+**The winner is decided here, in the Sheet — never in the browser.** A rep's
+browser only knows about itself: it has no idea whether it's completion #3 or
+#300, and anything it *did* know could be faked by clearing site data. The Sheet
+is the only place that sees every completion, in order, so that's where the
+counting and the pick belong. It's also auditable — you can point at the row.
+
+Replace the `doPost` above with this version. It appends the row as before, then
+numbers each full-lineup completion and flags every Nth one as a winner, rotating
+the device with each winner.
+
+```javascript
+// Keep these in sync with assets/js/config.js -> sweepstakes
+var WIN_EVERY = 20;                                   // every 20th full-lineup cert wins
+var ROTATION  = ["G Pen Dash II", "G Pen Dash+", "G Pen Melt Hot Knife",
+                 "G Pen Hydout", "G Pen 510 Original"];
+var NOTIFY    = "pr@grencoscience.com";               // who gets told about a winner
+
+function doPost(e) {
+  var sheet = SpreadsheetApp.getActiveSpreadsheet().getSheets()[0];
+  var d = JSON.parse(e.postData.contents);
+  sheet.appendRow([new Date(), d.type, d.name, d.email, d.store,
+                   d.product, d.score, d.certId, d.date]);
+
+  // Only full-lineup certifications ("master") are in the running.
+  if (d.type !== "master") return ContentService.createTextOutput("ok");
+
+  // How many people have now certified on the whole lineup?
+  var types = sheet.getRange(2, 2, Math.max(sheet.getLastRow() - 1, 1), 1).getValues();
+  var position = types.filter(function (r) { return r[0] === "master"; }).length;
+
+  var row = sheet.getLastRow();
+  sheet.getRange(row, 10).setValue(position);          // col J: their position in line
+
+  if (position % WIN_EVERY === 0) {
+    var winnerIndex = position / WIN_EVERY;            // 1st winner, 2nd winner, …
+    var prize = ROTATION[(winnerIndex - 1) % ROTATION.length];
+    sheet.getRange(row, 11).setValue("WINNER — " + prize);   // col K
+    MailApp.sendEmail(NOTIFY,
+      "G Pen University winner #" + winnerIndex + " — " + prize,
+      d.name + " (" + d.email + ", " + d.store + ") is full-lineup certification #" +
+      position + " and wins: " + prize + "\n\nCert ID: " + d.certId);
+  }
+  return ContentService.createTextOutput("ok");
+}
+```
+
+Add two more headers to the Sheet so those columns have names:
+`… | Cert ID | Date | Position | Winner`
+
+**How it plays out:** person 20 wins a Dash II, person 40 a Dash+, person 60 a
+Melt, person 80 a Hydout, person 100 a 510 Original, person 120 back to a
+Dash II, and so on. Change `WIN_EVERY` or reorder `ROTATION` any time — it takes
+effect from the next completion, and past winners stay recorded in the Sheet.
+
+Then mirror the same numbers in `assets/js/config.js` so the site's copy matches:
+
+```javascript
+sweepstakes: { enabled: true, live: true, mode: "everyNth", everyNth: 20,
+               rotation: ["G Pen Dash II", "G Pen Dash+", ...] },
+```
+
+**Fulfilment is manual and that's deliberate** — you get the winner email, you
+confirm they're real authorized retail staff, then you ship the device or send a
+100%-off single-use code. Nothing is awarded automatically, so a bad actor
+farming completions can't self-issue a free product.
+
+---
+
 ## Option B — Zapier / Make (no-code, routes anywhere)
 
 1. In **Zapier**, create a Zap with a **Webhooks by Zapier → Catch Hook**
