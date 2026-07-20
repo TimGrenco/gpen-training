@@ -118,6 +118,19 @@
   var FOUNDED = 2012;
   function brandYears() { return Math.max(1, new Date().getFullYear() - FOUNDED); }
 
+  /* Product shots come from Shopify's CDN as ~1448px originals — the five landing
+     covers alone were 1.1MB, which is a real cost on dispensary LTE. The CDN
+     resizes on demand, so ask for roughly 2x the CSS box (crisp on retina, a
+     fraction of the bytes): a cover drops ~310KB -> ~39KB.
+     DISPLAY PATHS ONLY. The canvas exports (share card, saved card PNG) must keep
+     the full-resolution source, so they call the raw URL, not this. Non-Shopify
+     hosts are returned untouched — assets.gpen.com does not resize, and its
+     lifestyle shots are already ~28KB. */
+  function sized(url, cssPx) {
+    if (!url || url.indexOf("cdn.shopify.com") < 0 || /[?&]width=/.test(url)) return url;
+    return url + (url.indexOf("?") >= 0 ? "&" : "?") + "width=" + Math.round(cssPx * 2);
+  }
+
   /* ---- persistence ------------------------------------------------------- */
   var K_ENROLL = "gpt.enrollment", K_STATE = "gpt.state";
   function getEnroll() { try { return JSON.parse(localStorage.getItem(K_ENROLL) || "null"); } catch (e) { return null; } }
@@ -260,7 +273,7 @@
           "</span>" +
         "</span>" +
         '<span class="tcg-art">' +
-          '<img src="' + esc(c.cover) + '" alt="" loading="lazy"/>' +
+          '<img src="' + esc(sized(c.cover, 220)) + '" alt="" loading="lazy"/>' +
           (owned ? '<i class="spk a">\u2726</i><i class="spk b">\u2726</i>' : "") +
           (owned
             ? '<span class="tcg-stamp">' + ic("check") + " Certified " + score + "%</span>"
@@ -1247,7 +1260,7 @@
     // Uniform card: family (eyebrow), name, what sets it apart, MSRP, cert status.
     return '<a class="cc' + (done ? " done" : "") + '" href="#/course/' + c.slug + '" style="--accent:' + c.accent + '">' +
       '<span class="cc-accent" aria-hidden="true"></span>' +
-      '<span class="cc-media"><img src="' + esc(c.cover) + '" alt="' + esc(c.name) + '" loading="lazy"/></span>' +
+      '<span class="cc-media"><img src="' + esc(sized(c.cover, 244)) + '" alt="' + esc(c.name) + '" loading="lazy"/></span>' +
       '<span class="cc-body">' +
         "<h3>" + esc(c.name) + "</h3>" +
         '<span class="cc-cat">' + esc(c.category) + "</span>" +
@@ -1397,7 +1410,8 @@
       '<section class="course reveal">' +
         '<a class="back" href="#/">' + ic("back") + " All courses</a>" +
         '<div class="cx-hero' + (c.heroImg ? "" : " no-life") + '" style="--accent:' + c.accent + '">' +
-          '<div class="cx-hero-media"><img src="' + esc(hero) + '" alt="' + esc(c.name) + '" loading="eager"/></div>' +
+          // Full-bleed banner, so ask for a wider source than the card thumbs.
+          '<div class="cx-hero-media"><img src="' + esc(sized(hero, 760)) + '" alt="' + esc(c.name) + '" loading="eager"/></div>' +
           '<div class="cx-hero-body">' +
             '<span class="ch-eyebrow">' + ic("cap") + " Product Specialist Course" + (rec && rec.passed ? ' · <b class="ch-done">' + ic("check") + " Certified</b>" : "") + "</span>" +
             "<h1>" + esc(c.name) + "</h1>" +
@@ -1520,7 +1534,7 @@
   function galleryHTML(c) {
     if (!c.gallery || !c.gallery.length) return "";
     return '<div class="gallery">' + c.gallery.map(function (g) {
-      return '<figure class="ga-item"><img src="' + esc(g.url) + '" alt="' + esc(g.caption || c.name) + '" loading="lazy"/>' +
+      return '<figure class="ga-item"><img src="' + esc(sized(g.url, 320)) + '" alt="' + esc(g.caption || c.name) + '" loading="lazy"/>' +
         (g.caption ? '<figcaption>' + esc(g.caption) + "</figcaption>" : "") + "</figure>";
     }).join("") + "</div>";
   }

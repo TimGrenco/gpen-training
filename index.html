@@ -1,5 +1,5 @@
 <!doctype html>
-<html lang="en">
+<html lang="en" class="no-js">
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
@@ -23,7 +23,19 @@
   <meta name="twitter:image" content="https://training.gpen.com/assets/img/og-share.jpg?v=2" />
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-  <link href="https://fonts.googleapis.com/css2?family=Archivo:wght@400;500;600;700;800;900&display=swap" rel="stylesheet" />
+  <!-- The two origins that serve most of the page weight: product shots and the
+       lifestyle photography. Warming the connections early saves a DNS+TLS
+       round trip each on a phone. -->
+  <link rel="preconnect" href="https://cdn.shopify.com" crossorigin />
+  <link rel="preconnect" href="https://assets.gpen.com" crossorigin />
+  <!-- Loaded async: as a plain stylesheet this sat AHEAD of the critical CSS
+       below and made first paint wait on a third-party origin, which is exactly
+       what the critical CSS exists to prevent. The inline styles declare a
+       system-ui fallback and the font URL carries display=swap, so text paints
+       immediately and swaps to Archivo when it arrives. -->
+  <link rel="preload" as="style" href="https://fonts.googleapis.com/css2?family=Archivo:wght@400;500;600;700;800;900&display=swap"
+        onload="this.onload=null;this.rel='stylesheet'" />
+  <noscript><link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Archivo:wght@400;500;600;700;800;900&display=swap" /></noscript>
   <!-- Critical CSS. The stylesheet and all three scripts are injected only after
        fetch("version.json") resolves, so without this the first thing a rep on
        LTE sees is unstyled white. Do NOT add a second static <link> to
@@ -35,6 +47,10 @@
     body { color: #111; font-family: Archivo, system-ui, -apple-system, "Segoe UI", sans-serif;
       -webkit-font-smoothing: antialiased; }
     .boot { min-height: 70vh; display: grid; place-items: center; gap: 14px; padding: 40px 20px; text-align: center; }
+    /* With JS off the skeleton can never be replaced, so it would sit there
+       spinning above the "JavaScript is required" notice. Hide it in that case
+       — the <noscript> block is the whole message. */
+    .no-js .boot { display: none; }
     .boot img { width: 40px; height: 40px; object-fit: contain; animation: bootpulse 1.4s ease-in-out infinite; }
     .boot p { margin: 0; font-size: 13px; font-weight: 700; letter-spacing: .1em; text-transform: uppercase; color: #6e6e66; }
     @keyframes bootpulse { 0%,100% { opacity: .35; } 50% { opacity: 1; } }
@@ -45,6 +61,7 @@
        tagged with it, so a new deploy shows up WITHOUT a hard refresh. Open tabs
        auto-reload when a newer version ships (never mid-quiz). version.json is
        stamped automatically on every push by .github/workflows/stamp-version.yml. -->
+  <script>document.documentElement.classList.remove("no-js");</script>
   <script>
     (function () {
       var CSS = "assets/css/styles.css";
