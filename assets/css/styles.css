@@ -124,6 +124,10 @@ h1, h2, h3, h4 { margin: 0; line-height: 1.08; letter-spacing: -.02em; }
   .hdr-name { display: none; }
   .hdr-navlink { padding: 6px 8px; font-size: 13px; }
 }
+/* Signed in, the name/store block competes for the same row, so the wordmark
+   truncated mid-word ("G PEN UNIVER…") through the whole tablet band. Yield it
+   instead — a clean logo reads as a decision, a chopped logotype reads as a bug. */
+@media (max-width: 900px) { .hdr.has-user .hdr-name { display: none; } }
 /* The name/store must NEVER wrap: a long one used to push the sticky header from
    63px to 100px, which also silently invalidates --hdr-h (and therefore every
    scroll-padding-top offset). Cap and ellipsize at every width, not just phones. */

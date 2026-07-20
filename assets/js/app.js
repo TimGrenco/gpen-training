@@ -958,7 +958,9 @@
     return (DRAW_PREVIEW
       ? '<div class="preview-bar">' + ic("spark") + " <b>Preview</b> — sweepstakes shown for review. Not live; no entries are recorded.</div>"
       : "") +
-      '<header class="hdr">' +
+      // has-user tells the CSS the name/store block is competing for header room,
+      // so the wordmark can yield before it truncates to "G PEN UNIVER…".
+      '<header class="hdr' + (e ? " has-user" : "") + '">' +
       '<a class="hdr-brand" href="#/">' +
         '<img src="assets/img/gpen-g-black.png" class="hdr-logo light" alt="G Pen"/>' +
         '<span class="hdr-name">G Pen <em>University</em></span>' +
