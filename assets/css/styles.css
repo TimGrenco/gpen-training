@@ -728,8 +728,11 @@ a.linklike.backdash { display: block; width: auto; margin-top: 10px; text-align:
 #print-sheet { display: none; }
 @media print {
   @page { margin: 12mm; }
-  body > *:not(#print-sheet) { display: none !important; }
-  #print-sheet { display: block !important; }
+  /* Only blacked out while printCert() is running. A plain Cmd/Ctrl+P prints the
+     live page instead of an empty sheet — just without the chrome. */
+  body.printing > *:not(#print-sheet) { display: none !important; }
+  body.printing #print-sheet { display: block !important; }
+  .hdr, .sticky-cta, .preview-bar { display: none !important; }
   body { background: #fff; }
   .cert { border-color: #000; box-shadow: none; margin: 0; }
   .cert.master { background: #fff; border-color: #000; }

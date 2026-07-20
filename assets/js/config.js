@@ -185,10 +185,15 @@ window.issueRewardCode = function (type, ctx) {
    Fire-and-forget POST (mode:"no-cors") so it never blocks the UI and needs no
    CORS setup on the receiver. To change destinations, only edit reporting.url
    in the config above (or swap this body). See REPORTING.md.
+
+   RETURNS true if the event was actually dispatched, false if reporting is off
+   or the send threw. Callers use this to decide whether to mark an event as
+   REPORTED — separately from marking it EARNED — so that anything earned while
+   reporting.url was empty is still resent once a webhook exists.
    --------------------------------------------------------------------------- */
 window.reportCompletion = function (event) {
   var cfg = (window.TRAINING_CONFIG && window.TRAINING_CONFIG.reporting) || {};
-  if (!cfg.url) return; // reporting disabled — no-op
+  if (!cfg.url) return false; // reporting disabled — nothing sent, so not reported
   try {
     fetch(cfg.url, {
       method: "POST",
@@ -197,5 +202,6 @@ window.reportCompletion = function (event) {
       headers: { "Content-Type": "text/plain;charset=utf-8" },
       body: JSON.stringify(Object.assign({ sentAt: new Date().toISOString() }, event)),
     });
-  } catch (e) { /* best-effort; progress is also stored on-device */ }
+    return true;
+  } catch (e) { return false; /* best-effort; progress is also stored on-device */ }
 };

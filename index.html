@@ -10,7 +10,7 @@
   <link rel="icon" href="assets/img/gpen-g-black.png" />
   <meta property="og:site_name" content="G Pen University" />
   <meta property="og:title" content="G Pen University — Become a Certified G" />
-  <meta property="og:description" content="Free product training for budtenders. Learn the G Pen lineup, pass a quick quiz, get certified — and unlock 25% off gpen.com." />
+  <meta property="og:description" content="Free product training for budtenders and smoke-shop reps. Learn the G Pen lineup, pass a quick quiz, get certified — and unlock up to 40% off gpen.com." />
   <meta property="og:type" content="website" />
   <meta property="og:url" content="https://training.gpen.com/" />
   <meta property="og:image" content="https://training.gpen.com/assets/img/og-share.jpg?v=2" />
@@ -19,7 +19,7 @@
   <meta property="og:image:alt" content="G Pen University — Become a Certified G" />
   <meta name="twitter:card" content="summary_large_image" />
   <meta name="twitter:title" content="G Pen University — Become a Certified G" />
-  <meta name="twitter:description" content="Free product training for budtenders. Get certified and unlock 25% off gpen.com." />
+  <meta name="twitter:description" content="Free product training for budtenders and smoke-shop reps. Get certified and unlock up to 40% off gpen.com." />
   <meta name="twitter:image" content="https://training.gpen.com/assets/img/og-share.jpg?v=2" />
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
@@ -71,17 +71,27 @@
       }
       function check() {
         getVersion().then(function (v) {
-          if (v && current && v !== current && !document.querySelector(".quiz")) location.reload();
+          if (!v) return;
+          // Adopt the build after a fallback boot rather than reloading — on the
+          // slow connections that trigger the fallback, reloading risks a loop.
+          if (!current) { current = v; return; }
+          if (v !== current && !document.querySelector(".quiz")) location.reload();
         });
+      }
+      function startPolling() {
+        setInterval(check, 120000);
+        document.addEventListener("visibilitychange", function () { if (!document.hidden) check(); });
       }
       // Never let a slow/missing version.json block the app from loading.
       // 800ms, not 2500: past this the rep is just staring at a skeleton, and
       // loading unversioned assets is a far better outcome than a blank page.
       var t = setTimeout(function () { if (!loaded) { loaded = true; inject(null); } }, 800);
       getVersion().then(function (v) {
-        if (loaded) return; loaded = true; clearTimeout(t); inject(v);
-        setInterval(check, 120000);
-        document.addEventListener("visibilitychange", function () { if (!document.hidden) check(); });
+        // The fallback must not cost this tab its update channel: if it already
+        // booted unversioned, still record the build so the NEXT deploy reloads.
+        if (!loaded) { loaded = true; clearTimeout(t); inject(v); }
+        else if (v) { current = v; }
+        startPolling();
       });
     }());
   </script>

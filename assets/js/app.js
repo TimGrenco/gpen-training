@@ -128,6 +128,14 @@
   function nextTier(done) { return LADDER.filter(function (x) { return x.at > done; })[0] || null; }
   // What a rep will hold after passing ONE more course — what pre-quiz CTAs promise.
   function tierIfOneMore(done) { return tierAt(done + 1) || tierAt(done); }
+  // Only promise a percentage when one more pass ACTUALLY moves a rung. LADDER has
+  // no rung at 3, so a rep with 2 certified was being told course 3 unlocks the
+  // 30% they already hold. Returns null when nothing new is earned.
+  function unlockPct(done) {
+    var held = tierAt(done), next = tierIfOneMore(done);
+    if (held && next && held.pct === next.pct) return null;
+    return next ? next.pct : null;
+  }
   // The tier key to mint for someone who has just certified their Nth course.
   function earnedTierKey() { var t = tierAt(completedCount()); return t ? t.key : "course"; }
 
@@ -228,7 +236,7 @@
         "</span>" +
         (mini ? "" : '<span class="tcg-cta"><em>' + (owned
             ? ic("check") + " " + (tierAt(completedCount()) || LADDER[0]).pct + "% off earned"
-            : ic("tag") + " Pass → " + tierIfOneMore(completedCount()).pct + "% off") + "</em><b>" + (owned ? "Review " : "Start ") + ic("arrow") + "</b></span>") +
+            : ic("tag") + (unlockPct(completedCount()) ? " Pass → " + unlockPct(completedCount()) + "% off" : " Pass → certify")) + "</em><b>" + (owned ? "Review " : "Start ") + ic("arrow") + "</b></span>") +
       "</span>" +
     "</a>";
   }
@@ -516,14 +524,21 @@
     { flag: "trio", type: "trio", at: 2, label: "30% reward (2 courses)" },
     { flag: "elite", type: "elite", at: 4, label: "35% reward (4 courses)" },
   ];
+  /* EARNED and REPORTED are tracked separately. If the earned stamp also gated the
+     send, then anything earned while reporting.url was empty — i.e. every rep who
+     certifies before the client pastes their webhook — would be stamped, never
+     sent, and never resent, making the boot() backfill inert. So `flag` records
+     that it was earned and `flag + "Reported"` records that it actually went. */
   function maybeReportTier() {
     var done = baseSetOwned(), s = getState(), e = getEnroll() || {}, changed = false;
     REPORT_TIERS.forEach(function (t) {
-      if (done < t.at || s[t.flag]) return;
-      s[t.flag] = { at: new Date().toISOString() };
-      changed = true;
-      logEvent(t.flag, {});
-      if (window.reportCompletion) window.reportCompletion({ type: t.type, name: e.name, email: e.email, store: e.store, product: t.label, score: 100, certId: "", date: niceDate() });
+      if (done < t.at) return;
+      if (!s[t.flag]) { s[t.flag] = { at: new Date().toISOString() }; changed = true; logEvent(t.flag, {}); }
+      if (!s[t.flag + "Reported"] && window.reportCompletion &&
+          window.reportCompletion({ type: t.type, name: e.name, email: e.email, store: e.store, product: t.label, score: 100, certId: "", date: niceDate() })) {
+        s[t.flag + "Reported"] = new Date().toISOString();
+        changed = true;
+      }
     });
     if (changed) setState(s);
   }
@@ -532,20 +547,31 @@
      from quizPass; renderCertified just displays what this stamped. */
   function reportMaster() {
     if (!isMasterEarned()) return null;
-    var s = getState();
-    if (s.master) return s.master;
-    var e = getEnroll() || {};
-    var date = niceDate(), cid = certId((e.name || "") + "|G Pen Certified Specialist|" + date);
-    s.master = { certId: cid, date: date, name: e.name }; setState(s);
-    logEvent("master", { certId: cid });
-    if (window.reportCompletion) window.reportCompletion({ type: "master", name: e.name, email: e.email, store: e.store, product: "Certified G", score: 100, certId: cid, date: date });
-    // Full-lineup certification = one automatic entry in the free-G-Pen draw.
-    // The reporting webhook IS the entry pool; only fires when the draw is really
-    // live — never in preview, where there is no pool to enter.
-    if (drawLive() && !DRAW_PREVIEW && window.reportCompletion) {
-      window.reportCompletion({ type: "sweepstakes_entry", name: e.name, email: e.email, store: e.store, product: "Free G Pen draw", score: 100, certId: cid, date: date });
+    var s = getState(), e = getEnroll() || {}, changed = false;
+    // Stamp the certificate once — this is what the cert page displays.
+    if (!s.master) {
+      var date = niceDate(), cid = certId((e.name || "") + "|G Pen Certified Specialist|" + date);
+      s.master = { certId: cid, date: date, name: e.name };
+      changed = true;
+      logEvent("master", { certId: cid });
     }
-    return s.master;
+    var m = s.master;
+    // Reporting is tracked separately from the stamp, and retried until it lands,
+    // so certifications earned before the webhook existed are not lost. Reuses the
+    // STORED certId/date so a late resend logs the certificate the rep is holding.
+    if (!s.masterReported && window.reportCompletion &&
+        window.reportCompletion({ type: "master", name: e.name, email: e.email, store: e.store, product: "Certified G", score: 100, certId: m.certId, date: m.date })) {
+      s.masterReported = new Date().toISOString(); changed = true;
+    }
+    // Full-lineup certification = one entry in the free-device prize. Never fires
+    // in preview (no pool to enter), and stays pending so the rep is entered for
+    // real the first time they load the page after the prize actually goes live.
+    if (!s.masterEntryReported && drawLive() && !DRAW_PREVIEW && window.reportCompletion &&
+        window.reportCompletion({ type: "sweepstakes_entry", name: e.name, email: e.email, store: e.store, product: "Free device prize", score: 100, certId: m.certId, date: m.date })) {
+      s.masterEntryReported = new Date().toISOString(); changed = true;
+    }
+    if (changed) setState(s);
+    return m;
   }
 
   /* ---- icons (inline SVG) ------------------------------------------------ */
@@ -982,7 +1008,12 @@
     document.addEventListener("click", function (ev) {
       var btn = ev.target.closest && ev.target.closest("#reset");
       if (!btn) return;
-      if (confirm("Reset ALL your training progress and certificates on this device? You can re-do the whole training from scratch afterward.")) {
+      // Name whose work is about to be destroyed and how much of it — on a shared
+      // tablet this button is the only handoff, and there is no undo or export.
+      var who = getEnroll() || {}, cn = completedCount();
+      if (confirm("This erases " + (who.name ? who.name + "'s" : "all") + " training on this device" +
+          (cn ? ": " + cn + " course certificate" + (cn === 1 ? "" : "s") + ", earned cards and streak" : "") +
+          ".\n\nThis cannot be undone. Continue?")) {
         localStorage.removeItem(K_STATE); localStorage.removeItem(K_ENROLL);
         toast("Progress cleared \u2014 fresh start \uD83C\uDF31");
         go("#/");
@@ -1212,8 +1243,9 @@
   function rewardsSection(done, master) {
     var total = COURSES.length;                 // 5 = the full lineup
     var held = tierAt(done), up = nextTier(done);
+    var top = LADDER[LADDER.length - 1];
     var head = !held ? "Pass your first course to start earning"
-      : (up ? held.pct + "% off unlocked — " + (up.pct === 40 ? "one more tier for the grand prize" : "keep certifying")
+      : (up ? held.pct + "% off unlocked — " + (up.pct === top.pct ? "one more tier for the top reward" : "keep certifying")
             : "Full lineup certified — the top reward is yours 👑");
     function need(n) { var d = n - done; return d + " more course" + (d === 1 ? "" : "s") + " to unlock"; }
     // Every rung but the last renders as a card; the top rung is the capstone.
@@ -1232,7 +1264,8 @@
     var draw = drawLive();
     return '<div class="rw-card grand ' + (unlocked ? "on" : "off") + '">' +
       '<div class="rw-top"><span class="rw-ic">' + ic(unlocked ? "award" : "lock") + "</span>" +
-        '<span class="rw-status">' + (unlocked ? (draw ? prizeCopy().statusOn : "Unlocked") : "Grand prize") + "</span></div>" +
+        // Without a live prize there is no "grand prize" to promise — it's the top rung.
+        '<span class="rw-status">' + (unlocked ? (draw ? prizeCopy().statusOn : "Unlocked") : (draw ? "Grand prize" : "Top reward")) + "</span></div>" +
       '<div class="rw-big">' + (draw ? "FREE G PEN <em>+ 40%</em>" : "40% OFF") + "</div>" +
       '<div class="rw-sub">Certify all ' + total + " &mdash; " + (draw ? prizeCopy().rule + " 40% off is yours either way." : "the whole lineup unlocks 40% off gpen.com.") + "</div>" +
       (unlocked
@@ -1341,7 +1374,7 @@
         '<div id="quiz-zone"></div>' +
       "</section>" +
       // Promise the tier they'd actually hold after this course, not a flat 25%.
-      (rec && rec.passed ? "" : '<button class="sticky-cta" id="sticky-cta">' + ic("cap") + " Get certified · <b>" + tierIfOneMore(completedCount()).pct + "% off</b></button>") +
+      (rec && rec.passed ? "" : '<button class="sticky-cta" id="sticky-cta">' + ic("cap") + " Get certified" + (unlockPct(completedCount()) ? " · <b>" + unlockPct(completedCount()) + "% off</b>" : "") + "</button>") +
       footer();
 
     bindVideos();
@@ -1496,20 +1529,20 @@
     zone.innerHTML =
       '<div class="certify">' +
         '<div class="certify-badge">' + ic("award") + "</div>" +
-        "<h3>Get certified &amp; unlock " + tierIfOneMore(completedCount()).pct + "% off</h3>" +
+        "<h3>Get certified" + (unlockPct(completedCount()) ? " &amp; unlock " + unlockPct(completedCount()) + "% off" : "") + "</h3>" +
         '<p class="lead">Ready? Pass the ' + c.quiz.length + "-question quiz (score " + c.passPct + "%+) to earn your <strong>" + esc(c.name) + "</strong> Product Specialist certificate and a gpen.com discount code. Enter your details so we can put your name on the certificate.</p>" +
         '<div class="certify-form">' +
           field("name", "Your full name", "text", e.name, "Jane Budtender", "name") +
           field("email", "Email address", "email", e.email, "you@store.com", "email") +
           field("store", "Store / shop name", "text", e.store, "Cloud 9 Smoke Shop", "organization") +
-          // Eligibility is captured here, timestamped, so any future draw entry
-          // already carries it. A dispensary compliance lead checks for this.
-          '<label class="attest"><input type="checkbox" id="f-attest"' + (e.attest21 ? " checked" : "") + " />" +
+          // Never pre-checked: the attestation is per person, and on a shared
+          // counter tablet an inherited tick would attest for someone else.
+          '<label class="attest"><input type="checkbox" id="f-attest" />' +
             "<span>I confirm I am 21 or older and currently work as authorized retail staff at a licensed dispensary or smoke shop.</span></label>" +
           '<button class="btn xl full" id="start-quiz">Start the quiz ' + ic("arrow") + "</button>" +
           // Must stay true in BOTH webhook states — reporting.url may be set the
           // same week, at which point "stays on your device" would be a lie.
-          '<p class="form-fine">No account needed. Your name goes on the certificate, and your progress is stored on this device. ' +
+          '<p class="form-fine"><b>Use your own phone</b> — progress and certificates save to this browser only, so a shared tablet mixes reps together. ' +
             ((CFG.reporting || {}).url
               ? "Your name, email and store are also sent to G&nbsp;Pen so your completion can be recorded."
               : "If your store enables completion reporting, your name, email and store are also sent to G&nbsp;Pen.") +
@@ -1523,8 +1556,18 @@
       if (!store) { toast("Enter your store name"); $("#f-store").focus(); return; }
       if (!$("#f-attest").checked) { toast("Please confirm you're 21+ and retail staff"); $("#f-attest").focus(); return; }
       var prev = getEnroll();
-      setEnroll({ name: name, email: email, store: store, attest21: true, attestedAt: new Date().toISOString(), ts: (prev && prev.ts) || new Date().toISOString() });
-      if (!prev) logEvent("enroll", { name: name, email: email, store: store });
+      // Shared counter tablet: a second rep typing their own name would otherwise
+      // inherit the first rep's passed courses and mint certificates on top of
+      // them. Make the handover explicit, and start the newcomer clean.
+      var handover = prev && prev.name && prev.name.trim().toLowerCase() !== name.toLowerCase();
+      if (handover) {
+        var n = completedCount();
+        if (!confirm("This device is signed in as " + prev.name + ".\n\nStarting as " + name + " will clear " + prev.name + "'s progress on this device" +
+            (n ? " — including " + n + " course certificate" + (n === 1 ? "" : "s") : "") + ". This can't be undone.\n\nContinue as " + name + "?")) return;
+        localStorage.removeItem(K_STATE);
+      }
+      setEnroll({ name: name, email: email, store: store, attest21: true, attestedAt: new Date().toISOString(), ts: (!handover && prev && prev.ts) || new Date().toISOString() });
+      if (!prev || handover) logEvent("enroll", { name: name, email: email, store: store });
       runQuiz(c);
     });
   }
@@ -1754,16 +1797,23 @@
      print stylesheet hide everything else. */
   function printCert() {
     var card = $("#cert-card");
-    if (!card) { window.print(); return; }
+    if (!card) return;   // never bare-print: that promises a cert and prints a page
     var old = document.getElementById("print-sheet");
     if (old) old.remove();
     var sheet = document.createElement("div");
     sheet.id = "print-sheet";
-    sheet.appendChild(card.cloneNode(true));
+    var clone = card.cloneNode(true);
+    clone.removeAttribute("id");    // don't duplicate #cert-card in the DOM
+    sheet.appendChild(clone);
     document.body.appendChild(sheet);
+    // The print blackout is gated on this class, NOT on the sheet existing —
+    // otherwise Cmd/Ctrl+P (or Print to PDF) at any other moment hides every
+    // child of <body> and prints an empty page.
+    document.body.classList.add("printing");
     function cleanup() {
       var s = document.getElementById("print-sheet");
       if (s) s.remove();
+      document.body.classList.remove("printing");
       window.removeEventListener("afterprint", cleanup);
     }
     window.addEventListener("afterprint", cleanup);

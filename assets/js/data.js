@@ -235,7 +235,7 @@ window.GPEN_COURSES = [
       objections: [
         { says: "Why is this double the Dash II?", say: "Titanium chamber and true convection — that's what you're paying for. It's the difference between 'it works' and 'wow, I taste the strain.' If flavor's your thing, worth the jump.", why: "Justify the price with the flavor mechanism, not a spec sheet." },
         { says: "Looks complicated.", say: "Three buttons, and it buzzes when it's ready. Load, double-click, draw. The color screen means you're never guessing your temp." },
-        { says: "I already have a pocket vape.", say: "Then you get it — this is the upgrade. Full titanium chamber, real convection, heats in about 20 seconds. Cleaner flavor, and you feel it on the first hit.", why: "Position as the step-up, not a replacement. Note the Dash+ chamber (~0.3g) is actually SMALLER than the Dash II's 0.4g — the upgrade is heat quality, not capacity." },
+        { says: "I already have a pocket vape.", say: "Then you get it — this is the upgrade. Full titanium chamber, real convection, heats in about 20 seconds. Cleaner flavor, and you feel it on the first hit.", why: "Position as the step-up, not a replacement. Sell heat quality, not capacity — the Dash+ chamber is actually smaller." },
       ],
     },
     videos: [
@@ -318,7 +318,7 @@ window.GPEN_COURSES = [
       pairsWith: [],
       vital: "You can't handle a dab with your fingers — it needs heat and a tool. The Melt is the clean way to LOAD the concentrate they're buying: the tip heats, so it releases instead of stringing.",
       aov: "Cheap, universal impulse add. Everyone buying concentrate is fighting a cold, sticky tool — a $24.95 Melt rides along with every gram of wax or rosin.",
-      keyFacts: ["Heated ceramic tip — loads without a torch", "Rapid-heat · pocket-size", "Clean, no-mess dabs ($24.95)"],
+      keyFacts: ["Heated ceramic tip — the dab releases instead of stringing", "Rapid-heat · pocket-size", "Loads any rig or banger ($24.95)"],
       talkTrack: { say: "Grabbing concentrate? The Melt's how you handle it — heated ceramic tip, scoop and drop, no sticky mess. Tiny, twenty-five bucks, works with any rig or banger." },
       whichClose: "Loading a rig or a banger? Either way the Melt's how the dab gets in clean — want one with that wax?",
       scenarios: [
