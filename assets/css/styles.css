@@ -657,9 +657,16 @@ a.linklike.backdash { display: block; width: auto; margin-top: 10px; text-align:
   .sec-h:not(.big) > span { flex-basis: 100%; margin-top: 2px; }
 }
 
-/* =============================== PRINT ================================== */
+/* =============================== PRINT ==================================
+   printCert() clones #cert-card into #print-sheet, so printing is a whitelist
+   (hide everything except that sheet) rather than a list of classes to hide —
+   the old blacklist named four classes that no longer exist and missed every
+   live one, so the certificate printed buried in the rest of the page. */
+#print-sheet { display: none; }
 @media print {
-  .hdr, .foot, .cs-band, .back, .cert-actions, .vid-grid, .mods, .sell, .reward-wrap, .quiz, .quiz-intro, .result, .sec-h, .course-hero, .master-hero, .master-unlock, .backdash, .lead { display: none !important; }
+  @page { margin: 12mm; }
+  body > *:not(#print-sheet) { display: none !important; }
+  #print-sheet { display: block !important; }
   body { background: #fff; }
   .cert { border-color: #000; box-shadow: none; margin: 0; }
   .cert.master { background: #fff; border-color: #000; }

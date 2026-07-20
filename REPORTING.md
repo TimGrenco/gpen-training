@@ -1,5 +1,11 @@
 # Completion reporting — see who got certified, per store
 
+> **Pasting a webhook URL turns on completion reporting and nothing else.**
+> It does **not** start the free-G-Pen sweepstakes. That draw is behind a separate
+> manual switch (`config.sweepstakes.live`) which must stay `false` until counsel
+> has cleared the Official Rules page — the draft is at
+> `.claude/drafts/rules.draft.html` and is deliberately not deployed.
+
 The training site is static (no backend), so it reports certifications by sending
 a small POST to a **webhook URL you control**. You paste that URL into
 `assets/js/config.js` → `reporting.url`, and every time someone earns a

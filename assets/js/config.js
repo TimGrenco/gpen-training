@@ -72,20 +72,29 @@ window.TRAINING_CONFIG = {
     perCourse: {},
   },
 
-  /* >>> FREE-G-PEN SWEEPSTAKES <<<
+  /* >>> FREE-G-PEN SWEEPSTAKES — OFF, AND INTENTIONALLY HARD TO TURN ON <<<
      Certify on all 5 products and you're auto-entered to win a free G Pen (and
      you still get the 40% code no matter what). It's a SWEEPSTAKES, not a raffle
-     (no purchase, equal odds). Entries log via the reporting webhook below — no
-     server needed. Draw is run off-platform by the client. Edit freely.
+     (no purchase, equal odds). Entries log via the reporting webhook below.
+
+     ⚠️ SETTING `live: true` PUBLISHES A US PRIZE PROMOTION. Do not flip it until
+     counsel has cleared the Official Rules page and you have hosted it at a real
+     URL. The draft lives at .claude/drafts/rules.draft.html — it is deliberately
+     NOT deployed, because it still contains ~20 unfilled [bracketed] placeholders.
+     Requiring five quizzes to enter counts as non-monetary consideration in around
+     a dozen states without a genuine alternate method of entry, so the rules page
+     is not optional. Pasting a reporting webhook alone will NOT start the draw.
        enabled  : master switch for the whole feature
+       live     : the human "counsel has signed off" gate (keep false until then)
        cadence  : how often you draw (shown in copy + rules)
        prize    : what they win (shown in copy)
-       rulesUrl : the static Official Rules page (rules.html ships with the site) */
+       rulesUrl : where the CLEARED Official Rules are hosted (fill in when live) */
   sweepstakes: {
     enabled: true,
+    live: false,
     cadence: "monthly",
     prize: "a free G Pen",
-    rulesUrl: "rules.html",
+    rulesUrl: "",
   },
 
   /* >>> COMPLETION REPORTING <<<

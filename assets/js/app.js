@@ -21,11 +21,16 @@
   // The next product still to certify (skipping `afterSlug`) — drives the
   // "Next up →" hand-off so the journey always has a forward edge.
   function nextCourse(afterSlug) { return COURSES.filter(function (c) { return c.slug !== afterSlug && !cardOwned(c.slug); })[0] || null; }
-  // The free-G-Pen draw is only "live" when it's enabled AND there's an entry pool
-  // to log into (the reporting webhook). Until the client pastes a webhook, the
-  // reward gracefully falls back to 40% off — we never promise an entry that goes
-  // nowhere. It auto-activates the moment a webhook is configured.
-  function drawLive() { var s = CFG.sweepstakes || {}; return s.enabled !== false && !!((CFG.reporting || {}).url); }
+  // The free-G-Pen draw needs THREE things, and `live` is a deliberate manual gate:
+  // pasting a reporting webhook must never publish a prize promotion as a side
+  // effect. So the draw shows only when it's enabled, explicitly switched live by
+  // a human (after counsel clears the rules page), AND there's an entry pool to log
+  // into. Until then the reward is simply the guaranteed discount — we never
+  // promise an entry that goes nowhere.
+  function drawLive() {
+    var s = CFG.sweepstakes || {};
+    return s.enabled !== false && s.live === true && !!((CFG.reporting || {}).url);
+  }
   function coreSlugs() { return CFG.coreCourses && CFG.coreCourses.length ? CFG.coreCourses : COURSES.map(function (c) { return c.slug; }); }
   function todayKey() { var d = new Date(); return d.getFullYear() + "-" + (d.getMonth() + 1) + "-" + d.getDate(); }
   function niceDate() { return new Date().toLocaleDateString(undefined, { year: "numeric", month: "long", day: "numeric" }); }
@@ -1592,6 +1597,30 @@
       '<text class="cs-star" x="66" y="46">★</text><text class="cs-score" x="66" y="76">' + (pct ? pct + "%" : "★") + "</text>" +
       '<text class="cs-sub" x="66" y="94">G PEN</text></svg></div>';
   }
+  /* "Print certificate" used to spool the entire page: the old @media print rule
+     hid four classes that no longer exist and none of the live ones, so the
+     certificate came out buried in hero photos, spec tables and battlecards with
+     the sticky CTA stamped on every sheet. Clone just the cert into a print sheet
+     (the action buttons are a sibling, so they are excluded for free) and let the
+     print stylesheet hide everything else. */
+  function printCert() {
+    var card = $("#cert-card");
+    if (!card) { window.print(); return; }
+    var old = document.getElementById("print-sheet");
+    if (old) old.remove();
+    var sheet = document.createElement("div");
+    sheet.id = "print-sheet";
+    sheet.appendChild(card.cloneNode(true));
+    document.body.appendChild(sheet);
+    function cleanup() {
+      var s = document.getElementById("print-sheet");
+      if (s) s.remove();
+      window.removeEventListener("afterprint", cleanup);
+    }
+    window.addEventListener("afterprint", cleanup);
+    window.print();
+    setTimeout(cleanup, 1500); // belt and braces where afterprint never fires
+  }
   function showCertificate(c, nm, date, pct, cid, box) {
     var product = "G Pen " + c.name;
     box.innerHTML =
@@ -1618,7 +1647,7 @@
         '<button class="btn gold" id="cert-ig">' + ic("share") + " Save for IG story</button>" +
         '<button class="btn ghost" id="cert-mail">' + ic("mail") + " Email it</button>" +
       "</div>";
-    $("#cert-print").addEventListener("click", function () { window.print(); });
+    $("#cert-print").addEventListener("click", printCert);
     $("#cert-dl").addEventListener("click", function () { downloadCertificate(product, nm, date, pct, cid, "PRODUCT SPECIALIST"); });
     $("#cert-ig").addEventListener("click", function () { drawShareCard({ kind: "course", name: nm, product: c.name, score: pct, date: date, cid: cid, cover: c.cover }); });
     $("#cert-mail").addEventListener("click", function () {
@@ -1964,7 +1993,9 @@
         '<button class="btn xl sw-copy">' + ic("tag") + " Copy your 40% code</button>" +
         '<a class="btn xl ghost" href="' + esc(CFG.shopUrl) + '" target="_blank" rel="noopener">Shop &amp; test on gpen.com ' + ic("arrow") + "</a>" +
       "</div>" +
-      '<p class="sw-fine">No purchase necessary. Open to authorized G&nbsp;Pen retail staff (dispensary &amp; smoke shop), 21+, US, void where prohibited. Winners drawn ' + esc(sw.cadence || "monthly") + ". <a href=\"" + esc(sw.rulesUrl || "rules.html") + '" target="_blank" rel="noopener">Official Rules</a>.</p>' +
+      // No rulesUrl fallback: the draft rules page is deliberately not deployed,
+      // and drawLive() cannot be true without a human setting sweepstakes.live.
+      '<p class="sw-fine">No purchase necessary. Open to authorized G&nbsp;Pen retail staff (dispensary &amp; smoke shop), 21+, US, void where prohibited. Winners drawn ' + esc(sw.cadence || "monthly") + "." + (sw.rulesUrl ? " <a href=\"" + esc(sw.rulesUrl) + '" target="_blank" rel="noopener">Official Rules</a>.' : "") + "</p>" +
     "</div>";
   }
 
@@ -2024,7 +2055,7 @@
         '<button class="btn gold" id="cert-ig">' + ic("share") + " Save for IG story</button>" +
         '<button class="btn ghost" id="cert-mail">' + ic("mail") + " Email it</button>" +
       "</div>";
-    $("#cert-print").addEventListener("click", function () { window.print(); });
+    $("#cert-print").addEventListener("click", printCert);
     $("#cert-dl").addEventListener("click", function () { downloadCertificate("G Pen Certified Specialist", e.name, date, 0, cid, "CERTIFIED G"); });
     $("#cert-ig").addEventListener("click", function () { drawShareCard({ kind: "master", name: e.name, cid: cid }); });
     $("#cert-mail").addEventListener("click", function () {
