@@ -124,7 +124,11 @@ h1, h2, h3, h4 { margin: 0; line-height: 1.08; letter-spacing: -.02em; }
   .hdr-name { display: none; }
   .hdr-navlink { padding: 6px 8px; font-size: 13px; }
 }
-.hdr-user { display: flex; flex-direction: column; align-items: flex-end; line-height: 1.15; }
+/* The name/store must NEVER wrap: a long one used to push the sticky header from
+   63px to 100px, which also silently invalidates --hdr-h (and therefore every
+   scroll-padding-top offset). Cap and ellipsize at every width, not just phones. */
+.hdr-user { display: flex; flex-direction: column; align-items: flex-end; line-height: 1.15; min-width: 0; }
+.hdr-u-name, .hdr-u-store { max-width: 22ch; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
 .hdr-u-name { font-weight: 800; font-size: 14px; }
 .hdr-u-store { font-size: 11.5px; color: var(--stone); }
 

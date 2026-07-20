@@ -1598,7 +1598,11 @@
         '<button class="btn xl next" id="q-next" hidden></button>' +
       "</div>";
       $$(".choice", zone).forEach(function (b) { b.addEventListener("click", function () { choose(parseInt(b.getAttribute("data-ci"), 10), q, b); }); });
-      if (!first) zone.scrollIntoView({ behavior: "auto", block: "start" });
+      // "instant", not "auto": auto defers to CSS, and html{scroll-behavior:smooth}
+      // would animate the jump to each new question — a long, sluggish glide on a
+      // tall desktop page. Advancing a question should snap; only the explainer
+      // reveal in choose() is worth animating.
+      if (!first) zone.scrollIntoView({ behavior: "instant", block: "start" });
     }
     // A correct answer flings its points up from the tapped choice.
     function flyPoints(gain, mult, btn) {
