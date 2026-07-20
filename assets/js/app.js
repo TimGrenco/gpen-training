@@ -59,6 +59,32 @@
   function completedCount() { var s = getState(); return COURSES.filter(function (c) { return s.courses[c.slug] && s.courses[c.slug].passed; }).length; }
   function isMasterEarned() { var s = getState(); return coreSlugs().every(function (sl) { return s.courses[sl] && s.courses[sl].passed; }); }
 
+  /* ---- THE REWARD LADDER — one source of truth ---------------------------
+     Certified-course count → discount tier. `key` is the config.discount key
+     that issueRewardCode() mints. EVERYTHING that names a percentage — the
+     ladder cards, the pre-quiz CTAs, and critically the code actually ISSUED
+     on a pass — derives from this table. Before it existed the issuance sites
+     hardcoded "course", so a rep finishing their fifth course was handed the
+     25% code. Add a rung here and every surface follows. */
+  var LADDER = [
+    { at: 1, pct: 25, key: "course" },
+    { at: 2, pct: 30, key: "trio" },
+    { at: 4, pct: 35, key: "master" },
+    { at: COURSES.length, pct: 40, key: "secret" },   // the whole lineup
+  ];
+  // Highest tier earned at `done` certified courses — null before the first pass.
+  function tierAt(done) {
+    var t = null;
+    LADDER.forEach(function (x) { if (done >= x.at) t = x; });
+    return t;
+  }
+  // The next rung still to climb — null once the ladder is topped out.
+  function nextTier(done) { return LADDER.filter(function (x) { return x.at > done; })[0] || null; }
+  // What a rep will hold after passing ONE more course — what pre-quiz CTAs promise.
+  function tierIfOneMore(done) { return tierAt(done + 1) || tierAt(done); }
+  // The tier key to mint for someone who has just certified their Nth course.
+  function earnedTierKey() { var t = tierAt(completedCount()); return t ? t.key : "course"; }
+
   /* =========================================================================
      THE COLLECTION — trading cards
      Every course is a card you pull by passing its quiz at 80%+. Collect all
@@ -154,7 +180,9 @@
           '<span class="tcg-set">' + esc(SET.name) + " · " + esc(SET.illus) + "</span>" +
           '<span class="tcg-no">' + cd.no + "/" + SET.total + " " + rarityHTML(cd.rarity) + "</span>" +
         "</span>" +
-        (mini ? "" : '<span class="tcg-cta"><em>' + (owned ? ic("check") + " 25% off earned" : ic("tag") + " Pass → 25% off") + "</em><b>" + (owned ? "Review " : "Start ") + ic("arrow") + "</b></span>") +
+        (mini ? "" : '<span class="tcg-cta"><em>' + (owned
+            ? ic("check") + " " + (tierAt(completedCount()) || LADDER[0]).pct + "% off earned"
+            : ic("tag") + " Pass → " + tierIfOneMore(completedCount()).pct + "% off") + "</em><b>" + (owned ? "Review " : "Start ") + ic("arrow") + "</b></span>") +
       "</span>" +
     "</a>";
   }
@@ -206,7 +234,7 @@
           '<span class="tcg-flavor">' + esc(sc.flavor) + "</span>") +
         '<span class="tcg-foot"><span class="tcg-set">' + esc(SET.name) + " · " + esc(SET.illus) + "</span>" +
           '<span class="tcg-no">' + sc.no + "/" + SET.total + " " + rarityHTML("secret") + "</span></span>" +
-        (mini ? "" : '<span class="tcg-cta"><em>' + ic("spark") + " Gold — 40% off gpen.com</em><b>View " + ic("arrow") + "</b></span>") +
+        (mini ? "" : '<span class="tcg-cta"><em>' + ic("spark") + " Gold — " + LADDER[LADDER.length - 1].pct + "% off gpen.com</em><b>View " + ic("arrow") + "</b></span>") +
       "</span>" +
     "</a>";
   }
@@ -1079,22 +1107,20 @@
        1 course -> 25%   2 -> 30%   4 -> 35%   all 5 -> 40% + free-G Pen draw entry */
   function rewardsSection(done, master) {
     var total = COURSES.length;                 // 5 = the full lineup
-    // Course-count ladder: 1 → 25%, 2 → 30%, 4 → 35%. All 5 is the grand prize:
-    // the 40% code PLUS an entry to win a free G Pen (the capstone below).
-    var c25 = done >= 1, c30 = done >= 2, c35 = done >= 4, c40 = done >= total;
-    var head = c40 ? "Full lineup certified — you're in the draw 👑"
-      : (c35 ? "35% off unlocked — one more for the grand prize"
-      : (c30 ? "30% off unlocked — keep certifying"
-      : (c25 ? "25% off unlocked — keep going"
-      : "Pass your first course to start earning")));
+    var held = tierAt(done), up = nextTier(done);
+    var head = !held ? "Pass your first course to start earning"
+      : (up ? held.pct + "% off unlocked — " + (up.pct === 40 ? "one more tier for the grand prize" : "keep certifying")
+            : "Full lineup certified — the top reward is yours 👑");
     function need(n) { var d = n - done; return d + " more course" + (d === 1 ? "" : "s") + " to unlock"; }
+    // Every rung but the last renders as a card; the top rung is the capstone.
+    var rungs = LADDER.slice(0, -1).map(function (t) {
+      return rewardCard(t.key, done >= t.at, t.pct + "% OFF",
+        t.at === 1 ? "Pass any 1 course" : "Certify on any " + t.at + " products", need(t.at));
+    }).join("");
     return '<div class="sec-h"><h2>The reward ladder</h2><span>' + head + "</span></div>" +
-      '<div class="rewards">' +
-        rewardCard("course", c25, "25% OFF", "Pass any 1 course", need(1)) +
-        rewardCard("trio", c30, "30% OFF", "Certify on any 2 products", need(2)) +
-        rewardCard("master", c35, "35% OFF", "Certify on any 4 products", need(4)) +
-      "</div>" +
-      grandCard(c40, done, total);
+      '<p class="rw-terms-head">Rewards are for completing training. They are not tied to sales, orders, or product recommendations.</p>' +
+      '<div class="rewards">' + rungs + "</div>" +
+      grandCard(done >= total, done, total);
   }
   // The all-5 capstone: a free-G-Pen draw entry + the guaranteed 40% code.
   function grandCard(unlocked, done, total) {
@@ -1193,7 +1219,8 @@
         ogSays("think", ogLine("quizIntro")) +
         '<div id="quiz-zone"></div>' +
       "</section>" +
-      (rec && rec.passed ? "" : '<button class="sticky-cta" id="sticky-cta">' + ic("cap") + " Get certified · <b>25% off</b></button>") +
+      // Promise the tier they'd actually hold after this course, not a flat 25%.
+      (rec && rec.passed ? "" : '<button class="sticky-cta" id="sticky-cta">' + ic("cap") + " Get certified · <b>" + tierIfOneMore(completedCount()).pct + "% off</b></button>") +
       footer();
 
     bindVideos();
@@ -1329,7 +1356,8 @@
       "</div>" +
       '<div id="cert-zone"></div><div id="reward-zone" class="reward-wrap"></div>';
     showCertificate(c, rec.name || e.name || "", rec.date, rec.score, rec.certId, $("#cert-zone"));
-    revealReward("course", { courseSlug: c.slug, name: rec.name || e.name, email: e.email, store: e.store, certId: rec.certId }, $("#reward-zone"));
+    // Mint the tier they actually hold, not the first rung (see LADDER).
+    revealReward(earnedTierKey(), { courseSlug: c.slug, name: rec.name || e.name, email: e.email, store: e.store, certId: rec.certId }, $("#reward-zone"));
     $("#retake").addEventListener("click", function () { showCertifyForm(c); $("#quiz-zone").scrollIntoView({ behavior: "smooth", block: "start" }); });
   }
   function showCertifyForm(c) {
@@ -1337,7 +1365,7 @@
     zone.innerHTML =
       '<div class="certify">' +
         '<div class="certify-badge">' + ic("award") + "</div>" +
-        "<h3>Get certified &amp; unlock 25% off</h3>" +
+        "<h3>Get certified &amp; unlock " + tierIfOneMore(completedCount()).pct + "% off</h3>" +
         '<p class="lead">Ready? Pass the ' + c.quiz.length + "-question quiz (score " + c.passPct + "%+) to earn your <strong>" + esc(c.name) + "</strong> Product Specialist certificate and a gpen.com discount code. Enter your details so we can put your name on the certificate.</p>" +
         '<div class="certify-form">' +
           field("name", "Your full name", "text", e.name, "Jane Budtender", "name") +
@@ -1522,7 +1550,9 @@
                        '<a class="linklike backdash" href="#/">or back to all courses</a>'
               : '<a class="btn ghost xl backdash" href="#/">Back to all courses ' + ic("arrow") + "</a>");
     showCertificate(c, e.name, rec.date, rec.score, rec.certId, $("#cert-zone"));
-    revealReward("course", { courseSlug: c.slug, name: e.name, email: e.email, store: e.store, certId: cid }, $("#reward-zone"));
+    // State is already saved above, so completedCount() includes this pass —
+    // mint the tier they now hold (5/5 must issue 40%, not the 25% first rung).
+    revealReward(earnedTierKey(), { courseSlug: c.slug, name: e.name, email: e.email, store: e.store, certId: cid }, $("#reward-zone"));
     zone.scrollIntoView({ behavior: "smooth", block: "start" });
   }
 
@@ -1532,7 +1562,8 @@
       if (!r || !r.code) return;
       box.innerHTML = '<div class="reward">' +
         '<div class="reward-ic">' + ic("tag") + "</div>" +
-        '<div class="reward-eyebrow">' + (type === "master" ? "Specialist reward unlocked" : "Reward unlocked") + "</div>" +
+        // Name the rung so climbing a tier reads as an event, not a repeat.
+        '<div class="reward-eyebrow">' + (type === "secret" ? "Top reward unlocked — full lineup" : (type === "course" ? "Reward unlocked" : "New tier unlocked")) + "</div>" +
         "<h3>" + esc(r.label) + "</h3>" +
         '<button class="code" id="code-copy" title="Copy code"><span>' + esc(r.code) + '</span><em>Tap to copy</em></button>' +
         "<p>" + esc(r.note || "") + "</p>" +
