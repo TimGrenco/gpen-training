@@ -127,12 +127,12 @@ window.GPEN_COURSES = [
       aov: "Every eighth that leaves is a $49.95 Dash II that could've gone with it. It turns a one-time flower sale into a customer who comes back to you for flower.",
       keyFacts: ["Pocket dry-herb vape", "~30-sec heat-up · 0.4g oven", "$49.95 — the easy first yes"],
       talkTrack: { say: "You're grabbing flower anyway — the Dash II heats it clean instead of burning it, so that eighth lasts longer and actually tastes like the strain. Fifty bucks, fits your pocket." },
-      whichClose: "For your flower, want the pocket Dash II or the bigger-oven Dash+?",
+      whichClose: "For your flower, want the pocket Dash II or the titanium Dash+?",
       scenarios: [
         { sees: "A half-ounce of flower + a grinder in their basket", say: "You're already grinding it — the Dash II's the next piece. Pack that ground flower, hit the button, you're vaping instead of burning. That half-oz lasts way longer when you're not torching it. Fifty bucks." },
-        { sees: "They mention joints make them cough or feel harsh", say: "That's the smoke, not the flower. The Dash II heats it instead of burning it — smooth on your throat, and you actually taste the strain. Fifty bucks, and it fixes exactly what you just described." },
+        { sees: "They bring up how a joint feels compared to vaping", say: "The honest difference is burning versus heating — a joint combusts the flower, the Dash II vaporizes it. I can't give you health advice, but flavor is why most people switch: you actually taste the strain instead of smoke. Fifty bucks — want to hold it?" },
       ],
-      trap: "Don't call it 'like smoking' — it's the opposite. Say 'heats, doesn't burn.' That's the whole pitch.",
+      trap: "Don't call it 'like smoking' — it's the opposite. Say 'heats, doesn't burn.' And if a customer raises coughing, harshness, lungs, or anything else health-related, do NOT diagnose it or promise the product fixes it — that's a claim the brand can't make and it lands on Grenco, not you. Redirect to flavor and experience, or tell them to ask their doctor.",
       objections: [
         { says: "I'll just roll it.", say: "Totally — and you still can. But rolling burns off the flavor and half goes up in smoke. The Dash II heats the same flower low and slow, so a gram goes further and you taste the strain. Want to see how small it is?", why: "Don't fight the joint — reframe around waste and flavor." },
         { says: "Is fifty bucks worth it?", say: "For a real temp-control vape with a screen, fifty's about as low as it gets — and it pays for itself in the flower you're not burning. Grab a USB-C cable with it and you're set.", why: "Price-anchor, then attach the cable — it's not in the box." },
@@ -166,7 +166,7 @@ window.GPEN_COURSES = [
     name: "Dash+",
     category: "Dry Herb Vaporizer",
     tagline: "Hybrid convection + conduction in a full titanium chamber.",
-    differentiator: "Bigger oven, titanium, hybrid heat. The upgrade sell.",
+    differentiator: "Titanium chamber, hybrid convection, 20s heat-up. The upgrade sell.",
     minutes: 9, passPct: 80, msrp: "$99.95", accent: "#D75D43",
     cover: CDN + "dash__vape_thumb_5e14bcb4-a63a-4cc3-8078-e57fc572e4da.png?v=1729247649",
     heroImg: LIFE + "dash-plus/5e5f67089995d3cfba84f862caf73d287ae9bc1d86d05818dde9204e6fce4b74.jpg",
@@ -235,7 +235,7 @@ window.GPEN_COURSES = [
       objections: [
         { says: "Why is this double the Dash II?", say: "Titanium chamber and true convection — that's what you're paying for. It's the difference between 'it works' and 'wow, I taste the strain.' If flavor's your thing, worth the jump.", why: "Justify the price with the flavor mechanism, not a spec sheet." },
         { says: "Looks complicated.", say: "Three buttons, and it buzzes when it's ready. Load, double-click, draw. The color screen means you're never guessing your temp." },
-        { says: "I already have a pocket vape.", say: "Then you get it — this is the upgrade. Bigger oven, titanium, cleaner flavor. Hold it and feel the difference.", why: "Position as the step-up, not a replacement." },
+        { says: "I already have a pocket vape.", say: "Then you get it — this is the upgrade. Full titanium chamber, real convection, heats in about 20 seconds. Cleaner flavor, and you feel it on the first hit.", why: "Position as the step-up, not a replacement. Note the Dash+ chamber (~0.3g) is actually SMALLER than the Dash II's 0.4g — the upgrade is heat quality, not capacity." },
       ],
     },
     videos: [
@@ -263,7 +263,7 @@ window.GPEN_COURSES = [
     name: "Melt Hot Knife",
     category: "Concentrate Tool",
     tagline: "The smallest hot knife on the market — zero-mess dabs.",
-    differentiator: "Electric hot knife. No torch, no mess.",
+    differentiator: "Electric hot knife. Scoop and drop, no sticky mess.",
     minutes: 7, passPct: 80, msrp: "$24.95", accent: "#E8833A",
     cover: CDN + "Melt_thumbA.png?v=1772813232",
     heroImg: LIFE + "melt/b1cac7548cacc2f2b15e0b9385e6ff04e8a8168f7dbec9e1be8f8354dc506aea.jpg",
@@ -306,7 +306,7 @@ window.GPEN_COURSES = [
     ],
     faq: [
       { q: "What is the G Pen Melt?", a: "Grenco's smallest electric hot knife — built for clean, mess-free dab prep. It heats fast and drops concentrates smoothly." },
-      { q: "What is it compatible with?", a: "The Micro+, Connect, Hyer, traditional bangers, e-rigs and e-nails — and it pairs great with THCa dabs." },
+      { q: "What is it compatible with?", a: "The Micro+, Connect, Hyer, traditional bangers, e-rigs and e-nails — it works with any concentrate you'd normally load by hand." },
       { q: "Does it have adjustable heat settings?", a: "No — it uses a precisely tuned heating element optimized for smooth, controlled melting without burning." },
       { q: "Can I use it while charging?", a: "Yes — USB-C pass-through lets you use it while it's plugged in. A USB-C cable is not included." },
       { q: "Is it travel-friendly?", a: "Yes — it's tiny, has a travel lock, and comes with a protective travel cap." },
@@ -316,20 +316,20 @@ window.GPEN_COURSES = [
       upsellFrom: "Dabs / concentrate",
       cue: "🍯",
       pairsWith: [],
-      vital: "You can't handle a dab with your fingers — it needs heat and a tool. The Melt is the no-torch way to load the concentrate they're buying.",
-      aov: "Cheap, universal impulse add. Everyone buying concentrate is fighting sticky tools and torches — a $24.95 Melt rides along with every gram of wax, rosin, or THCa.",
-      keyFacts: ["Electric hot knife — no torch", "Rapid-heat ceramic tip · pocket-size", "Clean, no-mess dabs ($24.95)"],
-      talkTrack: { say: "Grabbing concentrate? The Melt's how you handle it without a torch — hot ceramic tip, scoop and drop, no sticky mess. Tiny, twenty-five bucks, works with any rig or banger." },
-      whichClose: "Loading a rig or a banger? Either way the Melt's your no-torch tool — want one with that wax?",
+      vital: "You can't handle a dab with your fingers — it needs heat and a tool. The Melt is the clean way to LOAD the concentrate they're buying: the tip heats, so it releases instead of stringing.",
+      aov: "Cheap, universal impulse add. Everyone buying concentrate is fighting a cold, sticky tool — a $24.95 Melt rides along with every gram of wax or rosin.",
+      keyFacts: ["Heated ceramic tip — loads without a torch", "Rapid-heat · pocket-size", "Clean, no-mess dabs ($24.95)"],
+      talkTrack: { say: "Grabbing concentrate? The Melt's how you handle it — heated ceramic tip, scoop and drop, no sticky mess. Tiny, twenty-five bucks, works with any rig or banger." },
+      whichClose: "Loading a rig or a banger? Either way the Melt's how the dab gets in clean — want one with that wax?",
       scenarios: [
         { sees: "A gram of rosin or live resin on the counter", say: "That rosin's too good to waste on a cold scoop. The Melt heats the tip so it drops clean into your rig — no stringy pull, no reclaim stuck to the tool. Twenty-five bucks and every dab lands where it should." },
-        { sees: "Concentrate + a banger or rig in the same sale", say: "You've got the rig — the Melt's how you load it without a torch. Heats in seconds, scoops, drops clean. Toss it in the bag and you're set. Twenty-five bucks." },
+        { sees: "Concentrate + a banger or rig in the same sale", say: "You've got the rig — the Melt's how you load it clean. Heats in seconds, scoops, drops. Toss it in the bag and you're set. Twenty-five bucks." },
       ],
-      trap: "Don't let them picture a torch. Lead with 'no torch, no mess' — that's what wins it.",
+      trap: "Be precise about what it replaces: the Melt replaces the sticky dab tool, NOT the torch or e-nail that heats a quartz banger. Sell it on clean loading. Promising 'you won't need a torch at all' is the fastest way to get it returned.",
       objections: [
-        { says: "I've got a dab tool already.", say: "A cold tool is where the mess and the string-cheese pull come from. The Melt heats the tip, so the concentrate releases clean every time — no torch, no reclaim disaster.", why: "Reframe: a cold tool is the problem, not the solution." },
-        { says: "Do I need a torch?", say: "Nope — that's the whole point. Electric, USB-C, heats in seconds. No butane to buy or carry." },
-        { says: "Twenty-five for a tool?", say: "Smallest hot knife made, and it replaces a torch and a tool. If you dab, it pays for itself the first sticky mess it saves. Grab a USB-C cable and you're set.", why: "The USB-C cable isn't in the box — attach it." },
+        { says: "I've got a dab tool already.", say: "A cold tool is where the mess and the string-cheese pull come from. The Melt heats the tip, so the concentrate releases clean every time — no reclaim disaster.", why: "Reframe: a cold tool is the problem, not the solution." },
+        { says: "Do I need a torch?", say: "Not for the Melt itself — it's electric, USB-C, heats in seconds. If you're dabbing off a quartz banger you'll still heat that however you normally do; the Melt is what gets the concentrate out of the jar and into it without the mess.", why: "Be straight here. Overselling this as 'no torch at all' is the #1 reason it comes back." },
+        { says: "Twenty-five for a tool?", say: "Smallest hot knife made, and it replaces your dab tool and the mess that comes with it. If you dab, it pays for itself the first sticky disaster it saves. Grab a USB-C cable and you're set.", why: "The USB-C cable isn't in the box — attach it." },
       ],
     },
     videos: [
@@ -337,7 +337,7 @@ window.GPEN_COURSES = [
       { title: "Melt — The Judge's Favorite", thumb: "https://i.ytimg.com/vi/mgErvUJHYQU/hqdefault.jpg", youtube: "mgErvUJHYQU" },
     ],
     quiz: [
-      { q: "A customer is buying DABS or concentrate. What do you attach?", choices: ["A 510 Original battery", "The Melt Hot Knife", "The Dash II", "The Hydout"], answer: 1, why: "Concentrate needs heat and a tool to handle it — the Melt is the no-torch way to load a dab." },
+      { q: "A customer is buying DABS or concentrate. What do you attach?", choices: ["A 510 Original battery", "The Melt Hot Knife", "The Dash II", "The Hydout"], answer: 1, why: "Concentrate needs heat and a tool to handle it — the Melt is the clean way to load a dab." },
       { q: "What is the G Pen Melt?", choices: ["A dry herb vaporizer", "An electric hot knife (dab tool) for concentrates", "A 510 battery", "A water pipe"], answer: 1, why: "The Melt is an electric, ceramic-tipped hot knife for scooping and dropping concentrates." },
       { q: "The Melt is marketed as the smallest ___ on the market.", choices: ["vaporizer", "hot knife", "battery", "rig"], answer: 1, why: "It's the smallest hot knife on the market." },
       { q: "What is the Melt's heated tip made of?", choices: ["Ceramic", "Titanium", "Quartz", "Steel"], answer: 0, why: "The Melt has a rapid-heat ceramic tip." },
@@ -348,6 +348,7 @@ window.GPEN_COURSES = [
       { q: "How do you power the Melt on?", choices: ["Press the button 5×", "Hold for 3 seconds", "Tap once", "Twist the cap"], answer: 0, why: "Press the button 5× to turn the Melt on." },
       { q: "How does the Melt signal it needs a charge?", choices: ["It beeps", "The LED blinks 8 times", "It gets hot", "Nothing"], answer: 1, why: "The LED button blinks 8 times when it's time to charge." },
       { q: "What is the Melt's MSRP?", choices: ["$12.95", "$24.95", "$49.95", "$99.95"], answer: 1, why: "The Melt MSRP is $24.95." },
+      { q: "A customer dabs from a quartz banger and asks: \"So I can throw away my torch?\" What's the honest answer?", choices: ["Yes — the Melt replaces the torch completely", "No — the Melt loads the concentrate cleanly, but they still heat the banger the way they always do", "Yes, as long as they buy the USB-C cable", "Only if they also buy a rig"], answer: 1, why: "The Melt is a ~150°C loading tool: it replaces the sticky cold dab tool, not the torch or e-nail that heats a banger. Overselling this is the #1 reason it comes back." },
     ],
   },
 
@@ -619,7 +620,7 @@ window.GPEN_FACTS = [
   { emoji: "🫙", text: "Light and heat degrade cannabinoids faster than anything else. Cool, dark, airtight — that's the whole storage lecture." },
   { emoji: "⚡", text: "A dirty chamber is the #1 cause of \"my vape stopped hitting.\" Nine times out of ten it's a cleaning issue, not a defect." },
   { emoji: "🤝", text: "The \"entourage effect\" is the theory that cannabinoids and terpenes work better together than any one compound alone." },
-  { emoji: "🧊", text: "Water filtration doesn't reduce potency much — it mostly cools the vapor. That's the entire pitch for the Hydout." },
+  { emoji: "🔌", text: "Voltage is the whole game on a 510 cart: too low and it barely vapes, too high and you scorch the oil. That's why the Hydout gives you five settings instead of one." },
   { emoji: "🏭", text: "Grenco Science shipped its first G Pen in 2012, back when \"vape pen\" wasn't even a phrase people used." },
 ];
 
@@ -678,7 +679,7 @@ window.GPEN_CARDS = {
     no: 3, rarity: "common", element: "conc", code: "CONC 210",
     power: "500", powerUnit: "mAh",
     moves: [
-      { name: "Hot Knife", cost: 1, dmg: "302°F", text: "Ceramic tip hits ~150°C for clean, torch-free dabs." },
+      { name: "Hot Knife", cost: 1, dmg: "302°F", text: "Ceramic tip hits ~150°C so concentrate releases clean instead of stringing." },
       { name: "Pocket Carry", cost: 1, dmg: "—", text: "The smallest hot knife on the market. It goes everywhere you do." },
     ],
     statsRow: [{ k: "Tip temp", v: "150°C" }, { k: "Warranty", v: "90 d" }, { k: "Charge", v: "USB-C" }],
