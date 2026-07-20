@@ -4,9 +4,19 @@
    Everything a non-developer needs to tweak lives here: the discount codes,
    the pass mark, contact email, and where the "shop now" button points.
 
-   >>> DISCOUNT CODES <<<
-   For now these are GENERIC codes that everyone who certifies can use. To change
-   a code, just edit the `code` / `label` / `note` strings below.
+   >>> DISCOUNT CODES — READ THIS BEFORE RAISING ANY REDEMPTION LIMIT <<<
+   These are GENERIC shared codes. This file is served publicly at
+   /assets/js/config.js, so ANYONE can read every code without opening a course,
+   passing a quiz, or working in retail at all. The quiz is NOT a gate — it never
+   was. What actually protects these is the Shopify side: a total-redemption cap,
+   one-use-per-customer, a hard expiry, and a minimum-purchase floor on the top
+   tier. Set those before you promote the program, and size the cap to expected
+   partner headcount — the cap IS the kill switch, because without it a leaked
+   40%-off sitewide code can only be stopped by a redeploy.
+
+   Also avoid encoding the tier in the code name: from one legitimately earned
+   GPENPRO25 anyone can guess GPENELITE35. Use non-guessable suffixes instead
+   (e.g. GPU-25-7K2MX4).
 
    LATER (unique per-person codes via the Shopify Admin API): you do NOT need to
    touch anything else in the app. Replace the body of `issueRewardCode()` at the
@@ -21,6 +31,13 @@ window.TRAINING_CONFIG = {
   registerUrl: "https://www.gpen.com/register",
   // Where "Email my certification" / support requests go.
   contactEmail: "pr@grencoscience.com",
+
+  /* >>> LEGAL / ELIGIBILITY COPY (counsel can reword without touching app.js) <<<
+     footerNote renders in the site footer on every page. privacyUrl is optional —
+     leave "" and no privacy link is rendered; set it and it appears in the footer
+     and under the certification form (where name / email / store are collected). */
+  footerNote: "for authorized G Pen retail partners, 21+ — training and hardware education only. No cannabis, nicotine or e-liquid products are sold or shipped through this site.",
+  privacyUrl: "",
 
   /* >>> "TALK TO OUR TEAM" CONTACT BAND <<<
      The customer-service block at the very bottom of every page. Edit the
@@ -54,18 +71,21 @@ window.TRAINING_CONFIG = {
       code: "GPENPRO25",
       label: "25% off your next order at gpen.com",
       note: "Use this code at checkout on gpen.com to buy and test the product you just got certified on.",
+      terms: "One use per person. Not combinable with other offers. Use your highest unlocked code.",
     },
     // Unlocked at 2 certified products. 30% off.
     trio: {
       code: "GPENHOLO30",
       label: "30% off your next order at gpen.com",
       note: "Two products deep. You know the lineup better than most of the floor — here's a bigger cut.",
+      terms: "One use per person. Not combinable with other offers. Use your highest unlocked code.",
     },
     // Unlocked at 4 certified products. 35% off.
     master: {
       code: "GPENELITE35",
       label: "35% off your entire order at gpen.com",
       note: "Four products certified. One more and you unlock the full 40%.",
+      terms: "One use per person. Not combinable with other offers. Use your highest unlocked code.",
     },
     // Unlocked once ALL 5 courses are complete — the whole lineup. 40% off.
     // (The free-G-Pen DRAW is presented separately in the sweepstakes panel, which
@@ -74,6 +94,7 @@ window.TRAINING_CONFIG = {
       code: "CERTIFIEDG40",
       label: "40% off your entire order at gpen.com",
       note: "You certified on the whole lineup — the top reward in the program. Put it toward your own device: the reps who know these products best are the ones who've actually used one.",
+      terms: "One use per person. Not combinable with other offers. Use your highest unlocked code.",
     },
     // OPTIONAL: give a specific product its own course code. Keyed by course slug.
     // e.g. perCourse: { "dash-ii": { code: "DASH2PRO", label: "...", note: "..." } }

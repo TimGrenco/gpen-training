@@ -186,7 +186,12 @@ h1, h2, h3, h4 { margin: 0; line-height: 1.08; letter-spacing: -.02em; }
   border-radius: var(--r-sm); background: #fff; transition: border-color .15s; color: var(--ink);
 }
 .field input:focus { outline: none; border-color: var(--ink); }
-.form-fine { color: var(--stone); font-size: 12px; text-align: center; margin: 2px 0 0; }
+.form-fine { color: var(--stone); font-size: 12px; text-align: center; margin: 2px 0 0; line-height: 1.5; }
+.form-fine a { color: var(--gold); text-decoration: underline; }
+/* 21+ / authorized-retail-staff attestation above the Start button. */
+.attest { display: flex; align-items: flex-start; gap: 10px; margin: 2px 0 4px; cursor: pointer;
+  font-size: 13px; line-height: 1.45; color: var(--ink-2); text-align: left; }
+.attest input { flex: none; width: 18px; height: 18px; margin-top: 1px; accent-color: var(--gold); cursor: pointer; }
 
 /* =============================== DASHBOARD =============================== */
 .hub { max-width: var(--maxw); margin: 0 auto; padding: var(--sec-y) var(--gutter) 10px; }
@@ -599,6 +604,10 @@ a.linklike.backdash { display: block; width: auto; margin-top: 10px; text-align:
 /* Rewards are earned by finishing training, never by selling — stated plainly
    because supplier incentives tied to sales are restricted in several states. */
 .rw-terms-head { margin: -6px 0 14px; font-size: 12.5px; line-height: 1.5; color: var(--stone); max-width: 64ch; }
+/* Per-code terms, on the card itself — expiry/stacking/single-use is the first
+   question a dispensary partner asks in a demo. */
+.rw-terms { margin: 10px 0 0; font-size: 11px; line-height: 1.45; color: var(--stone); opacity: .9; }
+.rw-card.grand .rw-terms, .rw-card.secret .rw-terms { color: #8f8e88; }
 .rewards { display: grid; grid-template-columns: 1fr; gap: 12px; margin-bottom: 8px; }
 .rw-card { border-radius: var(--r-md); padding: 20px; border: 1px solid var(--line); background: #fff; box-shadow: var(--shadow); }
 .rw-card.off { border-style: dashed; }

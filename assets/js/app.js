@@ -1121,7 +1121,9 @@
       '<footer class="foot"><img src="assets/img/gpen-g-black.png" class="foot-g light" alt=""/><img src="assets/img/gpen-g-white.png" class="foot-g dark" alt=""/>' +
       '<div class="foot-nav"><a href="#/">Courses</a><a href="#/collection">The Binder</a><a href="#/about">About G Pen</a><a href="' + esc(CFG.shopUrl) + '" target="_blank" rel="noopener">Shop gpen.com</a></div>' +
       (hasProgress ? '<button class="foot-reset" id="reset" type="button">' + ic("refresh") + " Reset my progress &amp; start over</button>" : "") +
-      "<p>" + esc(CFG.programName) + " · for authorized G Pen retail partners. Program &amp; press: <a href=\"mailto:" + esc(CFG.contactEmail) + "\">" + esc(CFG.contactEmail) + "</a></p>" +
+      "<p>" + esc(CFG.programName) + " · " + esc(CFG.footerNote || "for authorized G Pen retail partners.") +
+        " Program &amp; press: <a href=\"mailto:" + esc(CFG.contactEmail) + "\">" + esc(CFG.contactEmail) + "</a>" +
+        (CFG.privacyUrl ? ' · <a href="' + esc(CFG.privacyUrl) + '" target="_blank" rel="noopener">Privacy</a>' : "") + "</p>" +
       '<p class="foot-motto">A Grenco Science joint · est. 2012 · <em>In Vapore Veritas</em></p>' +
       "</footer>";
   }
@@ -1161,9 +1163,17 @@
       '<div class="rw-sub">Certify all ' + total + " &mdash; " + (draw ? "you&rsquo;re entered to win a free G&nbsp;Pen, and 40% off is yours no matter what." : "the whole lineup unlocks 40% off gpen.com.") + "</div>" +
       (unlocked
         ? '<button class="rw-code" data-rwcode="secret"><span class="rw-code-v">••••••</span><em>' + ic("tag") + " Tap to copy</em></button>" +
-          '<a class="rw-cert" href="#/certified">' + (draw ? "Enter the draw + view certificate" : "View master certificate") + " &rarr;</a>"
+          '<a class="rw-cert" href="#/certified">' + (draw ? "Enter the draw + view certificate" : "View master certificate") + " &rarr;</a>" +
+          // grandCard bypasses rewardCard, so it needs its own terms line.
+          rwTermsHTML("secret")
         : '<div class="rw-lock">' + ic("spark") + " " + d + " more course" + (d === 1 ? "" : "s") + (draw ? " to enter the draw" : " to unlock") + "</div>") +
     "</div>";
+  }
+  // "Whether it expires / stacks / is single-use" is the first thing a dispensary
+  // partner asks — answer it wherever a code is shown, not just in the config.
+  function rwTermsHTML(type) {
+    var t = ((CFG.discount || {})[type] || {}).terms;
+    return t ? '<p class="rw-terms">' + esc(t) + "</p>" : "";
   }
   function rewardCard(type, unlocked, big, sub, lockMsg) {
     var isSecret = type === "secret";
@@ -1176,7 +1186,8 @@
         ? '<button class="rw-code" data-rwcode="' + type + '"><span class="rw-code-v">••••••</span><em>' + ic("tag") + " Tap to copy</em></button>" +
           '<a class="rw-shop" href="' + esc(CFG.shopUrl) + '" target="_blank" rel="noopener">Shop gpen.com ' + ic("arrow") + "</a>" +
           // The master certificate needs all 5 courses — it belongs on the 40% (all-lineup) card.
-          (isSecret ? '<a class="rw-cert" href="#/certified">View master certificate →</a>' : "")
+          (isSecret ? '<a class="rw-cert" href="#/certified">View master certificate →</a>' : "") +
+          rwTermsHTML(type)
         : '<div class="rw-lock">' + ic(isSecret ? "spark" : "lock") + " " + lockMsg + "</div>") +
     "</div>";
   }
@@ -1417,8 +1428,18 @@
           field("name", "Your full name", "text", e.name, "Jane Budtender", "name") +
           field("email", "Email address", "email", e.email, "you@store.com", "email") +
           field("store", "Store / shop name", "text", e.store, "Cloud 9 Smoke Shop", "organization") +
+          // Eligibility is captured here, timestamped, so any future draw entry
+          // already carries it. A dispensary compliance lead checks for this.
+          '<label class="attest"><input type="checkbox" id="f-attest"' + (e.attest21 ? " checked" : "") + " />" +
+            "<span>I confirm I am 21 or older and currently work as authorized retail staff at a licensed dispensary or smoke shop.</span></label>" +
           '<button class="btn xl full" id="start-quiz">Start the quiz ' + ic("arrow") + "</button>" +
-          '<p class="form-fine">No account needed — this only personalizes your certificate and stays on your device.</p>' +
+          // Must stay true in BOTH webhook states — reporting.url may be set the
+          // same week, at which point "stays on your device" would be a lie.
+          '<p class="form-fine">No account needed. Your name goes on the certificate, and your progress is stored on this device. ' +
+            ((CFG.reporting || {}).url
+              ? "Your name, email and store are also sent to G&nbsp;Pen so your completion can be recorded."
+              : "If your store enables completion reporting, your name, email and store are also sent to G&nbsp;Pen.") +
+            (CFG.privacyUrl ? ' <a href="' + esc(CFG.privacyUrl) + '" target="_blank" rel="noopener">Privacy</a>.' : "") + "</p>" +
         "</div>" +
       "</div>";
     $("#start-quiz").addEventListener("click", function () {
@@ -1426,8 +1447,9 @@
       if (!name) { toast("Enter your name for the certificate"); $("#f-name").focus(); return; }
       if (!email || email.indexOf("@") < 0) { toast("Enter a valid email"); $("#f-email").focus(); return; }
       if (!store) { toast("Enter your store name"); $("#f-store").focus(); return; }
+      if (!$("#f-attest").checked) { toast("Please confirm you're 21+ and retail staff"); $("#f-attest").focus(); return; }
       var prev = getEnroll();
-      setEnroll({ name: name, email: email, store: store, ts: (prev && prev.ts) || new Date().toISOString() });
+      setEnroll({ name: name, email: email, store: store, attest21: true, attestedAt: new Date().toISOString(), ts: (prev && prev.ts) || new Date().toISOString() });
       if (!prev) logEvent("enroll", { name: name, email: email, store: store });
       runQuiz(c);
     });
@@ -1624,7 +1646,7 @@
         '<button class="code" id="code-copy" title="Copy code"><span>' + esc(r.code) + '</span><em>Tap to copy</em></button>' +
         "<p>" + esc(r.note || "") + "</p>" +
         '<a class="btn xl" href="' + esc(CFG.shopUrl) + '" target="_blank" rel="noopener">Shop gpen.com ' + ic("arrow") + "</a>" +
-        '<p class="reward-terms">Earned by completing training — not tied to sales, orders, or product recommendations.</p>' +
+        '<p class="reward-terms">' + (r.terms ? esc(r.terms) + " " : "") + "Earned by completing training — not tied to sales, orders, or product recommendations.</p>" +
       "</div>";
       $("#code-copy").addEventListener("click", function () {
         var t = r.code;
