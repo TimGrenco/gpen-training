@@ -559,8 +559,16 @@
       ev.stopPropagation();
       flyToBinder($(".pull-card > *", m), close);
     });
+    // tcgCard() renders the card as <a href="#/course/…">, so the biggest tappable
+    // thing on the reward screen was a router link INSIDE a modal with no teardown:
+    // the hash changed, the page re-rendered underneath, and the rep was left
+    // staring at the card over a locked, aria-hidden page. Strip the href (the
+    // inspector already does this) and close on any router link, belt and braces.
+    var pulled = $(".pull-card .tcg", m);
+    if (pulled) { pulled.removeAttribute("href"); pulled.style.cursor = "default"; }
     m.addEventListener("click", function (ev) {
-      if (ev.target === m || ev.target.closest(".modal-x")) close();
+      if (ev.target === m || ev.target.closest(".modal-x")) return close();
+      if (ev.target.closest && ev.target.closest('a[href^="#/"]')) close();  // let the hash change proceed
     });
     document.addEventListener("keydown", onEsc);
 
@@ -2624,7 +2632,13 @@
     function close() { document.removeEventListener("keydown", onEsc); release(); m.remove(); document.body.classList.remove("noscroll"); }
     function onEsc(ev) { if (ev.key === "Escape") close(); }
     $(".modal-x", m).addEventListener("click", close);
-    m.addEventListener("click", function (ev) { if (ev.target === m) close(); });
+    m.addEventListener("click", function (ev) {
+      if (ev.target === m) return close();
+      // "Review course" / "View certificate" are router links inside the modal.
+      // Close BEFORE the hash change lands, while `trigger` still exists — release()
+      // focuses it, and route() is about to destroy the binder card it points at.
+      if (ev.target.closest && ev.target.closest('a[href^="#/"]')) close();
+    });
     document.addEventListener("keydown", onEsc);
     $(".insp-flip", m).addEventListener("click", function () {
       flipped = !flipped;
@@ -2722,9 +2736,21 @@
 
   /* ---- router ------------------------------------------------------------ */
   function go(hash) { if (location.hash === hash) route(); else location.hash = hash; }
+  /* Modals live on <body>, not inside #app, so a re-render does not remove them.
+     Any overlay still standing when the route changes has outlived its page —
+     leaving it would strand the rep behind a full-viewport backdrop with scroll
+     locked and #app aria-hidden. The per-modal close() handlers are still the
+     primary path (they also clear Escape listeners and the pull auto-open timer);
+     this is the guarantee that no future overlay can strand a live page. */
+  function clearStrayOverlays() {
+    $$("body > .modal").forEach(function (el) { el.remove(); });
+    document.body.classList.remove("noscroll");
+    if (app) app.removeAttribute("aria-hidden");
+  }
   function route() {
     var h = location.hash.replace(/^#/, "") || "/";
     var parts = h.split("/").filter(Boolean); // e.g. ["course","dash-ii"]
+    clearStrayOverlays();
     window.scrollTo(0, 0);
     setTitleDoc(CFG.programName);
     var pageKey = "home";
