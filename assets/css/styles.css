@@ -585,8 +585,14 @@ a.linklike.backdash { display: block; width: auto; margin-top: 10px; text-align:
 .faq-q span:first-child { flex: 1; }
 .faq-caret { flex: none; font-size: 22px; font-weight: 400; color: var(--gold); line-height: 1; transition: transform .18s; }
 .faq-item.open .faq-caret { transform: rotate(45deg); }
-.faq-a { max-height: 0; overflow: hidden; transition: max-height .28s ease; }
-.faq-item.open .faq-a { max-height: 360px; }
+/* max-height:0 alone only makes the answer INVISIBLE — computed display stays block
+   and visibility stays visible, so every collapsed answer remained in the
+   accessibility tree. A screen reader read all six FAQ answers on the course page
+   whether or not they were open, while each toggle reported aria-expanded="false":
+   the state was a lie about content that was being announced anyway. visibility
+   takes it out of the tree and still transitions. */
+.faq-a { max-height: 0; overflow: hidden; visibility: hidden; transition: max-height .28s ease, visibility .28s ease; }
+.faq-item.open .faq-a { max-height: 360px; visibility: visible; }
 .faq-a p { margin: 0; padding: 0 18px 16px; font-size: 14.5px; color: var(--stone); line-height: 1.55; }
 
 /* =============================== ABOUT ================================= */

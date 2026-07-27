@@ -142,11 +142,18 @@
     return s;
   }
   function setState(s) { try { localStorage.setItem(K_STATE, JSON.stringify(s)); } catch (e) {} }
-  function logEvent(type, data) {
-    // Structured event log — a future Sheet/Airtable webhook can POST these.
-    var s = getState(); s.log = s.log || [];
+  /* Structured event log — a future Sheet/Airtable webhook can POST these.
+     Pass `st` when the caller is already holding a state object it will setState()
+     itself. Without that, this function's own read-modify-write got clobbered:
+     maybeReportTier and reportMaster both read `s`, call logEvent, then setState(s)
+     at the end — writing back a state read BEFORE the log entry existed. The trio,
+     elite and master events were therefore never in state.log at all, which is
+     precisely the three rows that mark a reward tier for the reporting sheet. */
+  function logEvent(type, data, st) {
+    var s = st || getState(); s.log = s.log || [];
     s.log.push(Object.assign({ type: type, at: new Date().toISOString() }, data || {}));
-    setState(s);
+    if (!st) setState(s);   // the caller owns the write when it handed us its state
+    return s;
   }
   function touchStreak() {
     var s = getState(), t = todayKey();
@@ -354,9 +361,13 @@
   }
 
   // Pulling a card mid-page must update whatever counters are already on screen.
+  /* toggle, not add: this only ever ADDED .on, and nothing re-renders the header
+     after a device handover — so on a shared counter tablet, once rep #2 confirmed
+     the handover (which wipes gpt.state) and passed their first quiz, the header
+     still showed rep #1's filled pips next to a freshly-computed "1/5". */
   function refreshCounters() {
     var pips = $$(".hdr-binder .pip");
-    COURSES.forEach(function (c, i) { if (pips[i] && cardOwned(c.slug)) pips[i].classList.add("on"); });
+    COURSES.forEach(function (c, i) { if (pips[i]) pips[i].classList.toggle("on", cardOwned(c.slug)); });
     var link = $(".hdr-binder");
     if (link) link.setAttribute("aria-label", completedCount() + " of " + COURSES.length + " products certified — open your card binder");
     var word = $(".hdr-binder .hb-word b");
@@ -503,7 +514,18 @@
     m.addEventListener("keydown", onKey);
     return function release() {
       if (app) app.removeAttribute("aria-hidden");
-      if (trigger && trigger.focus) trigger.focus();
+      // The trigger is often GONE by now. quizPass rewrites #quiz-zone before the
+      // booster pack opens 550ms later, so the #q-next that opened the flow is
+      // already detached — and focus()ing a detached node silently does nothing,
+      // dumping a keyboard user at the top of the document, ~24 tab stops from the
+      // reward code they just earned. Prefer the live trigger, else the results
+      // block, else the page's main landmark.
+      var target = (trigger && trigger.isConnected && trigger.focus) ? trigger
+        : ($(".result") || document.getElementById("main"));
+      if (target && target.focus) {
+        if (!target.hasAttribute("tabindex")) target.setAttribute("tabindex", "-1");
+        target.focus();
+      }
     };
   }
 
@@ -617,7 +639,7 @@
     var done = baseSetOwned(), s = getState(), e = getEnroll() || {}, changed = false;
     REPORT_TIERS.forEach(function (t) {
       if (done < t.at) return;
-      if (!s[t.flag]) { s[t.flag] = { at: new Date().toISOString() }; changed = true; logEvent(t.flag, {}); }
+      if (!s[t.flag]) { s[t.flag] = { at: new Date().toISOString() }; changed = true; logEvent(t.flag, {}, s); }
       if (!s[t.flag + "Reported"] &&
           sendReport({ type: t.type, name: e.name, email: e.email, store: e.store, product: t.label, score: 100, certId: "", date: niceDate() })) {
         s[t.flag + "Reported"] = new Date().toISOString();
@@ -637,7 +659,7 @@
       var date = niceDate(), cid = certId((e.name || "") + "|G Pen Certified Specialist|" + date);
       s.master = { certId: cid, date: date, name: e.name };
       changed = true;
-      logEvent("master", { certId: cid });
+      logEvent("master", { certId: cid }, s);
     }
     var m = s.master;
     // Reporting is tracked separately from the stamp, and retried until it lands,
@@ -1022,6 +1044,12 @@
     toastT = setTimeout(function () { t.classList.remove("show"); }, 2600);
   }
   function confetti() {
+    // The one animation in the app that ignored the OS setting: nine CSS
+    // prefers-reduced-motion blocks plus JS guards in bindCardTilt, flyToBinder and
+    // showPull all honour it, and then 140 particles ran full-viewport for 2.6s
+    // anyway — showPull even calls this on the reduced-motion path, where it skips
+    // the pack tear specifically to avoid motion.
+    if (window.matchMedia && window.matchMedia("(prefers-reduced-motion: reduce)").matches) return;
     var c = document.createElement("canvas"); c.className = "confetti"; document.body.appendChild(c);
     var x = c.getContext("2d"), W, H;
     function size() { W = c.width = window.innerWidth; H = c.height = window.innerHeight; }
@@ -1859,7 +1887,7 @@
     }
     var needCorrect = Math.ceil((c.passPct / 100) * c.quiz.length);
     var away = Math.max(1, needCorrect - correct);
-    zone.innerHTML = '<div class="result fail">' +
+    zone.innerHTML = '<div class="result fail" tabindex="-1" role="status" aria-live="polite">' +
       gradeHTML(pct, points) +
       '<div class="result-score">' + pct + '%<span>' + correct + "/" + c.quiz.length + "</span></div>" +
       "<h3>" + esc(quip("fail")) + "</h3><p>You were <b>" + away + "</b> question" + (away === 1 ? "" : "s") + " short of the " + c.passPct + "% you need. Read your misses below, then retake it.</p>" +
@@ -1868,8 +1896,33 @@
     missedReviewHTML(c, order, answers);
     $("#retry").addEventListener("click", function () { runQuiz(c); });
     zone.scrollIntoView({ behavior: "smooth", block: "start" });
+    // Scrolling is not a cue a screen reader receives. quizPass/quizFail replace
+    // the whole zone with the verdict, score, certificate and reward code, so move
+    // focus into it: without this the only announcement was silence.
+    focusResult(zone);
+  }
+  /* Put focus on the verdict after a quiz ends. The result block replaces the whole
+     quiz zone, and the only previous cue was zone.scrollIntoView — which a screen
+     reader user never perceives, so they pressed for results and heard nothing: not
+     the pass/fail, not the score, not that a code had been issued. Focusing the block
+     announces it and also puts the keyboard caret at the reward instead of leaving it
+     on a button that no longer exists. */
+  function focusResult(zone) {
+    var r = zone && $(".result", zone);
+    if (r && r.focus) setTimeout(function () { r.focus(); }, 0);
+  }
+  /* The floating "Get certified · N% off" CTA is rendered only when the course is not
+     yet passed, but quizPass replaces just #quiz-zone — the button and its live scroll
+     handler are outside it and survived. So the moment a rep certified, scrolling back
+     up the course page still floated a CTA selling them a tier they now hold (or, at
+     5/5, a 25% first rung they are years past). It belongs to the un-certified state,
+     so retire it the instant that state ends. */
+  function retireStickyCta() {
+    if (stickyHandler) { window.removeEventListener("scroll", stickyHandler); stickyHandler = null; }
+    var el = $("#sticky-cta"); if (el) el.remove();
   }
   function quizPass(c, correct, pct, points, order, answers) {
+    retireStickyCta();
     // `|| {}` matters here more than anywhere: this was the ONE call site of ~18 that
     // dereferenced getEnroll() bare. setEnroll() deliberately swallows write failures,
     // so wherever localStorage.setItem throws (Safari "Block all cookies", a
@@ -1923,7 +1976,7 @@
       : (improved ? " <b>New personal best!</b>" : " Your best score of <b>" + rec.score + "%</b> stays on your certificate.");
     var next = firstTime && !master ? nextCourse(c.slug) : null;
     var zone = $("#quiz-zone");
-    zone.innerHTML = '<div class="result pass">' +
+    zone.innerHTML = '<div class="result pass" tabindex="-1" role="status" aria-live="polite">' +
         gradeHTML(pct, points) +
         '<div class="result-score">' + pct + '%<span>' + correct + "/" + c.quiz.length + "</span></div>" +
         "<h3>" + ic("check") + " " + esc(quip("pass")) + "</h3><p>You're now a certified <strong>" + esc(c.name) + "</strong> Product Specialist." + progNote + "</p>" +
@@ -1945,6 +1998,10 @@
     // mint the tier they now hold (5/5 must issue 40%, not the 25% first rung).
     revealReward(earnedTierKey(), { courseSlug: c.slug, name: e.name, email: e.email, store: e.store, certId: cid }, $("#reward-zone"));
     zone.scrollIntoView({ behavior: "smooth", block: "start" });
+    // Scrolling is not a cue a screen reader receives. quizPass/quizFail replace
+    // the whole zone with the verdict, score, certificate and reward code, so move
+    // focus into it: without this the only announcement was silence.
+    focusResult(zone);
   }
 
   /* ---- REWARD (isolated issuance) --------------------------------------- */
