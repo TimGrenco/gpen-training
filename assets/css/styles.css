@@ -56,6 +56,15 @@ a { color: inherit; text-decoration: none; }
 h1, h2, h3, h4 { margin: 0; line-height: 1.08; letter-spacing: -.02em; }
 .gold { color: var(--gold); }
 .noscroll { overflow: hidden; }
+/* The UA's [hidden] { display: none } is the WEAKEST possible display rule, so any
+   author `display:` on the same element beats it and the element stays on screen.
+   That silently broke both hidden elements on the quiz: #q-next inherits
+   .btn's display:inline-flex, so an unlabeled 308x34 black pill sat under the
+   choices on every question — hit-testable, in the tab order, announced only as
+   "button" — and .quiz-why's display:flex left an empty padded box holding space
+   above it. (.pull-reveal[hidden] already carried a one-off local patch for the
+   same trap.) Make it a global invariant instead of patching each new case. */
+[hidden] { display: none !important; }
 
 /* ---- buttons ---- */
 .btn {
@@ -276,7 +285,11 @@ h1, h2, h3, h4 { margin: 0; line-height: 1.08; letter-spacing: -.02em; }
 .course { max-width: var(--readw); margin: 0 auto; padding: var(--sec-y) var(--gutter) var(--sec-y-end); }
 .course-hero { display: flex; gap: 20px; align-items: center; background: var(--ink); border-radius: var(--r-lg); padding: 22px; color: #fff; margin-bottom: 8px; box-shadow: var(--shadow); }
 .ch-img { width: 96px; height: 96px; flex: none; object-fit: contain; background: #fff; border-radius: var(--r-md); padding: 8px; }
-.ch-eyebrow { display: inline-flex; align-items: center; gap: 6px; font-size: var(--eyebrow-size); font-weight: var(--eyebrow-weight); text-transform: uppercase; letter-spacing: var(--eyebrow-tracking); color: var(--gold-bright); }
+/* flex-wrap matters: on a certified course this eyebrow holds a text run AND a
+   "check Certified" badge, so without it the two were locked onto one line and the
+   text wrapped inside its own flex item, leaving a dangling separator with the badge
+   stranded in a second column. */
+.ch-eyebrow { display: inline-flex; flex-wrap: wrap; align-items: center; gap: 6px; font-size: var(--eyebrow-size); font-weight: var(--eyebrow-weight); text-transform: uppercase; letter-spacing: var(--eyebrow-tracking); color: var(--gold-bright); }
 .ch-eyebrow svg { width: 16px; height: 16px; }
 .ch-done { color: #fff; display: inline-flex; align-items: center; gap: 3px; }
 .ch-done svg { width: 13px; height: 13px; }
@@ -426,6 +439,8 @@ a.linklike.backdash { display: block; width: auto; margin-top: 10px; text-align:
 .qr-why svg { width: 14px; height: 14px; flex: none; color: var(--gold); margin-top: 2px; }
 .master-unlock { display: flex; align-items: center; gap: 12px; margin-top: 20px; background: var(--ink); color: #fff; border-radius: var(--radius); padding: 18px 20px; font-size: 14.5px; box-shadow: var(--shadow); }
 .master-unlock svg { width: 26px; height: 26px; flex: none; color: var(--gold-bright); }
+/* the prose is a single flex item that takes the slack; the two icons never shrink */
+.master-unlock .mu-txt { flex: 1 1 auto; min-width: 0; }
 .master-unlock strong { color: var(--gold-bright); }
 
 /* reward */
@@ -440,8 +455,14 @@ a.linklike.backdash { display: block; width: auto; margin-top: 10px; text-align:
    sales are restricted for retail staff in several states. */
 .reward-terms { margin: 14px auto 0; max-width: 46ch; font-size: 11.5px; line-height: 1.5; color: #8f8e88; }
 .reward h3 { font-size: 22px; margin: 6px 0 16px; }
-.code { display: inline-flex; flex-direction: column; align-items: center; gap: 3px; background: #fff; color: var(--ink); border: 0; border-radius: var(--r-sm); padding: 14px 26px; cursor: pointer; font: inherit; border: 2px dashed var(--gold); }
-.code span { font-size: 26px; font-weight: 900; letter-spacing: .04em; }
+/* The code's intrinsic width is its text + 52px of padding, which at 320px came to
+   278px inside a .reward content box of 240px — and .reward is overflow:hidden, so
+   14px of the button, including its right dashed border, was sliced clean off. The
+   discount code is the payoff of the whole course; it cannot render as a cut slab.
+   Bound it by the container and let the type and padding give on narrow phones. */
+.code { display: inline-flex; flex-direction: column; align-items: center; gap: 3px; background: #fff; color: var(--ink); border: 0; border-radius: var(--r-sm); padding: 14px 26px; cursor: pointer; font: inherit; border: 2px dashed var(--gold); max-width: 100%; }
+.code span { font-size: clamp(19px, 6.4vw, 26px); font-weight: 900; letter-spacing: .04em; }
+@media (max-width: 380px) { .code { padding: 13px 15px; } }
 .code em { font-style: normal; font-size: 11px; font-weight: 700; text-transform: uppercase; letter-spacing: .1em; color: var(--stone); }
 .reward p { color: #c9c8c1; font-size: 13.5px; max-width: 380px; margin: 14px auto 20px; }
 .reward .btn { --bg: var(--gold-bright); --fg: #1a1509; border-color: var(--gold-bright); }
@@ -520,7 +541,8 @@ a.linklike.backdash { display: block; width: auto; margin-top: 10px; text-align:
 .cx-hero.no-life .cx-hero-media { background: linear-gradient(160deg, #1a1a1a, #0e0e0e); }
 .cx-hero.no-life .cx-hero-media img { object-fit: contain; padding: 30px; }
 .cx-hero-body { position: relative; z-index: 2; padding: 24px; color: #fff; width: 100%; }
-.cx-hero-body .ch-eyebrow { display: inline-flex; align-items: center; gap: 6px; font-size: var(--eyebrow-size); font-weight: var(--eyebrow-weight); text-transform: uppercase; letter-spacing: var(--eyebrow-tracking); color: var(--gold-bright); }
+/* .cx-hero-body .ch-eyebrow was byte-identical to the base .ch-eyebrow rule above — deleted.
+   Only its svg size below actually differs. */
 .cx-hero-body .ch-eyebrow svg { width: 15px; height: 15px; }
 .cx-hero-body h1 { font-size: var(--h1); font-weight: 900; margin: 8px 0 4px; }
 .cx-cat { display: inline-block; font-size: 13px; font-weight: 800; color: #fff; background: rgba(255,255,255,.16); padding: 4px 12px; border-radius: 999px; margin-bottom: 8px; }
@@ -572,7 +594,8 @@ a.linklike.backdash { display: block; width: auto; margin-top: 10px; text-align:
 .about-hero { position: relative; overflow: hidden; border-radius: var(--r-lg); padding: clamp(30px,6vw,52px) clamp(22px,4vw,40px); color: #fff; text-align: center;
   background: radial-gradient(120% 120% at 80% -10%, rgba(254,200,112,.25), transparent 55%), radial-gradient(90% 90% at -10% 110%, rgba(215,93,67,.2), transparent 50%), #0e0e0e; }
 .about-g { width: 54px; height: 54px; object-fit: contain; margin: 0 auto 14px; }
-.about-hero .ch-eyebrow { display: inline-flex; align-items: center; gap: 6px; font-size: var(--eyebrow-size); font-weight: var(--eyebrow-weight); text-transform: uppercase; letter-spacing: var(--eyebrow-tracking); color: var(--gold-bright); }
+/* .about-hero .ch-eyebrow was byte-identical to the base .ch-eyebrow rule above — deleted.
+   Only its svg size below actually differs. */
 .about-hero .ch-eyebrow svg { width: 15px; height: 15px; }
 .about-hero h1 { font-size: var(--h1); font-weight: 900; margin: 10px 0; }
 .about-hero p { color: #d7d6cf; max-width: 560px; margin: 0 auto; font-size: clamp(15px,2.4vw,17px); }
@@ -1182,9 +1205,22 @@ a.linklike.backdash { display: block; width: auto; margin-top: 10px; text-align:
 .hdr-name { white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
 @media (max-width: 700px) {
   .hdr-u-store { display: none; }
-  .hdr-u-name { max-width: 92px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+  /* max-width was a fixed 92px here — a rigid box on a child of a SHRINKABLE parent.
+     Once the header ran out of room, .hdr-user (min-width:0, align-items:flex-end)
+     shrank below 92px while the name kept its 92px and, being right-aligned, spilled
+     LEFT straight across the binder chip: measured 19px of overlap at 440px, which is
+     exactly the iPhone 16 Pro Max. Bound the name by its parent instead, and clip the
+     parent so a child can never paint outside it whatever the header does. */
+  .hdr-user { flex: 0 1 auto; overflow: hidden; }
+  .hdr-u-name { max-width: 100%; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
 }
-@media (max-width: 430px) {
+/* Was 430px. Between 431 and ~520 the header is genuinely over-subscribed — brand,
+   three nav links, the sound toggle and the binder chip all outrank a name — so the
+   name only got 48-57px and rendered as "Alex…", which is noise rather than
+   personalization. Hiding it is already the accepted trade below 431; extend it to
+   the width where it can actually be read. Above this it ellipsizes gracefully
+   (123px at 600, full at 700), and the binder chip carries progress either way. */
+@media (max-width: 520px) {
   .hdr-user { display: none; }
 }
 
@@ -1259,7 +1295,7 @@ a.linklike.backdash { display: block; width: auto; margin-top: 10px; text-align:
    the pack to 0 wide despite a definite width. Block + margin auto is stable. */
 .pull-stage { position: relative; display: block; text-align: center; min-height: 360px; width: min(360px, 86vw); margin: 0 auto; }
 /* the reveal starts hidden behind the pack, then flips in */
-.pull-reveal[hidden] { display: none; }
+/* (the global [hidden] rule near the top now covers this) */
 .pull-reveal { display: grid; gap: 16px; justify-items: center; text-align: center; width: 100%; animation: reveal-fade .5s ease both; }
 @keyframes reveal-fade { from { opacity: 0; transform: translateY(8px); } to { opacity: 1; transform: none; } }
 

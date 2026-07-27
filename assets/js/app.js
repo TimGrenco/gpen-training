@@ -1931,7 +1931,12 @@
       '<div id="cert-zone"></div>' +
       '<div id="reward-zone" class="reward-wrap"></div>' +
       missedReviewHTML(c, order, answers) +
-      (master ? '<a class="master-unlock" href="#/certified">' + ic("award") + " Full lineup certified. You pulled the <strong>Certified G</strong> — your certificate, <strong>" + topPct() + "% off</strong>" + (drawLive() ? " &amp; your shot at a free device" : "") + " " + ic("arrow") + "</a>"
+      // The prose is wrapped in ONE span on purpose. .master-unlock is display:flex,
+      // so without it every text run and every <strong> became its own flex item on a
+      // single un-wrapped line — the banner for the biggest moment in the app rendered
+      // as a row of squeezed one-word columns. Three items now: icon, text, arrow.
+      (master ? '<a class="master-unlock" href="#/certified">' + ic("award") +
+                  '<span class="mu-txt">Full lineup certified. You pulled the <strong>Certified G</strong> — your certificate, <strong>' + topPct() + "% off</strong>" + (drawLive() ? " &amp; your shot at a free device" : "") + "</span>" + ic("arrow") + "</a>"
               : next ? '<a class="btn xl nextup-cta" href="#/course/' + next.slug + '">Next up: ' + esc(next.name) + " " + ic("arrow") + "</a>" +
                        '<a class="linklike backdash" href="#/">or back to all courses</a>'
               : '<a class="btn ghost xl backdash" href="#/">Back to all courses ' + ic("arrow") + "</a>");
