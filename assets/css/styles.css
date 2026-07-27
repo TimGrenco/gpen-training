@@ -1610,10 +1610,10 @@ a.linklike.backdash { display: block; width: auto; margin-top: 10px; text-align:
 /* the lifestyle grid now sits under the courses and runs tighter */
 
 /* ==================== HOW IT WORKS (3 steps, up front) ================== */
-/* ==================== THE SHELF — product cards ==========================
+/* ============== THE LINEUP — product cards ===============================
    Rigidly uniform: same fields, same order, same scale on every card, so the
    eye compares products instead of layouts. Nothing is featured, locked, or
-   ordered — five equals on a shelf. */
+   ordered — five equals, grouped only by product type. */
 /* Columns change in concert with the rest of the page (560 / 760 / 1080). The
    old 2-up-until-1280 rule stranded the 5th card as a 2+2+1 orphan on every
    tablet; 3-up at tablet makes it a clean 3+2, then the full lineup on a laptop. */
@@ -1834,17 +1834,6 @@ a.linklike.backdash { display: block; width: auto; margin-top: 10px; text-align:
 .fd-more { display: inline-flex; align-items: center; gap: 5px; font-size: 13.5px; font-weight: 900; color: var(--ink); text-decoration: none; }
 .fd-more svg { width: 14px; height: 14px; }
 
-/* The Loop's 3-beat rail (replaced the 4 step-cards + binder) — light ground. */
-.loop-rail { display: flex; flex-wrap: wrap; align-items: center; justify-content: center; gap: 10px 12px; margin: 2px 0 26px; }
-.lr-beat { display: inline-flex; align-items: center; gap: 9px; padding: 10px 16px; border-radius: 999px;
-  background: var(--paper); border: 1px solid var(--line); font-size: 15px; font-weight: 800; color: var(--ink); }
-.lr-beat i { display: inline-grid; place-items: center; width: 24px; height: 24px; border-radius: 50%;
-  background: var(--ink); color: #fff; font-style: normal; font-size: 13px; font-weight: 900; }
-.lr-beat.gold { background: rgba(254,200,112,.16); border-color: rgba(200,149,47,.4); color: var(--gold); }
-.lr-beat.gold i { background: var(--gold-bright); color: #1a1509; }
-.lr-arw { color: var(--stone); display: inline-flex; }
-.lr-arw svg { width: 18px; height: 18px; }
-
 /* O.G. sign-off — bookends the page with the same face that opened it. */
 .signoff { max-width: var(--maxw); margin: 0 auto; padding: var(--sec-y) var(--gutter) var(--sec-y-end); }
 .signoff-inner { max-width: 640px; margin: 0 auto; }
@@ -1876,7 +1865,7 @@ a.linklike.backdash { display: block; width: auto; margin-top: 10px; text-align:
 @media (max-width: 560px) { .resume { flex-direction: column; align-items: flex-start; gap: 6px; } }
 
 /* =========================================================================
-   THE LOOP — the incentive story, told exactly once, below the shelf.
+   THE LOOP — the incentive story, told exactly once, below the lineup.
    Product knowledge is the point; this is the reward for it, so it sits
    after the catalog rather than competing with it.
    ====================================================================== */

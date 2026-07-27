@@ -192,6 +192,12 @@
   }
   // The tier key to mint for someone who has just certified their Nth course.
   function earnedTierKey() { var t = tierAt(completedCount()); return t ? t.key : "course"; }
+  // The best percentage on offer. COPY must call this rather than typing a number:
+  // the issuance logic already reads LADDER, so a hardcoded "40% off" in a headline
+  // is a promise that silently goes wrong the day someone retunes the top rung.
+  function topPct() {
+    return LADDER.reduce(function (best, x) { return x.pct > best ? x.pct : best; }, 0);
+  }
 
   /* =========================================================================
      THE COLLECTION — trading cards
@@ -335,10 +341,10 @@
           '<i class="spk a">\u2726</i><i class="spk b">\u2726</i>' +
           '<span class="tcg-stamp">' + ic("award") + (gold ? " GOLD FOIL" : " HOLO") + "</span>" +
         "</span>" +
-        '<span class="tcg-typebar"><em>' + esc(e ? e.name : "Product Specialist") + "</em><b>40% OFF</b></span>" +
+        '<span class="tcg-typebar"><em>' + esc(e ? e.name : "Product Specialist") + "</em><b>" + topPct() + "% OFF</b></span>" +
         (mini ? "" :
           '<span class="tcg-moves">' + movesHTML("gold", sc.moves) + "</span>" +
-          statsRowHTML([{ k: "Lineup", v: baseSetOwned() + "/" + COURSES.length }, { k: "Reward", v: "40% off" }, { k: "Rank", v: "👑" }]) +
+          statsRowHTML([{ k: "Lineup", v: baseSetOwned() + "/" + COURSES.length }, { k: "Reward", v: topPct() + "% off" }, { k: "Rank", v: "👑" }]) +
           '<span class="tcg-flavor">' + esc(sc.flavor) + "</span>") +
         '<span class="tcg-foot"><span class="tcg-set">' + esc(SET.name) + " · " + esc(SET.illus) + "</span>" +
           '<span class="tcg-no">' + sc.no + "/" + SET.total + " " + rarityHTML("secret") + "</span></span>" +
@@ -832,7 +838,7 @@
   // a first-time visitor's headline copy is stable; returning staff hear him.
   function ogGreetingLine(done, total) {
     if (isMasterEarned()) return ogLine("done");
-    if (done === 0) return "Get certified on the whole G&nbsp;Pen shelf.";
+    if (done === 0) return "Learn the gear. Get up to " + topPct() + "% off.";
     if (done >= total - 1) return ogLine("almost");
     return ogLine("started");
   }
@@ -851,7 +857,10 @@
       return '<button class="fd-chip" type="button" data-pair="' + p.key + '"><span class="fd-cue">' + p.cue + "</span>" + p.label + "</button>";
     }).join("");
     return '<section class="floordrill reveal">' +
-      '<div class="sec-h"><h2>The floor drill</h2><span>What do you hand them?</span></div>' +
+      // Title then the question then the chips. The section subtitle used to ask
+      // "What do you hand them?" one line above "A customer walks up buying...",
+      // which is the same question twice; the prompt belongs next to the buttons.
+      '<div class="sec-h"><h2>The floor drill</h2></div>' +
       '<p class="fd-ask">A customer walks up buying&hellip;</p>' +
       '<div class="fd-chips">' + chips + "</div>" +
       '<div class="fd-answer" id="fd-answer" aria-live="polite"></div>' +
@@ -1140,7 +1149,7 @@
       '<section class="mast reveal">' +
         '<div class="mast-inner">' +
           '<div class="mast-lead">' +
-            '<span class="mast-kicker">G Pen University &middot; Certification for budtenders &amp; smoke-shop reps</span>' +
+            '<span class="mast-kicker">G Pen University</span>' +
             '<div class="mast-say"><h1 class="mast-h1">' + ogGreetingLine(done, total) + "</h1></div>" +
             '<div class="mast-dean">' +
               '<button class="mast-og" type="button" aria-label="Tap the Dean for a field note">' + mascotSVG("chill") + "</button>" +
@@ -1152,10 +1161,10 @@
             "</div>" +
           "</div>" +
           '<div class="mast-aside">' +
-            '<p class="mast-deck">Free training on all five G&nbsp;Pen products. Pass the quizzes, unlock up to <b>40% off</b> gpen.com' + (drawLive() ? ' &mdash; and ' + prizeCopy().short : "") + ".</p>" +
-            '<ul class="mast-stats"><li>5 products</li><li>No sign-up</li><li class="gold">up to 40% off' + (drawLive() ? " + a free device" : "") + "</li></ul>" +
+            '<p class="mast-deck">For budtenders and smoke-shop reps. Watch, take the quiz, unlock your code.' + (drawLive() ? " And " + prizeCopy().short + "." : "") + "</p>" +
+            '<ul class="mast-stats"><li>Free</li><li>' + COURSES.length + " courses</li><li>No sign-up</li></ul>" +
             '<div class="og-fact" id="og-fact" role="status" aria-live="polite"></div>' +
-            '<button class="btn mt" type="button" data-scroll="courses">Show me the shelf ' + ic("arrow") + "</button>" +
+            '<button class="btn mt" type="button" data-scroll="courses">Show me the lineup ' + ic("arrow") + "</button>" +
           "</div>" +
         "</div>" +
       "</section>" +
@@ -1172,7 +1181,7 @@
       lifestyleCinema((window.GPEN_LIFESTYLE || [])[0], "The G Pen life", "This is the gear, in real hands.", "Customers ask how it feels to hold. Know the answer.", "home") +
       floorDrill() +
       theLoop(done) +
-      '<section class="signoff reveal"><div class="signoff-inner">' + ogSays("proud", "That&rsquo;s the syllabus. You can&rsquo;t sell what you&rsquo;ve never held &mdash; now go run the floor.") + "</div></section>" +
+      '<section class="signoff reveal"><div class="signoff-inner">' + ogSays("proud", "That&rsquo;s the whole lineup. You can&rsquo;t sell what you&rsquo;ve never held &mdash; now go run the floor.") + "</div></section>" +
       footer();
 
     fillRewards();
@@ -1207,16 +1216,14 @@
      COMPLETING TRAINING, never selling. */
   function theLoop(done) {
     return '<section class="loop reveal">' +
+      // The head is the MOTIVATION (why carry one yourself); the ladder below is the
+      // MECHANIC. There used to be a numbered "Learn it -> Pass the quiz -> % off"
+      // rail between them, which made this the third place on one page explaining the
+      // same three steps — the masthead deck says it, and the ladder gives the actual
+      // numbers. Deleted rather than reworded; a rep does not need it told thrice.
       '<div class="loop-head">' +
-        "<h2>Get certified. Get the gear cheap. Carry it yourself.</h2>" +
+        "<h2>Get certified. Carry one yourself.</h2>" +
         '<p class="loop-sub">Customers trust the staff who actually use it. Put a G&nbsp;Pen in your pocket and you&rsquo;re the rec.</p>' +
-      "</div>" +
-      '<div class="loop-rail">' +
-        '<span class="lr-beat"><i>1</i>Learn it</span>' +
-        '<span class="lr-arw">' + ic("arrow") + "</span>" +
-        '<span class="lr-beat"><i>2</i>Pass the quiz</span>' +
-        '<span class="lr-arw">' + ic("arrow") + "</span>" +
-        '<span class="lr-beat gold"><i>%</i>Up to 40% off gpen.com</span>' +
       "</div>" +
       rewardsSection(done) +
     "</section>";
@@ -1357,11 +1364,21 @@
             : "Full lineup certified — the top reward is yours 👑");
     function need(n) { var d = n - done; return d + " more course" + (d === 1 ? "" : "s") + " to unlock"; }
     // Every rung but the last renders as a card; the top rung is the capstone.
+    // The "N more courses to unlock" hint goes ONLY on the rung they are actually
+    // climbing next. On every other rung it restates the requirement already in
+    // rw-sub — at 0 done, "Pass any 1 course" and "1 more course to unlock" are the
+    // same sentence twice, on all four cards, which is what a first-time rep saw.
     var rungs = LADDER.slice(0, -1).map(function (t) {
-      return rewardCard(t.key, done >= t.at, t.pct + "% OFF",
-        t.at === 1 ? "Pass any 1 course" : "Pass any " + t.at + " courses", need(t.at));
+      var got = done >= t.at, isNext = !!up && up.at === t.at;
+      return rewardCard(t.key, got, t.pct + "% OFF",
+        t.at === 1 ? "Pass any 1 course" : "Pass any " + t.at + " courses",
+        // ...and not at zero done, where "N more to unlock" is word-for-word the
+        // requirement above it. The hint only earns its line once it is counting DOWN
+        // from something. "Next up" plus the requirement is the whole story at zero.
+        (isNext && done > 0) ? need(t.at) : "",
+        got ? "Unlocked" : (isNext ? "Next up" : "Locked"));
     }).join("");
-    return '<div class="sec-h"><h2>The reward ladder</h2><span>' + head + "</span></div>" +
+    return '<div class="sec-h"><h2>What you unlock</h2><span>' + head + "</span></div>" +
       '<p class="rw-terms-head">Rewards are for completing training. They are not tied to sales, orders, or product recommendations.</p>' +
       '<div class="rewards">' + rungs + "</div>" +
       grandCard(done >= total, done, total);
@@ -1370,18 +1387,21 @@
   function grandCard(unlocked, done, total) {
     var d = total - done;
     var draw = drawLive();
+    // Same rule as the rungs: the countdown only earns its line once this IS the
+    // next thing to reach. At 0 done it just repeated "Certify all 5" above it.
+    var up = nextTier(done), isNext = !!up && up.at === total;
     return '<div class="rw-card grand ' + (unlocked ? "on" : "off") + '">' +
       '<div class="rw-top"><span class="rw-ic">' + ic(unlocked ? "award" : "lock") + "</span>" +
         // Without a live prize there is no "grand prize" to promise — it's the top rung.
         '<span class="rw-status">' + (unlocked ? (draw ? prizeCopy().statusOn : "Unlocked") : (draw ? "Grand prize" : "Top reward")) + "</span></div>" +
-      '<div class="rw-big">' + (draw ? "FREE G PEN <em>+ 40%</em>" : "40% OFF") + "</div>" +
-      '<div class="rw-sub">Certify all ' + total + " &mdash; " + (draw ? prizeCopy().rule + " 40% off is yours either way." : "your best code on gpen.com, plus the master certificate.") + "</div>" +
+      '<div class="rw-big">' + (draw ? "FREE G PEN <em>+ " + topPct() + "%</em>" : topPct() + "% OFF") + "</div>" +
+      '<div class="rw-sub">Certify all ' + total + " &mdash; " + (draw ? prizeCopy().rule + " " + topPct() + "% off is yours either way." : "your best code on gpen.com, plus the master certificate.") + "</div>" +
       (unlocked
         ? '<button class="rw-code" data-rwcode="secret"><span class="rw-code-v">••••••</span><em>' + ic("tag") + " Tap to copy</em></button>" +
           '<a class="rw-cert" href="#/certified">View master certificate &rarr;</a>' +
           // grandCard bypasses rewardCard, so it needs its own terms line.
           rwTermsHTML("secret")
-        : '<div class="rw-lock">' + ic("spark") + " " + d + " more course" + (d === 1 ? "" : "s") + " to unlock</div>") +
+        : (isNext ? '<div class="rw-lock">' + ic("spark") + " " + d + " more course" + (d === 1 ? "" : "s") + " to unlock</div>" : "")) +
     "</div>";
   }
   // "Whether it expires / stacks / is single-use" is the first thing a dispensary
@@ -1390,11 +1410,11 @@
     var t = ((CFG.discount || {})[type] || {}).terms;
     return t ? '<p class="rw-terms">' + esc(t) + "</p>" : "";
   }
-  function rewardCard(type, unlocked, big, sub, lockMsg) {
+  function rewardCard(type, unlocked, big, sub, lockMsg, status) {
     var isSecret = type === "secret";
     if (unlocked) lockMsg = "";
     return '<div class="rw-card ' + (unlocked ? "on" : "off") + (isSecret ? " secret" : "") + '">' +
-      '<div class="rw-top"><span class="rw-ic">' + ic(unlocked ? (isSecret ? "spark" : "tag") : "lock") + '</span><span class="rw-status">' + (unlocked ? "Unlocked" : "Locked") + "</span></div>" +
+      '<div class="rw-top"><span class="rw-ic">' + ic(unlocked ? (isSecret ? "spark" : "tag") : "lock") + '</span><span class="rw-status">' + esc(status || (unlocked ? "Unlocked" : "Locked")) + "</span></div>" +
       '<div class="rw-big">' + big + "</div>" +
       '<div class="rw-sub">' + sub + "</div>" +
       (unlocked
@@ -1403,7 +1423,10 @@
           // The master certificate needs all 5 courses — it belongs on the 40% (all-lineup) card.
           (isSecret ? '<a class="rw-cert" href="#/certified">View master certificate →</a>' : "") +
           rwTermsHTML(type)
-        : '<div class="rw-lock">' + ic(isSecret ? "spark" : "lock") + " " + lockMsg + "</div>") +
+        // No hint on a rung they are not climbing yet — the lock icon, the dimmed
+        // .off treatment and the "Locked" status already carry it. An empty rw-lock
+        // would render as a stray bullet icon with no text.
+        : (lockMsg ? '<div class="rw-lock">' + ic(isSecret ? "spark" : "lock") + " " + lockMsg + "</div>" : "")) +
     "</div>";
   }
   function copyText(text, okMsg) {
@@ -1891,7 +1914,7 @@
       '<div id="cert-zone"></div>' +
       '<div id="reward-zone" class="reward-wrap"></div>' +
       missedReviewHTML(c, order, answers) +
-      (master ? '<a class="master-unlock" href="#/certified">' + ic("award") + " Full lineup certified. You pulled the <strong>Certified G</strong> — your certificate, <strong>40% off</strong>" + (drawLive() ? " &amp; your shot at a free device" : "") + " " + ic("arrow") + "</a>"
+      (master ? '<a class="master-unlock" href="#/certified">' + ic("award") + " Full lineup certified. You pulled the <strong>Certified G</strong> — your certificate, <strong>" + topPct() + "% off</strong>" + (drawLive() ? " &amp; your shot at a free device" : "") + " " + ic("arrow") + "</a>"
               : next ? '<a class="btn xl nextup-cta" href="#/course/' + next.slug + '">Next up: ' + esc(next.name) + " " + ic("arrow") + "</a>" +
                        '<a class="linklike backdash" href="#/">or back to all courses</a>'
               : '<a class="btn ghost xl backdash" href="#/">Back to all courses ' + ic("arrow") + "</a>");
@@ -2149,8 +2172,8 @@
       return {
         gold: true, name: sc.name, stage: (st === "gold" ? "Gold Foil" : "Holo") + " · " + sc.code,
         power: sc.power, powerUnit: "", el: ELEMENTS.gold,
-        typeLeft: en ? en.name : "Product Specialist", typeRight: "40% OFF",
-        moves: sc.moves, stats: [{ k: "Lineup", v: baseSetOwned() + "/" + COURSES.length }, { k: "Reward", v: "40% off" }, { k: "Rank", v: "Certified G" }],
+        typeLeft: en ? en.name : "Product Specialist", typeRight: topPct() + "% OFF",
+        moves: sc.moves, stats: [{ k: "Lineup", v: baseSetOwned() + "/" + COURSES.length }, { k: "Reward", v: topPct() + "% off" }, { k: "Rank", v: "Certified G" }],
         flavor: sc.flavor, no: sc.no, rarity: "secret", img: "assets/img/gpen-g-white.png", tint: "#c8952f", accent: "#FEC870",
       };
     }
@@ -2366,9 +2389,9 @@
     return '<div class="sweeps reveal">' +
       '<span class="sw-eyebrow">' + ic("spark") + " Full lineup certified &mdash; " + esc(p.statusOn.toLowerCase()) + "</span>" +
       '<h2 class="sw-h">' + p.headline + " 🦉</h2>" +
-      '<p class="sw-body">That&rsquo;s the whole shelf, certified. ' + p.rule + " We&rsquo;ll email you if it&rsquo;s you. Either way your <b>40% off</b> is live today &mdash; grab one, put it in your pocket, and let &ldquo;this is the one I use&rdquo; close the sale.</p>" +
+      '<p class="sw-body">That&rsquo;s the whole lineup, certified. ' + p.rule + " We&rsquo;ll email you if it&rsquo;s you. Either way your <b>" + topPct() + "% off</b> is live today &mdash; grab one, put it in your pocket, and let &ldquo;this is the one I use&rdquo; close the sale.</p>" +
       '<div class="sw-actions">' +
-        '<button class="btn xl sw-copy">' + ic("tag") + " Copy your 40% code</button>" +
+        '<button class="btn xl sw-copy">' + ic("tag") + " Copy your " + topPct() + "% code</button>" +
         '<a class="btn xl ghost" href="' + esc(CFG.shopUrl) + '" target="_blank" rel="noopener">Shop &amp; test on gpen.com ' + ic("arrow") + "</a>" +
       "</div>" +
       // No rulesUrl fallback: the draft rules page is deliberately not deployed.
@@ -2782,6 +2805,28 @@
       if (s.enabled === false || s.live !== true) return;
       if (!s.rulesUrl) console.warn("[gpen-training] sweepstakes.live is true but rulesUrl is empty, so the prize promotion is NOT rendering. Host the counsel-cleared rules page and set sweepstakes.rulesUrl. Preview it meanwhile with ?preview=draw.");
       else if (!(CFG.reporting || {}).url) console.warn("[gpen-training] sweepstakes is armed but reporting.url is empty — there is no counter, so no winner can be selected. See REPORTING.md.");
+    }());
+    // LADDER.pct drives every percentage the site SAYS; TRAINING_CONFIG.discount
+    // holds the code that percentage is actually redeemed with. Nothing links them,
+    // so retuning a rung in one place and not the other makes the site promise a
+    // discount the code does not give. Say so loudly at boot rather than let a rep
+    // find out at checkout.
+    (function () {
+      var codes = CFG.discount || {};
+      LADDER.forEach(function (rung) {
+        var t = codes[rung.key];
+        if (!t) return;
+        // Both the code (GPENPRO25) and the label ("25% off ...") carry the number.
+        var inCode = String(t.code || "").match(/(\d{2})\s*$/);
+        var inLabel = String(t.label || "").match(/(\d{2})\s*%/);
+        [["code", inCode], ["label", inLabel]].forEach(function (pair) {
+          if (pair[1] && Number(pair[1][1]) !== rung.pct) {
+            console.warn("[gpen-training] reward mismatch: LADDER says " + rung.pct + "% at " +
+              rung.at + " course(s), but discount." + rung.key + "." + pair[0] + " says " +
+              pair[1][1] + "% (" + (t.code || t.label) + "). The site will promise one number and issue another.");
+          }
+        });
+      });
     }());
     // The form collects name, email, store and a 21+ attestation and says they
     // may be sent to G Pen. Shipping that with no privacy statement is the first
