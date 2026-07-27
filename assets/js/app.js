@@ -557,6 +557,11 @@
       release(); m.remove(); document.body.classList.remove("noscroll");
     }
     function onEsc(ev) { if (ev.key === "Escape") close(); }
+    // Let the router tear this down PROPERLY. clearStrayOverlays() only removed the
+    // node, which orphaned the 4.6s auto-open below and the Escape listener: navigate
+    // away while the pack is still sealed and 4.6s later open() fired confetti and a
+    // sound over whatever page the rep had moved to, with no modal in sight.
+    m.__teardown = close;
     var save = $(".pull-save", m);
     if (save) save.addEventListener("click", function (ev) { ev.stopPropagation(); saveCardImage(saveSlug); });
     // "Add to binder" flies the card up into the header binder chip.
@@ -1633,6 +1638,9 @@
     // leaves a live keydown listener on document.
     function close() { document.removeEventListener("keydown", onEsc); release(); m.remove(); document.body.classList.remove("noscroll"); }
     function onEsc(ev) { if (ev.key === "Escape") close(); }
+    // Router teardown hook — without it clearStrayOverlays() drops the node and leaves
+    // this document-level Escape listener bound to a detached modal, once per open.
+    m.__teardown = close;
     m.addEventListener("click", function (ev) { if (ev.target === m || ev.target.closest(".modal-x")) close(); });
     document.addEventListener("keydown", onEsc);
   }
@@ -1862,15 +1870,24 @@
     zone.scrollIntoView({ behavior: "smooth", block: "start" });
   }
   function quizPass(c, correct, pct, points, order, answers) {
-    var e = getEnroll();
-    var date = niceDate(), cid = certId(e.name + "|" + c.name + "|" + date);
+    // `|| {}` matters here more than anywhere: this was the ONE call site of ~18 that
+    // dereferenced getEnroll() bare. setEnroll() deliberately swallows write failures,
+    // so wherever localStorage.setItem throws (Safari "Block all cookies", a
+    // partitioned webview, a full quota) the enrollment never persists and this read
+    // returns null — and every OTHER read guards, so the app boots and plays the quiz
+    // normally and then threw right here, on a PASS, before setState and before the
+    // webhook. The rep answered everything and got no results screen, no certificate
+    // and no code, with the page frozen on the last explainer. quizFail never touches
+    // enrollment, so failing worked and passing was the thing that broke.
+    var e = getEnroll() || {};
+    var date = niceDate(), cid = certId((e.name || "") + "|" + c.name + "|" + date);
     var s = getState();
     var prev = s.courses[c.slug];
     var firstTime = !(prev && prev.passed);
     // Keep the higher score AND its certificate — a lower retake never downgrades
     // a rep who already certified (the certified screen invites retakes).
     var improved = !prev || !prev.passed || pct > (prev.score || 0);
-    var rec = improved ? { passed: true, score: pct, certId: cid, date: date, name: e.name } : prev;
+    var rec = improved ? { passed: true, score: pct, certId: cid, date: date, name: e.name || "" } : prev;
     s.courses[c.slug] = rec;
     setState(s);
     if (firstTime) {
@@ -2658,6 +2675,9 @@
     var release = manageModalFocus(m, "Card: " + name);
     function close() { document.removeEventListener("keydown", onEsc); release(); m.remove(); document.body.classList.remove("noscroll"); }
     function onEsc(ev) { if (ev.key === "Escape") close(); }
+    // Router teardown hook — without it clearStrayOverlays() drops the node and leaves
+    // this document-level Escape listener bound to a detached modal, once per open.
+    m.__teardown = close;
     $(".modal-x", m).addEventListener("click", close);
     m.addEventListener("click", function (ev) {
       if (ev.target === m) return close();
@@ -2769,8 +2789,18 @@
      locked and #app aria-hidden. The per-modal close() handlers are still the
      primary path (they also clear Escape listeners and the pull auto-open timer);
      this is the guarantee that no future overlay can strand a live page. */
+  /* Modals live on <body>, so route()'s re-render of #app leaves them mounted. Run
+     each one's OWN close() where it published one: removing the node is not the same
+     as closing the modal — close() is what cancels the pull's 4.6s auto-open timer and
+     unbinds the document-level Escape listeners. Removing only the node left both
+     alive, so navigating away from a sealed booster pack fired confetti and a sound
+     over the next page 4.6s later, and every video/inspector open leaked a listener.
+     Fall back to remove() for any overlay that never registered a teardown. */
   function clearStrayOverlays() {
-    $$("body > .modal").forEach(function (el) { el.remove(); });
+    $$("body > .modal").forEach(function (el) {
+      if (typeof el.__teardown === "function") { try { el.__teardown(); } catch (err) { el.remove(); } }
+      else el.remove();
+    });
     document.body.classList.remove("noscroll");
     if (app) app.removeAttribute("aria-hidden");
   }

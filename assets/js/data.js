@@ -673,7 +673,11 @@ window.GPEN_CARDS = {
     power: "1,100", powerUnit: "mAh",
     moves: [
       { name: "Quick Draw", cost: 1, dmg: "30s", text: "The 0.4g ceramic chamber is session-ready in about 30 seconds." },
-      { name: "Dial It In", cost: 2, dmg: "±1°", text: "Precise temperature control with a live OLED readout." },
+      // Badge is "OLED", not a tolerance. The spec table (Temp control) says only
+      // "Precise, adjustable" — no increment or accuracy figure is published for the
+      // Dash II, so a "±1°" badge invented one, and dmg is painted into the PNG a rep
+      // downloads and shares. Never put a number here that isn't in the spec table.
+      { name: "Dial It In", cost: 2, dmg: "OLED", text: "Precise temperature control with a live OLED readout." },
     ],
     statsRow: [{ k: "Heat-up", v: "~30s" }, { k: "Warranty", v: "6 mo" }, { k: "Charge", v: "USB-C" }],
   },
@@ -724,9 +728,15 @@ window.GPEN_SECRET_CARD = {
   name: "Certified G", power: "∞", powerUnit: "",
   moves: [
     { name: "Total Recall", cost: 3, dmg: "5/5", text: "Knows every G Pen product cold — specs, cleaning, objections, all of it." },
-    { name: "House Discount", cost: 2, dmg: "40%", text: "The highest reward in the program. Nobody else on the floor has this card." },
+    // Badge is "MAX", not a percentage. data.js cannot reach topPct(), so a number
+    // typed here would be the one place on this card that does NOT follow LADDER —
+    // and the card already prints the derived percentage three times (typebar,
+    // stats row, gold CTA), so a fourth was repetition as well as a drift risk.
+    { name: "House Discount", cost: 2, dmg: "MAX", text: "The highest reward in the program. Nobody else on the floor has this card." },
   ],
-  statsRow: [{ k: "Lineup", v: "5/5" }, { k: "Reward", v: "40% off" }, { k: "Rank", v: "👑" }],
+  // NOTE: no statsRow here on purpose. app.js builds the secret card's stats row
+  // itself so Lineup and Reward come from live state and LADDER; a statsRow field
+  // on this object is never read, so editing one would silently do nothing.
   flavor: "Fully trained. Fully loaded. A G Pen Product Specialist in every sense.",
 };
 
