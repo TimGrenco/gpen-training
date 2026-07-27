@@ -115,11 +115,19 @@ h1, h2, h3, h4 { margin: 0; line-height: 1.08; letter-spacing: -.02em; }
 /* ONE auto margin for the whole header: brand + nav hug the left, sound + binder
    + name hug the right. Competing auto-margins further down used to cancel this
    out and scatter the desktop header into four even gaps. */
-.hdr-nav { display: flex; align-items: center; gap: 4px; margin-left: 6px; margin-right: auto; min-width: 0; }
+/* flex:none, NOT min-width:0. With min-width:0 the nav was the flex item that
+   absorbed every shortfall, so "About" was silently clipped by the nav's own
+   overflow box for signed-in reps from roughly 430px to 525px — no affordance, no
+   warning. Navigation must not be the thing that yields; the name/store block
+   beside it already ellipsizes, so let that shrink instead. overflow-x stays as a
+   last-resort fallback rather than the primary mechanism. */
+.hdr-nav { display: flex; align-items: center; gap: 4px; margin-left: 6px; margin-right: auto; flex: none; }
 .hdr-navlink { position: relative; padding: 7px 12px; border-radius: var(--r-pill); font-size: 14px; font-weight: 800;
   color: var(--stone); white-space: nowrap; transition: color .18s, background .18s; }
-/* Grows the tap target to ~45px without changing the rendered header height —
-   --hdr-h (and therefore scroll-padding-top) must stay valid. */
+/* Widens the pressable band vertically between the links. NOTE: do not rely on
+   this as a tap-target fix — measurement showed a pseudo-element does not extend
+   the hit region (see the note by .hdr-sound). It stays because it costs nothing,
+   but the honest target size here is the rendered 35px. */
 .hdr-navlink::after { content: ""; position: absolute; inset: -7px 0; }
 .hdr-navlink:hover { color: var(--ink); background: rgba(17,17,17,.05); }
 .hdr-navlink.on { color: var(--ink); background: rgba(17,17,17,.07); }
@@ -141,6 +149,20 @@ h1, h2, h3, h4 { margin: 0; line-height: 1.08; letter-spacing: -.02em; }
    truncated mid-word ("G PEN UNIVER…") through the whole tablet band. Yield it
    instead — a clean logo reads as a decision, a chopped logotype reads as a bug. */
 @media (max-width: 900px) { .hdr.has-user .hdr-name { display: none; } }
+/* The nav is horizontally scrollable, which meant "About" was silently CLIPPED by
+   the nav's own overflow box on narrow phones — 11px short at 360, 47px at 320 —
+   with no affordance saying to scroll. Buy the room back instead:
+   first by tightening the nav itself, then (only on the narrowest phones) by
+   dropping the progress chip, whose destination the "Binder" link still reaches.
+   The sound toggle stays: muting on a shop floor is a real need with no other
+   control, while the pips duplicate the per-card status shown in the lineup. */
+@media (max-width: 470px) {
+  .hdr-nav { gap: 0; }
+  .hdr-navlink { padding: 6px 5px; }
+}
+/* The ≤365px .hdr-binder hide lives further down, AFTER .hdr-binder's own base
+   rule — that rule sets `display: inline-flex`, so a hide placed up here loses
+   the cascade to it at equal specificity. */
 /* The name/store must NEVER wrap: a long one used to push the sticky header from
    63px to 100px, which also silently invalidates --hdr-h (and therefore every
    scroll-padding-top offset). Cap and ellipsize at every width, not just phones. */
@@ -1068,8 +1090,6 @@ a.linklike.backdash { display: block; width: auto; margin-top: 10px; text-align:
 .pull-modal .modal-x { position: absolute; top: -6px; right: -4px; z-index: 5; color: #fff; }
 .pull-ok { width: 100%; }
 
-/* ---- collection strip (home) ------------------------------------------- */
-
 /* ---- header binder counter --------------------------------------------- */
 .hdr-binder {
   display: inline-flex; align-items: center; gap: 6px; margin-right: 12px;
@@ -1150,11 +1170,15 @@ a.linklike.backdash { display: block; width: auto; margin-top: 10px; text-align:
   .tcg.owned .tcg-inner::after, .tcg.secret .tcg-inner::after { display: none; }
 }
 
-/* The binder chip + N/5 count joined the header, so the wordmark competes for
-   space. Everything must be able to shrink so nothing gets clipped off the right
-   edge (html/body use overflow-x: clip, so overflow is invisible, not scrollable).
-   Order of yielding: user store → user name shrinks → wordmark ellipsizes last. */
-.hdr-brand { flex: 0 1 auto; }
+/* Header yielding order, tightest first: the user's store line hides, then the
+   name shrinks and ellipsizes, then the wordmark ellipsizes, then the wordmark is
+   hidden outright, then the binder chip goes. The NAV and the G MARK never yield —
+   nothing gets clipped off the right edge (html/body use overflow-x: clip, so
+   overflow would be invisible rather than scrollable).
+   min-width:0 on the brand let it be squeezed to ZERO once .hdr-nav stopped
+   shrinking, which erased the logo at 320px. The brand keeps its intrinsic width;
+   only .hdr-name inside it is allowed to give. */
+.hdr-brand { flex: none; min-width: auto; }
 .hdr-name { white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
 @media (max-width: 700px) {
   .hdr-u-store { display: none; }
@@ -1397,12 +1421,20 @@ a.linklike.backdash { display: block; width: auto; margin-top: 10px; text-align:
 }
 .hdr-sound:hover { border-color: var(--gold-bright); color: var(--gold); transform: translateY(-1px); }
 .hdr-sound svg { width: 18px; height: 18px; }
-@media (max-width: 400px) {
-  .hdr-sound { width: 34px; height: 34px; }
-}
+/* REMOVED a dead rule that used to sit here:
+     @media (max-width: 400px) { .hdr-sound { width: 34px; height: 34px; } }
+   It never applied at any width — the max-width:470px block below sets 32px at
+   the same specificity and comes later, so it won everywhere ≤400px.
+   On tap targets: these controls are 32-38px, which clears WCAG 2.5.8 AA (24px)
+   but not the 44px AAA guideline. Growing them is not free — the header height is
+   pinned by --hdr-h (63/57px), which drives html{scroll-padding-top}, so a taller
+   control means updating both tokens. Do NOT "fix" this with a ::after overlay:
+   measured here, a pseudo-element does not extend the hit region (elementFromPoint
+   just above the button returns .hdr, not the button). */
 
-/* Reclaim header space on phones — the header carries brand + language + sound
-   + binder, so the tightening has to start well before the smallest devices. */
+/* Reclaim header space on phones — the header carries brand + nav + sound +
+   binder + the signed-in name, so the tightening starts well before the
+   smallest devices. */
 @media (max-width: 470px) {
   :root { --hdr-h: 57px; }   /* header shrinks here, so the scroll offset must too */
   .hdr { padding-left: 12px; padding-right: 12px; gap: 8px; }
@@ -1697,14 +1729,18 @@ a.linklike.backdash { display: block; width: auto; margin-top: 10px; text-align:
   .langsel-code { font-size: 11px; }
   .langsel-caret { display: none; }
 }
-/* Under ~400px there genuinely isn't room for the binder count too — it lives on
-   the home page and in the footer, so it's the right thing to drop. */
-/* Was display:none, which removed the progress chip entirely on an iPhone SE /
-   12-16 — drop the "N/5" text and keep the pips instead. */
+/* ≤400px: keep the progress pips but drop the "N/5" text (an earlier version hid
+   the whole chip, which removed the progress signal on an iPhone SE / 12-16). */
 @media (max-width: 400px) {
   .hdr-binder { min-height: 40px; padding: 6px 8px; }
   .hb-word { display: none; }
 }
+/* ≤365px the chip has to go entirely: with .hdr-nav no longer shrinking, keeping
+   it crushed the G mark to zero width. Navigation and the brand both outrank a
+   progress indicator that the lineup below already shows per card — and the nav's
+   own "Binder" link still reaches the destination. Must sit AFTER .hdr-binder's
+   base rule, which sets display:inline-flex at equal specificity. */
+@media (max-width: 365px) { .hdr-binder { display: none; } }
 
 /* =========================================================================
    THE MASTHEAD — home page. Professor O.G. is the SPEAKER: his speech bubble

@@ -34,17 +34,10 @@
   // The next product still to certify (skipping `afterSlug`) — drives the
   // "Next up →" hand-off so the journey always has a forward edge.
   function nextCourse(afterSlug) { return COURSES.filter(function (c) { return c.slug !== afterSlug && !cardOwned(c.slug); })[0] || null; }
-  // The free-G-Pen draw needs THREE things, and `live` is a deliberate manual gate:
-  // pasting a reporting webhook must never publish a prize promotion as a side
-  // effect. So the draw shows only when it's enabled, explicitly switched live by
-  // a human (after counsel clears the rules page), AND there's an entry pool to log
-  // into. Until then the reward is simply the guaranteed discount — we never
-  // promise an entry that goes nowhere.
-  // PREVIEW MODE: ?preview=draw renders the whole sweepstakes treatment for THIS
-  // visit only, so the team can review and screenshot it without publishing a
-  // prize promotion to every visitor. A banner makes the state obvious, and entry
-  // reporting stays off (see reportMaster) so nobody is told they're entered when
-  // there is no entry pool. Share the link; it changes nothing for anyone else.
+  /* PREVIEW MODE: ?preview=draw renders the whole prize treatment for THIS visit
+     only, so the team can review and screenshot it without publishing a promotion
+     to every visitor. A banner makes the state obvious, and reporting stays off
+     (see sendReport) so nobody is told they're entered when there is no pool. */
   var DRAW_PREVIEW = /[?&]preview=draw(&|$)/.test(location.search);
   /* The ONE place that knows about preview. Returning false (rather than
      short-circuiting further up) is load-bearing: the *Reported flags stay unset,
@@ -57,6 +50,12 @@
     if (DRAW_PREVIEW) return false;
     return !!(window.reportCompletion && window.reportCompletion(payload));
   }
+  /* The free-device prize needs FOUR things to render, and two of them are
+     deliberate human gates: `live` (counsel has signed off) and `rulesUrl` (the
+     cleared rules page is actually hosted). Pasting a reporting webhook — the one
+     step the client is told to do — must never publish a prize promotion as a side
+     effect. Until all four line up, the reward is simply the guaranteed discount;
+     we never promise an entry that goes nowhere. */
   function drawLive() {
     var s = CFG.sweepstakes || {};
     if (DRAW_PREVIEW) return s.enabled !== false;   // review flow needs no rules URL
@@ -401,7 +400,7 @@
       "</div>";
     }).filter(Boolean);
     if (!rows.length) return "";
-    return '<div class="qreview"><h4>' + ic("cap") + " Worth another look &middot; " + rows.length + " to review</h4>" + rows.join("") + "</div>";
+    return '<div class="qreview"><h4>' + ic("cap") + " Worth another look &middot; " + rows.length + " missed</h4>" + rows.join("") + "</div>";
   }
   function quip(kind) {
     var q = (window.GPEN_QUIPS || {})[kind];
@@ -502,8 +501,9 @@
     };
   }
 
-  /* The card-pull moment. Used when you certify (product card) and when you
-     solve a trivia egg (trainer card). The card flips in out of a foil pack. */
+  /* The card-pull moment: passing a course flips its collectible card out of a
+     foil booster pack. Only reached from quizPass — the trivia-egg system that
+     used to share it was removed. */
   function showPull(kicker, cardHTML, footNote, saveSlug) {
     var reduced = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
     var m = document.createElement("div");
@@ -1124,7 +1124,6 @@
   /* ---- HOME (browse-first hub) ------------------------------------------- */
   function renderHome() {
     var e = getEnroll(), done = completedCount(), total = COURSES.length;
-    var master = isMasterEarned();
 
     app.innerHTML = header() +
       // ---- The masthead. Professor O.G. is the SPEAKER: his speech bubble holds
@@ -1162,9 +1161,9 @@
 
       // A single refined lifestyle moment — the gear in real hands, so the scale
       // and the vibe land before the reward story. Not a marquee; one editorial shot.
-      lifestyleCinema((window.GPEN_LIFESTYLE || [])[0], "The G Pen life", "This is the gear, in real hands.", "See how it sits in a palm — then get one in yours.", "home") +
+      lifestyleCinema((window.GPEN_LIFESTYLE || [])[0], "The G Pen life", "This is the gear, in real hands.", "Customers ask how it feels to hold. Know the answer.", "home") +
       floorDrill() +
-      theLoop(done, master) +
+      theLoop(done) +
       '<section class="signoff reveal"><div class="signoff-inner">' + ogSays("proud", "That&rsquo;s the syllabus. You can&rsquo;t sell what you&rsquo;ve never held &mdash; now go run the floor.") + "</div></section>" +
       footer();
 
@@ -1172,8 +1171,8 @@
     $$("[data-goto]").forEach(function (el) { el.addEventListener("click", function () { go("#/course/" + el.getAttribute("data-goto")); }); });
     $$("[data-scroll]").forEach(function (el) { el.addEventListener("click", function () { scrollToId(el.getAttribute("data-scroll")); }); });
     // (footer "Reset my progress" is bound globally in boot via bindReset — works on every page)
-    // Just certified a course? Land home with a little celebration (the masthead
-    // redesign dropped the old progress ring, so this is now the payoff moment).
+    // Just certified a course? Land home with a little celebration — coming back
+    // to the lineup with a new card is the payoff moment.
     if (pendingCelebrate) { pendingCelebrate = false; sfx.play("pass"); setTimeout(confetti, 350); }
     revealOnScroll();
   }
@@ -1193,15 +1192,15 @@
     "</a>";
   }
 
-  /* The Loop — the incentive story, told exactly once, below the shelf.
-     Merges what used to be the reward ladder AND the binder teaser. */
-  /* The reward story, told ONCE. The collection is already signalled by the
-     header pips and the ladder, so the loop drops its 4 step-cards and binder for
-     a single 3-beat rail: learn → pass → get paid. */
-  function theLoop(done, master) {
+  /* The Loop — the reward story, told exactly ONCE, below the product lineup.
+     The collection is already signalled by the header pips and the ladder, so this
+     is a single three-beat rail (learn → pass → discount) rather than the old
+     step-cards plus binder teaser. Note the framing: the reward follows
+     COMPLETING TRAINING, never selling. */
+  function theLoop(done) {
     return '<section class="loop reveal">' +
       '<div class="loop-head">' +
-        "<h2>Get certified. Get it cheap. Carry it yourself.</h2>" +
+        "<h2>Get certified. Get the gear cheap. Carry it yourself.</h2>" +
         '<p class="loop-sub">Customers trust the staff who actually use it. Put a G&nbsp;Pen in your pocket and you&rsquo;re the rec.</p>' +
       "</div>" +
       '<div class="loop-rail">' +
@@ -1211,7 +1210,7 @@
         '<span class="lr-arw">' + ic("arrow") + "</span>" +
         '<span class="lr-beat gold"><i>%</i>Up to 40% off gpen.com</span>' +
       "</div>" +
-      rewardsSection(done, master) +
+      rewardsSection(done) +
     "</section>";
   }
   function scrollToId(id) { var el = document.getElementById(id); if (el) el.scrollIntoView({ behavior: "smooth", block: "start" }); }
@@ -1308,7 +1307,7 @@
         '<div class="cs-copy">' +
           '<span class="eyebrow cs-eyebrow">Questions about a product?</span>' +
           "<h2>Talk to our team.</h2>" +
-          "<p>Want to go deeper on a device, talk through a customer question, or just say hi? Our customer-service crew has been here since day one and loves talking all things cannabis and vaporizers. Call or email anytime — we love hearing from the people on the floor.</p>" +
+          "<p>Our crew knows the hardware, not a script. Call or email when a customer&rsquo;s standing there with a device that won&rsquo;t hit, when you need a spec you can&rsquo;t remember, or when you want the straight answer before you say it out loud.</p>" +
         "</div>" +
         '<div class="cs-actions">' +
           (phone ? '<a class="cs-btn cs-btn-primary" href="' + esc(tel) + '">' + ic("phone") + "<span>" + esc(phone) + "</span></a>" : "") +
@@ -1338,20 +1337,21 @@
       '<input id="f-' + id + '" type="' + type + '" value="' + esc(val || "") + '" placeholder="' + esc(ph) + '" autocomplete="' + ac + '" /></label>';
   }
 
-  /* The reward ladder, shown as an "earn it" tracker on the home hub:
-       1 course -> 25%   2 -> 30%   4 -> 35%   all 5 -> 40% + free-G Pen draw entry */
-  function rewardsSection(done, master) {
+  /* The reward ladder, shown as an "earn it" tracker on the home hub. Rungs come
+     from LADDER (currently 1 -> 25%, 2 -> 30%, 4 -> 35%, all 5 -> 40%); the top
+     rung also carries the free-device prize IF drawLive() — see prizeCopy(). */
+  function rewardsSection(done) {
     var total = COURSES.length;                 // 5 = the full lineup
     var held = tierAt(done), up = nextTier(done);
     var top = LADDER[LADDER.length - 1];
-    var head = !held ? "Pass your first course to start earning"
-      : (up ? held.pct + "% off unlocked — " + (up.pct === top.pct ? "one more tier for the top reward" : "keep certifying")
+    var head = !held ? "Pass one course to unlock your first code"
+      : (up ? held.pct + "% off unlocked — " + (up.pct === top.pct ? "one more course for the top reward" : "keep certifying")
             : "Full lineup certified — the top reward is yours 👑");
     function need(n) { var d = n - done; return d + " more course" + (d === 1 ? "" : "s") + " to unlock"; }
     // Every rung but the last renders as a card; the top rung is the capstone.
     var rungs = LADDER.slice(0, -1).map(function (t) {
       return rewardCard(t.key, done >= t.at, t.pct + "% OFF",
-        t.at === 1 ? "Pass any 1 course" : "Certify on any " + t.at + " products", need(t.at));
+        t.at === 1 ? "Pass any 1 course" : "Pass any " + t.at + " courses", need(t.at));
     }).join("");
     return '<div class="sec-h"><h2>The reward ladder</h2><span>' + head + "</span></div>" +
       '<p class="rw-terms-head">Rewards are for completing training. They are not tied to sales, orders, or product recommendations.</p>' +
@@ -1367,7 +1367,7 @@
         // Without a live prize there is no "grand prize" to promise — it's the top rung.
         '<span class="rw-status">' + (unlocked ? (draw ? prizeCopy().statusOn : "Unlocked") : (draw ? "Grand prize" : "Top reward")) + "</span></div>" +
       '<div class="rw-big">' + (draw ? "FREE G PEN <em>+ 40%</em>" : "40% OFF") + "</div>" +
-      '<div class="rw-sub">Certify all ' + total + " &mdash; " + (draw ? prizeCopy().rule + " 40% off is yours either way." : "the whole lineup unlocks 40% off gpen.com.") + "</div>" +
+      '<div class="rw-sub">Certify all ' + total + " &mdash; " + (draw ? prizeCopy().rule + " 40% off is yours either way." : "your best code on gpen.com, plus the master certificate.") + "</div>" +
       (unlocked
         ? '<button class="rw-code" data-rwcode="secret"><span class="rw-code-v">••••••</span><em>' + ic("tag") + " Tap to copy</em></button>" +
           '<a class="rw-cert" href="#/certified">View master certificate &rarr;</a>' +
@@ -1437,7 +1437,7 @@
             "<h1>" + esc(c.name) + "</h1>" +
             '<span class="cx-cat">' + esc(c.category) + " · " + esc(c.msrp) + "</span>" +
             "<p>" + esc(c.tagline) + "</p>" +
-            '<div class="ch-meta">' + c.videos.length + " videos · " + c.quiz.length + "-question quiz · pass " + c.passPct + "% · ~" + c.minutes + " min</div>" +
+            '<div class="ch-meta">' + c.videos.length + " videos · " + c.quiz.length + " questions · " + c.passPct + "% to pass · ~" + c.minutes + " min</div>" +
           "</div>" +
         "</div>" +
 
@@ -1447,27 +1447,27 @@
         // organizer these courses lacked, and puts the memorable floor facts ahead
         // of the spec dump instead of after it.
         (c.howToSell && c.howToSell.keyFacts && c.howToSell.keyFacts.length
-          ? secHead(++n, "Three things to remember") + floorFactsHTML(c) : "") +
+          ? secHead(++n, "Know these three cold") + floorFactsHTML(c) : "") +
 
         (c.howToSell ? secHead(++n, "How to sell it") + howToSellHTML(c) : "") +
 
-        secHead(++n, "Watch & learn") +
+        secHead(++n, "Watch the tape") +
         '<div class="vid-grid">' + c.videos.map(function (v) {
           return '<button class="vid" data-yt="' + esc(v.youtube || "") + '" data-title="' + esc(v.title) + '">' +
             '<span class="vid-thumb"><img src="' + esc(v.thumb) + '" alt="" loading="lazy"/><span class="vid-play">' + ic("play") + "</span></span>" +
             '<span class="vid-title">' + esc(v.title) + "</span></button>";
         }).join("") + "</div>" +
 
-        secHead(++n, "Get to know it") +
+        secHead(++n, "What it is") +
         '<div class="prose">' + descHTML + "</div>" +
         (c.highlights && c.highlights.length ? '<ul class="hl-list">' + c.highlights.map(function (h) { return "<li>" + ic("check") + "<span>" + esc(h) + "</span></li>"; }).join("") + "</ul>" : "") +
         galleryHTML(c) +
         lifestyleCinema(productLifeImg(c.slug, c.heroImg), "In the wild", "The " + c.name + " out in the world.") +
 
         (c.howToUse && c.howToUse.length ? secHead(++n, "How to use it") + stepListHTML(c.howToUse) : "") +
-        (c.howToClean && c.howToClean.length ? secHead(++n, "How to clean & care") + stepListHTML(c.howToClean) : "") +
+        (c.howToClean && c.howToClean.length ? secHead(++n, "How to clean it") + stepListHTML(c.howToClean) : "") +
         (c.specs && c.specs.length ? secHead(++n, "Tech specs") + specTableHTML(c.specs) : "") +
-        (c.faq && c.faq.length ? secHead(++n, "FAQ") + faqHTML(c.faq) : "") +
+        (c.faq && c.faq.length ? secHead(++n, "Questions you&rsquo;ll get") + faqHTML(c.faq) : "") +
         factCard() +
 
         secHead(++n, "Get certified") +
@@ -1545,7 +1545,7 @@
       (h.trap ? '<p class="sell-trap">' + ic("spark") + "<span><b>The trap:</b> " + esc(h.trap) + "</span></p>" : "") +
       (facts ? '<div class="sell-facts">' + facts + "</div>" : "") +
       (h.talkTrack && h.talkTrack.say ? '<blockquote class="sell-say"><em>Say this</em>&ldquo;' + esc(h.talkTrack.say) + "&rdquo;</blockquote>" : "") +
-      (sces ? '<div class="sell-scns"><h4>On the floor &mdash; real situations</h4>' + sces + "</div>" : "") +
+      (sces ? '<div class="sell-scns"><h4>On the floor</h4>' + sces + "</div>" : "") +
       (h.whichClose ? '<div class="sell-close"><em>The &ldquo;which one&rdquo; close</em>&ldquo;' + esc(h.whichClose) + "&rdquo;</div>" : "") +
       (objs ? '<div class="sell-objs"><h4>When they hesitate</h4>' + objs + "</div>" : "") +
       (h.aov ? '<p class="sell-aov">' + ic("tag") + "<span>" + esc(h.aov) + "</span></p>" : "") +
@@ -1640,7 +1640,7 @@
         "<h3>" + (owned ? "Retake the quiz" : "Get certified" + (pct ? " &amp; unlock " + pct + "% off" : "")) + "</h3>" +
         '<p class="lead">' + (owned
           ? "Retake the " + c.quiz.length + "-question quiz (score " + c.passPct + "%+) to refresh your score on your <strong>" + esc(c.name) + "</strong> certificate. Your discount code is unchanged."
-          : "Ready? Pass the " + c.quiz.length + "-question quiz (score " + c.passPct + "%+) to earn your <strong>" + esc(c.name) + "</strong> Product Specialist certificate and a gpen.com discount code. Enter your details so we can put your name on the certificate.") + "</p>" +
+          : "Score " + c.passPct + "%+ on the " + c.quiz.length + "-question quiz to earn your <strong>" + esc(c.name) + "</strong> Product Specialist certificate and a gpen.com discount code. Spell your name the way you want it printed on the certificate.") + "</p>" +
         '<div class="certify-form">' +
           field("name", "Your full name", "text", e.name, "Jane Budtender", "name") +
           field("email", "Email address", "email", e.email, "you@store.com", "email") +
@@ -1823,7 +1823,7 @@
     zone.innerHTML = '<div class="result fail">' +
       gradeHTML(pct, points) +
       '<div class="result-score">' + pct + '%<span>' + correct + "/" + c.quiz.length + "</span></div>" +
-      "<h3>" + esc(quip("fail")) + "</h3><p>So close &mdash; you were <b>" + away + "</b> question" + (away === 1 ? "" : "s") + " from the " + c.passPct + "% you need. Look over the ones below and run it back.</p>" +
+      "<h3>" + esc(quip("fail")) + "</h3><p>You were <b>" + away + "</b> question" + (away === 1 ? "" : "s") + " short of the " + c.passPct + "% you need. Read your misses below, then retake it.</p>" +
       '<button class="btn xl" id="retry">' + ic("refresh") + " Retry quiz</button>" +
     "</div>" +
     missedReviewHTML(c, order, answers);
@@ -1883,7 +1883,7 @@
       '<div id="cert-zone"></div>' +
       '<div id="reward-zone" class="reward-wrap"></div>' +
       missedReviewHTML(c, order, answers) +
-      (master ? '<a class="master-unlock" href="#/certified">' + ic("award") + " Full lineup certified — you pulled the <strong>Certified G</strong>! Your certificate, <strong>40% off</strong>" + (drawLive() ? " &amp; your shot at a free device" : "") + " " + ic("arrow") + "</a>"
+      (master ? '<a class="master-unlock" href="#/certified">' + ic("award") + " Full lineup certified. You pulled the <strong>Certified G</strong> — your certificate, <strong>40% off</strong>" + (drawLive() ? " &amp; your shot at a free device" : "") + " " + ic("arrow") + "</a>"
               : next ? '<a class="btn xl nextup-cta" href="#/course/' + next.slug + '">Next up: ' + esc(next.name) + " " + ic("arrow") + "</a>" +
                        '<a class="linklike backdash" href="#/">or back to all courses</a>'
               : '<a class="btn ghost xl backdash" href="#/">Back to all courses ' + ic("arrow") + "</a>");
