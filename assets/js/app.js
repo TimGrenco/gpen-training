@@ -2387,9 +2387,13 @@
   function sweepsPanelHTML(e) {
     var p = prizeCopy();
     return '<div class="sweeps reveal">' +
-      '<span class="sw-eyebrow">' + ic("spark") + " Full lineup certified &mdash; " + esc(p.statusOn.toLowerCase()) + "</span>" +
+      // The eyebrow used to append statusOn ("you're in line"), which the headline
+      // right beneath it already says word for word; the body then opened by
+      // restating the eyebrow. Three announcements of one fact. Eyebrow states the
+      // achievement, headline delivers the prize news, body explains the mechanic.
+      '<span class="sw-eyebrow">' + ic("spark") + " Full lineup certified</span>" +
       '<h2 class="sw-h">' + p.headline + " 🦉</h2>" +
-      '<p class="sw-body">That&rsquo;s the whole lineup, certified. ' + p.rule + " We&rsquo;ll email you if it&rsquo;s you. Either way your <b>" + topPct() + "% off</b> is live today &mdash; grab one, put it in your pocket, and let &ldquo;this is the one I use&rdquo; close the sale.</p>" +
+      '<p class="sw-body">' + p.rule + " We&rsquo;ll email you if it&rsquo;s you. Either way your <b>" + topPct() + "% off</b> is live today &mdash; grab one, put it in your pocket, and let &ldquo;this is the one I use&rdquo; close the sale.</p>" +
       '<div class="sw-actions">' +
         '<button class="btn xl sw-copy">' + ic("tag") + " Copy your " + topPct() + "% code</button>" +
         '<a class="btn xl ghost" href="' + esc(CFG.shopUrl) + '" target="_blank" rel="noopener">Shop &amp; test on gpen.com ' + ic("arrow") + "</a>" +
