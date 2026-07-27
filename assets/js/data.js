@@ -601,16 +601,13 @@ window.GPEN_ABOUT = {
    FUN LAYER — ranks, quips & trivia. All editable, none of it affects scoring.
    ========================================================================== */
 
-/* Randomized feedback copy — keeps quizzes from feeling like a compliance module. */
+/* Randomized end-of-quiz feedback — keeps quizzes from feeling like a compliance
+   module. ONLY `fail` and `pass` are read: quip() is called from exactly two places,
+   the two result screens. PER-ANSWER feedback is the mascot's, not this object's —
+   tune that tone in GPEN_MASCOT.lines.correct / .wrong. There used to be `correct`
+   and `wrong` arrays here too (14 strings) that nothing could ever reach, so an
+   editor sharpening quiz tone would have been editing dead copy. */
 window.GPEN_QUIPS = {
-  correct: [
-    "Correct!", "Certified genius.", "Big brain energy.", "That's the good stuff.",
-    "Chef's kiss.", "You ate that.", "Textbook. Literally.", "Dialed in.",
-  ],
-  wrong: [
-    "Not quite — try again.", "Close, but no rolling paper.", "Mmm… nope.",
-    "Take another pass at it.", "So close. Circle back.", "Swing and a miss.",
-  ],
   fail: [
     "So close!", "Almost had it.", "Take a breath and run it back.", "Not this time — but soon.",
   ],
