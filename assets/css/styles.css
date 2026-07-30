@@ -724,6 +724,20 @@ a.linklike.backdash { display: block; width: auto; margin-top: 10px; text-align:
 }
 /* Three climbing tiers across from tablet up; the grand prize spans full-width below. */
 @media (min-width: 760px) { .rewards { grid-template-columns: repeat(3, 1fr); } }
+/* Phone stack. The ladder was 195px per rung to hold about twelve words, and the
+   biggest single cause was .rw-sub's min-height:2.9em — which exists to make three
+   cards line up in the >=760 row above, and below that just reserves three blank
+   lines under "Pass any 1 course". Scoped to where it does work, plus a tighter
+   card on a screen that only ever shows one per row.
+   NOTE: this block must stay BELOW the base .rw-* rules — placed above them every
+   colliding declaration silently loses on source order. */
+@media (max-width: 759px) {
+  .rw-sub { min-height: 0; }
+  .rw-card { padding: 16px; }
+  .rw-ic { width: 32px; height: 32px; }
+  .rw-ic svg { width: 17px; height: 17px; }
+  .rw-big { font-size: 30px; margin-top: 8px; }
+}
 .rw-card.grand { margin-top: 12px; }
 .rw-card.grand.on { background: linear-gradient(150deg, #241a08, #0d0d0d); }
 .rw-card.grand.on::before { background: radial-gradient(70% 80% at 100% -10%, rgba(254,200,112,.35), transparent 60%); }
