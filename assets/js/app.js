@@ -1200,12 +1200,16 @@
         // four separate retellings the old masthead had.
         '<ul class="hero-facts"><li>Free</li><li>' + COURSES.length + " courses</li><li class=\"gold\">Up to " + topPct() + "% off gpen.com</li></ul>" +
         '<div class="pq" id="pq">' +
-          // The Dean asks it. He reacts to the answer — the only motion in the hero,
-          // and the reason a wrong answer still feels like someone is on your side.
+          // The Dean asks it, from a HEADER row rather than beside the text. Sat next
+          // to the question he took a third of the width, and the longest question in
+          // the bank (181 chars) then ran to 11 lines in a 188px column at 320px.
+          // He reacts to the answer — the only motion in the hero, and the reason a
+          // wrong answer still feels like someone is on your side.
           '<div class="pq-ask">' +
             '<span class="pq-og" id="pq-og" aria-hidden="true">' + mascotSVG("think") + "</span>" +
-            '<div class="pq-q">' + esc(q.q) + "</div>" +
+            '<span class="pq-who">' + esc(MASCOT.name || "Professor O.G.") + " asks</span>" +
           "</div>" +
+          '<div class="pq-q">' + esc(q.q) + "</div>" +
           '<div class="pq-choices">' +
             order.map(function (ci, pos) {
               return '<button class="pq-choice" type="button" data-ci="' + ci + '">' +

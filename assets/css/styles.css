@@ -1753,8 +1753,13 @@ a.linklike.backdash { display: block; width: auto; margin-top: 10px; text-align:
    to tap, not a magazine spread.
    ====================================================================== */
 .hero { background: var(--paper); color: var(--ink); border-bottom: 1px solid var(--line);
-  padding: var(--sec-y) var(--gutter); }
-.hero-in { max-width: var(--readw); margin: 0 auto; }
+  padding: var(--sec-y) 0; }   /* full-bleed background; the gutter lives on .hero-in */
+/* Align to the SAME left edge as every section below (--maxw), then cap the
+   readable content at --readw. Centring .hero-in on --readw instead pushed the
+   whole hero ~110px right of "Learn the G Pen Lineup" on a 1280 desktop, which
+   read as a layout mistake. */
+.hero-in { max-width: var(--maxw); margin: 0 auto; padding: 0 var(--gutter); }
+.hero-in > * { max-width: var(--readw); }
 .hero-eyebrow { display: inline-flex; align-items: center; flex-wrap: wrap; gap: 6px;
   font-size: var(--eyebrow-size); font-weight: var(--eyebrow-weight); letter-spacing: var(--eyebrow-tracking);
   text-transform: uppercase; color: var(--stone); }
@@ -1771,8 +1776,10 @@ a.linklike.backdash { display: block; width: auto; margin-top: 10px; text-align:
 /* ---- the pop quiz ---- */
 .pq { margin-top: 20px; background: #fff; border: 1px solid var(--line); border-radius: var(--r-lg);
   padding: clamp(16px,3vw,24px); box-shadow: var(--shadow); }
-.pq-ask { display: flex; align-items: flex-start; gap: 14px; }
-.pq-og { flex: none; width: clamp(52px,11vw,72px); line-height: 0; filter: drop-shadow(0 8px 14px rgba(0,0,0,.18)); }
+.pq-ask { display: flex; align-items: center; gap: 10px; margin-bottom: 12px; }
+.pq-who { font-size: var(--eyebrow-size); font-weight: var(--eyebrow-weight); letter-spacing: var(--eyebrow-tracking);
+  text-transform: uppercase; color: var(--stone); }
+.pq-og { flex: none; width: clamp(44px,9vw,60px); line-height: 0; filter: drop-shadow(0 6px 12px rgba(0,0,0,.18)); }
 .pq-og svg { width: 100%; height: auto; display: block; }
 .pq-og.pop { animation: og-pop-lg .5s cubic-bezier(.2,1.7,.4,1); }
 /* Named og-pop-LG deliberately: as a second @keyframes og-pop it would win over
