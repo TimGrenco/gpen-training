@@ -82,10 +82,10 @@ window.GPEN_COURSES = [
     productUrl: "https://www.gpen.com/products/g-pen-dash-ii-vaporizer",
     faqUrl: "https://www.gpen.com/pages/dash-ii-faq",
     gallery: [
-      { url: CDN + "dash2_thumb_05.jpg?v=1772834595", caption: "Pocket-sized and pull-ready anywhere" },
       { url: CDN + "dash2_thumb_02.jpg?v=1772834595", caption: "OLED display — real-time temp & battery" },
-      { url: CDN + "dash2_thumb_09.jpg?v=1772834595", caption: "Upgraded 0.4g ceramic chamber" },
-      { url: CDN + "dash2_thumb_08.jpg?v=1772834595", caption: "USB-C pass-through charging" },
+      { url: CDN + "dash2_thumb_09.jpg?v=1772834595", caption: "Pocket-sized \u2014 about as tall as a lighter" },
+      { url: CDN + "dash2_thumb_05.jpg?v=1772834595", caption: "The mouthpiece cap, off" },
+      { url: CDN + "dash2_thumb_08.jpg?v=1772834595", caption: "Cap off, ready to load" },
       { url: CDN + "dash2_thumb_011.jpg?v=1772834595", caption: "Silicone mouthpiece sleeve" },
     ],
     description: [
@@ -148,7 +148,7 @@ window.GPEN_COURSES = [
       objections: [
         { says: "I'll just roll it.", say: "Totally — and you still can. But rolling burns off the flavor, and some of every bowl just goes up in smoke. The Dash II heats the same flower low and slow, so a gram goes further and you taste the strain. Want to see how small it is?", why: "Don't fight the joint — reframe around waste and flavor." },
         { says: "Is fifty bucks worth it?", say: "For a real temp-control vape with a screen, fifty's about as low as it gets — and it pays for itself in the flower you're not burning. Grab a USB-C cable with it and you're set.", why: "Price-anchor, then attach the cable — it's not in the box." },
-        { says: "I've never used a dry-herb vape.", say: "That's the best part: grind, pack, hold the button three seconds, done. It's the hard-to-mess-up one — that's why everyone starts here." },
+        { says: "I've never used a dry-herb vape.", say: "That's the best part: grind, pack, hold to power on, then double-tap to heat. That's the whole thing — it's the hard-to-mess-up one, which is why everyone starts here." },
       ],
     },
     videos: [
@@ -183,9 +183,9 @@ window.GPEN_COURSES = [
     productUrl: "https://www.gpen.com/products/g-pen-dash-plus-vaporizer",
     gallery: [
       { url: CDN + "dash__vape_thumb_2_455ab888-db45-48a5-8680-3f5c685cd05f.jpg?v=1729247650", caption: "Full-color LED display" },
-      { url: CDN + "dash__vape_thumb_3_461b1dc3-9698-4b90-852b-130035e8252a.jpg?v=1729247646", caption: "Full titanium heating chamber" },
-      { url: CDN + "dash__vape_thumb_4_43ebed07-78d2-4186-8c51-c36b11921f28.jpg?v=1729247643", caption: "Magnetic mouthpiece, ceramic air path" },
-      { url: CDN + "dash__vape_thumb_6_2d2b66e0-28c5-4ab1-af46-f8f63d53227a.jpg?v=1729247640", caption: "USB-C fast charging" },
+      { url: CDN + "dash__vape_thumb_3_461b1dc3-9698-4b90-852b-130035e8252a.jpg?v=1729247646", caption: "USB-C port on the side" },
+      { url: CDN + "dash__vape_thumb_4_43ebed07-78d2-4186-8c51-c36b11921f28.jpg?v=1729247643", caption: "Durable zinc-alloy body" },
+      { url: CDN + "dash__vape_thumb_6_2d2b66e0-28c5-4ab1-af46-f8f63d53227a.jpg?v=1729247640", caption: "Magnetic mouthpiece and its air path" },
     ],
     description: [
       "Grenco Science introduces the next generation of portable dry herb vaporizers with the G Pen Dash+.",
@@ -238,14 +238,14 @@ window.GPEN_COURSES = [
       talkTrack: { say: "If you care how your flower tastes, this is the one. Titanium oven, hybrid heat, ready in twenty seconds — flavor a little pocket vape can't touch. And the charging cable's in the box." },
       whichClose: "Everyday Dash II, or the flavor-chaser Dash+ with the titanium oven?",
       scenarios: [
-        { sees: "A regular who buys top-shelf flower every week", say: "You're paying top-shelf prices — the Dash+ is what actually tastes it. Titanium oven, true convection, so the terpenes hit instead of going up in smoke. If you're buying the good flower, this is how you get your money's worth." },
+        { sees: "A regular who buys top-shelf flower every week", say: "You're paying top-shelf prices — the Dash+ is what actually tastes it. Titanium oven, hybrid convection heat, so the terpenes hit instead of going up in smoke. If you're buying the good flower, this is how you get your money's worth." },
         { sees: "Buying a nice strain as a gift, or trading up from a Dash II", say: "If it's a gift or you want the 'wow' one, this is it. Color screen, buzzes when it's ready, full titanium oven. It feels premium because it is." },
       ],
       trap: "Don't sell it on specs. Sell the flavor jump — 'you taste the strain.' Nobody buys titanium, they buy taste.",
       objections: [
-        { says: "Why is this double the Dash II?", say: "Titanium chamber and true convection — that's what you're paying for. It's the difference between 'it works' and 'wow, I taste the strain.' If flavor's your thing, worth the jump.", why: "Justify the price with the flavor mechanism, not a spec sheet." },
+        { says: "Why is this double the Dash II?", say: "Titanium chamber and hybrid convection heat — that's what you're paying for. It's the difference between 'it works' and 'wow, I taste the strain.' If flavor's your thing, worth the jump.", why: "Justify the price with the flavor mechanism, not a spec sheet." },
         { says: "Looks complicated.", say: "Three buttons, and it buzzes when it's ready. Load, double-click, draw. The color screen means you're never guessing your temp." },
-        { says: "I already have a pocket vape.", say: "Then you get it — this is the upgrade. Full titanium chamber, real convection, heats in about 20 seconds. Cleaner flavor, and you feel it on the first hit.", why: "Position as the step-up, not a replacement. Sell heat quality, not capacity — the Dash+ chamber is actually smaller." },
+        { says: "I already have a pocket vape.", say: "Then you get it — this is the upgrade. Full titanium chamber, hybrid convection heat, heats in about 20 seconds. Cleaner flavor, and you feel it on the first hit.", why: "Position as the step-up, not a replacement. Sell heat quality, not capacity — the Dash+ chamber is actually smaller." },
       ],
     },
     videos: [
@@ -282,7 +282,7 @@ window.GPEN_COURSES = [
       { url: CDN + "Melt_thumb_05.jpg?v=1772808678", caption: "Rapid-heat ceramic tip" },
       { url: CDN + "Melt_thumb_07.jpg?v=1772808678", caption: "Clean, controlled concentrate drops" },
       { url: CDN + "Melt_thumb_04.jpg?v=1772808678", caption: "The smallest hot knife on the market" },
-      { url: CDN + "Melt_thumb_02.jpg?v=1772808678", caption: "USB-C pass-through charging" },
+      { url: CDN + "Melt_thumb_02.jpg?v=1772808678", caption: "Travel cap off, ceramic tip ready" },
     ],
     description: [
       "Meet the all-new G Pen Melt Hot Knife — the <strong>smallest hot knife on the market</strong> and the fastest, cleanest way to prep your concentrates. At just 3.94 × 0.5 × 0.25 in, Melt is ultra-compact and built to disappear into any pocket or travel kit.",
@@ -374,8 +374,8 @@ window.GPEN_COURSES = [
     gallery: [
       { url: CDN + "Hydout_vape_thumb_07.jpg?v=1762461585", caption: "Low-key sessions, on the go" },
       { url: CDN + "Hydoutout_vape_015.jpg?v=1762461585", caption: "Hidden magnetic mouthpiece cover" },
-      { url: CDN + "Hydout_vape_thumb_011.jpg?v=1762461585", caption: "5 voltage settings on the LED display" },
-      { url: CDN + "Hydout_vape_thumb_03.jpg?v=1762461585", caption: "Preheat mode for thicker oils" },
+      { url: CDN + "Hydout_vape_thumb_011.jpg?v=1762461585", caption: "Loads a standard 510 cart inside" },
+      { url: CDN + "Hydout_vape_thumb_03.jpg?v=1762461585", caption: "Closed up, with the cart hidden inside" },
     ],
     description: [
       "Looking for the best 510 cartridge battery for low-key sessions on the go? Meet the G Pen Hydout — a compact, <strong>concealed</strong> vape battery for 510 cartridges that delivers serious performance without blowing your cover.",
@@ -453,7 +453,7 @@ window.GPEN_COURSES = [
       { q: "You are bagging up a Hydout. What does the customer still need that the box does not include?", choices: ["Both a 510 cartridge and a USB-C cable", "Just a 510 cartridge, the cable is included", "Just a USB-C cable, a starter cart is included", "Nothing else, the box has cart and cable"], answer: 0, why: "The box is the battery and its magnetic cover, nothing more. Confirming what is missing before a customer leaves is what keeps the first session from failing, and it is a natural second attach." },
       { q: "\"I have got an old battery in a drawer somewhere, I will just use that.\" Best response?", choices: ["That may work — the Hydout just adds five voltages and hides the cart", "Old batteries always leak and will ruin that cartridge pretty fast", "A used battery voids the warranty on any cart you buy in here", "Fair enough, come back and see us if it does not work out"], answer: 0, why: "Never argue with a claim you cannot disprove, and never invent one to win — a scare line a customer later finds out was false costs you every future sale. Concede the point, then reframe on what the upgrade actually adds." },
       { q: "Mid-sale a customer asks if switching to this from smoking will be easier on their chest. What do you say?", choices: ["I cannot speak to health, but I can show you the voltage settings", "It is definitely gentler, that is why most people switch over", "There is no combustion, so nothing harsh reaches your lungs", "Stick to the lower voltages and you will be totally fine"], answer: 0, why: "Health questions are outside a rep's lane no matter what the customer is buying, and the Hydout data supports discretion and voltage control only. Decline the health frame and move back to how the device performs." },
-      { q: "A customer is deciding between the two 510 batteries and asks what they actually get for the extra money in heat control.", choices: ["Five voltage steps instead of three, plus the same preheat", "Ten voltage steps instead of three, plus a hotter preheat", "A temperature dial in degrees rather than fixed steps", "Double the wattage at every one of the settings"], answer: 0, why: "The real difference is finer steps and a lower floor, not a different class of control. Both share the preheat, so overstating the gap sets up a disappointed customer." },
+      { q: "A customer is deciding between the two 510 batteries and asks what they actually get for the extra money in heat control.", choices: ["Five voltage steps instead of three, plus the same preheat", "Ten voltage steps instead of three, plus a hotter preheat", "A temperature dial in degrees rather than fixed steps", "Double the wattage at every one of the settings"], answer: 0, why: "The real difference is more steps and a lower floor — 2.4V against 3.2V — not finer steps or a different class of control. Both share the preheat, so overstating the gap sets up a disappointed customer." },
       { q: "A shopper picks up the Hydout, looks at the price tag, and says nothing. What is the strongest opening line?", choices: ["The whole mouthpiece tucks inside, so it just disappears in a pocket", "It is only twenty-five, barely more than the basic battery over here", "This is our best-selling cart battery on the wall right now", "It has a bright display so you can always see your battery level"], answer: 0, why: "Whoever names price first sets what the conversation is about. Open on the thing the cheap battery cannot do and price lands as fair; open on price and you have invited them to just take the cheaper one." },
       { q: "A customer texts that their new battery \"keeps turning itself off\" between hits. What is going on?", choices: ["It shuts itself off after two minutes of sitting idle", "Holding the button too long trips a safety cutoff mid-draw", "The battery is defective and should be swapped out today", "It overheats on higher voltages and cuts out until it cools"], answer: 0, why: "Before treating a device as defective, rule out normal designed behavior — an idle timeout is a standard battery safety feature, and knowing it turns a would-be return into a ten-second answer." },
     ],
@@ -474,7 +474,7 @@ window.GPEN_COURSES = [
       { url: CDN + "510_thumb_06_b4bfbf97-a651-4032-9723-ecc13f5493cf.jpg?v=1767045041", caption: "Ultra-portable, effortless to use" },
       { url: CDN + "510_thumb_010_7a9d38b8-860e-41f6-8936-8731df1fef28.jpg?v=1767045147", caption: "Fits standard 510 cartridges" },
       { url: CDN + "510_thumb_01_10b544e9-9c4f-4b13-ae5f-69482331740d.png?v=1767045132", caption: "Three preset voltages on the digital display" },
-      { url: CDN + "510_thumb_04_f7997520-6f48-4d8b-8ef1-95b24ee3af36.jpg?v=1767045073", caption: "Available in six colorways" },
+      { url: CDN + "510_thumb_04_f7997520-6f48-4d8b-8ef1-95b24ee3af36.jpg?v=1767045073", caption: "Black \u2014 one of six colorways" },
     ],
     description: [
       "Back to where it all started — with upgrades.",
@@ -797,6 +797,14 @@ window.GPEN_MASCOT = {
     "Hoo. Sorry &mdash; occupational hazard.",
   ],
   // his line on the binder page, by how full it is
+  // Shown whenever the binder is NOT full — which includes a rep with ZERO cards, so
+  // these cannot presuppose that any card exists. The two lines that used to live here
+  // ("That's a clean collection you've got there. Tap a card to really look at it.")
+  // greeted an empty binder as though it were full. binderEmpty covers 0.
+  binderEmpty: [
+    "Empty for now. Pass a course and the first card lands right here.",
+    "Nothing in the sleeves yet. That is what the lineup is for.",
+  ],
   binder: [
     "That&rsquo;s a clean collection you&rsquo;ve got there. Tap a card to really look at it.",
     "Sleeves on, corners sharp. This is how you treat a set.",

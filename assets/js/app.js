@@ -1589,23 +1589,25 @@
     var t = ((CFG.discount || {})[type] || {}).terms;
     return t ? '<p class="rw-terms">' + esc(t) + "</p>" : "";
   }
+  /* Renders the CLIMBING rungs only. Its one caller maps LADDER.slice(0, -1), which
+     drops the last rung — the only one keyed "secret" — so the capstone never comes
+     through here; grandCard() draws that, with the master-certificate link and the
+     gold treatment. The old isSecret branches in this function were therefore
+     unreachable in every state. */
   function rewardCard(type, unlocked, big, sub, lockMsg, status) {
-    var isSecret = type === "secret";
     if (unlocked) lockMsg = "";
-    return '<div class="rw-card ' + (unlocked ? "on" : "off") + (isSecret ? " secret" : "") + '">' +
-      '<div class="rw-top"><span class="rw-ic">' + ic(unlocked ? (isSecret ? "spark" : "tag") : "lock") + '</span><span class="rw-status">' + esc(status || (unlocked ? "Unlocked" : "Locked")) + "</span></div>" +
+    return '<div class="rw-card ' + (unlocked ? "on" : "off") + '">' +
+      '<div class="rw-top"><span class="rw-ic">' + ic(unlocked ? "tag" : "lock") + '</span><span class="rw-status">' + esc(status || (unlocked ? "Unlocked" : "Locked")) + "</span></div>" +
       '<div class="rw-big">' + big + "</div>" +
       '<div class="rw-sub">' + sub + "</div>" +
       (unlocked
         ? '<button class="rw-code" data-rwcode="' + type + '"><span class="rw-code-v">••••••</span><em>' + ic("tag") + " Tap to copy</em></button>" +
           '<a class="rw-shop" href="' + esc(CFG.shopUrl) + '" target="_blank" rel="noopener">Shop gpen.com ' + ic("arrow") + "</a>" +
-          // The master certificate needs all 5 courses — it belongs on the 40% (all-lineup) card.
-          (isSecret ? '<a class="rw-cert" href="#/certified">View master certificate →</a>' : "") +
           rwTermsHTML(type)
         // No hint on a rung they are not climbing yet — the lock icon, the dimmed
         // .off treatment and the "Locked" status already carry it. An empty rw-lock
         // would render as a stray bullet icon with no text.
-        : (lockMsg ? '<div class="rw-lock">' + ic(isSecret ? "spark" : "lock") + " " + lockMsg + "</div>" : "")) +
+        : (lockMsg ? '<div class="rw-lock">' + ic("lock") + " " + lockMsg + "</div>" : "")) +
     "</div>";
   }
   function copyText(text, okMsg) {
@@ -1680,8 +1682,12 @@
         (c.faq && c.faq.length ? secHead(++n, "Questions you&rsquo;ll get") + faqHTML(c.faq) : "") +
         factCard() +
 
-        secHead(++n, "Get certified") +
-        ogSays("think", ogLine("quizIntro")) +
+        // Heading and intro follow the same branch as the zone below them. They used
+        // to be unconditional, so an already-certified course still headed this
+        // section "Get certified" and had the Dean ask if you were ready for the quiz,
+        // directly above your own certificate.
+        secHead(++n, rec && rec.passed ? "Your certificate" : "Get certified") +
+        (rec && rec.passed ? "" : ogSays("think", ogLine("quizIntro"))) +
         '<div id="quiz-zone"></div>' +
       "</section>" +
       // Promise the tier they'd actually hold after this course, not a flat 25%.
@@ -2172,10 +2178,12 @@
         '<a class="btn xl" href="' + esc(CFG.shopUrl) + '" target="_blank" rel="noopener">Shop gpen.com ' + ic("arrow") + "</a>" +
         '<p class="reward-terms">' + (r.terms ? esc(r.terms) + " " : "") + "Earned by completing training — not tied to sales, orders, or product recommendations.</p>" +
       "</div>";
+      // Was an inline re-implementation of copyText() that had already drifted from it:
+      // it skipped sfx.play("copy") and toasted "Code copied!" instead of naming the
+      // code, so the same action behaved differently depending on which surface it
+      // was triggered from.
       $("#code-copy").addEventListener("click", function () {
-        var t = r.code;
-        if (navigator.clipboard) navigator.clipboard.writeText(t).then(function () { toast("Code copied!"); }, function () { toast(t); });
-        else toast(t);
+        copyCode(r.code);
       });
     }).catch(function (err) {
       if (window.console) console.warn("[gpen-training] revealReward failed for tier '" + type + "'", err);
@@ -2802,7 +2810,7 @@
           '<div class="bn-count"><b>' + owned + "</b> of " + total + " cards &middot; " + pct + "% complete</div>" +
         "</div>" +
 
-        ogSays(owned === total ? "proud" : "chill", ogLine(owned === total ? "binderFull" : "binder")) +
+        ogSays(owned === total ? "proud" : "chill", ogLine(owned === total ? "binderFull" : (owned ? "binder" : "binderEmpty"))) +
         // One clean page: the 5 product cards + the gold Certified G as the 6th.
         '<div class="tcg-grid pockets binder-grid">' +
           COURSES.map(function (c) { return pocket(tcgCard(c), cardOwned(c.slug)); }).join("") +
@@ -3024,9 +3032,6 @@
     else if (parts[0] === "collection") { renderCollection(); pageKey = "collection"; }
     else if (parts[0] === "about") { renderAbout(); pageKey = "about"; }
     else renderHome(); // "/", "/dashboard", "/enroll" and anything else → the hub
-    // Safety net: guarantee every view's reveal animation is initialized (and
-    // its visibility failsafe armed) even if a render function forgets to call it.
-    revealOnScroll();
     bindFacts();
     bindLogoFun();
     bindCardTilt();
