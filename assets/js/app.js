@@ -2,7 +2,7 @@
    G PEN TRAINING PORTAL — APP
    A small hash-routed SPA. No framework, no backend. Progress in localStorage.
 
-   Routes: "/" home (masthead + the product lineup, grouped by family)
+   Routes: "/" home (state-aware hero + the product lineup, grouped by family)
            "/course/<slug>"  sell-first course page, ending in the quiz
            "/collection"     the Binder — the six collectible cards
            "/certified"      the all-five master certificate
@@ -817,8 +817,6 @@
       "</div>" +
     "</button>";
   }
-  // Tap the Dean: he hoots, changes his face, and publishes a numbered "Field
-  // Note" — a fun cannabis / G Pen history fact — below his byline in the masthead.
   // Tap him: he hoots, changes his face, and drops a fresh bit of wisdom.
   function bindMascot() {
     $$(".og-block").forEach(function (b) {
@@ -1233,9 +1231,14 @@
         pq.classList.add("done");
         var ci = parseInt(b.getAttribute("data-ci"), 10);
         var right = ci === q.answer;
+        // aria-disabled, NOT disabled: disabling the button the rep just activated
+        // removes it from the focus order, and the browser drops focus to <body> —
+        // so their next Tab restarted at the skip link, a whole header away from the
+        // CTA this interaction exists to offer. Re-answering is already blocked by
+        // the pq.classList "done" guard at the top of this handler.
         $$(".pq-choice", pq).forEach(function (o) {
           var oci = parseInt(o.getAttribute("data-ci"), 10);
-          o.disabled = true;
+          o.setAttribute("aria-disabled", "true");
           if (oci === q.answer) o.classList.add("ok");
           else if (oci === ci) o.classList.add("no");
         });
@@ -1246,8 +1249,8 @@
         // would make every text run and the <b> its own flex item and break the
         // sentence into columns — the same trap that broke .master-unlock.
         var head = right
-          ? ic("check") + "<span><b>Nailed it.</b> That is exactly the play.</span>"
-          : ic("spark") + "<span><b>That one catches a lot of people.</b> Here is the play:</span>";
+          ? ic("check") + '<span class="pqv-txt"><b>Nailed it.</b> That is exactly the play.</span>'
+          : ic("spark") + '<span class="pqv-txt"><b>That one catches a lot of people.</b> Here is the play:</span>';
         $("#pq-out", pq).innerHTML =
           '<div class="pq-verdict ' + (right ? "ok" : "no") + '">' + head + "</div>" +
           (right ? "" : '<div class="pq-answer"><em>The answer</em><span>' + esc(q.choices[q.answer]) + "</span></div>") +
@@ -1267,6 +1270,11 @@
         // He starts on "think", so BOTH outcomes have to move him to something else
         // or the reaction reads as no reaction at all.
         if (og) { og.innerHTML = mascotSVG(right ? "proud" : "chill"); og.classList.add("pop"); }
+        // Put the caret on the outcome that just appeared, the same way the real
+        // quiz's result block does. Without this a keyboard rep is left on a button
+        // that is now aria-disabled, with the verdict and CTA below them unread.
+        var out = $("#pq-out", pq);
+        if (out) { out.setAttribute("tabindex", "-1"); setTimeout(function () { out.focus(); }, 0); }
       });
     });
   }
@@ -1297,21 +1305,42 @@
     "</section>";
   }
 
-  /* Fully certified: nothing left to sell them — hand over the goods. */
+  /* Fully certified: nothing left to sell them — hand over the goods.
+     The code renders as an empty shell and is filled by fillHeroCode() through
+     issueRewardCode(), which config.js documents as the ONLY place a code is
+     minted. Reading TRAINING_CONFIG.discount.secret.code straight out of config
+     here would work today and silently break the day the client swaps that
+     function for the Shopify Admin API it is explicitly designed for: every other
+     surface would show the rep's unique code and this one would still show the
+     generic config string. */
   function heroDoneHTML(total) {
-    var t = (CFG.discount || {}).secret || {};
     return '<section class="hero hero-done reveal">' +
       '<div class="hero-in">' +
         '<span class="hero-eyebrow">' + ic("award") + " Certified G &middot; " + total + " of " + total + "</span>" +
         '<h1 class="hero-h1">' + ogGreetingLine(total, total) + "</h1>" +
         '<p class="hero-sub">Your top code is live on gpen.com.</p>' +
-        (t.code ? '<button class="code hero-code" id="hero-code"><span>' + esc(t.code) + "</span><em>" + ic("tag") + " Tap to copy</em></button>" : "") +
+        '<button class="code hero-code" id="hero-code" hidden><span>••••••</span><em>' + ic("tag") + " Tap to copy</em></button>" +
         '<div class="hero-actions">' +
           '<a class="btn xl ghost" href="#/certified">View your certificate ' + ic("arrow") + "</a>" +
           '<a class="btn xl ghost" href="#/collection">Your binder ' + ic("arrow") + "</a>" +
         "</div>" +
       "</div>" +
     "</section>";
+  }
+
+  /* Mint the certified hero's code the same way every other reward surface does.
+     Stays hidden until a code actually comes back, so a misconfigured or failing
+     issuer shows nothing rather than an empty dashed box promising a discount. */
+  function fillHeroCode() {
+    var btn = $("#hero-code"); if (!btn) return;
+    var e = getEnroll() || {};
+    Promise.resolve(window.issueRewardCode("secret", { name: e.name, email: e.email, store: e.store }))
+      .then(function (r) {
+        if (!r || !r.code) return;
+        $("span", btn).textContent = r.code;
+        btn.hidden = false;
+        btn.addEventListener("click", function () { copyCode(r.code); });
+      }, function (err) { if (window.console) console.warn("[gpen-training] hero code could not be issued", err); });
   }
 
   function heroHTML(done, total) {
@@ -1347,8 +1376,7 @@
 
     fillRewards();
     bindPopQuiz();
-    var hc = $("#hero-code");
-    if (hc) hc.addEventListener("click", function () { copyCode(((CFG.discount || {}).secret || {}).code); });
+    fillHeroCode();
     $$("[data-goto]").forEach(function (el) { el.addEventListener("click", function () { go("#/course/" + el.getAttribute("data-goto")); }); });
     $$("[data-scroll]").forEach(function (el) { el.addEventListener("click", function () { scrollToId(el.getAttribute("data-scroll")); }); });
     // (footer "Reset my progress" is bound globally in boot via bindReset — works on every page)
@@ -1368,9 +1396,10 @@
     return '<section class="loop reveal">' +
       // The head is the MOTIVATION (why carry one yourself); the ladder below is the
       // MECHANIC. There used to be a numbered "Learn it -> Pass the quiz -> % off"
-      // rail between them, which made this the third place on one page explaining the
-      // same three steps — the masthead deck says it, and the ladder gives the actual
-      // numbers. Deleted rather than reworded; a rep does not need it told thrice.
+      // rail between them, which made this a third telling of the same three steps.
+      // Deleted rather than reworded. (The masthead deck that used to carry the
+      // first telling is gone too — the pop-quiz hero now demonstrates the mechanic
+      // instead of describing it, and the ladder still gives the actual numbers.)
       '<div class="loop-head">' +
         "<h2>Get certified. Carry one yourself.</h2>" +
         '<p class="loop-sub">Customers trust the staff who actually use it. Put a G&nbsp;Pen in your pocket and you&rsquo;re the rec.</p>' +

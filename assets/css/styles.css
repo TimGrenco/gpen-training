@@ -8,7 +8,11 @@
   --cream: #faf9f5;
   --stone: #6e6e66;
   --line: #e7e6e0;
-  --gold: #c8952f;          /* accessible gold for text on white */
+  /* 4.59:1 on white. The old #c8952f carried this exact comment and measured
+     2.69:1 — it failed AA for normal text at all 46 sites that set color:var(--gold),
+     including the hero's "Up to 40% off" hook and every eyebrow. Same hue (40deg)
+     and saturation, darker. --gold-bright stays the brand fill for pips/buttons. */
+  --gold: #956f23;          /* gold for TEXT on white — verified 4.59:1 */
   --gold-bright: #FEC870;   /* brand gold for fills/accents */
   --ember: #D75D43;
   --ok: #2f8f5b;
@@ -1768,9 +1772,12 @@ a.linklike.backdash { display: block; width: auto; margin-top: 10px; text-align:
 .hero-sub { margin: 10px 0 0; color: var(--ink-2); font-size: clamp(14.5px,2vw,17px); line-height: 1.5; }
 .hero-sub b { color: var(--ink); font-weight: 900; }
 .hero-sub b.gold { color: var(--gold); }
-.hero-facts { display: flex; flex-wrap: wrap; align-items: center; gap: 0 14px; list-style: none;
+.hero-facts { display: flex; flex-wrap: wrap; align-items: center; gap: 4px 7px; list-style: none;
   margin: 12px 0 0; padding: 0; font-size: 13px; font-weight: 800; color: var(--ink); }
-.hero-facts li + li::before { content: "\00b7"; color: var(--gold); margin-right: 14px; margin-left: -7px; }
+/* The dot is its own inline mark with symmetric spacing from the gap, not a
+   negative margin — that assumed the previous item was always on the SAME line,
+   and below ~328px the third item wraps and the dot hung off the left edge. */
+.hero-facts li + li::before { content: "\00b7"; color: var(--gold); margin-right: 7px; }
 .hero-facts .gold { color: var(--gold); }
 
 /* ---- the pop quiz ---- */
@@ -1792,7 +1799,7 @@ a.linklike.backdash { display: block; width: auto; margin-top: 10px; text-align:
   font: inherit; font-size: 14.5px; font-weight: 600; line-height: 1.38; color: var(--ink); cursor: pointer;
   transition: border-color .15s, background .15s, transform .15s; }
 .pq-choice:hover:not(:disabled) { border-color: var(--gold-bright); transform: translateY(-1px); }
-.pq-choice:disabled { cursor: default; }
+.pq-choice[aria-disabled="true"] { cursor: default; }
 .pq-key { flex: none; width: 26px; height: 26px; display: grid; place-items: center; border-radius: 50%;
   background: var(--ink); color: #fff; font-size: 12px; font-weight: 900; }
 /* Right and wrong are never colour alone — the correct choice keeps a check-style
@@ -1804,7 +1811,12 @@ a.linklike.backdash { display: block; width: auto; margin-top: 10px; text-align:
 .pq-out:empty { display: none; }
 .pq-out { margin-top: 16px; padding-top: 16px; border-top: 1px solid var(--line); }
 .pq-verdict { display: flex; align-items: flex-start; gap: 8px; font-size: 16px; font-weight: 800; line-height: 1.4; }
-.pq-verdict > span { flex: 1 1 auto; min-width: 0; }   /* the prose is ONE flex item */
+/* ic() emits <span class="ic">, so a bare "> span" matched the ICON too and made it
+   a growing flex item: measured a 278px icon box around an 18px glyph at 1280, and a
+   13px box the glyph overflowed at 390. Pin the icon, grow only the prose — the same
+   shape as .master-unlock .mu-txt and .hl-list li .ic. */
+.pq-verdict > .ic { flex: none; }
+.pq-verdict > .pqv-txt { flex: 1 1 auto; min-width: 0; }
 .pq-verdict svg { width: 18px; height: 18px; flex: none; }
 .pq-verdict.ok { color: var(--ok); }
 .pq-verdict.no { color: var(--gold); }
