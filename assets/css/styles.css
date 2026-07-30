@@ -1815,7 +1815,7 @@ a.linklike.backdash { display: block; width: auto; margin-top: 10px; text-align:
 .pq-answer span { font-size: 15px; font-weight: 700; color: #17402a; }
 .pq-why { margin-top: 10px; color: var(--ink-2); font-size: 14.5px; line-height: 1.55; }
 .pq-next { display: flex; flex-wrap: wrap; align-items: center; gap: 12px; margin-top: 16px; }
-.hero-skip { display: inline-flex; align-items: center; gap: 6px; margin-top: 16px; padding: 8px 0;
+.hero-skip { display: inline-flex; align-items: center; gap: 6px; margin-top: 12px; padding: 12px 0;
   background: none; border: 0; font: inherit; font-size: 14px; font-weight: 800; color: var(--stone); cursor: pointer; }
 .hero-skip:hover { color: var(--ink); }
 /* Once answered, the card offers its own two ways on ("Learn this one" and
@@ -1828,7 +1828,7 @@ a.linklike.backdash { display: block; width: auto; margin-top: 10px; text-align:
 .hp-bar i { display: block; height: 100%; background: linear-gradient(90deg, var(--gold-bright), var(--gold)); }
 .hero-cta { margin-top: 18px; }
 .hp-pips { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 18px; }
-.hp-pip { display: inline-flex; align-items: center; gap: 6px; padding: 8px 14px; border-radius: 999px;
+.hp-pip { display: inline-flex; align-items: center; gap: 6px; padding: 11px 14px; border-radius: 999px;
   border: 1.5px solid var(--line); background: var(--paper); font-size: 13.5px; font-weight: 800; color: var(--stone); }
 .hp-pip svg { width: 13px; height: 13px; flex: none; color: var(--ok); }
 .hp-pip.on { border-color: var(--ok); background: #f0f7f1; color: var(--ink); }
