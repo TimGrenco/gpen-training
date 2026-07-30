@@ -80,7 +80,6 @@ h1, h2, h3, h4 { margin: 0; line-height: 1.08; letter-spacing: -.02em; }
 .btn.xl { font-size: 16px; padding: 15px 26px; }
 .btn.sm { font-size: 13px; padding: 8px 14px; }
 .btn.full { width: 100%; }
-.btn.mt { margin-top: 16px; }
 .btn.ghost { --bg: transparent; --fg: var(--ink); border-color: var(--line); background: #fff; }
 .btn.ghost:hover { border-color: var(--ink); }
 .btn.gold { --bg: var(--gold-bright); --fg: #1a1509; border-color: var(--gold-bright); }
@@ -1743,75 +1742,97 @@ a.linklike.backdash { display: block; width: auto; margin-top: 10px; text-align:
 @media (max-width: 365px) { .hdr-binder { display: none; } }
 
 /* =========================================================================
-   THE MASTHEAD — home page. Professor O.G. is the SPEAKER: his speech bubble
-   holds the h1, printed on a LIGHT paper surface (the old dark hero band — the
-   one that never landed — is gone). Single-column, text-first, so it stacks on
-   any width and the first product card still peeks above the fold on a phone.
+   THE HOME HERO — state-aware. The page used to open with a masthead ABOUT the
+   training; this opens with the training. Three states, one job each:
+     .hero-quiz  a first-timer gets a REAL question from the real bank. Answering
+                 costs nothing and saves nothing, and the card then becomes an
+                 on-ramp into the exact product the question was about.
+     .hero-prog  a returning rep gets where they left off and what it unlocks.
+     .hero-done  a certified rep gets their code and certificate, not a pitch.
+   Narrow measure (--readw) on purpose: this is one thing to read and one thing
+   to tap, not a magazine spread.
    ====================================================================== */
-.mast { background: var(--paper); color: var(--ink); border-bottom: 1px solid var(--line);
-  padding: var(--sec-y) var(--gutter) var(--sec-y); }
-.mast-inner { max-width: var(--maxw); margin: 0 auto; }
-/* Magazine masthead: the Dean's bubble-headline + nameplate on the left, the
-   deck / stats / CTA / field note on the right. Goes 2-col at tablet (760, so an
-   iPad doesn't get the tall phone stack), and top-aligned so toggling the Field
-   Note doesn't re-center and jump the headline. Stacks on phones. */
-@media (min-width: 760px) {
-  .mast-inner { display: grid; grid-template-columns: 1.1fr .9fr; gap: clamp(24px,4vw,56px); align-items: start; }
-}
-.mast-kicker { display: block; font-size: var(--eyebrow-size); font-weight: var(--eyebrow-weight); letter-spacing: var(--eyebrow-tracking); text-transform: uppercase; color: var(--stone); }
+.hero { background: var(--paper); color: var(--ink); border-bottom: 1px solid var(--line);
+  padding: var(--sec-y) var(--gutter); }
+.hero-in { max-width: var(--readw); margin: 0 auto; }
+.hero-eyebrow { display: inline-flex; align-items: center; flex-wrap: wrap; gap: 6px;
+  font-size: var(--eyebrow-size); font-weight: var(--eyebrow-weight); letter-spacing: var(--eyebrow-tracking);
+  text-transform: uppercase; color: var(--stone); }
+.hero-eyebrow svg { width: 14px; height: 14px; flex: none; color: var(--gold); }
+.hero-h1 { margin-top: 10px; font-size: clamp(26px,4.4vw,44px); font-weight: 900; letter-spacing: -.025em; line-height: 1.06; }
+.hero-sub { margin: 10px 0 0; color: var(--ink-2); font-size: clamp(14.5px,2vw,17px); line-height: 1.5; }
+.hero-sub b { color: var(--ink); font-weight: 900; }
+.hero-sub b.gold { color: var(--gold); }
+.hero-facts { display: flex; flex-wrap: wrap; align-items: center; gap: 0 14px; list-style: none;
+  margin: 12px 0 0; padding: 0; font-size: 13px; font-weight: 800; color: var(--ink); }
+.hero-facts li + li::before { content: "\00b7"; color: var(--gold); margin-right: 14px; margin-left: -7px; }
+.hero-facts .gold { color: var(--gold); }
 
-/* O.G.'s speech bubble = the headline. Tail points DOWN at him (bordered). */
-.mast-say { position: relative; display: block; margin: 14px 0 0; max-width: 100%;
-  background: #fff; border: 1px solid var(--line); border-radius: var(--r-md); padding: 16px 22px; box-shadow: var(--shadow); }
-.mast-say::before { content: ""; position: absolute; top: 100%; left: 40px; margin-top: 1px; border: 11px solid transparent; border-top-color: var(--line); }
-.mast-say::after  { content: ""; position: absolute; top: 100%; left: 40px; border: 11px solid transparent; border-top-color: #fff; }
-.mast-h1 { font-size: clamp(23px,3.6vw,40px); font-weight: 900; letter-spacing: -.025em; line-height: 1.08; }
-.mast-aside { margin-top: 20px; }
-@media (min-width: 760px) { .mast-aside { margin-top: 0; } }
-
-/* Speaker nameplate: owl + badge/role + tap nudge. */
-.mast-dean { display: flex; align-items: center; gap: 13px; margin-top: 14px; }
-.mast-og { width: clamp(76px,17vw,112px); flex: none; padding: 0; border: 0; background: none; line-height: 0;
-  cursor: pointer; filter: drop-shadow(0 10px 18px rgba(0,0,0,.2)); transition: transform .2s; }
-.mast-og svg { width: 100%; height: auto; display: block; }
-.mast-og:hover { transform: translateY(-3px) rotate(-3deg); }
-/* Named og-pop-LG deliberately: this used to be a second @keyframes og-pop, and
-   since the later definition wins it hijacked .og-block.pop too — tapping the
-   Dean scaled the whole full-width dark panel to 112% and rotated it 5 degrees. */
-.mast-og.pop { animation: og-pop-lg .5s cubic-bezier(.2,1.7,.4,1); }
+/* ---- the pop quiz ---- */
+.pq { margin-top: 20px; background: #fff; border: 1px solid var(--line); border-radius: var(--r-lg);
+  padding: clamp(16px,3vw,24px); box-shadow: var(--shadow); }
+.pq-ask { display: flex; align-items: flex-start; gap: 14px; }
+.pq-og { flex: none; width: clamp(52px,11vw,72px); line-height: 0; filter: drop-shadow(0 8px 14px rgba(0,0,0,.18)); }
+.pq-og svg { width: 100%; height: auto; display: block; }
+.pq-og.pop { animation: og-pop-lg .5s cubic-bezier(.2,1.7,.4,1); }
+/* Named og-pop-LG deliberately: as a second @keyframes og-pop it would win over
+   the one .og-block.pop uses and scale that whole dark panel instead. */
 @keyframes og-pop-lg { 0% { transform: scale(1); } 40% { transform: scale(1.12) rotate(-5deg); } 100% { transform: scale(1); } }
-.mast-plate { display: flex; flex-direction: column; align-items: flex-start; gap: 4px; }
-.mast-role { font-size: 12px; font-weight: 800; color: var(--stone); }
+.pq-q { font-size: clamp(16px,2.3vw,19px); font-weight: 800; line-height: 1.4; letter-spacing: -.01em; }
+.pq-choices { display: grid; gap: 10px; margin-top: 16px; }
+.pq-choice { display: flex; align-items: center; gap: 11px; width: 100%; min-height: 48px; text-align: left;
+  padding: 11px 14px; border-radius: var(--r-md); border: 1.5px solid var(--line); background: var(--paper);
+  font: inherit; font-size: 14.5px; font-weight: 600; line-height: 1.38; color: var(--ink); cursor: pointer;
+  transition: border-color .15s, background .15s, transform .15s; }
+.pq-choice:hover:not(:disabled) { border-color: var(--gold-bright); transform: translateY(-1px); }
+.pq-choice:disabled { cursor: default; }
+.pq-key { flex: none; width: 26px; height: 26px; display: grid; place-items: center; border-radius: 50%;
+  background: var(--ink); color: #fff; font-size: 12px; font-weight: 900; }
+/* Right and wrong are never colour alone — the correct choice keeps a check-style
+   green key AND is the only one paired with the "The answer" block below. */
+.pq-choice.ok { border-color: var(--ok); background: #f0f7f1; }
+.pq-choice.ok .pq-key { background: var(--ok); }
+.pq-choice.no { border-color: var(--bad); background: #fbf0ee; }
+.pq-choice.no .pq-key { background: var(--bad); }
+.pq-out:empty { display: none; }
+.pq-out { margin-top: 16px; padding-top: 16px; border-top: 1px solid var(--line); }
+.pq-verdict { display: flex; align-items: flex-start; gap: 8px; font-size: 16px; font-weight: 800; line-height: 1.4; }
+.pq-verdict > span { flex: 1 1 auto; min-width: 0; }   /* the prose is ONE flex item */
+.pq-verdict svg { width: 18px; height: 18px; flex: none; }
+.pq-verdict.ok { color: var(--ok); }
+.pq-verdict.no { color: var(--gold); }
+.pq-answer { display: flex; flex-direction: column; gap: 2px; margin-top: 10px; padding: 12px 14px;
+  border-radius: var(--r-sm); background: #f0f7f1; }
+.pq-answer em { font-style: normal; font-size: var(--eyebrow-size); font-weight: var(--eyebrow-weight);
+  letter-spacing: var(--eyebrow-tracking); text-transform: uppercase; color: var(--ok); }
+.pq-answer span { font-size: 15px; font-weight: 700; color: #17402a; }
+.pq-why { margin-top: 10px; color: var(--ink-2); font-size: 14.5px; line-height: 1.55; }
+.pq-next { display: flex; flex-wrap: wrap; align-items: center; gap: 12px; margin-top: 16px; }
+.hero-skip { display: inline-flex; align-items: center; gap: 6px; margin-top: 16px; padding: 8px 0;
+  background: none; border: 0; font: inherit; font-size: 14px; font-weight: 800; color: var(--stone); cursor: pointer; }
+.hero-skip:hover { color: var(--ink); }
+/* Once answered, the card offers its own two ways on ("Learn this one" and
+   "or pick a different product"), so a third "skip it" underneath is noise. */
+.pq.done ~ .hero-skip { display: none; }
+.hero-skip svg { width: 14px; height: 14px; }
 
-/* Name badge — reused everywhere O.G. greets. */
-.og-badge { display: inline-flex; align-items: center; padding: 4px 13px; border-radius: 999px;
-  background: var(--gold-bright); color: #1a1509; font-size: 12px; font-weight: 900; white-space: nowrap;
-  box-shadow: 0 3px 10px rgba(0,0,0,.16); }
-.og-poke { display: inline-flex; align-items: center; gap: 4px; font-size: 11px; font-weight: 700; color: var(--stone); }
-.og-poke svg { width: 12px; height: 12px; color: var(--gold); }
-.mast-dean.tapped .og-poke { visibility: hidden; }
+/* ---- returning rep ---- */
+.hp-bar { height: 10px; margin-top: 18px; border-radius: 999px; background: var(--line); overflow: hidden; }
+.hp-bar i { display: block; height: 100%; background: linear-gradient(90deg, var(--gold-bright), var(--gold)); }
+.hero-cta { margin-top: 18px; }
+.hp-pips { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 18px; }
+.hp-pip { display: inline-flex; align-items: center; gap: 6px; padding: 8px 14px; border-radius: 999px;
+  border: 1.5px solid var(--line); background: var(--paper); font-size: 13.5px; font-weight: 800; color: var(--stone); }
+.hp-pip svg { width: 13px; height: 13px; flex: none; color: var(--ok); }
+.hp-pip.on { border-color: var(--ok); background: #f0f7f1; color: var(--ink); }
+.hp-pip:hover { border-color: var(--gold-bright); }
 
-.mast-deck { margin: 16px 0 0; max-width: 54ch; font-size: clamp(14.5px,2vw,17px); line-height: 1.5; color: var(--ink-2); }
-.mast-deck b { color: var(--gold); font-weight: 900; }
-.mast-stats { display: flex; flex-wrap: wrap; align-items: center; gap: 0 16px; list-style: none;
-  margin: 14px 0 0; padding-top: 12px; border-top: 1px solid var(--gold-bright);
-  font-size: 13px; font-weight: 800; color: var(--ink); }
-.mast-stats li + li::before { content: "·"; color: var(--gold); margin-right: 16px; margin-left: -8px; }
-.mast-stats .gold { color: var(--gold); }
-/* .mast-cta folded into the shared .btn (see .btn.mt) */
+/* ---- certified ---- */
+.hero-code { margin-top: 18px; }
+.hero-actions { display: flex; flex-wrap: wrap; gap: 12px; margin-top: 16px; }
 
-/* The fun-fact bubble, restyled as a numbered "Field Note" card — full-width
-   BELOW the byline (never an overlay, never rides under the sticky nav). */
-.og-fact { display: none; grid-template-columns: auto 1fr; gap: 4px 11px; margin-top: 16px; max-width: 54ch;
-  background: #fff; border: 1px solid var(--line); border-left: 4px solid var(--gold-bright); border-radius: var(--r-md);
-  padding: 14px 16px; box-shadow: var(--shadow); }
-.og-fact.show { display: grid; }
-.ogf-eyebrow { grid-column: 1 / -1; font-size: var(--eyebrow-size); font-weight: var(--eyebrow-weight); letter-spacing: var(--eyebrow-tracking); text-transform: uppercase; color: var(--gold); }
-.ogf-emoji { font-size: 20px; line-height: 1.35; }
-.ogf-text { font-size: 14px; line-height: 1.5; color: var(--ink); }
-.og-fact.pop { animation: og-fact-pop .4s cubic-bezier(.2,1.7,.4,1); }
-@keyframes og-fact-pop { 0% { transform: scale(.97); opacity: .4; } 100% { transform: none; opacity: 1; } }
-@media (prefers-reduced-motion: reduce) { .mast-og.pop, .og-fact.pop { animation: none; } }
+@media (min-width: 760px) { .pq-choices { grid-template-columns: 1fr 1fr; } }
+@media (prefers-reduced-motion: reduce) { .pq-og.pop { animation: none; } }
 
 /* =========================================================================
    THE FLOOR DRILL — the battlecard's pairing reflex, on the home page.
@@ -1850,19 +1871,6 @@ a.linklike.backdash { display: block; width: auto; margin-top: 10px; text-align:
 .sw-fine { margin: 16px auto 0; max-width: 54ch; font-size: 11px; line-height: 1.5; color: #8f8e88; }
 .sw-fine a { color: #b9b8b0; text-decoration: underline; }
 
-/* ---- Resume strip: only for someone mid-course ------------------------- */
-.resume {
-  display: flex; align-items: center; justify-content: space-between; gap: 12px;
-  margin: 0 0 18px; padding: 12px 16px; border-radius: var(--r-md); text-decoration: none; color: var(--ink);
-  background: var(--paper); border: 1px solid var(--line); border-left: 5px solid var(--accent, var(--gold-bright));
-  box-shadow: var(--shadow); transition: transform .2s, border-color .2s;
-}
-.resume:hover { transform: translateY(-2px); border-color: var(--gold-bright); border-left-color: var(--accent, var(--gold-bright)); }
-.rs-txt { font-size: 14px; color: var(--stone); line-height: 1.45; }
-.rs-txt b { color: var(--ink); font-weight: 900; }
-.rs-go { display: inline-flex; align-items: center; gap: 5px; font-size: 13.5px; font-weight: 900; white-space: nowrap; }
-.rs-go svg { width: 14px; height: 14px; flex: none; }
-@media (max-width: 560px) { .resume { flex-direction: column; align-items: flex-start; gap: 6px; } }
 
 /* =========================================================================
    THE LOOP — the incentive story, told exactly once, below the lineup.

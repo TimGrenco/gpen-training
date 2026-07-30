@@ -819,27 +819,6 @@
   }
   // Tap the Dean: he hoots, changes his face, and publishes a numbered "Field
   // Note" — a fun cannabis / G Pen history fact — below his byline in the masthead.
-  function bindHeroMascot() {
-    var hero = $(".mast-og"); if (!hero) return;
-    var dean = hero.closest(".mast-dean"), bubble = $("#og-fact");
-    var n = 0, last = -1;
-    hero.addEventListener("click", function () {
-      sfx.play("hoot");
-      hero.innerHTML = mascotSVG(pick(["hyped", "think", "proud", "chill"]));
-      hero.classList.remove("pop"); void hero.offsetWidth; hero.classList.add("pop");
-      if (dean) dean.classList.add("tapped");   // hide the "tap the Dean" nudge once discovered
-      if (bubble && FACTS.length) {
-        var i; do { i = Math.floor(Math.random() * FACTS.length); } while (FACTS.length > 1 && i === last);
-        last = i; n++;
-        var f = FACTS[i], num = ("0" + n).slice(-2);
-        bubble.innerHTML = '<span class="ogf-eyebrow">Field note Nº ' + num + "</span>" +
-          '<span class="ogf-emoji" aria-hidden="true">' + esc(f.emoji || "🦉") + "</span>" +
-          '<span class="ogf-text">' + esc(f.text) + "</span>";
-        bubble.classList.add("show");
-        bubble.classList.remove("pop"); void bubble.offsetWidth; bubble.classList.add("pop");
-      }
-    });
-  }
   // Tap him: he hoots, changes his face, and drops a fresh bit of wisdom.
   function bindMascot() {
     $$(".og-block").forEach(function (b) {
@@ -1171,39 +1150,184 @@
     });
   }
 
+  /* ======================= THE HOME HERO ===================================
+     The landing page used to be a brochure ABOUT the training: five sections of
+     persuasion before a rep could touch anything. This is the training itself, in
+     the first screen, and it shows whoever is looking their single most useful
+     next action:
+       nobody yet   -> a real question from the real bank. Answer it and you have
+                       already started; the card then becomes an on-ramp into the
+                       exact product that question was about.
+       mid-progress -> where they left off, what is next, what it unlocks.
+       fully done   -> their top code and their certificate.
+     Nothing here writes to storage — the pop quiz is deliberately zero-commitment
+     and pre-enrollment, so a first visit still collects nothing about anybody. */
+
+  /* Questions worth meeting a stranger with: floor scenarios, not spec recall.
+     The health-adjacent items are deliberately excluded — they are good training
+     (the correct answer is to decline and redirect) but as a landing-page teaser
+     they would read as the site raising the subject. */
+  function heroPool() {
+    var INCLUDE = /customer|shopper|walks up|holds up|regular/i;
+    var EXCLUDE = /cough|lung|health|medical|anxiety|sleep|pain|nausea|doctor/i;
+    var pool = [];
+    COURSES.forEach(function (c) {
+      (c.quiz || []).forEach(function (q) {
+        if (!INCLUDE.test(q.q) || EXCLUDE.test(q.q)) return;
+        if ((q.choices || []).some(function (ch) { return EXCLUDE.test(ch); })) return;
+        pool.push({ q: q, course: c });
+      });
+    });
+    return pool;
+  }
+  var heroQ = null;   // the question this visit is showing; kept for the answer handler
+
+  function popQuizHTML() {
+    var pool = heroPool();
+    if (!pool.length) return "";                     // no eligible question: fall back
+    heroQ = pool[Math.floor(Math.random() * pool.length)];
+    var q = heroQ.q;
+    // Shuffle display order but keep each choice's real index, exactly like the
+    // real quiz does, so the answer key can never drift from what is on screen.
+    var order = shuffle(q.choices.map(function (_, i) { return i; }));
+    return '<section class="hero hero-quiz reveal">' +
+      '<div class="hero-in">' +
+        '<span class="hero-eyebrow">' + ic("cap") + " G Pen University &middot; Pop quiz</span>" +
+        '<h1 class="hero-h1">Can you answer this?</h1>' +
+        '<p class="hero-sub">One real question from the real training. Nothing saved, nothing to sign up for.</p>' +
+        // The reward hook still has to live above the fold — it is the single
+        // strongest reason a rep keeps going — but as one scannable line, not the
+        // four separate retellings the old masthead had.
+        '<ul class="hero-facts"><li>Free</li><li>' + COURSES.length + " courses</li><li class=\"gold\">Up to " + topPct() + "% off gpen.com</li></ul>" +
+        '<div class="pq" id="pq">' +
+          // The Dean asks it. He reacts to the answer — the only motion in the hero,
+          // and the reason a wrong answer still feels like someone is on your side.
+          '<div class="pq-ask">' +
+            '<span class="pq-og" id="pq-og" aria-hidden="true">' + mascotSVG("think") + "</span>" +
+            '<div class="pq-q">' + esc(q.q) + "</div>" +
+          "</div>" +
+          '<div class="pq-choices">' +
+            order.map(function (ci, pos) {
+              return '<button class="pq-choice" type="button" data-ci="' + ci + '">' +
+                '<span class="pq-key">' + String.fromCharCode(65 + pos) + "</span>" +
+                "<span>" + esc(q.choices[ci]) + "</span></button>";
+            }).join("") +
+          "</div>" +
+          '<div class="pq-out" id="pq-out" role="status" aria-live="polite"></div>' +
+        "</div>" +
+        '<button class="hero-skip" type="button" data-scroll="courses">Skip it &mdash; show me the courses ' + ic("arrow") + "</button>" +
+      "</div>" +
+    "</section>";
+  }
+
+  function bindPopQuiz() {
+    var pq = $("#pq"); if (!pq || !heroQ) return;
+    var q = heroQ.q, course = heroQ.course;
+    $$(".pq-choice", pq).forEach(function (b) {
+      b.addEventListener("click", function () {
+        if (pq.classList.contains("done")) return;   // one shot; it is a taste, not a score
+        pq.classList.add("done");
+        var ci = parseInt(b.getAttribute("data-ci"), 10);
+        var right = ci === q.answer;
+        $$(".pq-choice", pq).forEach(function (o) {
+          var oci = parseInt(o.getAttribute("data-ci"), 10);
+          o.disabled = true;
+          if (oci === q.answer) o.classList.add("ok");
+          else if (oci === ci) o.classList.add("no");
+        });
+        sfx.play(right ? "pass" : "tick");
+        // Warm either way. Getting it wrong is the entire reason the site exists,
+        // so it must never read as a rebuke on someone's first five seconds.
+        // Icon + ONE span. .pq-verdict is display:flex, so leaving the prose loose
+        // would make every text run and the <b> its own flex item and break the
+        // sentence into columns — the same trap that broke .master-unlock.
+        var head = right
+          ? ic("check") + "<span><b>Nailed it.</b> That is exactly the play.</span>"
+          : ic("spark") + "<span><b>That one catches a lot of people.</b> Here is the play:</span>";
+        $("#pq-out", pq).innerHTML =
+          '<div class="pq-verdict ' + (right ? "ok" : "no") + '">' + head + "</div>" +
+          (right ? "" : '<div class="pq-answer"><em>The answer</em><span>' + esc(q.choices[q.answer]) + "</span></div>") +
+          (q.why ? '<div class="pq-why">' + esc(q.why) + "</div>" : "") +
+          '<div class="pq-next">' +
+            '<a class="btn xl" href="#/course/' + course.slug + '">' +
+              (right ? "Keep going" : "Learn this one") + " &mdash; " + esc(course.name) + " " + ic("arrow") + "</a>" +
+            '<button class="linklike" type="button" data-scroll="courses">or pick a different product</button>' +
+          "</div>";
+        // Re-bind: the scroll link above is injected after renderHome wired the others.
+        $$("[data-scroll]", pq).forEach(function (el) {
+          el.addEventListener("click", function () { scrollToId(el.getAttribute("data-scroll")); });
+        });
+        // Swap the SVG inside a stable wrapper. Rewriting the <svg> tag itself would
+        // give it two class attributes and the mood styling would silently stop.
+        var og = $("#pq-og");
+        // He starts on "think", so BOTH outcomes have to move him to something else
+        // or the reaction reads as no reaction at all.
+        if (og) { og.innerHTML = mascotSVG(right ? "proud" : "chill"); og.classList.add("pop"); }
+      });
+    });
+  }
+
+  /* Returning rep: the hero IS the resume control. */
+  function heroProgressHTML(done, total) {
+    var s = getState();
+    var open = COURSES.filter(function (c) { var r = s.courses[c.slug]; return r && !r.passed; })[0];
+    var target = open || nextCourse(null);
+    var pct = unlockPct(done);
+    var pips = COURSES.map(function (c) {
+      return '<a class="hp-pip' + (cardOwned(c.slug) ? " on" : "") + '" href="#/course/' + c.slug + '" title="' + esc(c.name) + '">' +
+        (cardOwned(c.slug) ? ic("check") : "") + "<span>" + esc(c.name) + "</span></a>";
+    }).join("");
+    return '<section class="hero hero-prog reveal">' +
+      '<div class="hero-in">' +
+        '<span class="hero-eyebrow">' + ic("cap") + " Welcome back</span>" +
+        '<h1 class="hero-h1">' + ogGreetingLine(done, total) + "</h1>" +
+        '<div class="hp-bar" role="img" aria-label="' + done + " of " + total + ' courses certified"><i style="width:' + Math.round((done / total) * 100) + '%"></i></div>' +
+        '<p class="hero-sub"><b>' + done + " of " + total + "</b> certified" +
+          (pct ? ' &middot; one more unlocks <b class="gold">' + pct + "% off</b>" : "") + "</p>" +
+        (target
+          ? '<a class="btn xl hero-cta" href="#/course/' + target.slug + '">' +
+              (open ? "Pick up where you left off" : "Start") + " &mdash; " + esc(target.name) + " " + ic("arrow") + "</a>"
+          : "") +
+        '<div class="hp-pips">' + pips + "</div>" +
+      "</div>" +
+    "</section>";
+  }
+
+  /* Fully certified: nothing left to sell them — hand over the goods. */
+  function heroDoneHTML(total) {
+    var t = (CFG.discount || {}).secret || {};
+    return '<section class="hero hero-done reveal">' +
+      '<div class="hero-in">' +
+        '<span class="hero-eyebrow">' + ic("award") + " Certified G &middot; " + total + " of " + total + "</span>" +
+        '<h1 class="hero-h1">' + ogGreetingLine(total, total) + "</h1>" +
+        '<p class="hero-sub">Your top code is live on gpen.com.</p>' +
+        (t.code ? '<button class="code hero-code" id="hero-code"><span>' + esc(t.code) + "</span><em>" + ic("tag") + " Tap to copy</em></button>" : "") +
+        '<div class="hero-actions">' +
+          '<a class="btn xl ghost" href="#/certified">View your certificate ' + ic("arrow") + "</a>" +
+          '<a class="btn xl ghost" href="#/collection">Your binder ' + ic("arrow") + "</a>" +
+        "</div>" +
+      "</div>" +
+    "</section>";
+  }
+
+  function heroHTML(done, total) {
+    if (done >= total) return heroDoneHTML(total);
+    var s = getState();
+    var started = COURSES.some(function (c) { return s.courses[c.slug]; });
+    if (done > 0 || started) return heroProgressHTML(done, total);
+    return popQuizHTML() || heroProgressHTML(done, total);
+  }
+
   /* ---- HOME (browse-first hub) ------------------------------------------- */
   function renderHome() {
     var e = getEnroll(), done = completedCount(), total = COURSES.length;
 
     app.innerHTML = header() +
-      // ---- The masthead. Professor O.G. is the SPEAKER: his speech bubble holds
-      // the h1 (his voice, state-aware) on a light paper surface. Tap him → hoot +
-      // a numbered "Field Note" fact. The dark moment moves down to the reward + sign-off.
-      '<section class="mast reveal">' +
-        '<div class="mast-inner">' +
-          '<div class="mast-lead">' +
-            '<span class="mast-kicker">G Pen University</span>' +
-            '<div class="mast-say"><h1 class="mast-h1">' + ogGreetingLine(done, total) + "</h1></div>" +
-            '<div class="mast-dean">' +
-              '<button class="mast-og" type="button" aria-label="Tap the Dean for a field note">' + mascotSVG("chill") + "</button>" +
-              '<div class="mast-plate">' +
-                '<span class="og-badge">' + esc(MASCOT.name || "Professor O.G.") + "</span>" +
-                '<span class="mast-role">' + esc(MASCOT.title || "Dean of G Pen University") + "</span>" +
-                '<span class="og-poke">' + ic("spark") + " Tap the Dean for a field note</span>" +
-              "</div>" +
-            "</div>" +
-          "</div>" +
-          '<div class="mast-aside">' +
-            '<p class="mast-deck">For budtenders and smoke-shop reps. Watch, take the quiz, unlock your code.' + (drawLive() ? " And " + prizeCopy().short + "." : "") + "</p>" +
-            '<ul class="mast-stats"><li>Free</li><li>' + COURSES.length + " courses</li><li>No sign-up</li></ul>" +
-            '<div class="og-fact" id="og-fact" role="status" aria-live="polite"></div>' +
-            '<button class="btn mt" type="button" data-scroll="courses">Show me the lineup ' + ic("arrow") + "</button>" +
-          "</div>" +
-        "</div>" +
-      "</section>" +
+      heroHTML(done, total) +
 
+      // resumeStrip is gone from here: the progress hero above IS the resume control
+      // now, and repeating it one section later was the same nudge twice.
       '<section class="hub reveal">' +
-        resumeStrip() +
         '<div class="sec-h" id="courses"><h2>Learn the G Pen Lineup</h2></div>' +
         '<p class="catalog-lede">Take training courses on all of our current products.</p>' +
         lineupHTML() +
@@ -1218,6 +1342,9 @@
       footer();
 
     fillRewards();
+    bindPopQuiz();
+    var hc = $("#hero-code");
+    if (hc) hc.addEventListener("click", function () { copyCode(((CFG.discount || {}).secret || {}).code); });
     $$("[data-goto]").forEach(function (el) { el.addEventListener("click", function () { go("#/course/" + el.getAttribute("data-goto")); }); });
     $$("[data-scroll]").forEach(function (el) { el.addEventListener("click", function () { scrollToId(el.getAttribute("data-scroll")); }); });
     // (footer "Reset my progress" is bound globally in boot via bindReset — works on every page)
@@ -1227,20 +1354,6 @@
     revealOnScroll();
   }
 
-  /* Only for someone mid-course. Someone with passes but nothing in flight doesn't
-     need a nag — their state is the header pips and the binder. */
-  function resumeStrip() {
-    var s = getState();
-    var open = COURSES.filter(function (c) {
-      var r = s.courses[c.slug];
-      return r && !r.passed;   // started, not passed
-    })[0];
-    if (!open) return "";
-    return '<a class="resume" href="#/course/' + open.slug + '" style="--accent:' + open.accent + '">' +
-      '<span class="rs-txt"><b>Back for more.</b> ' + esc(open.name) + " is still open.</span>" +
-      '<span class="rs-go">Pick it up ' + ic("arrow") + "</span>" +
-    "</a>";
-  }
 
   /* The Loop — the reward story, told exactly ONCE, below the product lineup.
      The collection is already signalled by the header pips and the ladder, so this
@@ -1875,8 +1988,8 @@
   }
   function quizFail(c, correct, pct, points, order, answers) {
     var zone = $("#quiz-zone");
-    // Record the attempt so home can offer to pick it back up. resumeStrip() has
-    // always looked for a started-but-unpassed course, but nothing ever wrote
+    // Record the attempt so home can offer to pick it back up — the progress hero
+    // looks for a started-but-unpassed course, and before this nothing ever wrote
     // one, so the returning-rep affordance never appeared. completedCount() and
     // cardOwned() both gate on .passed, so this never counts as a certification —
     // and the guard makes sure a failed RETAKE can't wipe an earned certificate.
@@ -2885,7 +2998,6 @@
     bindLogoFun();
     bindCardTilt();
     bindMascot();
-    bindHeroMascot();
     bindFloorDrill();
   }
   function boot() {
