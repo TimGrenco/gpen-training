@@ -21,12 +21,12 @@ certificate the site sends:
   //  "course"            a course was passed (fires on each first-time pass)
   //  "trio"              2 courses certified — 30% tier
   //  "elite"             4 courses certified — 35% tier
-  //  "master"            whole lineup certified — "Certified G" (40% tier)
+  //  "master"            whole lineup certified — "Full Lineup" (40% tier)
   //  "sweepstakes_entry" whole lineup certified AND the draw is switched live
   "name": "Jane Budtender",
   "email": "jane@store.com",
   "store": "Cloud 9 Smoke Shop",
-  "product": "G Pen Dash II",    // or "Certified G" (master) / a tier label for trio+secret
+  "product": "G Pen Dash II",    // or "Full Lineup" (master) / a tier label for trio+secret
   "score": 92,
   "certId": "GP-1G4-0TB",
   "date": "July 9, 2026",

@@ -317,7 +317,7 @@
     // so certifications earned before the webhook existed are not lost. Reuses the
     // STORED certId/date so a late resend logs the certificate the rep is holding.
     if (!s.masterReported &&
-        sendReport({ type: "master", name: e.name, email: e.email, store: e.store, product: "Certified G", score: 100, certId: m.certId, date: m.date })) {
+        sendReport({ type: "master", name: e.name, email: e.email, store: e.store, product: "Full Lineup", score: 100, certId: m.certId, date: m.date })) {
       s.masterReported = new Date().toISOString(); changed = true;
     }
     // Full-lineup certification = one entry in the free-device prize. Never fires
@@ -699,9 +699,9 @@
     // Retitled from "Dry Herb Vaporizers" when the Grinder joined it: the panel now
     // holds two vapes and an accessory, so the group name has to cover both. The
     // /Dry Herb/i match already picks up "Dry Herb Accessory" with no change.
-    { key: "dryherb", title: "Dry Herb Accessories", sub: "Dry-herb vapes and the gear that feeds them", icon: "leaf", match: function (c) { return /Dry Herb/i.test(c.category); } },
+    { key: "dryherb", title: "Dry Herb Accessories", sub: "Vaporizers and accessories for flower", icon: "leaf", match: function (c) { return /Dry Herb/i.test(c.category); } },
     { key: "510", title: "510 Batteries", sub: "510-thread cartridge batteries", icon: "battery", match: function (c) { return /510/.test(c.category); } },
-    { key: "concentrate", title: "Concentrate", sub: "Concentrate tools & accessories", icon: "drop", match: function (c) { return /Concentrate/i.test(c.category); } },
+    { key: "concentrate", title: "Concentrate", sub: "Tools for wax, rosin and other concentrates", icon: "drop", match: function (c) { return /Concentrate/i.test(c.category); } },
   ];
   function lineupHTML() {
     var panels = LINEUP_GROUPS.map(function (g) {
@@ -788,12 +788,12 @@
      from LADDER (currently 1 -> 25%, 2 -> 30%, 4 -> 35%, the whole lineup -> 40%); the top
      rung also carries the free-device prize IF drawLive() — see prizeCopy(). */
   function rewardsSection(done) {
-    var total = COURSES.length;                 // 5 = the full lineup
+    var total = COURSES.length;                 // the full lineup
     var held = tierAt(done), up = nextTier(done);
     var top = LADDER[LADDER.length - 1];
     var head = !held ? "Pass one course to unlock your first code"
-      : (up ? held.pct + "% off unlocked — " + (up.pct === top.pct ? "one more course for the top reward" : "keep certifying")
-            : "Full lineup certified — the top reward is yours 👑");
+      : (up ? held.pct + "% off unlocked — " + (up.pct === top.pct ? "one more course for the top discount" : "keep certifying")
+            : "Full lineup certified. The top discount is unlocked.");
     function need(n) { var d = n - done; return d + " more course" + (d === 1 ? "" : "s") + " to unlock"; }
     // Every rung but the last renders as a card; the top rung is the capstone.
     // The "N more courses to unlock" hint goes ONLY on the rung they are actually
@@ -994,7 +994,7 @@
         (o.why ? '<div class="obj-why">' + ic("spark") + "<span>" + esc(o.why) + "</span></div>" : "") +
       "</div>";
     }).join("");
-    // "On the floor" — real-world register scenarios: what you SEE → what you say.
+    // Counter scenarios: what you SEE in the basket → what you say.
     var sces = (h.scenarios || []).map(function (s) {
       return '<div class="scn"><em>You see</em>' +
         '<span class="scn-sees">' + esc(s.sees) + "</span>" +
@@ -1002,15 +1002,15 @@
     }).join("");
     return '<div class="sell2" style="--accent:' + (c.accent || "var(--gold-bright)") + '">' +
       '<div class="sell-pair">' +
-        '<div class="sell-cue"><span class="sell-cue-em">' + esc(h.cue || "") + "</span>When they're buying <b>" + esc((h.upsellFrom || "").toUpperCase()) + "</b> " + ic("arrow") + "</div>" +
+        '<div class="sell-cue">' + ic("tag") + "When the customer is buying <b>" + esc((h.upsellFrom || "").toUpperCase()) + "</b> " + ic("arrow") + "</div>" +
         "<p>" + esc(h.vital) + "</p>" +
         (sibs ? '<div class="sell-sibs"><span>Pair with</span>' + sibs + "</div>" : "") +
       "</div>" +
-      (h.trap ? '<p class="sell-trap">' + ic("spark") + "<span><b>The trap:</b> " + esc(h.trap) + "</span></p>" : "") +
+      (h.trap ? '<p class="sell-trap">' + ic("spark") + "<span><b>Common mistake:</b> " + esc(h.trap) + "</span></p>" : "") +
       (facts ? '<div class="sell-facts">' + facts + "</div>" : "") +
       (h.talkTrack && h.talkTrack.say ? '<blockquote class="sell-say"><em>Say this</em>&ldquo;' + esc(h.talkTrack.say) + "&rdquo;</blockquote>" : "") +
-      (sces ? '<div class="sell-scns"><h4>On the floor</h4>' + sces + "</div>" : "") +
-      (h.whichClose ? '<div class="sell-close"><em>The &ldquo;which one&rdquo; close</em>&ldquo;' + esc(h.whichClose) + "&rdquo;</div>" : "") +
+      (sces ? '<div class="sell-scns"><h4>Counter scenarios</h4>' + sces + "</div>" : "") +
+      (h.whichClose ? '<div class="sell-close"><em>The either/or close</em>&ldquo;' + esc(h.whichClose) + "&rdquo;</div>" : "") +
       (objs ? '<div class="sell-objs"><h4>When they hesitate</h4>' + objs + "</div>" : "") +
       (h.aov ? '<p class="sell-aov">' + ic("tag") + "<span>" + esc(h.aov) + "</span></p>" : "") +
     "</div>";
@@ -1083,7 +1083,7 @@
     zone.innerHTML =
       '<div class="result pass"><div class="result-score">' + rec.score + '%<span>certified</span></div>' +
         "<h3>" + ic("check") + " You're a certified " + esc(c.name) + " Specialist</h3>" +
-        "<p>Certificate earned " + esc(rec.date) + ". Grab your certificate and discount code below — or retake the quiz to refresh your score.</p>" +
+        "<p>Certificate earned " + esc(rec.date) + ". Your certificate and discount code are below. Retake the quiz at any time to improve your score.</p>" +
         '<button class="btn ghost" id="retake">' + ic("refresh") + " Retake quiz</button>" +
       "</div>" +
       '<div id="cert-zone"></div><div id="reward-zone" class="reward-wrap"></div>';
@@ -1368,7 +1368,7 @@
       box.innerHTML = '<div class="reward">' +
         '<div class="reward-ic">' + ic("tag") + "</div>" +
         // Name the rung so climbing a tier reads as an event, not a repeat.
-        '<div class="reward-eyebrow">' + (type === "secret" ? "Top reward unlocked — full lineup" : (type === "course" ? "Reward unlocked" : "New tier unlocked")) + "</div>" +
+        '<div class="reward-eyebrow">' + (type === "secret" ? "Top discount unlocked. Full lineup certified." : (type === "course" ? "Reward unlocked" : "New tier unlocked")) + "</div>" +
         "<h3>" + esc(r.label) + "</h3>" +
         '<button class="code" id="code-copy" title="Copy code"><span>' + esc(r.code) + '</span><em>Tap to copy</em></button>' +
         "<p>" + esc(r.note || "") + "</p>" +
@@ -1474,7 +1474,7 @@
       '<div class="cert-actions">' +
         '<button class="btn" id="cert-print">' + ic("print") + " Print certificate</button>" +
         '<button class="btn ghost" id="cert-dl">' + ic("dl") + " Download image</button>" +
-        '<button class="btn gold" id="cert-ig">' + ic("share") + " Save for IG story</button>" +
+        '<button class="btn gold" id="cert-ig">' + ic("share") + " Save story image</button>" +
         '<button class="btn ghost" id="cert-mail">' + ic("mail") + " Email it</button>" +
       "</div>";
     $("#cert-print").addEventListener("click", printCert);
@@ -1549,8 +1549,8 @@
       // restating the eyebrow. Three announcements of one fact. Eyebrow states the
       // achievement, headline delivers the prize news, body explains the mechanic.
       '<span class="sw-eyebrow">' + ic("spark") + " Full lineup certified</span>" +
-      '<h2 class="sw-h">' + p.headline + " 🦉</h2>" +
-      '<p class="sw-body">' + p.rule + " We&rsquo;ll email you if it&rsquo;s you. Either way your <b>" + topPct() + "% off</b> is live today &mdash; grab one, put it in your pocket, and let &ldquo;this is the one I use&rdquo; close the sale.</p>" +
+      '<h2 class="sw-h">' + p.headline + "</h2>" +
+      '<p class="sw-body">' + p.rule + " We will email you if you are selected. Your <b>" + topPct() + "% off</b> code is available now, on every product in the lineup.</p>" +
       '<div class="sw-actions">' +
         '<button class="btn xl sw-copy">' + ic("tag") + " Copy your " + topPct() + "% code</button>" +
         '<a class="btn xl ghost" href="' + esc(CFG.shopUrl) + '" target="_blank" rel="noopener">Shop &amp; test on gpen.com ' + ic("arrow") + "</a>" +
@@ -1573,8 +1573,8 @@
       '<section class="course reveal">' +
         '<a class="back" href="#/">' + ic("back") + " All courses</a>" +
         '<div class="master-hero">' + ic("award") +
-          "<h1>You're Certified G</h1>" +
-          "<p>Congratulations, " + esc(e.name.split(" ")[0]) + " — you've completed every course in " + esc(CFG.programName) + " and are officially a <strong>fully trained G Pen Product Specialist</strong>. You know the whole lineup cold.</p>" +
+          "<h1>Full lineup certified</h1>" +
+          "<p>" + esc(e.name.split(" ")[0]) + ", you have completed every course in " + esc(CFG.programName) + ". You are now a <strong>fully trained G Pen Product Specialist</strong>.</p>" +
         "</div>" +
         (drawLive() ? sweepsPanelHTML(e) : "") +
         '<div id="mcert"></div>' +
@@ -1582,12 +1582,12 @@
       "</section>" + footer();
 
     // master certificate (no % — it's a program completion)
-    var box = $("#mcert"), product = "Certified G";
+    var box = $("#mcert"), product = "Full Lineup";
     box.innerHTML =
       '<div class="cert master" id="cert-card"><div class="cert-inner">' +
         '<div class="cert-logo"><img src="assets/img/gpen-g-black.png" alt="G Pen"/></div>' +
         '<div class="cert-eyebrow">G Pen · ' + esc(CFG.programName) + "</div>" +
-        '<h3 class="cert-award">Certified G</h3>' +
+        '<h3 class="cert-award">Full Lineup Certified</h3>' +
         '<div class="cert-presented">This certifies that</div>' +
         '<div class="cert-name">' + esc(e.name) + "</div>" +
         '<div class="cert-desc">has completed every Product Specialist course and is recognized as a</div>' +
@@ -1602,14 +1602,14 @@
       '<div class="cert-actions">' +
         '<button class="btn" id="cert-print">' + ic("print") + " Print certificate</button>" +
         '<button class="btn ghost" id="cert-dl">' + ic("dl") + " Download image</button>" +
-        '<button class="btn gold" id="cert-ig">' + ic("share") + " Save for IG story</button>" +
+        '<button class="btn gold" id="cert-ig">' + ic("share") + " Save story image</button>" +
         '<button class="btn ghost" id="cert-mail">' + ic("mail") + " Email it</button>" +
       "</div>";
     $("#cert-print").addEventListener("click", printCert);
-    $("#cert-dl").addEventListener("click", function () { downloadCertificate("G Pen Certified Specialist", e.name, date, 0, cid, "CERTIFIED G"); });
+    $("#cert-dl").addEventListener("click", function () { downloadCertificate("G Pen Product Specialist", e.name, date, 0, cid, "FULL LINEUP"); });
     $("#cert-mail").addEventListener("click", function () {
-      var body = "I'm now a G Pen Certified Specialist!\n\nName: " + e.name + "\nStore: " + (e.store || "") + "\nEmail: " + (e.email || "") + "\nDate: " + date + "\nCertificate ID: " + cid;
-      window.location.href = "mailto:" + CFG.contactEmail + "?subject=" + encodeURIComponent("G Pen Certified Specialist") + "&body=" + encodeURIComponent(body);
+      var body = "I have completed the full G Pen Product Specialist training.\n\nName: " + e.name + "\nStore: " + (e.store || "") + "\nEmail: " + (e.email || "") + "\nDate: " + date + "\nCertificate ID: " + cid;
+      window.location.href = "mailto:" + CFG.contactEmail + "?subject=" + encodeURIComponent("G Pen Product Specialist — full lineup certified") + "&body=" + encodeURIComponent(body);
     });
     // The full-lineup code is the 40% (CERTIFIEDG40), not the 4-course 35% — reconcile it here.
     revealReward("secret", { name: e.name, email: e.email, store: e.store, certId: cid }, $("#mreward"));
