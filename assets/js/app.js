@@ -33,7 +33,7 @@
   function courseBySlug(slug) { return COURSES.filter(function (c) { return c.slug === slug; })[0]; }
   // The next product still to certify (skipping `afterSlug`) — drives the
   // "Next up →" hand-off so the journey always has a forward edge.
-  function nextCourse(afterSlug) { return COURSES.filter(function (c) { return c.slug !== afterSlug && !cardOwned(c.slug); })[0] || null; }
+  function nextCourse(afterSlug) { return COURSES.filter(function (c) { return c.slug !== afterSlug && !coursePassed(c.slug); })[0] || null; }
   /* PREVIEW MODE: ?preview=draw renders the whole prize treatment for THIS visit
      only, so the team can review and screenshot it without publishing a promotion
      to every visitor. A banner makes the state obvious, and reporting stays off
@@ -163,6 +163,9 @@
     s.streak.count = (s.streak.last === yk) ? (s.streak.count + 1) : 1;
     s.streak.last = t; setState(s); return s.streak.count;
   }
+  /* Replaces the old cardOwned(): it was an alias for exactly this pass check, kept
+     only because the collectible layer wanted card-flavoured naming. */
+  function coursePassed(slug) { var r = getState().courses[slug]; return !!(r && r.passed); }
   function completedCount() { var s = getState(); return COURSES.filter(function (c) { return s.courses[c.slug] && s.courses[c.slug].passed; }).length; }
   function isMasterEarned() { var s = getState(); return coreSlugs().every(function (sl) { return s.courses[sl] && s.courses[sl].passed; }); }
 
@@ -217,185 +220,17 @@
   var SET = window.GPEN_SET || { name: "Base Set", total: 6, illus: "" };
   var SECRET_CARD = window.GPEN_SECRET_CARD || null;
 
-  function cardOwned(slug) { var r = getState().courses[slug]; return !!(r && r.passed); }
-  // A card you've pulled but not yet seen in the binder wears a "NEW!" sticker.
-  function isFresh(key) { return !!getState().fresh[key]; }
-  function markFresh(key) { var s = getState(); s.fresh[key] = true; setState(s); }
-  function clearFresh() {
-    var s = getState();
-    if (!Object.keys(s.fresh).length) return;
-    s.fresh = {}; setState(s);
-    $$(".tcg-new").forEach(function (n) { n.remove(); });
-    $$(".is-new").forEach(function (n) { n.classList.remove("is-new"); });
-  }
-  function newSticker() { return '<span class="tcg-new">New!</span>'; }
-  function cardScore(slug) { var r = getState().courses[slug]; return r && r.passed ? r.score : 0; }
-  function baseSetOwned() { return COURSES.filter(function (c) { return cardOwned(c.slug); }).length; }
-  // The 6th card, the gold Certified G, appears once the whole lineup is certified.
-  function secretCardState() { return isMasterEarned() ? "gold" : "locked"; }
-  function totalCards() { return COURSES.length + 1; }
-  function ownedCards() { return baseSetOwned() + (secretCardState() !== "locked" ? 1 : 0); }
 
-  function energyDots(el, n) {
-    var e = ELEMENTS[el] || {}; var out = "";
-    for (var i = 0; i < (n || 1); i++) out += '<i class="mv-e">' + (e.emoji || "●") + "</i>";
-    return out;
-  }
-  function movesHTML(el, moves) {
-    return (moves || []).map(function (m) {
-      return '<span class="tcg-move">' +
-        '<span class="mv-cost">' + energyDots(el, m.cost) + "</span>" +
-        '<span class="mv-body"><b>' + esc(m.name) + "</b><em>" + esc(m.text) + "</em></span>" +
-        '<span class="mv-dmg">' + esc(m.dmg || "") + "</span>" +
-      "</span>";
-    }).join("");
-  }
-  function statsRowHTML(rows) {
-    return '<span class="tcg-stats">' + (rows || []).map(function (r) {
-      return "<span><em>" + esc(r.k) + "</em><b>" + esc(r.v) + "</b></span>";
-    }).join("") + "</span>";
-  }
-  function rarityHTML(key) {
-    var r = RARITY[key] || RARITY.common || { sym: "●", label: "Common" };
-    return '<i class="tcg-rar" title="' + esc(r.label) + '">' + r.sym + "</i>";
-  }
 
-  /* A product card. `mini` drops the moves/flavor for the binder grid. */
-  function tcgCard(c, mini) {
-    var cd = CARDS[c.slug]; if (!cd) return "";
-    var el = ELEMENTS[cd.element] || {};
-    var owned = cardOwned(c.slug), score = cardScore(c.slug), perfect = score === 100;
-    var cls = ["tcg", "r-" + cd.rarity, "e-" + cd.element];
-    if (owned) cls.push("owned");
-    if (perfect) cls.push("perfect");
-    if (mini) cls.push("mini");
-    if (c.featured && !owned) cls.push("featured");
-    var fresh = owned && isFresh(c.slug);
-    if (fresh) cls.push("is-new");
-    return '<a class="' + cls.join(" ") + '" href="#/course/' + c.slug + '" style="--accent:' + c.accent + ';--tint:' + (el.tint || "#888") + '"' +
-      ' data-card="' + esc(c.slug) + '" aria-label="' + esc(c.name) + (owned ? " — collected" : " — not yet collected") + '">' +
-      (fresh ? newSticker() : "") +
-      '<span class="tcg-inner">' +
-        '<span class="tcg-shine" aria-hidden="true"></span>' +
-        '<span class="tcg-head">' +
-          '<span class="tcg-stage">Basic · ' + esc(cd.code) + " · ~" + c.minutes + " min</span>" +
-          '<span class="tcg-name-row">' +
-            '<b class="tcg-name">' + esc(c.name) + "</b>" +
-            '<span class="tcg-hp"><em>' + esc(cd.powerUnit) + "</em><b>" + esc(cd.power) + '</b><i class="tcg-el" title="' + esc(el.label || "") + '">' + (el.emoji || "") + "</i></span>" +
-          "</span>" +
-        "</span>" +
-        '<span class="tcg-art">' +
-          '<img src="' + esc(sized(c.cover, 220)) + '" alt="" loading="lazy"/>' +
-          (owned ? '<i class="spk a">\u2726</i><i class="spk b">\u2726</i>' : "") +
-          (owned
-            ? '<span class="tcg-stamp">' + ic("check") + " Certified " + score + "%</span>"
-            : (c.featured ? '<span class="tcg-featured">' + ic("star") + " " + esc(c.featured) + "</span>" : "")) +
-          (perfect ? '<span class="tcg-perfect">' + ic("star") + " PERFECT</span>" : "") +
-        "</span>" +
-        '<span class="tcg-typebar"><em>' + esc(c.category) + "</em><b>" + esc(c.msrp) + "</b></span>" +
-        (mini ? "" :
-          '<span class="tcg-moves">' + movesHTML(cd.element, cd.moves) + "</span>" +
-          statsRowHTML(cd.statsRow) +
-          '<span class="tcg-flavor">' + esc(c.tagline) + "</span>") +
-        '<span class="tcg-foot">' +
-          '<span class="tcg-set">' + esc(SET.name) + " · " + esc(SET.illus) + "</span>" +
-          '<span class="tcg-no">' + cd.no + "/" + SET.total + " " + rarityHTML(cd.rarity) + "</span>" +
-        "</span>" +
-        (mini ? "" : '<span class="tcg-cta"><em>' + (owned
-            ? ic("check") + " " + (tierAt(completedCount()) || LADDER[0]).pct + "% off earned"
-            : ic("tag") + (unlockPct(completedCount()) ? " Pass → " + unlockPct(completedCount()) + "% off" : " Pass → certify")) + "</em><b>" + (owned ? "Review " : "Start ") + ic("arrow") + "</b></span>") +
-      "</span>" +
-    "</a>";
-  }
 
-  /* The 6th card. Locked shows a card BACK — you see the slot, not the card. */
-  function secretCardHTML(mini) {
-    if (!SECRET_CARD) return "";
-    var st = secretCardState(), e = getEnroll();
-    var sc = SECRET_CARD, el = ELEMENTS[sc.element] || {};
-    var need = COURSES.length - baseSetOwned();
-
-    if (st === "locked") {
-      return '<div class="tcg back' + (mini ? " mini" : "") + '" data-card="secret" aria-label="Certified G — locked">' +
-        '<span class="tcg-inner">' +
-          '<span class="tcg-shine" aria-hidden="true"></span>' +
-          '<span class="back-art">' +
-            '<img src="assets/img/gpen-g-white.png" alt=""/>' +
-            '<span class="back-q">?</span>' +
-          "</span>" +
-          '<span class="back-name">Secret Rare</span>' +
-          '<span class="back-msg">' + ic("lock") + " Collect all " + COURSES.length + " Base Set cards to reveal" +
-            (need ? " — <b>" + need + " to go</b>" : "") + "</span>" +
-          '<span class="tcg-foot"><span class="tcg-set">' + esc(SET.name) + "</span>" +
-            '<span class="tcg-no">' + sc.no + "/" + SET.total + " " + rarityHTML("secret") + "</span></span>" +
-        "</span>" +
-      "</div>";
-    }
-
-    var gold = st === "gold";
-    var freshS = isFresh("secret");
-    return '<a class="tcg secret ' + st + (mini ? " mini" : "") + (freshS ? " is-new" : "") + '" href="#/certified" data-card="secret" aria-label="Certified G — collected">' +
-      (freshS ? newSticker() : "") +
-      '<span class="tcg-inner">' +
-        '<span class="tcg-shine" aria-hidden="true"></span>' +
-        '<span class="tcg-head">' +
-          '<span class="tcg-stage">' + (gold ? "Gold Foil" : "Holo") + " · " + esc(sc.code) + "</span>" +
-          '<span class="tcg-name-row"><b class="tcg-name">' + esc(sc.name) + "</b>" +
-            '<span class="tcg-hp"><b>' + sc.power + '</b><i class="tcg-el">' + (el.emoji || "") + "</i></span></span>" +
-        "</span>" +
-        '<span class="tcg-art">' +
-          '<img src="assets/img/gpen-g-white.png" alt=""/>' +
-          '<i class="spk a">\u2726</i><i class="spk b">\u2726</i>' +
-          '<span class="tcg-stamp">' + ic("award") + (gold ? " GOLD FOIL" : " HOLO") + "</span>" +
-        "</span>" +
-        '<span class="tcg-typebar"><em>' + esc(e ? e.name : "Product Specialist") + "</em><b>" + topPct() + "% OFF</b></span>" +
-        (mini ? "" :
-          '<span class="tcg-moves">' + movesHTML("gold", sc.moves) + "</span>" +
-          statsRowHTML([{ k: "Lineup", v: baseSetOwned() + "/" + COURSES.length }, { k: "Reward", v: topPct() + "% off" }, { k: "Rank", v: "👑" }]) +
-          '<span class="tcg-flavor">' + esc(sc.flavor) + "</span>") +
-        '<span class="tcg-foot"><span class="tcg-set">' + esc(SET.name) + " · " + esc(SET.illus) + "</span>" +
-          '<span class="tcg-no">' + sc.no + "/" + SET.total + " " + rarityHTML("secret") + "</span></span>" +
-        (mini ? "" : '<span class="tcg-cta"><em>' + ic("spark") + " Gold — " + LADDER[LADDER.length - 1].pct + "% off gpen.com</em><b>View " + ic("arrow") + "</b></span>") +
-      "</span>" +
-    "</a>";
-  }
 
   // Pulling a card mid-page must update whatever counters are already on screen.
   /* toggle, not add: this only ever ADDED .on, and nothing re-renders the header
      after a device handover — so on a shared counter tablet, once rep #2 confirmed
      the handover (which wipes gpt.state) and passed their first quiz, the header
-     still showed rep #1's filled pips next to a freshly-computed "1/5". */
-  function refreshCounters() {
-    var pips = $$(".hdr-binder .pip");
-    COURSES.forEach(function (c, i) { if (pips[i]) pips[i].classList.toggle("on", cardOwned(c.slug)); });
-    var link = $(".hdr-binder");
-    if (link) link.setAttribute("aria-label", completedCount() + " of " + COURSES.length + " products certified — open your card binder");
-    var word = $(".hdr-binder .hb-word b");
-    if (word) word.textContent = completedCount();
-  }
 
   /* Tiny 16-slot progress strip: 5 product + 10 trainer + 1 secret. */
 
-  /* Holo tilt: the card leans toward the pointer and the shine follows it.
-     Pointer-only and motion-safe — touch and reduced-motion get a flat card. */
-  function bindCardTilt() {
-    if (window.matchMedia("(prefers-reduced-motion: reduce)").matches) return;
-    if (!window.matchMedia("(hover: hover) and (pointer: fine)").matches) return;
-    $$(".tcg").forEach(function (card) {
-      card.addEventListener("pointermove", function (ev) {
-        var r = card.getBoundingClientRect();
-        var px = (ev.clientX - r.left) / r.width, py = (ev.clientY - r.top) / r.height;
-        card.style.setProperty("--mx", (px * 100).toFixed(1) + "%");
-        card.style.setProperty("--my", (py * 100).toFixed(1) + "%");
-        card.style.setProperty("--rx", ((0.5 - py) * 9).toFixed(2) + "deg");
-        card.style.setProperty("--ry", ((px - 0.5) * 11).toFixed(2) + "deg");
-      });
-      card.addEventListener("pointerleave", function () {
-        card.style.setProperty("--rx", "0deg"); card.style.setProperty("--ry", "0deg");
-        card.style.setProperty("--mx", "50%"); card.style.setProperty("--my", "50%");
-      });
-    });
-  }
 
   /* ---- fun layer: quips, "did you know" ---------------------------------- */
   var FACTS = window.GPEN_FACTS || [];
@@ -459,32 +294,6 @@
     });
   }
 
-  // Bump the header binder counter after a card lands in it.
-  function pulseBinder() {
-    var chip = $(".hdr-binder"); if (!chip) return;
-    chip.classList.remove("pop"); void chip.offsetWidth; chip.classList.add("pop");
-  }
-  // Fly a clone of the card up into the header binder chip, then run `done`.
-  function flyToBinder(cardEl, done) {
-    var reduced = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
-    var chip = $(".hdr-binder");
-    if (!cardEl || !chip || reduced) { pulseBinder(); done(); return; }
-    var cr = cardEl.getBoundingClientRect(), tr = chip.getBoundingClientRect();
-    var clone = cardEl.cloneNode(true);
-    clone.classList.add("fly-clone");
-    clone.style.cssText = "position:fixed;left:" + cr.left + "px;top:" + cr.top + "px;width:" + cr.width +
-      "px;height:" + cr.height + "px;margin:0;z-index:200;pointer-events:none;" +
-      "transition:transform .7s cubic-bezier(.5,0,.25,1), opacity .7s ease;";
-    document.body.appendChild(clone);
-    var dx = (tr.left + tr.width / 2) - (cr.left + cr.width / 2);
-    var dy = (tr.top + tr.height / 2) - (cr.top + cr.height / 2);
-    var modal = cardEl.closest(".pull-modal"); if (modal) modal.classList.add("fading");
-    requestAnimationFrame(function () {
-      clone.style.transform = "translate(" + dx + "px," + dy + "px) scale(.05) rotate(-14deg)";
-      clone.style.opacity = "0.15";
-    });
-    setTimeout(function () { clone.remove(); pulseBinder(); sfx.play("tick"); done(); }, 640);
-  }
 
   /* Dialog semantics + focus management for our overlays: mark the container as
      a modal dialog, hide the background from assistive tech, pull focus into the
@@ -531,96 +340,6 @@
 
   /* The card-pull moment: passing a course flips its collectible card out of a
      foil booster pack. Only reached from quizPass — the trivia-egg system that
-     used to share it was removed. */
-  function showPull(kicker, cardHTML, footNote, saveSlug) {
-    var reduced = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
-    var m = document.createElement("div");
-    m.className = "modal pull-modal";
-
-    var revealHTML =
-      '<div class="pull-reveal"' + (reduced ? "" : " hidden") + '>' +
-        '<div class="pull-kicker">' + ic("spark") + " " + esc(kicker) + "</div>" +
-        '<div class="pull-card">' + cardHTML + "</div>" +
-        (footNote ? '<div class="pull-note">' + footNote + "</div>" : "") +
-        '<div class="pull-actions">' +
-          (saveSlug ? '<button class="btn xl ghost-dark pull-save">' + ic("dl") + " Save card</button>" : "") +
-          '<button class="btn xl pull-ok">Add to binder ' + ic("arrow") + "</button>" +
-        "</div>" +
-      "</div>";
-
-    // The booster pack: a foil wrapper you tear open. Skipped for reduced-motion.
-    var packHTML = reduced ? "" :
-      '<button class="pull-pack" aria-label="Rip open your booster pack">' +
-        '<span class="pk-glow"></span>' +
-        '<span class="pk-main">' +
-          '<span class="pk-eyebrow">G Pen University</span>' +
-          '<span class="pk-logo"><img src="assets/img/gpen-g-white.png" alt=""/></span>' +
-          '<span class="pk-set">Base Set · Booster</span>' +
-        "</span>" +
-        '<span class="pk-top"></span>' +
-        '<span class="pk-hint">' + ic("spark") + " Tap to rip it open</span>" +
-      "</button>";
-
-    m.innerHTML = '<div class="pull-in">' +
-      '<button class="modal-x" aria-label="Close">×</button>' +
-      '<div class="pull-stage">' + packHTML + revealHTML + "</div>" +
-    "</div>";
-    document.body.appendChild(m); document.body.classList.add("noscroll");
-    var release = manageModalFocus(m, kicker || "You pulled a card");
-
-    var autoT;   // declared up here so close() can cancel the auto-open
-    // close() tears down EVERYTHING: the old version only unbound the Escape
-    // handler if Escape was actually pressed, so closing via the X or the
-    // backdrop leaked a document listener per pull — and left the 4.6s auto-open
-    // running, firing confetti and a sound into a dismissed modal.
-    function close() {
-      clearTimeout(autoT);
-      document.removeEventListener("keydown", onEsc);
-      release(); m.remove(); document.body.classList.remove("noscroll");
-    }
-    function onEsc(ev) { if (ev.key === "Escape") close(); }
-    // Let the router tear this down PROPERLY. clearStrayOverlays() only removed the
-    // node, which orphaned the 4.6s auto-open below and the Escape listener: navigate
-    // away while the pack is still sealed and 4.6s later open() fired confetti and a
-    // sound over whatever page the rep had moved to, with no modal in sight.
-    m.__teardown = close;
-    var save = $(".pull-save", m);
-    if (save) save.addEventListener("click", function (ev) { ev.stopPropagation(); saveCardImage(saveSlug); });
-    // "Add to binder" flies the card up into the header binder chip.
-    var ok = $(".pull-ok", m);
-    if (ok) ok.addEventListener("click", function (ev) {
-      ev.stopPropagation();
-      flyToBinder($(".pull-card > *", m), close);
-    });
-    // tcgCard() renders the card as <a href="#/course/…">, so the biggest tappable
-    // thing on the reward screen was a router link INSIDE a modal with no teardown:
-    // the hash changed, the page re-rendered underneath, and the rep was left
-    // staring at the card over a locked, aria-hidden page. Strip the href (the
-    // inspector already does this) and close on any router link, belt and braces.
-    var pulled = $(".pull-card .tcg", m);
-    if (pulled) { pulled.removeAttribute("href"); pulled.style.cursor = "default"; }
-    m.addEventListener("click", function (ev) {
-      if (ev.target === m || ev.target.closest(".modal-x")) return close();
-      if (ev.target.closest && ev.target.closest('a[href^="#/"]')) close();  // let the hash change proceed
-    });
-    document.addEventListener("keydown", onEsc);
-
-    var pack = $(".pull-pack", m), reveal = $(".pull-reveal", m);
-    if (!pack) { sfx.play("pull"); confetti(); return; } // reduced-motion: card is already showing
-
-    var opened = false;
-    function open() {
-      if (opened) return; opened = true;
-      clearTimeout(autoT);
-      pack.classList.add("ripping");
-      sfx.play("pull");
-      confetti();
-      // let the tear play, then swap the pack for the card
-      setTimeout(function () { if (pack.parentNode) pack.remove(); reveal.hidden = false; }, 560);
-    }
-    pack.addEventListener("click", function (ev) { ev.stopPropagation(); open(); });
-    autoT = setTimeout(open, 4600); // safety: open it for them if they just stare
-  }
 
   // The 30% tier fires once, the first time a second card lands in the binder.
   /* Mid-funnel reward tiers, reported once each. Table-driven because the 4-course
@@ -636,7 +355,7 @@
      sent, and never resent, making the boot() backfill inert. So `flag` records
      that it was earned and `flag + "Reported"` records that it actually went. */
   function maybeReportTier() {
-    var done = baseSetOwned(), s = getState(), e = getEnroll() || {}, changed = false;
+    var done = completedCount(), s = getState(), e = getEnroll() || {}, changed = false;
     REPORT_TIERS.forEach(function (t) {
       if (done < t.at) return;
       if (!s[t.flag]) { s[t.flag] = { at: new Date().toISOString() }; changed = true; logEvent(t.flag, {}, s); }
@@ -1051,7 +770,6 @@
      header. Home IS the course list, so "/" and "/course/*" both mark Courses. */
   function navSection() {
     var parts = location.hash.replace(/^#/, "").split("/").filter(Boolean);
-    if (parts[0] === "collection") return "collection";
     if (parts[0] === "about") return "about";
     if (parts[0] === "certified") return "";       // a leaf page, nothing to mark
     return "courses";
@@ -1081,29 +799,16 @@
       // course page — effectively unreachable on a phone.
       '<nav class="hdr-nav" aria-label="Main">' +
         nav("courses", "#/", "Courses") +
-        nav("collection", "#/collection", '<span class="nl-the">The </span>Binder') +
         nav("about", "#/about", "About") +
       "</nav>" +
       // The language selector only offers English today; picking anything else
       // just toasts "coming soon", so it stays hidden until a locale file exists.
       ((CFG.i18n && CFG.i18n.enabled) ? langSelHTML() : "") +
       '<button class="hdr-sound" id="sound-toggle" title="' + (sfx.isOn() ? "Sound on" : "Sound off") + '" aria-label="Toggle sound" aria-pressed="' + (sfx.isOn() ? "true" : "false") + '">' + ic(sfx.isOn() ? "sound" : "mute") + "</button>" +
-      binderPips() +
       // Not a link: it pointed at #/, same as the logo and the Courses tab.
       (e ? '<span class="hdr-user"><span class="hdr-u-name">' + esc(e.name) + '</span><span class="hdr-u-store">' + esc(e.store || "") + "</span></span>" : "") +
     "</header>" +
     '<main id="main" tabindex="-1">';
-  }
-  /* Five pips, one per product — always five, never a number. A stranger reads
-     "there are five of these and I have two" instantly; "3/16" means nothing. */
-  function binderPips() {
-    var pips = COURSES.map(function (c) {
-      return '<i class="pip' + (cardOwned(c.slug) ? " on" : "") + '"></i>';
-    }).join("");
-    return '<a class="hdr-binder" href="#/collection" aria-label="' + completedCount() + " of " + COURSES.length + ' products certified — open your card binder">' +
-      '<span class="pips" aria-hidden="true">' + pips + "</span>" +
-      '<span class="hb-word"><b>' + completedCount() + "</b>/" + COURSES.length + "</span>" +
-    "</a>";
   }
   // Sound toggle survives re-renders via a single delegated listener (bound in boot).
   function bindSoundToggle() {
@@ -1286,8 +991,8 @@
     var target = open || nextCourse(null);
     var pct = unlockPct(done);
     var pips = COURSES.map(function (c) {
-      return '<a class="hp-pip' + (cardOwned(c.slug) ? " on" : "") + '" href="#/course/' + c.slug + '" title="' + esc(c.name) + '">' +
-        (cardOwned(c.slug) ? ic("check") : "") + "<span>" + esc(c.name) + "</span></a>";
+      return '<a class="hp-pip' + (coursePassed(c.slug) ? " on" : "") + '" href="#/course/' + c.slug + '" title="' + esc(c.name) + '">' +
+        (coursePassed(c.slug) ? ic("check") : "") + "<span>" + esc(c.name) + "</span></a>";
     }).join("");
     return '<section class="hero hero-prog reveal">' +
       '<div class="hero-in">' +
@@ -1322,7 +1027,6 @@
         '<button class="code hero-code" id="hero-code" hidden><span>••••••</span><em>' + ic("tag") + " Tap to copy</em></button>" +
         '<div class="hero-actions">' +
           '<a class="btn xl ghost" href="#/certified">View your certificate ' + ic("arrow") + "</a>" +
-          '<a class="btn xl ghost" href="#/collection">Your binder ' + ic("arrow") + "</a>" +
         "</div>" +
       "</div>" +
     "</section>";
@@ -1380,9 +1084,6 @@
     $$("[data-goto]").forEach(function (el) { el.addEventListener("click", function () { go("#/course/" + el.getAttribute("data-goto")); }); });
     $$("[data-scroll]").forEach(function (el) { el.addEventListener("click", function () { scrollToId(el.getAttribute("data-scroll")); }); });
     // (footer "Reset my progress" is bound globally in boot via bindReset — works on every page)
-    // Just certified a course? Land home with a little celebration — coming back
-    // to the lineup with a new card is the payoff moment.
-    if (pendingCelebrate) { pendingCelebrate = false; sfx.play("pass"); setTimeout(confetti, 350); }
     revealOnScroll();
   }
 
@@ -1520,7 +1221,7 @@
     var hasProgress = !!getEnroll() || (getState().courses && Object.keys(getState().courses).length > 0);
     return "</main>" + supportBand() +
       '<footer class="foot"><img src="assets/img/gpen-g-black.png" class="foot-g light" alt=""/><img src="assets/img/gpen-g-white.png" class="foot-g dark" alt=""/>' +
-      '<div class="foot-nav"><a href="#/">Courses</a><a href="#/collection">The Binder</a><a href="#/about">About G Pen</a><a href="' + esc(CFG.shopUrl) + '" target="_blank" rel="noopener">Shop gpen.com</a></div>' +
+      '<div class="foot-nav"><a href="#/">Products</a><a href="#/about">About G Pen</a><a href="' + esc(CFG.shopUrl) + '" target="_blank" rel="noopener">Shop gpen.com</a></div>' +
       (hasProgress ? '<button class="foot-reset" id="reset" type="button">' + ic("refresh") + " Reset my progress &amp; start over</button>" : "") +
       "<p>" + esc(CFG.programName) + " · " + esc(CFG.footerNote || "for authorized G Pen retail partners.") +
         " Program &amp; press: <a href=\"mailto:" + esc(CFG.contactEmail) + "\">" + esc(CFG.contactEmail) + "</a>" +
@@ -1859,7 +1560,7 @@
     var zone = $("#quiz-zone"), e = getEnroll() || {};
     // This is also the RETAKE entry point, where completedCount() cannot rise —
     // so no new rung is reachable and promising a percentage would be false.
-    var owned = cardOwned(c.slug);
+    var owned = coursePassed(c.slug);
     var pct = owned ? null : unlockPct(completedCount());
     zone.innerHTML =
       '<div class="certify">' +
@@ -2037,8 +1738,8 @@
     var zone = $("#quiz-zone");
     // Record the attempt so home can offer to pick it back up — the progress hero
     // looks for a started-but-unpassed course, and before this nothing ever wrote
-    // one, so the returning-rep affordance never appeared. completedCount() and
-    // cardOwned() both gate on .passed, so this never counts as a certification —
+    // one, so the returning-rep affordance never appeared. completedCount() gates on
+    // .passed, so this never counts as a certification —
     // and the guard makes sure a failed RETAKE can't wipe an earned certificate.
     var fs = getState();
     if (!fs.courses[c.slug] || !fs.courses[c.slug].passed) {
@@ -2048,10 +1749,9 @@
     var needCorrect = Math.ceil((c.passPct / 100) * c.quiz.length);
     var away = Math.max(1, needCorrect - correct);
     zone.innerHTML = '<div class="result fail" tabindex="-1" role="status" aria-live="polite">' +
-      gradeHTML(pct, points) +
-      '<div class="result-score">' + pct + '%<span>' + correct + "/" + c.quiz.length + "</span></div>" +
-      "<h3>" + esc(quip("fail")) + "</h3><p>You were <b>" + away + "</b> question" + (away === 1 ? "" : "s") + " short of the " + c.passPct + "% you need. Read your misses below, then retake it.</p>" +
-      '<button class="btn xl" id="retry">' + ic("refresh") + " Retry quiz</button>" +
+      '<div class="result-score">' + pct + '%<span>' + correct + " of " + c.quiz.length + " correct</span></div>" +
+      "<h3>Not passed</h3><p>You needed " + c.passPct + "% to pass and were " + away + " question" + (away === 1 ? "" : "s") + " short. Review the answers below, then try again.</p>" +
+      '<button class="btn xl" id="retry">' + ic("refresh") + " Retake the quiz</button>" +
     "</div>" +
     missedReviewHTML(c, order, answers);
     $("#retry").addEventListener("click", function () { runQuiz(c); });
@@ -2103,43 +1803,22 @@
     var rec = improved ? { passed: true, score: pct, certId: cid, date: date, name: e.name || "" } : prev;
     s.courses[c.slug] = rec;
     setState(s);
-    if (firstTime) {
-      pendingCelebrate = true; // ring pulses + confetti next time they hit home
-      markFresh(c.slug);
-      if (isMasterEarned()) markFresh("secret"); // that pull revealed the secret rare
-    }
     // Courses first, so a late webhook receives them ahead of the tier rows they justify.
     reportCourses();
     maybeReportTier();   // 30% at 2 certified courses, 35% at 4
     reportMaster();      // record the full-lineup event here, not on a page they may never open
-    refreshCounters();
-    var streak = touchStreak();
     logEvent("certified", { course: c.slug, certId: cid, score: pct });
-    sfx.play("pass");
 
     var master = isMasterEarned();
-    if (firstTime) {
-      var left = COURSES.length - baseSetOwned();
-      var note = master
-        ? "<b>Base Set complete.</b> The Certified G secret rare is yours."
-        : "<b>" + left + "</b> more card" + (left === 1 ? "" : "s") + " to complete the " + esc(SET.name) + ".";
-      if (pct === 100) note = "<b>★ Perfect score.</b> " + note;
-      // Prof. O.G. hypes the pull
-      note = '<span class="og-say">' + ogMini(pct === 100 ? "proud" : "hyped") +
-        "<em>&ldquo;" + (pct === 100 ? ogLine("perfect") : ogLine("pull")) + "&rdquo;</em></span>" + note;
-      // let the pass banner paint before the pack opens
-      setTimeout(function () { showPull("You pulled a card!", tcgCard(c), note, c.slug); }, 550);
-    } else {
-      confetti();
-    }
     var progNote = firstTime ? ""
-      : (improved ? " <b>New personal best!</b>" : " Your best score of <b>" + rec.score + "%</b> stays on your certificate.");
+      : (improved ? " This is your best score so far."
+                  : " Your best score of " + rec.score + "% remains on your certificate.");
     var next = firstTime && !master ? nextCourse(c.slug) : null;
     var zone = $("#quiz-zone");
     zone.innerHTML = '<div class="result pass" tabindex="-1" role="status" aria-live="polite">' +
-        gradeHTML(pct, points) +
-        '<div class="result-score">' + pct + '%<span>' + correct + "/" + c.quiz.length + "</span></div>" +
-        "<h3>" + ic("check") + " " + esc(quip("pass")) + "</h3><p>You're now a certified <strong>" + esc(c.name) + "</strong> Product Specialist." + progNote + "</p>" +
+        '<div class="result-score">' + pct + '%<span>' + correct + " of " + c.quiz.length + " correct</span></div>" +
+        "<h3>" + ic("check") + " Passed</h3>" +
+        "<p>You are certified on the <strong>" + esc(c.name) + "</strong>." + progNote + "</p>" +
       "</div>" +
       '<div id="cert-zone"></div>' +
       '<div id="reward-zone" class="reward-wrap"></div>' +
@@ -2149,10 +1828,10 @@
       // single un-wrapped line — the banner for the biggest moment in the app rendered
       // as a row of squeezed one-word columns. Three items now: icon, text, arrow.
       (master ? '<a class="master-unlock" href="#/certified">' + ic("award") +
-                  '<span class="mu-txt">Full lineup certified. You pulled the <strong>Certified G</strong> — your certificate, <strong>' + topPct() + "% off</strong>" + (drawLive() ? " &amp; your shot at a free device" : "") + "</span>" + ic("arrow") + "</a>"
-              : next ? '<a class="btn xl nextup-cta" href="#/course/' + next.slug + '">Next up: ' + esc(next.name) + " " + ic("arrow") + "</a>" +
-                       '<a class="linklike backdash" href="#/">or back to all courses</a>'
-              : '<a class="btn ghost xl backdash" href="#/">Back to all courses ' + ic("arrow") + "</a>");
+                  '<span class="mu-txt">All products complete. Open your certificate and your <strong>' + topPct() + "% discount code</strong>.</span>" + ic("arrow") + "</a>"
+              : next ? '<a class="btn xl nextup-cta" href="#/course/' + next.slug + '">Next product: ' + esc(next.name) + " " + ic("arrow") + "</a>" +
+                       '<a class="linklike backdash" href="#/">Back to all products</a>'
+              : '<a class="btn ghost xl backdash" href="#/">Back to all products ' + ic("arrow") + "</a>");
     showCertificate(c, e.name, rec.date, rec.score, rec.certId, $("#cert-zone"));
     // State is already saved above, so completedCount() includes this pass —
     // mint the tier they now hold (5/5 must issue 40%, not the 25% first rung).
@@ -2290,7 +1969,6 @@
       "</div>";
     $("#cert-print").addEventListener("click", printCert);
     $("#cert-dl").addEventListener("click", function () { downloadCertificate(product, nm, date, pct, cid, "PRODUCT SPECIALIST"); });
-    $("#cert-ig").addEventListener("click", function () { drawShareCard({ kind: "course", name: nm, product: c.name, score: pct, date: date, cid: cid, cover: c.cover }); });
     $("#cert-mail").addEventListener("click", function () {
       var e = getEnroll() || {};
       var body = "I completed the " + product + " Product Specialist training.\n\nName: " + nm + "\nStore: " + (e.store || "") + "\nEmail: " + (e.email || "") + "\nProduct: " + product + "\nScore: " + pct + "%\nDate: " + date + "\nCertificate ID: " + cid;
@@ -2342,285 +2020,13 @@
 
   // ---- Shareable IG story / reel image (1080×1920) --------------------------
   var CERT_LOGO_W = new Image(); CERT_LOGO_W.crossOrigin = "anonymous"; CERT_LOGO_W.src = "assets/img/gpen-g-white.png";
-  function roundRectPath(ctx, x0, y0, w, h, r) { ctx.beginPath(); ctx.moveTo(x0 + r, y0); ctx.arcTo(x0 + w, y0, x0 + w, y0 + h, r); ctx.arcTo(x0 + w, y0 + h, x0, y0 + h, r); ctx.arcTo(x0, y0 + h, x0, y0, r); ctx.arcTo(x0, y0, x0 + w, y0, r); ctx.closePath(); }
-  function drawShareCard(opts) {
-    toast("Building your share image…");
-    var done = false, finish = function (cover) { if (done) return; done = true; renderShare(opts, cover); };
-    if (opts.cover) {
-      var img = new Image(); img.crossOrigin = "anonymous";
-      img.onload = function () { finish(img); };
-      img.onerror = function () { finish(null); };
-      img.src = opts.cover;
-      setTimeout(function () { finish(img.complete && img.naturalWidth ? img : null); }, 2600);
-    } else finish(null);
-  }
-  function renderShare(opts, cover) {
-    var W = 1080, H = 1920, c = document.createElement("canvas"); c.width = W; c.height = H;
-    var x = c.getContext("2d"), cx = W / 2, GOLD = "#FEC870", GOLD2 = "#C8952F", master = opts.kind === "master";
-    function ls(v) { try { x.letterSpacing = v; } catch (e) {} }
-    function wrap(text, y, max, lh, font, fill) {
-      x.font = font; x.fillStyle = fill;
-      var words = String(text).split(" "), line = "", lines = [];
-      for (var i = 0; i < words.length; i++) { var t = line ? line + " " + words[i] : words[i]; if (x.measureText(t).width > max && line) { lines.push(line); line = words[i]; } else line = t; }
-      if (line) lines.push(line);
-      lines.forEach(function (ln, i) { x.fillText(ln, cx, y + i * lh); });
-      return y + (lines.length - 1) * lh;
-    }
-    var g = x.createLinearGradient(0, 0, 0, H); g.addColorStop(0, "#17140d"); g.addColorStop(0.5, "#0d0d0b"); g.addColorStop(1, "#080808");
-    x.fillStyle = g; x.fillRect(0, 0, W, H);
-    var rg = x.createRadialGradient(W * 0.75, H * 0.12, 0, W * 0.75, H * 0.12, W * 1.15);
-    rg.addColorStop(0, "rgba(254,200,112,0.30)"); rg.addColorStop(1, "rgba(254,200,112,0)");
-    x.fillStyle = rg; x.fillRect(0, 0, W, H);
-    x.strokeStyle = "rgba(254,200,112,0.45)"; x.lineWidth = 5; roundRectPath(x, 44, 44, W - 88, H - 88, 30); x.stroke();
-    x.textAlign = "center"; x.textBaseline = "alphabetic";
-    if (CERT_LOGO_W.complete && CERT_LOGO_W.naturalWidth) { var lw = 150, lh2 = Math.round(lw * (CERT_LOGO_W.naturalHeight / CERT_LOGO_W.naturalWidth)); x.drawImage(CERT_LOGO_W, cx - lw / 2, 150, lw, lh2); }
-    ls("8px"); x.fillStyle = GOLD; x.font = "800 30px Archivo, Arial, sans-serif"; x.fillText("G PEN UNIVERSITY", cx, 366); ls("0px");
-    x.fillStyle = "#fff"; x.font = "900 " + (master ? "128px" : "150px") + " Archivo, Arial, sans-serif"; x.fillText(master ? "CERTIFIED G" : "CERTIFIED", cx, 540);
-    var cy = 800;
-    if (cover) {
-      x.fillStyle = "rgba(255,255,255,0.06)"; x.beginPath(); x.arc(cx, cy, 215, 0, 7); x.fill();
-      x.strokeStyle = "rgba(254,200,112,0.35)"; x.lineWidth = 3; x.beginPath(); x.arc(cx, cy, 215, 0, 7); x.stroke();
-      var iw = 380, ih = 380, ar = cover.naturalWidth / cover.naturalHeight; if (ar > 1) ih = iw / ar; else iw = ih * ar;
-      x.drawImage(cover, cx - iw / 2, cy - ih / 2, iw, ih);
-    } else {
-      x.strokeStyle = GOLD; x.lineWidth = 6; x.beginPath(); x.arc(cx, cy, 165, 0, 7); x.stroke();
-      x.lineWidth = 3; x.beginPath(); x.arc(cx, cy, 145, 0, 7); x.stroke();
-      x.fillStyle = GOLD; x.font = "900 130px Archivo, Arial, sans-serif"; x.fillText("★", cx, cy + 46);
-    }
-    ls("2px"); x.fillStyle = GOLD; x.font = "800 40px Archivo, Arial, sans-serif"; x.fillText(master ? "FULLY TRAINED PRODUCT SPECIALIST" : "PRODUCT SPECIALIST", cx, 1110); ls("0px");
-    wrap(opts.name, 1250, W - 200, 96, "800 92px Archivo, Arial, sans-serif", "#fff");
-    x.fillStyle = "#b9b8b0"; x.font = "400 36px Archivo, Arial, sans-serif"; x.fillText(master ? "is a fully trained specialist in" : "is now certified on the", cx, 1420);
-    wrap(master ? "the entire G Pen lineup" : ("G Pen " + opts.product), 1510, W - 180, 82, "800 76px Archivo, Arial, sans-serif", GOLD);
-    x.fillStyle = "#fff"; x.font = "700 46px Archivo, Arial, sans-serif"; x.fillText("Ask me about G Pen", cx, 1710);
-    ls("2px"); x.fillStyle = GOLD2; x.font = "600 28px Archivo, Arial, sans-serif"; x.fillText("gpen.com" + (opts.cid ? ("   ·   " + opts.cid) : ""), cx, 1815); ls("0px");
-    var fname = (master ? "G_Pen_Certified_G" : (opts.product.replace(/[^\w.-]+/g, "_") + "_Certified")) + "_IG_Story.png";
-    try {
-      if (c.toBlob) c.toBlob(function (b) { if (!b) { toast("Couldn't export image"); return; } var u = URL.createObjectURL(b); dl(u, fname); setTimeout(function () { URL.revokeObjectURL(u); }, 8000); toast("Saved! Share it to your story 🎉"); }, "image/png");
-      else { dl(c.toDataURL("image/png"), fname); toast("Saved!"); }
-    } catch (e) { toast("Image export was blocked"); }
-  }
 
   /* =========================================================================
      SAVE A CARD AS AN IMAGE
      Renders the trading card to a 1080x1500 canvas so it can be posted. The
      product photos come from the Shopify CDN, which is CORS-clean, so the
      canvas stays untainted and toBlob() works.
-     ====================================================================== */
-  function cardImageSpec(slug) {
-    if (slug === "secret") {
-      var st = secretCardState(); if (st === "locked") return null;
-      var sc = SECRET_CARD, en = getEnroll();
-      return {
-        gold: true, name: sc.name, stage: (st === "gold" ? "Gold Foil" : "Holo") + " · " + sc.code,
-        power: sc.power, powerUnit: "", el: ELEMENTS.gold,
-        typeLeft: en ? en.name : "Product Specialist", typeRight: topPct() + "% OFF",
-        moves: sc.moves, stats: [{ k: "Lineup", v: baseSetOwned() + "/" + COURSES.length }, { k: "Reward", v: topPct() + "% off" }, { k: "Rank", v: "Certified G" }],
-        flavor: sc.flavor, no: sc.no, rarity: "secret", img: "assets/img/gpen-g-white.png", tint: "#c8952f", accent: "#FEC870",
-      };
-    }
-    var c = courseBySlug(slug), cd = CARDS[slug];
-    if (!c || !cd || !cardOwned(slug)) return null;
-    var el = ELEMENTS[cd.element] || {};
-    return {
-      gold: false, name: c.name, stage: "Basic · " + cd.code, power: cd.power, powerUnit: cd.powerUnit, el: el,
-      typeLeft: c.category, typeRight: c.msrp, moves: cd.moves, stats: cd.statsRow, flavor: c.tagline,
-      no: cd.no, rarity: cd.rarity, img: c.cover, tint: el.tint || "#888", accent: c.accent,
-      score: cardScore(slug),
-    };
-  }
-  function saveCardImage(slug) {
-    var spec = cardImageSpec(slug);
-    if (!spec) return toast("Collect that card first.");
-    toast("Building your card…");
-    var img = new Image(); img.crossOrigin = "anonymous";
-    var done = false, go2 = function (i) { if (done) return; done = true; paintCard(spec, i); };
-    img.onload = function () { go2(img); };
-    img.onerror = function () { go2(null); };
-    img.src = spec.img;
-    setTimeout(function () { go2(img.complete && img.naturalWidth ? img : null); }, 2600);
-  }
-  function paintCard(sp, art) {
-    var W = 1080, H = 1440, cv = document.createElement("canvas"); cv.width = W; cv.height = H;
-    var x = cv.getContext("2d");
-    var GOLD = "#FEC870", GOLD2 = "#C8952F", INK = "#111", STONE = "#6e6e66", PAPER = "#ffffff";
-    var dark = sp.gold;
-    function ls(v) { try { x.letterSpacing = v; } catch (e) {} }
 
-    // foil border
-    var fg = x.createLinearGradient(0, 0, W, H);
-    if (dark) { fg.addColorStop(0, "#8a6b28"); fg.addColorStop(.25, "#f7e2a4"); fg.addColorStop(.5, "#c8952f"); fg.addColorStop(.75, "#fff3cf"); fg.addColorStop(1, "#8a6b28"); }
-    else { fg.addColorStop(0, "#f2c75a"); fg.addColorStop(.3, "#d9a63c"); fg.addColorStop(.55, "#f7e2a4"); fg.addColorStop(.8, "#c8952f"); fg.addColorStop(1, "#f2c75a"); }
-    x.fillStyle = fg; roundRectPath(x, 0, 0, W, H, 46); x.fill();
-
-    // card face
-    var P = 30, IX = P, IY = P, IW = W - P * 2, IH = H - P * 2;
-    if (dark) { var dg = x.createLinearGradient(0, IY, 0, IY + IH); dg.addColorStop(0, "#2a2110"); dg.addColorStop(1, "#15100a"); x.fillStyle = dg; }
-    else x.fillStyle = PAPER;
-    roundRectPath(x, IX, IY, IW, IH, 26); x.fill();
-
-    var L = IX + 34, R = IX + IW - 34, y = IY + 62;
-    var fgTxt = dark ? "#f6ecd4" : INK, subTxt = dark ? "#b39a63" : STONE;
-
-    // header
-    x.textAlign = "left"; x.textBaseline = "alphabetic";
-    ls("3px"); x.font = '800 20px Archivo, sans-serif'; x.fillStyle = subTxt;
-    x.fillText(sp.stage.toUpperCase(), L, y); ls("0px");
-    y += 58;
-    x.font = '900 62px Archivo, sans-serif'; x.fillStyle = fgTxt;
-    x.fillText(sp.name, L, y);
-    x.textAlign = "right";
-    var elTxt = sp.el && sp.el.emoji ? sp.el.emoji : "";
-    x.font = '900 44px Archivo, sans-serif';
-    var pw = x.measureText(sp.power).width;
-    x.font = '400 40px "Apple Color Emoji", "Segoe UI Emoji", sans-serif';
-    x.fillText(elTxt, R, y);
-    var emW = x.measureText(elTxt).width + 14;
-    x.font = '900 44px Archivo, sans-serif'; x.fillStyle = fgTxt;
-    x.fillText(sp.power, R - emW, y);
-    if (sp.powerUnit) {
-      x.font = '800 22px Archivo, sans-serif'; x.fillStyle = subTxt;
-      x.fillText(sp.powerUnit, R - emW - pw - 10, y);
-    }
-    x.textAlign = "left"; // header drew right-aligned; everything below is left-aligned
-    y += 30;
-
-    // art window
-    var AW = R - L, AH = 545;
-    var ag = x.createLinearGradient(L, y, R, y + AH);
-    if (dark) { ag.addColorStop(0, "#4a3a17"); ag.addColorStop(1, "#14100a"); }
-    else { ag.addColorStop(0, mix(sp.tint, "#ffffff", .84)); ag.addColorStop(1, mix(sp.accent, "#ffffff", .74)); }
-    x.save(); roundRectPath(x, L, y, AW, AH, 14); x.clip();
-    x.fillStyle = ag; x.fillRect(L, y, AW, AH);
-    // owned cards are foiled; the product then prints clean on top
-    if (sp.score || dark) drawFoil(x, L + AW / 2, y + AH / 2, Math.max(AW, AH), dark);
-    if (art) {
-      var pad = dark ? 96 : 34;
-      var maxW = AW - pad * 2, maxH = AH - pad * 2;
-      var sc = Math.min(maxW / art.naturalWidth, maxH / art.naturalHeight);
-      var dw = art.naturalWidth * sc, dh = art.naturalHeight * sc;
-      x.drawImage(art, L + (AW - dw) / 2, y + (AH - dh) / 2, dw, dh);
-    }
-    x.restore();
-    x.strokeStyle = dark ? "rgba(200,149,47,.5)" : "rgba(0,0,0,.12)"; x.lineWidth = 6;
-    roundRectPath(x, L, y, AW, AH, 14); x.stroke();
-    // certified stamp
-    if (sp.score) {
-      x.fillStyle = INK; roundRectPath(x, L + 20, y + 20, 268, 54, 27); x.fill();
-      x.fillStyle = GOLD; x.font = '900 22px Archivo, sans-serif'; x.textAlign = "center"; ls("2px");
-      x.fillText("CERTIFIED " + sp.score + "%", L + 154, y + 55); ls("0px");
-      if (sp.score === 100) {
-        var pg = x.createLinearGradient(R - 240, 0, R - 20, 0); pg.addColorStop(0, "#f7e2a4"); pg.addColorStop(1, "#c8952f");
-        x.fillStyle = pg; roundRectPath(x, R - 216, y + 20, 196, 54, 27); x.fill();
-        x.fillStyle = "#3a2a05"; x.font = '900 22px Archivo, sans-serif'; ls("2px");
-        x.fillText("★ PERFECT", R - 118, y + 55); ls("0px");
-      }
-      x.textAlign = "left";
-    }
-    y += AH + 28;
-
-    // type bar
-    x.fillStyle = dark ? "rgba(200,149,47,.16)" : mix(sp.tint, "#faf9f5", .88);
-    roundRectPath(x, L, y, AW, 62, 8); x.fill();
-    x.fillStyle = sp.tint; x.fillRect(L, y + 4, 8, 54);
-    x.font = '800 24px Archivo, sans-serif'; x.fillStyle = dark ? GOLD : INK; ls("1px");
-    x.fillText(sp.typeLeft.toUpperCase(), L + 26, y + 41); ls("0px");
-    x.textAlign = "right"; x.font = '900 28px Archivo, sans-serif';
-    x.fillText(sp.typeRight, R - 22, y + 42); x.textAlign = "left";
-    y += 62 + 34;
-
-    // moves
-    (sp.moves || []).forEach(function (m) {
-      var dots = "";
-      for (var i = 0; i < (m.cost || 1); i++) dots += (sp.el && sp.el.emoji ? sp.el.emoji : "●");
-      x.font = '400 26px "Apple Color Emoji", "Segoe UI Emoji", sans-serif';
-      x.fillText(dots, L, y + 4);
-      var tx = L + 30 + (m.cost || 1) * 30;
-      x.font = '900 32px Archivo, sans-serif'; x.fillStyle = fgTxt;
-      x.fillText(m.name, tx, y + 4);
-      if (m.dmg) { x.textAlign = "right"; x.font = '900 32px Archivo, sans-serif'; x.fillText(m.dmg, R, y + 4); x.textAlign = "left"; }
-      y += 34;
-      x.font = '400 23px Archivo, sans-serif'; x.fillStyle = subTxt;
-      y = wrapLeft(x, m.text, tx, y + 6, R - tx - 90, 31) + 40;
-    });
-
-    // stats strip
-    x.strokeStyle = dark ? "rgba(200,149,47,.3)" : "rgba(0,0,0,.1)"; x.lineWidth = 2;
-    x.beginPath(); x.moveTo(L, y); x.lineTo(R, y); x.stroke();
-    var cw = AW / (sp.stats.length || 1);
-    x.textAlign = "center";
-    (sp.stats || []).forEach(function (st, i) {
-      var cxp = L + cw * i + cw / 2;
-      ls("2px"); x.font = '800 19px Archivo, sans-serif'; x.fillStyle = subTxt;
-      x.fillText(st.k.toUpperCase(), cxp, y + 34); ls("0px");
-      x.font = '900 28px Archivo, sans-serif'; x.fillStyle = fgTxt;
-      x.fillText(st.v, cxp, y + 68);
-    });
-    x.textAlign = "left";
-    y += 88;
-    x.beginPath(); x.moveTo(L, y); x.lineTo(R, y); x.stroke();
-    y += 44;
-
-    // flavor
-    x.font = 'italic 400 24px Archivo, sans-serif'; x.fillStyle = subTxt;
-    y = wrapLeft(x, sp.flavor, L, y, AW - 20, 33);
-
-    // footer band
-    var fy = IY + IH - 46;
-    ls("2px"); x.font = '800 19px Archivo, sans-serif'; x.fillStyle = subTxt;
-    x.fillText("TRAINING.GPEN.COM · #CERTIFIEDG", L, fy);
-    x.textAlign = "right"; x.fillStyle = dark ? GOLD : (sp.rarity === "common" ? subTxt : GOLD2);
-    var sym = (RARITY[sp.rarity] || {}).sym || "●";
-    x.fillText(sp.no + "/" + SET.total + "  " + sym, R, fy);
-    ls("0px"); x.textAlign = "left";
-
-    var fname = "gpen-card-" + sp.name.toLowerCase().replace(/[^a-z0-9]+/g, "-") + ".png";
-    if (cv.toBlob) cv.toBlob(function (b) {
-      if (!b) { toast("Couldn't export image"); return; }
-      dl(URL.createObjectURL(b), fname); toast("Card saved! 🃏");
-    }, "image/png");
-    else { dl(cv.toDataURL("image/png"), fname); toast("Card saved! 🃏"); }
-  }
-  /* Starburst foil for the exported card, so the PNG matches what's on screen:
-     a rainbow (or gold) wash, then thin white rays radiating from the centre. */
-  function drawFoil(ctx, cx, cy, r, dark) {
-    ctx.save();
-    if (ctx.createConicGradient) {
-      var cg = ctx.createConicGradient(Math.PI * 7 / 6, cx, cy);
-      var stops = dark
-        ? ["rgba(255,214,0,.34)", "rgba(255,166,60,.34)", "rgba(255,244,200,.34)", "rgba(200,149,47,.34)", "rgba(255,214,0,.34)"]
-        : ["rgba(255,0,128,.26)", "rgba(255,214,0,.26)", "rgba(0,255,196,.26)", "rgba(0,153,255,.26)", "rgba(190,0,255,.26)", "rgba(255,0,128,.26)"];
-      stops.forEach(function (c, i) { cg.addColorStop(i / (stops.length - 1), c); });
-      ctx.fillStyle = cg; ctx.fillRect(cx - r, cy - r, r * 2, r * 2);
-    }
-    // rays
-    ctx.globalCompositeOperation = dark ? "lighter" : "source-over";
-    ctx.fillStyle = dark ? "rgba(255,232,170,.16)" : "rgba(255,255,255,.55)";
-    var n = 72;
-    for (var i = 0; i < n; i++) {
-      var a0 = (i / n) * Math.PI * 2, a1 = a0 + (Math.PI * 2 / n) * 0.34;
-      ctx.beginPath(); ctx.moveTo(cx, cy);
-      ctx.arc(cx, cy, r, a0, a1); ctx.closePath(); ctx.fill();
-    }
-    ctx.restore();
-  }
-
-  // left-aligned word wrap; returns the y of the last line drawn
-  function wrapLeft(ctx, text, x0, y0, max, lh) {
-    var words = String(text).split(" "), line = "", lines = [];
-    for (var i = 0; i < words.length; i++) {
-      var t = line ? line + " " + words[i] : words[i];
-      if (ctx.measureText(t).width > max && line) { lines.push(line); line = words[i]; } else line = t;
-    }
-    if (line) lines.push(line);
-    lines.forEach(function (ln, i) { ctx.fillText(ln, x0, y0 + i * lh); });
-    return y0 + (lines.length - 1) * lh;
-  }
-  // blend two hex colours (t = how much of `b`)
-  function mix(a, b, t) {
-    function h(c) { c = c.replace("#", ""); if (c.length === 3) c = c[0]+c[0]+c[1]+c[1]+c[2]+c[2]; return [parseInt(c.slice(0,2),16), parseInt(c.slice(2,4),16), parseInt(c.slice(4,6),16)]; }
-    var A = h(a), B = h(b);
-    return "rgb(" + A.map(function (v, i) { return Math.round(v + (B[i] - v) * t); }).join(",") + ")";
-  }
 
   /* The finish-line moment. Copy comes from prizeCopy() so it always matches the
      configured mechanic; the completion is logged via the webhook, which is also
@@ -2661,7 +2067,6 @@
           "<p>Congratulations, " + esc(e.name.split(" ")[0]) + " — you've completed every course in " + esc(CFG.programName) + " and are officially a <strong>fully trained G Pen Product Specialist</strong>. You know the whole lineup cold.</p>" +
         "</div>" +
         ogSays("proud", ogLine("done")) +
-        '<div class="tcg-grid single">' + secretCardHTML() + "</div>" +
         (drawLive() ? sweepsPanelHTML(e) : "") +
         '<div id="mcert"></div>' +
         '<div id="mreward" class="reward-wrap"></div>' +
@@ -2693,7 +2098,6 @@
       "</div>";
     $("#cert-print").addEventListener("click", printCert);
     $("#cert-dl").addEventListener("click", function () { downloadCertificate("G Pen Certified Specialist", e.name, date, 0, cid, "CERTIFIED G"); });
-    $("#cert-ig").addEventListener("click", function () { drawShareCard({ kind: "master", name: e.name, cid: cid }); });
     $("#cert-mail").addEventListener("click", function () {
       var body = "I'm now a G Pen Certified Specialist!\n\nName: " + e.name + "\nStore: " + (e.store || "") + "\nEmail: " + (e.email || "") + "\nDate: " + date + "\nCertificate ID: " + cid;
       window.location.href = "mailto:" + CFG.contactEmail + "?subject=" + encodeURIComponent("G Pen Certified Specialist") + "&body=" + encodeURIComponent(body);
@@ -2758,231 +2162,11 @@
     revealOnScroll();
   }
 
-  /* A proper university seal: ring text, est. date, motto. */
-  // Drifting vapor wisps for a hero background — it's a vaporizer site, after all.
-  function vaporHTML(n) {
-    var out = "";
-    for (var i = 0; i < (n || 5); i++) {
-      var size = 90 + Math.round(Math.random() * 90);
-      var left = Math.round(Math.random() * 100);
-      var dur = 9 + Math.round(Math.random() * 9);
-      var delay = -Math.round(Math.random() * dur);
-      out += '<span class="vap" style="left:' + left + "%;width:" + size + "px;height:" + size +
-        "px;animation-duration:" + dur + "s;animation-delay:" + delay + 's"></span>';
-    }
-    return '<div class="vapor" aria-hidden="true">' + out + "</div>";
-  }
-  // The Grenco University seal. Ids are made unique \u2014 the crest appears more than
-  // once per page and duplicate <defs> ids make later copies reuse the first path.
-  function crestSVG(cls) {
-    var u = "cr" + (crestSVG.n = (crestSVG.n || 0) + 1);
-    return '<svg class="crest ' + (cls || "") + '" viewBox="0 0 120 120" aria-hidden="true">' +
-      "<defs>" +
-        '<path id="' + u + 't" d="M16,60 A44,44 0 0 1 104,60" fill="none"/>' +
-        '<path id="' + u + 'b" d="M19,60 A41,41 0 0 0 101,60" fill="none"/>' +
-      "</defs>" +
-      '<circle cx="60" cy="60" r="58" class="cr-ring"/>' +
-      '<circle cx="60" cy="60" r="49" class="cr-ring thin"/>' +
-      '<circle cx="60" cy="60" r="34" class="cr-disc"/>' +
-      '<text class="cr-t"><textPath href="#' + u + 't" startOffset="50%" text-anchor="middle">GRENCO UNIVERSITY</textPath></text>' +
-      '<text class="cr-t sm"><textPath href="#' + u + 'b" startOffset="50%" text-anchor="middle">IN VAPORE VERITAS</textPath></text>' +
-      '<text class="cr-star" x="14" y="64">\u2726</text><text class="cr-star" x="100" y="64">\u2726</text>' +
-      '<text class="cr-est" x="60" y="54" text-anchor="middle">EST.</text>' +
-      '<text class="cr-yr" x="60" y="74" text-anchor="middle">2012</text>' +
-    "</svg>";
-  }
 
-  /* ---- THE BINDER (card collection) -------------------------------------- */
-  // Wrap a card in a translucent plastic sleeve pocket (the binder page slot).
-  function pocket(inner, filled) {
-    return '<div class="pocket' + (filled ? " filled" : "") + '">' + inner + "</div>";
-  }
-  function renderCollection() {
-    setTitleDoc("The Binder");
-    var e = getEnroll();
-    var st = secretCardState();
-    var owned = ownedCards(), total = totalCards();
-    var pct = Math.round((owned / total) * 100);
-    var a = window.GPEN_ABOUT || {};
-
-    app.innerHTML = header() +
-      '<section class="binder reveal">' +
-        '<a class="back" href="#/">' + ic("back") + " All courses</a>" +
-        '<div class="bn-hero">' +
-          vaporHTML(5) +
-          crestSVG("big") +
-          '<span class="ch-eyebrow">' + ic("cap") + " The Collection</span>" +
-          "<h1>The Binder</h1>" +
-          "<p>" + (e ? esc(e.name) + "&rsquo;s collection" : "Your collection") + " &mdash; admire your holos and fill every empty slot.</p>" +
-          '<div class="bn-meter"><div class="bn-meter-fill" style="width:' + pct + '%"></div></div>' +
-          '<div class="bn-count"><b>' + owned + "</b> of " + total + " cards &middot; " + pct + "% complete</div>" +
-        "</div>" +
-
-        ogSays(owned === total ? "proud" : "chill", ogLine(owned === total ? "binderFull" : (owned ? "binder" : "binderEmpty"))) +
-        // One clean page: the 5 product cards + the gold Certified G as the 6th.
-        '<div class="tcg-grid pockets binder-grid">' +
-          COURSES.map(function (c) { return pocket(tcgCard(c), cardOwned(c.slug)); }).join("") +
-          pocket(secretCardHTML(), st !== "locked") +
-        "</div>" +
-
-        '<div class="bn-share">' +
-          "<h3>" + ic("share") + " Show off the collection</h3>" +
-          "<p>Post it, tag <b>@gpen</b>, and let the rest of the floor know who&rsquo;s stacking cards.</p>" +
-          '<div class="bn-share-row">' +
-            (rarestOwned() ? '<button class="btn xl" id="savecard">' + ic("dl") + " Save my best card</button>" : "") +
-            '<button class="btn xl ghost" id="brag">' + ic("share") + " Copy my brag</button>" +
-            (a.social && a.social[0] ? '<a class="btn xl ghost" href="' + esc(a.social[0].url) + '" target="_blank" rel="noopener">Follow ' + esc(a.social[0].handle) + " " + ic("arrow") + "</a>" : "") +
-          "</div>" +
-        "</div>" +
-        factCard() +
-      "</section>" + footer();
-
-    var brag = $("#brag");
-    if (brag) brag.addEventListener("click", function () { copyText(bragText(), "Brag copied — go post it \uD83C\uDCCF"); });
-    var sv = $("#savecard");
-    if (sv) sv.addEventListener("click", function () { saveCardImage(rarestOwned()); });
-    bindCardInspect();
-    // They've now seen the new cards in the binder — retire the stickers, but
-    // leave them on screen long enough to be noticed.
-    if (Object.keys(getState().fresh).length) setTimeout(clearFresh, 4500);
-    revealOnScroll();
-  }
   /* =========================================================================
      CARD INSPECTOR — pull a card out of the sleeve and really look at it.
      Big, holographic, tilts with your pointer/finger, and flips to the back.
-     ====================================================================== */
-  function cardBackHTML() {
-    return '<div class="tcg cardback"><span class="tcg-inner">' +
-      '<span class="cb-art"><img src="assets/img/gpen-g-white.png" alt=""/></span>' +
-      '<span class="cb-name">G Pen University</span>' +
-      '<span class="cb-sub">' + esc(SET.name) + " · Product Specialist Program</span>" +
-    "</span></div>";
-  }
-  function openCardInspector(slug) {
-    var isSecret = slug === "secret";
-    var c = isSecret ? null : courseBySlug(slug);
-    if (!isSecret && !c) return;
-    var cd = isSecret ? SECRET_CARD : CARDS[slug];
-    var name = isSecret ? (SECRET_CARD && SECRET_CARD.name) || "Certified G" : c.name;
-    var rar = (RARITY[cd && cd.rarity] || {}).label || "";
-    var no = cd ? cd.no + "/" + SET.total : "";
 
-    var m = document.createElement("div");
-    m.className = "modal insp-modal";
-    m.innerHTML = '<div class="insp-in">' +
-      '<button class="modal-x" aria-label="Close">×</button>' +
-      '<div class="insp-stage">' +
-        '<div class="insp-card" id="insp-card">' +
-          '<div class="insp-face front">' + (isSecret ? secretCardHTML() : tcgCard(c)) + "</div>" +
-          '<div class="insp-face back">' + cardBackHTML() + "</div>" +
-        "</div>" +
-      "</div>" +
-      '<div class="insp-meta"><b>' + esc(name) + "</b><span>" + esc(no) + (rar ? " · " + esc(rar) : "") + "</span></div>" +
-      '<div class="insp-actions">' +
-        '<button class="btn ghost-dark insp-flip">' + ic("refresh") + " Flip</button>" +
-        '<button class="btn ghost-dark insp-save">' + ic("dl") + " Save</button>" +
-        (isSecret ? '<a class="btn" href="#/certified">View certificate ' + ic("arrow") + "</a>"
-                  : '<a class="btn" href="#/course/' + esc(slug) + '">Review course ' + ic("arrow") + "</a>") +
-      "</div>" +
-    "</div>";
-    document.body.appendChild(m); document.body.classList.add("noscroll");
-    sfx.play("whoosh");
-
-    // the card inside is a link — neutralise it so clicking just inspects
-    var inner = $(".insp-face.front .tcg", m);
-    if (inner) { inner.removeAttribute("href"); inner.style.cursor = "default"; }
-
-    var card = $("#insp-card", m), stage = $(".insp-stage", m);
-    var flipped = false;
-    // This was the only overlay without dialog semantics or a focus trap, and its
-    // Escape handler leaked unless Escape was the thing that closed it.
-    var release = manageModalFocus(m, "Card: " + name);
-    function close() { document.removeEventListener("keydown", onEsc); release(); m.remove(); document.body.classList.remove("noscroll"); }
-    function onEsc(ev) { if (ev.key === "Escape") close(); }
-    // Router teardown hook — without it clearStrayOverlays() drops the node and leaves
-    // this document-level Escape listener bound to a detached modal, once per open.
-    m.__teardown = close;
-    $(".modal-x", m).addEventListener("click", close);
-    m.addEventListener("click", function (ev) {
-      if (ev.target === m) return close();
-      // "Review course" / "View certificate" are router links inside the modal.
-      // Close BEFORE the hash change lands, while `trigger` still exists — release()
-      // focuses it, and route() is about to destroy the binder card it points at.
-      if (ev.target.closest && ev.target.closest('a[href^="#/"]')) close();
-    });
-    document.addEventListener("keydown", onEsc);
-    $(".insp-flip", m).addEventListener("click", function () {
-      flipped = !flipped;
-      card.style.setProperty("--flip", flipped ? "180deg" : "0deg");
-      sfx.play("flip");
-      // swap the faces while the card is edge-on (mid-turn)
-      setTimeout(function () { card.classList.toggle("show-back", flipped); }, 230);
-    });
-    $(".insp-save", m).addEventListener("click", function () { saveCardImage(slug); });
-
-    // tilt + holo follow the pointer (and finger)
-    var reduced = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
-    function track(px, py) {
-      if (reduced) return;
-      card.style.setProperty("--rx", ((0.5 - py) * 22).toFixed(2) + "deg");
-      card.style.setProperty("--ry", ((px - 0.5) * 26).toFixed(2) + "deg");
-      var t = $(".insp-face.front .tcg", m);
-      if (t) { t.style.setProperty("--mx", (px * 100).toFixed(1) + "%"); t.style.setProperty("--my", (py * 100).toFixed(1) + "%"); }
-    }
-    function fromEvent(ev) {
-      var r = stage.getBoundingClientRect();
-      var pt = ev.touches ? ev.touches[0] : ev;
-      track((pt.clientX - r.left) / r.width, (pt.clientY - r.top) / r.height);
-    }
-    stage.addEventListener("pointermove", fromEvent);
-    stage.addEventListener("touchmove", function (ev) { ev.preventDefault(); fromEvent(ev); }, { passive: false });
-    stage.addEventListener("pointerleave", function () {
-      card.style.setProperty("--rx", "0deg"); card.style.setProperty("--ry", "0deg");
-    });
-  }
-  // In the binder, a card you OWN opens the inspector instead of navigating away.
-  function bindCardInspect() {
-    $$(".pocket .tcg[data-card]").forEach(function (el) {
-      var slug = el.getAttribute("data-card");
-      var owned = slug === "secret" ? secretCardState() !== "locked" : cardOwned(slug);
-      if (!owned) return; // not earned yet — let the link take them to the course
-      el.addEventListener("click", function (ev) {
-        ev.preventDefault();
-        // preventDefault can leave activeElement on <body>, so manageModalFocus
-        // would capture nothing and drop focus on close. Focus the card first.
-        if (el.focus) el.focus();
-        openCardInspector(slug);
-      });
-    });
-  }
-
-  // The best card they hold: the secret rare if revealed, else the rarest product card.
-  function rarestOwned() {
-    if (secretCardState() !== "locked") return "secret";
-    var order = { rare: 3, uncommon: 2, common: 1 };
-    var best = null, bestScore = 0;
-    COURSES.forEach(function (c) {
-      if (!cardOwned(c.slug)) return;
-      var r = (CARDS[c.slug] || {}).rarity;
-      var sc = (order[r] || 0) * 1000 + cardScore(c.slug);
-      if (sc > bestScore) { bestScore = sc; best = c.slug; }
-    });
-    return best;
-  }
-  // The line they paste into a story or a group chat.
-  function bragText() {
-    var e = getEnroll();
-    var names = COURSES.filter(function (c) { return cardOwned(c.slug); }).map(function (c) { return c.name; });
-    var st = secretCardState();
-    var lead = st === "gold" ? "I pulled the GOLD Certified G card \uD83D\uDC51"
-      : st === "holo" ? "I completed the Base Set and pulled Certified G \u2728"
-      : names.length ? "I\u2019m " + ownedCards() + "/" + totalCards() + " cards into G Pen University \uD83C\uDCCF"
-      : "I\u2019m collecting cards at G Pen University \uD83C\uDCCF";
-    return lead +
-      (names.length ? "\nCertified on: " + names.join(", ") : "") +
-      (e && e.store ? "\n" + e.store : "") +
-      "\n#CertifiedG \u00B7 training.gpen.com";
-  }
 
   /* ---- reveal-on-scroll -------------------------------------------------- */
   function revealOnScroll() {
@@ -3037,12 +2221,10 @@
     var pageKey = "home";
     if (parts[0] === "course" && parts[1]) { renderCourse(parts[1]); pageKey = "course:" + parts[1]; }
     else if (parts[0] === "certified") { renderCertified(); pageKey = ""; }
-    else if (parts[0] === "collection") { renderCollection(); pageKey = "collection"; }
     else if (parts[0] === "about") { renderAbout(); pageKey = "about"; }
     else renderHome(); // "/", "/dashboard", "/enroll" and anything else → the hub
     bindFacts();
     bindLogoFun();
-    bindCardTilt();
     bindMascot();
     bindFloorDrill();
   }
