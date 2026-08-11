@@ -21,8 +21,8 @@ certificate the site sends:
   //  "course"            a course was passed (fires on each first-time pass)
   //  "trio"              2 courses certified — 30% tier
   //  "elite"             4 courses certified — 35% tier
-  //  "master"            all 5 certified — "Certified G" (40% tier)
-  //  "sweepstakes_entry" all 5 certified AND the draw is switched live
+  //  "master"            whole lineup certified — "Certified G" (40% tier)
+  //  "sweepstakes_entry" whole lineup certified AND the draw is switched live
   "name": "Jane Budtender",
   "email": "jane@store.com",
   "store": "Cloud 9 Smoke Shop",

@@ -938,6 +938,7 @@ a.linklike.backdash { display: block; width: auto; margin-top: 10px; text-align:
 .tcg-grid > .pocket:nth-child(4) .tcg-inner::after { animation-delay: 3.3s; }
 .tcg-grid > .pocket:nth-child(5) .tcg-inner::after { animation-delay: 4.4s; }
 .tcg-grid > .pocket:nth-child(6) .tcg-inner::after { animation-delay: 5.5s; }
+.tcg-grid > .pocket:nth-child(7) .tcg-inner::after { animation-delay: 6.6s; }   /* Base Set is 7 with the Grinder */
 @keyframes card-sweep { 0%, 78% { transform: translateX(-130%); } 100% { transform: translateX(130%); } }
 
 .tcg-stamp, .tcg-featured, .tcg-perfect { z-index: 5; }

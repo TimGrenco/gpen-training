@@ -625,7 +625,7 @@
   // The 30% tier fires once, the first time a second card lands in the binder.
   /* Mid-funnel reward tiers, reported once each. Table-driven because the 4-course
      rung previously had no reporting at all — the middle of the funnel was dark.
-     `elite` is deliberately not called "master": that type is the all-5 event. */
+     `elite` is deliberately not called "master": that type is the FULL-LINEUP event. */
   var REPORT_TIERS = [
     { flag: "trio", type: "trio", at: 2, label: "30% reward (2 courses)" },
     { flag: "elite", type: "elite", at: 4, label: "35% reward (4 courses)" },
@@ -648,7 +648,7 @@
     });
     if (changed) setState(s);
   }
-  /* The all-5 event used to fire ONLY inside renderCertified(), so a rep who
+  /* The full-lineup event used to fire ONLY inside renderCertified(), so a rep who
      passed their fifth course and closed the tab was never recorded. Now called
      from quizPass; renderCertified just displays what this stamped. */
   function reportMaster() {
@@ -1446,7 +1446,10 @@
      product portal): 510 Batteries, Dry Herb Vaporizers, Concentrate. `match`
      buckets each course by its data.js category; groups with no products drop out. */
   var LINEUP_GROUPS = [
-    { key: "dryherb", title: "Dry Herb Vaporizers", sub: "Portable dry-herb devices", icon: "leaf", match: function (c) { return /Dry Herb/i.test(c.category); } },
+    // Retitled from "Dry Herb Vaporizers" when the Grinder joined it: the panel now
+    // holds two vapes and an accessory, so the group name has to cover both. The
+    // /Dry Herb/i match already picks up "Dry Herb Accessory" with no change.
+    { key: "dryherb", title: "Dry Herb Accessories", sub: "Dry-herb vapes and the gear that feeds them", icon: "leaf", match: function (c) { return /Dry Herb/i.test(c.category); } },
     { key: "510", title: "510 Batteries", sub: "510-thread cartridge batteries", icon: "battery", match: function (c) { return /510/.test(c.category); } },
     { key: "concentrate", title: "Concentrate", sub: "Concentrate tools & accessories", icon: "drop", match: function (c) { return /Concentrate/i.test(c.category); } },
   ];
@@ -1532,7 +1535,7 @@
   }
 
   /* The reward ladder, shown as an "earn it" tracker on the home hub. Rungs come
-     from LADDER (currently 1 -> 25%, 2 -> 30%, 4 -> 35%, all 5 -> 40%); the top
+     from LADDER (currently 1 -> 25%, 2 -> 30%, 4 -> 35%, the whole lineup -> 40%); the top
      rung also carries the free-device prize IF drawLive() — see prizeCopy(). */
   function rewardsSection(done) {
     var total = COURSES.length;                 // 5 = the full lineup
@@ -1562,12 +1565,12 @@
       '<div class="rewards">' + rungs + "</div>" +
       grandCard(done >= total, done, total);
   }
-  // The all-5 capstone: a free-G-Pen draw entry + the guaranteed 40% code.
+  // The full-lineup capstone: a free-G-Pen draw entry + the guaranteed 40% code.
   function grandCard(unlocked, done, total) {
     var d = total - done;
     var draw = drawLive();
     // Same rule as the rungs: the countdown only earns its line once this IS the
-    // next thing to reach. At 0 done it just repeated "Certify all 5" above it.
+    // next thing to reach. At 0 done it just repeated "Certify all N" above it.
     var up = nextTier(done), isNext = !!up && up.at === total;
     return '<div class="rw-card grand ' + (unlocked ? "on" : "off") + '">' +
       '<div class="rw-top"><span class="rw-ic">' + ic(unlocked ? "award" : "lock") + "</span>" +
@@ -1649,7 +1652,10 @@
             "<h1>" + esc(c.name) + "</h1>" +
             '<span class="cx-cat">' + esc(c.category) + " · " + esc(c.msrp) + "</span>" +
             "<p>" + esc(c.tagline) + "</p>" +
-            '<div class="ch-meta">' + c.videos.length + " videos · " + c.quiz.length + " questions · " + c.passPct + "% to pass · ~" + c.minutes + " min</div>" +
+            // Accessory courses can legitimately have no video yet, so the count is
+            // omitted rather than printed as "0 videos", and the array is never
+            // dereferenced blind.
+            '<div class="ch-meta">' + ((c.videos && c.videos.length) ? c.videos.length + " videos · " : "") + c.quiz.length + " questions · " + c.passPct + "% to pass · ~" + c.minutes + " min</div>" +
           "</div>" +
         "</div>" +
 
@@ -1663,12 +1669,14 @@
 
         (c.howToSell ? secHead(++n, "How to sell it") + howToSellHTML(c) : "") +
 
-        secHead(++n, "Watch the tape") +
+        (c.videos && c.videos.length
+        ? secHead(++n, "Watch the tape") +
         '<div class="vid-grid">' + c.videos.map(function (v) {
           return '<button class="vid" data-yt="' + esc(v.youtube || "") + '" data-title="' + esc(v.title) + '">' +
             '<span class="vid-thumb"><img src="' + esc(v.thumb) + '" alt="" loading="lazy"/><span class="vid-play">' + ic("play") + "</span></span>" +
             '<span class="vid-title">' + esc(v.title) + "</span></button>";
-        }).join("") + "</div>" +
+        }).join("") + "</div>"
+        : "") +
 
         secHead(++n, "What it is") +
         '<div class="prose">' + descHTML + "</div>" +
@@ -2103,7 +2111,7 @@
     // Courses first, so a late webhook receives them ahead of the tier rows they justify.
     reportCourses();
     maybeReportTier();   // 30% at 2 certified courses, 35% at 4
-    reportMaster();      // record the all-5 event here, not on a page they may never open
+    reportMaster();      // record the full-lineup event here, not on a page they may never open
     refreshCounters();
     var streak = touchStreak();
     logEvent("certified", { course: c.slug, certId: cid, score: pct });
@@ -2690,7 +2698,7 @@
       var body = "I'm now a G Pen Certified Specialist!\n\nName: " + e.name + "\nStore: " + (e.store || "") + "\nEmail: " + (e.email || "") + "\nDate: " + date + "\nCertificate ID: " + cid;
       window.location.href = "mailto:" + CFG.contactEmail + "?subject=" + encodeURIComponent("G Pen Certified Specialist") + "&body=" + encodeURIComponent(body);
     });
-    // The all-5 code is the 40% (CERTIFIEDG40), not the 4-course 35% — reconcile it here.
+    // The full-lineup code is the 40% (CERTIFIEDG40), not the 4-course 35% — reconcile it here.
     revealReward("secret", { name: e.name, email: e.email, store: e.store, certId: cid }, $("#mreward"));
     var swc = $(".sw-copy");
     if (swc) swc.addEventListener("click", function () {

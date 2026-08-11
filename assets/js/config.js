@@ -56,12 +56,12 @@ window.TRAINING_CONFIG = {
      To ship a language: add assets/data/i18n/<lang>.js, then set enabled: true. */
   i18n: { enabled: false },
 
-  // Master certification = finish every course in data.js (all 5 are "core").
+  // Master certification = finish every course in data.js (all of them are "core").
   // Set to a list of slugs to require only some; null = require them all.
   coreCourses: null,
 
   /* The reward ladder climbs with the number of products you certify on:
-       1 course -> 25%   2 courses -> 30%   4 courses -> 35%   all 5 -> 40%
+       1 course -> 25%   2 courses -> 30%   4 courses -> 35%   whole lineup -> 40%
      (The tier keys below — course / trio / master / secret — are just the
       internal names the code uses to look up each discount; the course-count
       thresholds live in the LADDER table near the top of app.js — add or move a rung
@@ -89,7 +89,7 @@ window.TRAINING_CONFIG = {
       note: "Four products certified. One more and you unlock the full 40%.",
       terms: "One use per person. Not combinable with other offers. Use your highest unlocked code.",
     },
-    // Unlocked once ALL 5 courses are complete — the whole lineup. 40% off.
+    // Unlocked once EVERY course is complete — the whole lineup. 40% off.
     // (The free-device prize is presented separately in the finish-line panel,
     // which needs sweepstakes.live AND sweepstakes.rulesUrl AND a reporting
     // webhook — a webhook alone does NOT start it. See the sweepstakes block.)
@@ -105,7 +105,7 @@ window.TRAINING_CONFIG = {
   },
 
   /* >>> FREE-DEVICE PRIZE — every Nth full-lineup certification wins <<<
-     Certify on all 5 products and you're in line for a free device (the 40% code
+     Certify on the whole lineup and you're in line for a free device (the 40% code
      is yours either way). Two modes:
 
        mode: "everyNth"  — every Nth person to certify on the whole lineup wins a

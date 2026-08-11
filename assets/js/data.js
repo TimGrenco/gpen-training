@@ -269,6 +269,106 @@ window.GPEN_COURSES = [
 
   /* -------------------------------------------------------- MELT HOT KNIFE */
   {
+    /* Added from the official one-sheet (20260617_GPEN_Grinder_Onesheet) plus the
+       product photography in the asset portal. NOTE: this product is not on
+       gpen.com yet — there is no storefront page, so productUrl is empty and every
+       number here comes from the one-sheet, not from a guess. There is also no
+       video for it yet, which is why `videos` is absent. */
+    slug: "grinder",
+    name: "3-Piece Grinder",
+    category: "Dry Herb Accessory",
+    tagline: "64mm aluminum grinder. No kief screen — nothing gets left behind.",
+    differentiator: "The $19.95 add-on to every flower sale.",
+    minutes: 5, passPct: 80, msrp: "$19.95", accent: "#5E8C61",
+    /* Locally cut out, not a CDN render: every stashgrinder_* asset on the CDN and in
+       the asset portal is a JPEG with a baked white background, and every other cover
+       in this file is a transparent cut-out — a white square would sit inside the
+       card's warm-grey media box. Keyed by flood-filling the background inward from
+       the border, which is what preserves the enclosed white G on the lid (a plain
+       near-white threshold punches a hole through the logo). Swap this for an official
+       transparent render the moment marketing produces one. */
+    cover: "assets/img/grinder-cover.png",
+    heroImg: LIFE + "slim-3-piece-grinder/6120e7c350834c0bc55f5b70288d5102d25d49bb546603d0fc2919f243c9f3da.jpg",
+    productUrl: "",
+    gallery: [
+      { url: CDN + "stashgrinder_thumb_03.jpg", caption: "Three pieces: lid, grinding ring, catch cup" },
+      { url: CDN + "stashgrinder_thumb_02.jpg", caption: "Lid off — teeth above, drop-through floor below" },
+      { url: CDN + "stashgrinder_thumb_04.jpg", caption: "Micro-rounded teeth, and the magnet in the middle" },
+      { url: CDN + "stashgrinder_thumb_05.jpg", caption: "Patent No. 11690480, printed on the rim" },
+      { url: CDN + "stashgrinder_thumb_01.jpg", caption: "Closed — lid seated flush" },
+    ],
+    description: [
+      "The G&nbsp;Pen Grinder is a <strong>3-piece, 64mm</strong> grinder precision-machined from durable <strong>6063 anodized aluminum</strong> — the same aircraft-grade material family as the devices it feeds.",
+      "Its <strong>patented micro-rounded teeth</strong> (Patent No. 11690480) gently separate flower rather than shredding it, for a smoother, more consistent grind. A <strong>strong magnetic lid</strong> keeps the closure tight and the contents where they belong.",
+      "There is <strong>no kief screen</strong>, and that is deliberate: everything you grind — flower, trichomes and kief together — falls into the catch cup and goes into your bowl or chamber.",
+    ],
+    highlights: ["3-piece, 64mm", "Patented micro-rounded teeth", "6063 anodized aluminum", "Strong magnetic lid", "No kief screen — nothing separated out", "Designed to help retain terpenes and trichomes"],
+    specs: [
+      { label: "Type", value: "3-piece dry herb grinder (accessory — no battery, no heat)" },
+      { label: "Size", value: "64mm" },
+      { label: "Pieces", value: "Lid, grinding ring, catch cup" },
+      { label: "Teeth", value: "Patented micro-rounded (Patent No. 11690480)" },
+      { label: "Materials", value: "Precision-machined 6063 anodized aluminum" },
+      { label: "Lid", value: "Strong magnetic closure" },
+      { label: "Kief screen", value: "<strong>None</strong> — flower, trichomes and kief stay together" },
+      { label: "Retail pack", value: "10-pack POP display (GPA-001-APSC)" },
+    ],
+    howToUse: [
+      "<strong>Twist the lid off</strong> — it is magnetic, so it lifts away rather than unscrewing.",
+      "Break your flower into the <strong>grinding ring</strong>, around the teeth. Do not pack it in.",
+      "Put the lid back on and <strong>twist back and forth</strong> a few turns.",
+      "Lift the ring off the <strong>catch cup</strong> — the ground flower has dropped through.",
+      "Load straight into a bowl, a paper, or a <strong>Dash II / Dash+</strong> chamber.",
+    ],
+    howToClean: [
+      "Take all three pieces apart — there is nothing electronic in it, so it can be cleaned properly.",
+      "Brush the teeth and the floor holes out with a <strong>dry brush</strong> first.",
+      "For resin build-up, soak the aluminum pieces in <strong>Isopropyl Alcohol</strong>, then rinse and dry fully before reassembling.",
+      "Dry it completely — trapped moisture is what makes flower clump on the teeth.",
+    ],
+    faq: [
+      { q: "Why is there no kief screen?", a: "By design. A screen separates trichomes out into a fourth chamber, where most people forget about them. With no screen, the flower, trichomes and kief stay together and all of it goes into your bowl." },
+      { q: "How big is it?", a: "64mm across — a full-size grinding surface in a slim body." },
+      { q: "What is it made of?", a: "Precision-machined 6063 anodized aluminum." },
+      { q: "What do the micro-rounded teeth do?", a: "They separate flower gently instead of shredding it, which is what gives the smoother, more consistent grind. The design is patented (No. 11690480)." },
+      { q: "Does the lid stay on?", a: "Yes — it uses a strong magnetic closure, so it holds shut in a bag or a pocket." },
+      { q: "Does it need charging?", a: "No. It is a fully mechanical accessory — no battery, no heat, nothing to charge." },
+    ],
+    howToSell: {
+      upsellFrom: "Flower",
+      cue: "🌿",
+      pairsWith: ["dash-ii", "dash-plus"],
+      vital: "Every flower customer grinds somehow. This is the cheapest thing on the counter that improves what they already bought, and it is the accessory that makes a Dash pack evenly.",
+      aov: "A $19.95 mechanical add-on with nothing to break and nothing to charge. It attaches to any flower sale, and it ships as a 10-pack POP display so it can live right at the register.",
+      keyFacts: ["3-piece, 64mm, aluminum", "Patented micro-rounded teeth", "No kief screen ($19.95)"],
+      talkTrack: { say: "Grinding by hand or with something you got for free? This is 64mm, aluminum, patented teeth — and no kief screen, so nothing gets separated out and forgotten. Twenty bucks, and your vape packs way more evenly." },
+      whichClose: "Are you packing a vape or rolling? Either way an even grind is the difference — want the grinder with that?",
+      scenarios: [
+        { sees: "Flower going out with no grinder in the basket", say: "How are you breaking that up? A plastic one crushes it — this has micro-rounded teeth so it separates instead of shredding. Twenty bucks, lasts forever, nothing to charge." },
+        { sees: "Someone buying a Dash II or Dash+ with flower", say: "Get the grinder with it. A dry herb vape only works as well as the grind — even, fluffy flower is what gets you full flavor from the chamber. Twenty bucks and the vape performs like it should." },
+      ],
+      trap: "Do not sell it as a kief catcher — it deliberately has NO kief screen, and a customer expecting a fourth chamber will bring it back. Sell that as the feature it is: nothing gets separated out and left behind.",
+      objections: [
+        { says: "I already have a grinder.", say: "Most of the free ones are plastic and they crush flower rather than separate it. This is machined aluminum with micro-rounded teeth — you will feel the difference in how evenly it packs. Twenty bucks.", why: "Compete on grind quality and material, not on price." },
+        { says: "Where does the kief go?", say: "There is no kief screen on this one, on purpose. Everything stays together and goes into your bowl instead of collecting in a chamber you forget about.", why: "Answer it straight and immediately. This is THE question on a 3-piece, and dodging it is what causes returns." },
+        { says: "Twenty dollars for a grinder?", say: "It is machined aluminum with patented teeth and a magnetic lid, and there is nothing in it to wear out or charge. It is the last grinder they buy.", why: "Durability is the value argument. Never discount into it." },
+      ],
+    },
+    quiz: [
+      { q: "A customer picks up the 3-Piece Grinder, turns it over and asks where the kief collects. What do you tell them?", choices: ["It collects in the bottom cup along with the flower", "There is no kief screen — everything stays together on purpose", "Kief collects under the teeth and you scrape it out", "You have to buy the four-piece for that"], answer: 1, why: "This is the single most common question on a 3-piece and the fastest route to a return if you fudge it. There is no kief screen at all, which the one-sheet frames as the feature: flower, trichomes and kief stay together instead of separating into a chamber people forget." },
+      { q: "A regular says their free plastic grinder works fine. What is the strongest thing to lead with?", choices: ["This one costs more, so the build quality is better", "It is aluminum with micro-rounded teeth that separate rather than crush", "Plastic grinders break within a few months of daily use", "It is the same idea but it has the G Pen logo on it"], answer: 1, why: "Name the mechanism, not the price and not a durability claim you cannot back up. Micro-rounded teeth separating flower instead of shredding it is the patented difference, and it is what they will actually notice in the grind." },
+      { q: "Someone is buying flower and a Dash+ together. How does the grinder attach to that sale?", choices: ["It is a spare part they will need when the chamber wears", "An even grind is what makes the chamber heat the flower evenly", "It doubles the capacity of the Dash+ chamber", "It is required for the warranty to stay valid"], answer: 1, why: "A dry herb vape only performs as well as its grind — even, fluffy flower is what lets the chamber heat consistently. That is a real reason to pair it, and it does not overstate anything about capacity or warranty." },
+      { q: "What is the grinder actually made of, and what size is it?", choices: ["64mm, precision-machined 6063 anodized aluminum", "50mm, anodized aluminum with a steel grinding ring", "64mm, zinc alloy with an aluminum lid", "70mm, titanium-coated aluminum"], answer: 0, why: "64mm and 6063 anodized aluminum are the two spec facts on the one-sheet. Reps get asked about material constantly on accessories, and inventing a metal is how a spec argument starts at the counter." },
+      { q: "How many pieces come apart, and what are they?", choices: ["Two: a lid and a grinding cup", "Three: lid, grinding ring, and catch cup", "Three: lid, grinding ring, and a kief screen", "Four: lid, ring, screen, and kief chamber"], answer: 1, why: "Three pieces: the magnetic lid, the ring that holds the teeth and the drop-through floor, and the cup that catches the ground flower. Naming them in order is also how you demo it in about five seconds." },
+      { q: "A customer asks how the lid stays shut in a bag. What is accurate?", choices: ["It screws down onto a threaded rim", "It uses a strong magnetic closure", "It snaps on with a silicone gasket", "It is friction-fit, so keep it upright"], answer: 1, why: "The lid is magnetic — that is why it lifts straight off rather than unscrewing, and it is the answer to the spill question a commuter will ask." },
+      { q: "\"Does it need charging?\" — what do you say?", choices: ["No — it is fully mechanical, nothing to charge", "Only the magnetic lid holds a small charge", "Yes, over USB-C like the rest of the lineup", "It charges from the Dash II when stacked"], answer: 0, why: "It is an accessory with no battery and no heat. This sounds obvious on the floor, but it is worth being crisp about, because everything else in the lineup does charge." },
+      { q: "How should someone actually load the grinding ring?", choices: ["Pack it in tight so the teeth get full contact", "Break the flower in loosely around the teeth", "Fill it to the very top of the rim", "Grind one small piece at a time in the centre"], answer: 1, why: "Loose flower around the teeth is what lets the ring turn and the ground flower drop through the floor. Packing it tight is the usual reason someone says a grinder is stiff or does not work." },
+      { q: "A customer wants to know how to clean resin off it. What is safe to tell them?", choices: ["Rinse it under hot water and dry it fast", "Take it apart and soak the pieces in Isopropyl Alcohol", "Run it through the dishwasher on a low cycle", "Wipe it while it is warm from grinding"], answer: 1, why: "There is nothing electronic in it, so unlike every other product in the lineup it can be fully taken apart and soaked. Dry it completely afterwards — trapped moisture is what makes flower clump on the teeth." },
+      { q: "The grinder ships to retail in what format?", choices: ["Single boxed units only", "A 10-pack POP display for the counter", "A 24-count carton with no display", "Bulk polybags, display sold separately"], answer: 1, why: "It comes as a 10-pack POP display (GPA-001-APSC), which is worth knowing because a counter display is what turns a $19.95 accessory into an impulse attach on a flower sale." },
+      { q: "A customer asks what the patented part actually is. What is accurate?", choices: ["The magnetic lid closure", "The micro-rounded tooth design", "The 6063 aluminum alloy", "The 64mm form factor"], answer: 1, why: "Patent No. 11690480 covers the micro-rounded teeth — the gentle-separation design. It is printed right on the rim, so a curious customer can read it themselves." },
+    ],
+  },
+  {
     slug: "melt-hot-knife",
     name: "Melt Hot Knife",
     category: "Concentrate Tool",
@@ -662,7 +762,7 @@ window.GPEN_RARITY = {
   secret:   { sym: "★★★", label: "Secret Rare" },
 };
 
-window.GPEN_SET = { name: "Base Set", total: 6, illus: "Illus. Grenco Science" };
+window.GPEN_SET = { name: "Base Set", total: 7, illus: "Illus. Grenco Science" };   // 6 products + the Certified G secret
 
 window.GPEN_CARDS = {
   "dash-ii": {
@@ -687,8 +787,18 @@ window.GPEN_CARDS = {
     ],
     statsRow: [{ k: "Heat-up", v: "~20s" }, { k: "Warranty", v: "2 yr" }, { k: "Charge", v: "USB-C" }],
   },
+  grinder: {
+    no: 3, rarity: "common", element: "herb", code: "PREP 101",
+    power: "64", powerUnit: "mm",
+    moves: [
+      { name: "Even Grind", cost: 1, dmg: "3-PC", text: "Patented micro-rounded teeth separate flower instead of shredding it." },
+      { name: "Nothing Left Behind", cost: 2, dmg: "NO SCREEN", text: "No kief screen, so trichomes stay with the flower instead of in a forgotten chamber." },
+    ],
+    statsRow: [{ k: "Size", v: "64mm" }, { k: "Body", v: "Aluminum" }, { k: "Power", v: "None" }],
+    flavor: "The cheapest thing on the counter that makes everything else work better.",
+  },
   "melt-hot-knife": {
-    no: 3, rarity: "common", element: "conc", code: "CONC 210",
+    no: 4, rarity: "common", element: "conc", code: "CONC 210",
     power: "500", powerUnit: "mAh",
     moves: [
       { name: "Hot Knife", cost: 1, dmg: "302°F", text: "Ceramic tip hits ~150°C so concentrate releases clean instead of stringing." },
@@ -697,7 +807,7 @@ window.GPEN_CARDS = {
     statsRow: [{ k: "Tip temp", v: "150°C" }, { k: "Warranty", v: "90 d" }, { k: "Charge", v: "USB-C" }],
   },
   "hydout": {
-    no: 4, rarity: "uncommon", element: "cart", code: "CART 110",
+    no: 5, rarity: "uncommon", element: "cart", code: "CART 110",
     power: "400", powerUnit: "mAh",
     moves: [
       { name: "Stealth Mode", cost: 1, dmg: "—", text: "A hidden magnetic mouthpiece cover keeps the cart out of sight." },
@@ -706,7 +816,7 @@ window.GPEN_CARDS = {
     statsRow: [{ k: "Voltages", v: "5" }, { k: "Warranty", v: "90 d" }, { k: "Charge", v: "USB-C" }],
   },
   "510-original": {
-    no: 5, rarity: "common", element: "cart", code: "CART 101",
+    no: 6, rarity: "common", element: "cart", code: "CART 101",
     power: "400", powerUnit: "mAh",
     moves: [
       { name: "Breath Activated", cost: 1, dmg: "—", text: "No buttons, no menus. Inhale and it fires." },
@@ -721,7 +831,7 @@ window.GPEN_CARDS = {
 /* The 6th card, the Certified G. Collect all five product cards and it reveals
    in gold — it carries the program’s top reward: 40% off. */
 window.GPEN_SECRET_CARD = {
-  no: 6, rarity: "secret", element: "gold", code: "G 420",
+  no: 7, rarity: "secret", element: "gold", code: "G 420",   // always the LAST number in the set
   name: "Certified G", power: "∞", powerUnit: "",
   moves: [
     { name: "Total Recall", cost: 3, dmg: "5/5", text: "Knows every G Pen product cold — specs, cleaning, objections, all of it." },
