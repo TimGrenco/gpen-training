@@ -26,7 +26,6 @@
   var CFG = window.TRAINING_CONFIG;
   var COURSES = window.GPEN_COURSES || [];
   var app = $("#app");
-  var pendingCelebrate = false; // set when a new cert is earned → ring pulses on next home view
   var stickyHandler = null;     // scroll handler for the course "get certified" nudge
 
   function esc(s) { return String(s == null ? "" : s).replace(/[&<>"']/g, function (m) { return ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" })[m]; }); }
@@ -135,10 +134,9 @@
   function getEnroll() { try { return JSON.parse(localStorage.getItem(K_ENROLL) || "null"); } catch (e) { return null; } }
   function setEnroll(v) { try { localStorage.setItem(K_ENROLL, JSON.stringify(v)); } catch (e) {} }
   function getState() {
-    var d = { courses: {}, streak: { count: 0, last: null }, master: null, trio: null, fresh: {}, log: [] };
+    var d = { courses: {}, streak: { count: 0, last: null }, master: null, trio: null, log: [] };
     var s;
     try { s = Object.assign(d, JSON.parse(localStorage.getItem(K_STATE) || "{}")); } catch (e) { return d; }
-    if (!s.fresh) s.fresh = {};
     return s;
   }
   function setState(s) { try { localStorage.setItem(K_STATE, JSON.stringify(s)); } catch (e) {} }
@@ -214,23 +212,6 @@
      Every course is a card you pull by passing its quiz at 80%+. Collect all
      five to reveal the gold Certified G — the 6th card and the program's top reward.
      ====================================================================== */
-  var CARDS = window.GPEN_CARDS || {};
-  var ELEMENTS = window.GPEN_ELEMENTS || {};
-  var RARITY = window.GPEN_RARITY || {};
-  var SET = window.GPEN_SET || { name: "Base Set", total: 6, illus: "" };
-  var SECRET_CARD = window.GPEN_SECRET_CARD || null;
-
-
-
-
-
-  // Pulling a card mid-page must update whatever counters are already on screen.
-  /* toggle, not add: this only ever ADDED .on, and nothing re-renders the header
-     after a device handover — so on a shared counter tablet, once rep #2 confirmed
-     the handover (which wipes gpt.state) and passed their first quiz, the header
-
-  /* Tiny 16-slot progress strip: 5 product + 10 trainer + 1 secret. */
-
 
   /* ---- fun layer: quips, "did you know" ---------------------------------- */
   var FACTS = window.GPEN_FACTS || [];
@@ -1133,10 +1114,17 @@
   }
   // A lifestyle shot of a specific product (matched by folder in the CDN path).
   function productLifeImg(slug, exclude) {
-    var folder = ({ "dash-ii": "dash-ii/", "dash-plus": "dash-plus/", "melt-hot-knife": "melt/", "hydout": "hydout/", "510-original": "510-original/" })[slug] || "";
+    // Slug -> asset-portal folder. A slug missing from this map used to fall through
+    // to "any other product's photo", so the Grinder course illustrated itself with a
+    // vaporizer. Returning "" instead makes lifestyleCinema render nothing, which is
+    // the only honest outcome: no photo beats the wrong product's photo.
+    var folder = ({
+      "dash-ii": "dash-ii/", "dash-plus": "dash-plus/", "grinder": "slim-3-piece-grinder/",
+      "melt-hot-knife": "melt/", "hydout": "hydout/", "510-original": "510-original/",
+    })[slug] || "";
+    if (!folder) return "";
     var all = window.GPEN_LIFESTYLE || [];
-    var match = all.filter(function (u) { return folder && u.indexOf(folder) >= 0 && u !== exclude; })[0];
-    return match || all.filter(function (u) { return u !== exclude; })[0] || "";
+    return all.filter(function (u) { return u.indexOf(folder) >= 0 && u !== exclude; })[0] || "";
   }
   /* The three steps, stated plainly and up front. This is the first thing a
      budtender should read — it answers "what is this and how does it work". */
