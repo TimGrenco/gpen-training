@@ -183,7 +183,10 @@ h1, h2, h3, h4 { margin: 0; line-height: 1.08; letter-spacing: -.02em; }
 .hdr-u-store { font-size: 11.5px; color: var(--stone); }
 
 /* ---- shared bits ---- */
-.back { display: inline-flex; align-items: center; gap: 6px; font-weight: 700; font-size: 14px; color: var(--stone); margin-bottom: 12px; }
+/* min-height 44: this is the only way back off a course page on a phone, and the
+   text alone gave it a 21px box — under the 24px WCAG 2.5.8 floor. margin-bottom
+   drops by the padding it gains so the heading below does not move. */
+.back { display: inline-flex; align-items: center; min-height: 44px; gap: 6px; font-weight: 700; font-size: 14px; color: var(--stone); margin-bottom: 0; }
 .back:hover { color: var(--ink); }
 .lead { color: var(--stone); font-size: 15px; margin: 0 0 16px; }
 .center-btn { display: inline-flex; margin: 26px auto 0; }
@@ -237,7 +240,10 @@ h1, h2, h3, h4 { margin: 0; line-height: 1.08; letter-spacing: -.02em; }
 /* 21+ / authorized-retail-staff attestation above the Start button. */
 .attest { display: flex; align-items: flex-start; gap: 10px; margin: 2px 0 4px; cursor: pointer;
   font-size: 13px; line-height: 1.45; color: var(--ink-2); text-align: left; }
-.attest input { flex: none; width: 18px; height: 18px; margin-top: 1px; accent-color: var(--gold); cursor: pointer; }
+/* 22px, not 18: the whole <label> is the hit target so 2.5.8 is satisfied either
+   way, but at 18px a rep on a shop floor cannot see at a glance whether it is
+   ticked, and this is the one control that gates the quiz. */
+.attest input { flex: none; width: 22px; height: 22px; margin-top: 0; accent-color: var(--gold); cursor: pointer; }
 
 /* =============================== DASHBOARD =============================== */
 .hub { max-width: var(--maxw); margin: 0 auto; padding: var(--sec-y) var(--gutter) 10px; }
@@ -306,12 +312,13 @@ h1, h2, h3, h4 { margin: 0; line-height: 1.08; letter-spacing: -.02em; }
 .sell-pair p { margin: 8px 0 0; font-size: 15px; line-height: 1.55; color: var(--ink-2); }
 .sell-sibs { display: flex; align-items: center; flex-wrap: wrap; gap: 8px; margin-top: 12px; }
 .sell-sibs span { font-size: 12px; font-weight: 800; text-transform: uppercase; letter-spacing: .05em; color: var(--stone); }
-.sell-sib { display: inline-flex; align-items: center; gap: 6px; padding: 6px 12px; border-radius: 999px; border: 1.5px solid var(--line); border-left: 4px solid var(--accent, var(--gold-bright)); font-size: 13px; font-weight: 800; color: var(--ink); text-decoration: none; }
-.sell-sib:hover { border-color: var(--gold-bright); border-left-color: var(--accent, var(--gold-bright)); }
-
-/* The 3 recite-facts. */
-.sell-facts { display: flex; flex-wrap: wrap; gap: 8px; }
-.sell-fact { display: inline-flex; align-items: center; padding: 7px 13px; border-radius: 999px; background: var(--ink); color: #fff; font-size: 13px; font-weight: 700; }
+/* The product accent used to be a 4px border-left. On a 999px-radius pill that
+   renders as a thick coloured crescent down one side, which reads as a rendering
+   glitch rather than as a colour key — so the accent is a dot inside the pill now,
+   where it is legible at any radius. */
+.sell-sib { display: inline-flex; align-items: center; min-height: 32px; gap: 7px; padding: 6px 13px; border-radius: 999px; border: 1.5px solid var(--line); font-size: 13px; font-weight: 800; color: var(--ink); text-decoration: none; }
+.sell-sib::before { content: ""; flex: none; width: 8px; height: 8px; border-radius: 50%; background: var(--accent, var(--gold-bright)); }
+.sell-sib:hover { border-color: var(--gold-bright); }
 
 /* "Say this" talk track — the read-aloud line. */
 .sell-say { position: relative; margin: 0; padding: 16px 18px; border-radius: var(--r-md); background: #f0f8f2; border: 1px solid #cfe8d8; border-left: 5px solid var(--ok); font-size: 16px; line-height: 1.5; font-weight: 600; color: #17402a; }
@@ -390,7 +397,9 @@ h1, h2, h3, h4 { margin: 0; line-height: 1.08; letter-spacing: -.02em; }
 .result p b { color: var(--ink); }
 /* Next-up hand-off after a pass — the journey always has a forward edge. */
 .nextup-cta { margin-top: 20px; width: 100%; }
-a.linklike.backdash { display: block; width: auto; margin-top: 10px; text-align: center; font-size: 13.5px; }
+/* grid, not block, so the 44px min-height centres the label instead of leaving it
+   on the top edge of an over-tall box. It was a 20px target under WCAG 2.5.8. */
+a.linklike.backdash { display: grid; place-items: center; min-height: 44px; width: auto; margin-top: 4px; text-align: center; font-size: 13.5px; }
 
 /* Post-quiz "worth another look" — the missed questions + why, on pass and fail. */
 .qreview { margin-top: 20px; border: 1px solid var(--line); border-radius: var(--radius); background: #fff; overflow: hidden; box-shadow: var(--shadow); }
@@ -476,7 +485,7 @@ a.linklike.backdash { display: block; width: auto; margin-top: 10px; text-align:
   padding: 16px 16px calc(16px + env(safe-area-inset-bottom, 0px)); animation: fade .2s ease; }
 @keyframes fade { from { opacity: 0; } }
 .modal-in { width: 100%; max-width: var(--readw); }
-.modal-x { position: absolute; top: 14px; right: 16px; width: 42px; height: 42px; border-radius: 50%; border: 0; background: rgba(255,255,255,.14); color: #fff; font-size: 26px; cursor: pointer; line-height: 1; }
+.modal-x { position: absolute; top: 14px; right: 16px; width: 44px; height: 44px; border-radius: 50%; border: 0; background: rgba(255,255,255,.14); color: #fff; font-size: 26px; cursor: pointer; line-height: 1; }
 .modal-frame { aspect-ratio: 16/9; background: #000; border-radius: var(--r-sm); overflow: hidden; box-shadow: var(--shadow-lg); }
 .modal-frame iframe { width: 100%; height: 100%; border: 0; }
 .modal-t { color: #fff; font-weight: 700; text-align: center; margin-top: 12px; }
@@ -489,12 +498,16 @@ a.linklike.backdash { display: block; width: auto; margin-top: 10px; text-align:
 #toast.show { opacity: 1; transform: translateX(-50%) translateY(0); }
 
 /* =============================== RICH COURSE ============================ */
-.foot-nav { display: flex; flex-wrap: wrap; gap: 6px 20px; justify-content: center; margin-bottom: 14px; }
-.foot-nav a { font-weight: 700; font-size: 13px; color: var(--ink); text-decoration: none; }
+.foot-nav { display: flex; flex-wrap: wrap; gap: 0 20px; justify-content: center; margin-bottom: 10px; }
+/* min-height, not line-height: these boxes measured 20px tall, under the 24px
+   WCAG 2.5.8 floor. The row gap drops to 0 to pay for the padding, so the footer
+   block height is unchanged while every link becomes a 44px target. */
+.foot-nav a { display: inline-flex; align-items: center; min-height: 44px; padding: 0 2px;
+  font-weight: 700; font-size: 13px; color: var(--ink); text-decoration: none; }
 .foot-nav a:hover { color: var(--gold); }
 /* Reset progress — always available in the footer, understated so it's not a
    trap, but reachable from any page. */
-.foot-reset { display: inline-flex; align-items: center; gap: 6px; margin: 2px auto 14px; padding: 8px 16px;
+.foot-reset { display: inline-flex; align-items: center; justify-content: center; min-height: 44px; gap: 6px; margin: 2px auto 14px; padding: 8px 16px;
   border: 1px solid var(--line); border-radius: var(--r-pill); background: #fff; color: var(--stone);
   font: inherit; font-size: 12.5px; font-weight: 700; cursor: pointer; transition: color .2s, border-color .2s; }
 .foot-reset:hover { color: var(--bad); border-color: var(--bad); }
@@ -638,9 +651,11 @@ a.linklike.backdash { display: block; width: auto; margin-top: 10px; text-align:
 .rw-code-v { font-size: clamp(17px, 1.35vw, 20px); font-weight: 900; letter-spacing: .03em; overflow-wrap: anywhere; }
 .rw-code em { font-style: normal; font-size: 10.5px; font-weight: 700; text-transform: uppercase; letter-spacing: .05em; color: var(--stone); display: inline-flex; align-items: center; gap: 4px; white-space: nowrap; }
 .rw-code em svg { width: 13px; height: 13px; }
-.rw-shop { display: inline-flex; align-items: center; gap: 6px; font-weight: 800; font-size: 14px; color: var(--gold-bright); }
+/* Both of these were 20-21px tall — under the 24px WCAG 2.5.8 floor, on the one
+   card a rep taps the moment they finish a quiz. */
+.rw-shop { display: inline-flex; align-items: center; min-height: 44px; gap: 6px; font-weight: 800; font-size: 14px; color: var(--gold-bright); }
 .rw-shop svg { width: 15px; height: 15px; }
-.rw-cert { display: block; margin-top: 10px; font-size: 13px; color: #c9c8c1; text-decoration: underline; }
+.rw-cert { display: flex; align-items: center; min-height: 44px; margin-top: 4px; font-size: 13px; color: #c9c8c1; text-decoration: underline; }
 .rw-lock { display: flex; align-items: center; gap: 7px; font-size: 13.5px; font-weight: 600; color: var(--stone); background: var(--cream); border-radius: 10px; padding: 12px 14px; }
 .rw-lock svg { width: 15px; height: 15px; flex: none; }
 
@@ -873,26 +888,52 @@ a.linklike.backdash { display: block; width: auto; margin-top: 10px; text-align:
   .pocket { padding: 7px; border-radius: 13px; }
 }
 
-/* ==================== SOUND TOGGLE ====================================== */
-/* REMOVED a dead rule that used to sit here:
-     @media (max-width: 400px) { .hdr-sound { width: 34px; height: 34px; } }
-   It never applied at any width — the max-width:470px block below sets 32px at
-   the same specificity and comes later, so it won everywhere ≤400px.
-   On tap targets: these controls are 32-38px, which clears WCAG 2.5.8 AA (24px)
-   but not the 44px AAA guideline. Growing them is not free — the header height is
-   pinned by --hdr-h (63/57px), which drives html{scroll-padding-top}, so a taller
-   control means updating both tokens. Do NOT "fix" this with a ::after overlay:
+/* ON HEADER TAP TARGETS. The nav links measure 35px tall, which clears the WCAG
+   2.5.8 AA floor (24px) but not the 44px AAA guideline. Growing them is not free:
+   the header height is pinned by --hdr-h (63/57px), which drives
+   html{scroll-padding-top}, so a taller control means updating both tokens and
+   re-checking every anchored scroll. Do NOT "fix" it with a ::after overlay —
    measured here, a pseudo-element does not extend the hit region (elementFromPoint
-   just above the button returns .hdr, not the button). */
+   just above the link returns .hdr, not the link). */
 
-/* Reclaim header space on phones — the header carries brand + nav + sound +
-   binder + the signed-in name, so the tightening starts well before the
-   smallest devices. */
+/* Reclaim header space on phones. The header no longer carries the sound toggle or
+   the binder chip, so the inline padding is NOT tightened below the page gutter any
+   more: it used to drop to 12px while the content below stayed at 16px, which left
+   the logo and nav sitting 4px outside every heading and paragraph on the page.
+   Only the gap and the brand type tighten now. */
 @media (max-width: 470px) {
   :root { --hdr-h: 57px; }   /* header shrinks here, so the scroll offset must too */
-  .hdr { padding-left: 12px; padding-right: 12px; gap: 8px; }
+  .hdr { gap: 8px; }
   .hdr-logo { width: 26px; height: 26px; }
   .hdr-name { font-size: 14px; letter-spacing: 0; }
+}
+
+/* =========================================================================
+   SMALL PHONES — one inner padding value, not six.
+   The page gutter is 16px at these widths, and every card inside it carried its
+   own 18/20/22/24px inset, so the first character of a sentence sat 34-40px from
+   the screen edge and a 320px device had 240px of measure left. One 16px card
+   inset lines every card's text up with the section headings outside them and
+   buys back 16-24px of reading width. Cards keep their border and radius; this is
+   padding only, so nothing moves structurally.
+   ====================================================================== */
+@media (max-width: 400px) {
+  .cx-hero-body,
+  .result,
+  .reward,
+  .about-hero,
+  .about-block.glob,
+  .about-close,
+  .cert,
+  .quiz,
+  .certify,
+  .ff-card,
+  .sell-pair,
+  .sell-say,
+  .sell-close,
+  .faq-q { padding-left: 16px; padding-right: 16px; }
+  /* the FAQ answer is padded on the <p>, not on the wrapper */
+  .faq-a p { padding-left: 16px; padding-right: 16px; }
 }
 
 /* ==================== PROFESSOR O.G. (the mascot) ======================= */
@@ -1008,7 +1049,6 @@ a.linklike.backdash { display: block; width: auto; margin-top: 10px; text-align:
   .cc-foot { padding-top: 9px; }
 }
 
-/* ==================== BINDER TEASER (cards stay face-down) ============== */
 /* a fanned deck of face-down cards — the reveal stays in the pack */
 /* ==================== LANGUAGE SELECTOR ================================= */
 /* Matches assets.gpen.com: globe (reads as *language*, not a filter) + code + menu */
@@ -1100,6 +1140,20 @@ a.linklike.backdash { display: block; width: auto; margin-top: 10px; text-align:
    and below ~328px the third item wraps and the dot hung off the left edge. */
 .hero-facts li + li::before { content: "\00b7"; color: var(--gold); margin-right: 7px; }
 .hero-facts .gold { color: var(--gold); }
+/* Below the width where all three facts fit on one line, a separator dot is wrong
+   whatever its margins: the item that wraps carries the dot to the start of the
+   next line, where it reads as a stray mark rather than as punctuation between two
+   things. So stop separating and start listing — one fact per line, every line
+   with its own bullet, which is what the eye expects from a stacked list. */
+@media (max-width: 560px) {
+  .hero-facts { flex-direction: column; align-items: flex-start; gap: 5px; }
+  .hero-facts li { display: flex; gap: 7px; }
+  /* Both selectors, same declaration: `li + li::before` outranks a bare
+     `li::before` (one more type selector), so resetting it and re-declaring the
+     bullet on `li` alone would leave every item after the first with no mark. */
+  .hero-facts li::before,
+  .hero-facts li + li::before { content: "\00b7"; color: var(--gold); margin-right: 0; }
+}
 /* Named og-pop-LG deliberately: as a second 
 
 /* ---- returning rep ---- */

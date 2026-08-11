@@ -144,7 +144,7 @@ window.GPEN_COURSES = [
         { sees: "A half-ounce of flower + a grinder in their basket", say: "You are already grinding it, so this is the next piece. Pack the ground flower and press the button. The same amount lasts longer because you are heating it, not burning it. $49.95." },
         { sees: "They bring up how a joint feels compared to vaping", say: "The difference is burning versus heating. A joint combusts the flower; this vaporizes it. I cannot give health advice, but flavor is the reason most people switch. $49.95 — would you like to hold it?" },
       ],
-      trap: "Don't call it 'like smoking' — it's the opposite. Say 'heats, doesn't burn.' And if a customer raises coughing, harshness, lungs, or anything else health-related, do NOT diagnose it or promise the product fixes it — that's a claim the brand can't make and it lands on Grenco, not you. Redirect to flavor and experience, or tell them to ask their doctor.",
+      trap: "Never describe it as being like smoking. Say that it heats the flower and does not burn it. If a customer raises coughing, harshness, lungs, or any other health topic, do NOT diagnose it and do NOT say the product fixes it. That is a claim the brand cannot make. Redirect to flavor and experience, or refer them to their doctor.",
       objections: [
         { says: "I'll just roll it.", say: "You still can. Rolling burns the flower, so part of every bowl is lost to smoke. This heats the same flower at a set temperature, so a gram goes further and the flavor is clearer. Would you like to see the size?", why: "Do not argue against rolling. Reframe on waste and flavor." },
         { says: "Is $49.95 worth it?", say: "$49.95 is the entry price for a vaporizer with real temperature control and a display. It pays for itself in flower you no longer burn. Add a USB-C cable and you are ready.", why: "Anchor on what the price buys, then attach the cable. It is not in the box." },
@@ -240,7 +240,7 @@ window.GPEN_COURSES = [
         { sees: "A regular who buys top-shelf flower every week", say: "You are buying high-grade flower, and this is the model that does it justice. Titanium chamber and hybrid heating, so more of the flavor reaches you instead of burning off." },
         { sees: "Buying a nice strain as a gift, or trading up from a Dash II", say: "For a gift or a step up, this is the one. Colour display, a vibration when it reaches temperature, and a full titanium chamber. $99.95." },
       ],
-      trap: "Don't sell it on specs. Sell the flavor jump — 'you taste the strain.' Nobody buys titanium, they buy taste.",
+      trap: "Do not sell it on specifications. Sell the difference in flavor, which is the thing the customer can judge. Nobody buys titanium; they buy what it tastes like.",
       objections: [
         { says: "Why is this double the Dash II?", say: "The extra $50 buys the titanium chamber and hybrid heating. That is what produces the fuller flavor and heavier vapor. If flavor is your priority, it is worth it.", why: "Justify the gap with the mechanism behind the difference, not with a spec list." },
         { says: "It looks complicated.", say: "Three buttons, and it vibrates when it is ready. Load, double-click, draw. The color display always shows your temperature.", why: "Reduce it to three actions. Perceived complexity, not real complexity, is what loses this sale." },
@@ -528,7 +528,7 @@ window.GPEN_COURSES = [
         { sees: "Buying a cart, mentions they vape at work or in public", say: "If you use it away from home, this is the one. The mouthpiece stores inside the body, so it stays discreet in a pocket. Five voltage settings as well. $24.95." },
         { sees: "A thick distillate cart", say: "Thicker oil needs heat to flow. This has five voltage settings and a preheat mode, so the cartridge draws instead of clogging. $24.95." },
       ],
-      trap: "Don't lead with price vs. the 510 — lead with discretion and voltage. Price-first loses the upgrade.",
+      trap: "Do not lead with the price difference against the 510 Original. Lead with discretion and voltage control. A price-first comparison loses the upgrade.",
       objections: [
         { says: "Why pay more than the 510 Original?", say: "Two things: discretion and control. The mouthpiece stores inside the body, and five voltage settings let you match the oil. If you use it away from home, this is the one.", why: "Sell the two upgrades the extra $12 buys: discretion and voltage control." },
         { says: "Will it fit my cartridge?", say: "It fits most standard 510 cartridges up to 2g. Thread it on and it is ready.", why: "The only limits that matter are the 510 thread standard and the 2g size ceiling, not the brand of the cartridge." },

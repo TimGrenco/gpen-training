@@ -961,9 +961,6 @@
   }
   function howToSellHTML(c) {
     var h = c.howToSell; if (!h) return "";
-    var facts = (h.keyFacts || []).map(function (f) {
-      return '<span class="sell-fact">' + esc(f) + "</span>";
-    }).join("");
     var sibs = (h.pairsWith || []).map(function (sl) {
       var sc = courseBySlug(sl);
       return sc ? '<a class="sell-sib" href="#/course/' + sl + '" style="--accent:' + sc.accent + '">' + esc(sc.name) + "</a>" : "";
@@ -983,12 +980,11 @@
     }).join("");
     return '<div class="sell2" style="--accent:' + (c.accent || "var(--gold-bright)") + '">' +
       '<div class="sell-pair">' +
-        '<div class="sell-cue">' + ic("tag") + "When the customer is buying <b>" + esc((h.upsellFrom || "").toUpperCase()) + "</b> " + ic("arrow") + "</div>" +
+        '<div class="sell-cue">' + ic("tag") + "Customer is buying <b>" + esc((h.upsellFrom || "").toUpperCase()) + "</b></div>" +
         "<p>" + esc(h.vital) + "</p>" +
         (sibs ? '<div class="sell-sibs"><span>Pair with</span>' + sibs + "</div>" : "") +
       "</div>" +
       (h.trap ? '<p class="sell-trap">' + ic("spark") + "<span><b>Common mistake:</b> " + esc(h.trap) + "</span></p>" : "") +
-      (facts ? '<div class="sell-facts">' + facts + "</div>" : "") +
       (h.talkTrack && h.talkTrack.say ? '<blockquote class="sell-say"><em>Say this</em>&ldquo;' + esc(h.talkTrack.say) + "&rdquo;</blockquote>" : "") +
       (sces ? '<div class="sell-scns"><h4>Counter scenarios</h4>' + sces + "</div>" : "") +
       (h.whichClose ? '<div class="sell-close"><em>The either/or close</em>&ldquo;' + esc(h.whichClose) + "&rdquo;</div>" : "") +
