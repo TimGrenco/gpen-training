@@ -49,12 +49,16 @@ window.TRAINING_CONFIG = {
   },
 
   /* >>> LANGUAGE SELECTOR <<<
-     Off until a real locale file exists. The picker's machinery (LANGS / setLang
-     / bindLangSel in app.js) is intact — only the header control is hidden. With
-     it on and no translations, four of five choices just toast "coming soon",
-     which reads as an unfinished feature in the highest-status slot on the page.
-     To ship a language: add assets/data/i18n/<lang>.js, then set enabled: true. */
-  i18n: { enabled: false },
+     On. Live locales: es, de, fr, it, pt — one file each in assets/data/i18n/,
+     loaded by index.html from localStorage BEFORE app.js runs.
+
+     Adding a language is three edits and no code: write the locale file, add its
+     code to LOCALES in index.html, and add it to LANGS + LANG_ORDER in app.js.
+     Anything the file does not translate falls back to English, marked up as
+     English, so a partial locale is publishable on day one.
+
+     Set this to false to hide the picker entirely and serve English only. */
+  i18n: { enabled: true },
 
   // Master certification = finish every course in data.js (all of them are "core").
   // Set to a list of slugs to require only some; null = require them all.

@@ -172,9 +172,9 @@
   ];
   // Highest tier earned at `done` certified courses — null before the first pass.
   function tierAt(done) {
-    var t = null;
-    LADDER.forEach(function (x) { if (done >= x.at) t = x; });
-    return t;
+    var held = null;
+    LADDER.forEach(function (x) { if (done >= x.at) held = x; });
+    return held;
   }
   // The next rung still to climb — null once the ladder is topped out.
   function nextTier(done) { return LADDER.filter(function (x) { return x.at > done; })[0] || null; }
@@ -189,7 +189,7 @@
     return next ? next.pct : null;
   }
   // The tier key to mint for someone who has just certified their Nth course.
-  function earnedTierKey() { var t = tierAt(completedCount()); return t ? t.key : "course"; }
+  function earnedTierKey() { var tier = tierAt(completedCount()); return tier ? tier.key : "course"; }
   // The best percentage on offer. COPY must call this rather than typing a number:
   // the issuance logic already reads LADDER, so a hardcoded "40% off" in a headline
   // is a promise that silently goes wrong the day someone retunes the top rung.
@@ -200,7 +200,7 @@
   function pick(arr) { return arr && arr.length ? arr[Math.floor(Math.random() * arr.length)] : ""; }
   // Fisher–Yates — used to shuffle quiz question + choice order per attempt so a
   // retake isn't byte-identical (reps learn the material, not answer positions).
-  function shuffle(arr) { var a = arr.slice(); for (var j = a.length - 1; j > 0; j--) { var k = Math.floor(Math.random() * (j + 1)); var t = a[j]; a[j] = a[k]; a[k] = t; } return a; }
+  function shuffle(arr) { var a = arr.slice(); for (var j = a.length - 1; j > 0; j--) { var k = Math.floor(Math.random() * (j + 1)); var tmp = a[j]; a[j] = a[k]; a[k] = tmp; } return a; }
   // The questions a rep missed, with the right answer + why — shown on the
   // results screen so every attempt teaches, on a pass AND a fail.
   function missedReviewHTML(c, order, answers) {
@@ -209,13 +209,13 @@
       var q = c.quiz[qi];
       if (answers[pos] === q.answer) return "";
       return '<div class="qr-item">' +
-        '<div class="qr-q">' + esc(q.q) + "</div>" +
-        '<div class="qr-a"><em>Answer</em><span>' + esc(q.choices[q.answer]) + "</span></div>" +
-        (q.why ? '<div class="qr-why">' + ic("spark") + "<span>" + esc(q.why) + "</span></div>" : "") +
+        '<div class="qr-q">' + en(esc(q.q)) + "</div>" +
+        '<div class="qr-a"><em>' + t("Answer") + "</em><span>" + en(esc(q.choices[q.answer])) + "</span></div>" +
+        (q.why ? '<div class="qr-why">' + ic("spark") + "<span>" + en(esc(q.why)) + "</span></div>" : "") +
       "</div>";
     }).filter(Boolean);
     if (!rows.length) return "";
-    return '<div class="qreview"><h4>' + ic("cap") + " Worth another look &middot; " + rows.length + " missed</h4>" + rows.join("") + "</div>";
+    return '<div class="qreview"><h4>' + ic("cap") + " " + tf("Worth another look &middot; {n} missed", { n: rows.length }) + "</h4>" + rows.join("") + "</div>";
   }
 
 
@@ -262,10 +262,6 @@
     };
   }
 
-  /* The card-pull moment: passing a course flips its collectible card out of a
-     foil booster pack. Only reached from quizPass — the trivia-egg system that
-
-  // The 30% tier fires once, the first time a second card lands in the binder.
   /* Mid-funnel reward tiers, reported once each. Table-driven because the 4-course
      rung previously had no reporting at all — the middle of the funnel was dark.
      `elite` is deliberately not called "master": that type is the FULL-LINEUP event. */
@@ -280,12 +276,12 @@
      that it was earned and `flag + "Reported"` records that it actually went. */
   function maybeReportTier() {
     var done = completedCount(), s = getState(), e = getEnroll() || {}, changed = false;
-    REPORT_TIERS.forEach(function (t) {
-      if (done < t.at) return;
-      if (!s[t.flag]) { s[t.flag] = { at: new Date().toISOString() }; changed = true; logEvent(t.flag, {}, s); }
-      if (!s[t.flag + "Reported"] &&
-          sendReport({ type: t.type, name: e.name, email: e.email, store: e.store, product: t.label, score: 100, certId: "", date: niceDate() })) {
-        s[t.flag + "Reported"] = new Date().toISOString();
+    REPORT_TIERS.forEach(function (tier) {
+      if (done < tier.at) return;
+      if (!s[tier.flag]) { s[tier.flag] = { at: new Date().toISOString() }; changed = true; logEvent(tier.flag, {}, s); }
+      if (!s[tier.flag + "Reported"] &&
+          sendReport({ type: tier.type, name: e.name, email: e.email, store: e.store, product: tier.label, score: 100, certId: "", date: niceDate() })) {
+        s[tier.flag + "Reported"] = new Date().toISOString();
         changed = true;
       }
     });
@@ -369,14 +365,139 @@
   function ic(n) { return '<span class="ic">' + (IC[n] || "") + "</span>"; }
 
   /* =========================================================================
-     LANGUAGE SELECTOR — same language set + endonym pattern as assets.gpen.com.
-     PLACEHOLDER: the UI is real, but no translations exist yet, so picking a
-     non-English language says so honestly instead of half-translating the page.
-     To go live: add assets/data/i18n/<lang>.js and swap the body of setLang().
+     I18N — same language set + endonym pattern as assets.gpen.com.
+
+     THE ENGLISH STRING IS THE KEY. t("Start the quiz") looks that exact sentence
+     up in the loaded locale and returns the translation, or the English back if
+     there is none. That choice is deliberate: with invented keys ("quiz.start")
+     every locale file needs a matching key on both sides, and the failure mode is
+     a page that renders "quiz.start" to a rep. Here the worst case is English,
+     which is always readable, and a locale file is a plain English -> target map
+     that a native speaker can review without reading any code.
+
+     TWO FUNCTIONS, because HTML and attributes are not the same context:
+       t(str)  for HTML. When a string falls back to English while the page is in
+               another language it comes back wrapped in <span lang="en">, which is
+               WCAG 3.1.2 (Language of Parts) - a screen reader switches voice for
+               that run instead of reading English with Spanish phonetics.
+       tx(str) for plain text: aria-labels, title, alt, document.title, toasts.
+               Same lookup, never any markup.
+     Neither escapes: callers pass literal UI copy, and esc() is applied to DATA.
+
+     ONE locale file is loaded, by index.html, from localStorage BEFORE app.js runs
+     (a <script> tag, not fetch, so the portal still works off a file:// copy on a
+     laptop with no server). It sets window.GPEN_I18N.
      ====================================================================== */
-  var LANGS = { en: "English", es: "Espa\u00f1ol", de: "Deutsch", it: "Italiano", fr: "Fran\u00e7ais" };
-  var LANG_ORDER = ["en", "es", "de", "it", "fr"];
-  var curLang = "en";
+  var LANGS = { en: "English", es: "Espa\u00f1ol", de: "Deutsch", fr: "Fran\u00e7ais", it: "Italiano", pt: "Portugu\u00eas" };
+  var LANG_ORDER = ["en", "es", "de", "fr", "it", "pt"];
+  var K_LANG = "gpt.lang";
+  var I18N = window.GPEN_I18N && window.GPEN_I18N.strings ? window.GPEN_I18N.strings : null;
+  var curLang = (function () {
+    var l = null;
+    try { l = localStorage.getItem(K_LANG); } catch (e) {}
+    // The loaded bundle wins over the stored preference: if the two ever disagree
+    // (a locale file missing from the deploy, a stale localStorage) the page has to
+    // label itself as the language it is actually showing.
+    if (window.GPEN_I18N && window.GPEN_I18N.lang) return window.GPEN_I18N.lang;
+    return Object.prototype.hasOwnProperty.call(LANGS, l) ? l : "en";
+  })();
+
+  function t(str) {
+    if (curLang === "en" || !I18N) return str;
+    var hit = I18N[str];
+    if (hit) return hit;
+    return '<span lang="en">' + str + "</span>";
+  }
+  function tx(str) {
+    if (curLang === "en" || !I18N) return str;
+    return I18N[str] || str;
+  }
+  /* DATA text. Course content is translated by whole field in the locale file, not
+     string by string, so t() cannot see it. dt() answers the same question t() does —
+     "is this run of text actually in the page's language?" — for a course field:
+     if the loaded locale did not override that field, the value is English and gets
+     <span lang="en"> so a screen reader switches voice for it (WCAG 3.1.2). Callers
+     pass ALREADY-ESCAPED text; dt only adds the wrapper. */
+  /* Content that is deliberately English in EVERY locale — the quiz. Same WCAG
+     3.1.2 job as dt(), but unconditional, because there is no version of the quiz
+     in another language to fall back from. */
+  function en(html) {
+    if (curLang === "en" || !html) return html;
+    return '<span lang="en">' + html + "</span>";
+  }
+  function dt(slug, field, html) {
+    if (curLang === "en" || !html) return html;
+    var done = I18N_DONE[slug];
+    if (done && done[field] !== undefined) return html;
+    return '<span lang="en">' + html + "</span>";
+  }
+
+  /* Interpolating form. The placeholders travel INSIDE the translated sentence, so
+     a translator can move them: German puts the count late, Spanish early, and a
+     concatenated "You have completed " + n + " of " + m would force English order
+     on all of them. Values are substituted after lookup, so the key stays stable. */
+  function tf(str, vals) {
+    var out = t(str);
+    Object.keys(vals).forEach(function (k) {
+      out = out.split("{" + k + "}").join(String(vals[k]));
+    });
+    return out;
+  }
+  function tfx(str, vals) {
+    var out = tx(str);
+    Object.keys(vals).forEach(function (k) {
+      out = out.split("{" + k + "}").join(String(vals[k]));
+    });
+    return out;
+  }
+
+  /* Course content is overridden wholesale rather than string-by-string: the locale
+     file carries a `courses` map keyed by slug, and each key it names replaces the
+     English one in COURSES before anything renders. Anything it does not name stays
+     English - so a partial translation is a valid translation, not a broken page.
+
+     QUIZ ITEMS ARE NEVER OVERRIDDEN, and the merge refuses them explicitly. A quiz
+     item is a question, four choices and an integer index into those choices; a
+     translator reordering or "improving" a distractor silently makes the keyed
+     answer wrong, and a rep fails a quiz they answered correctly. Same reason
+     `name`, `msrp` and the media keys are refused: product names, prices, photos
+     and discount codes are identical in every language. */
+  var I18N_NEVER = { quiz: 1, slug: 1, name: 1, msrp: 1, family: 1, accent: 1, cover: 1, heroImg: 1, videos: 1, gallery: 1, pairsWith: 1, productUrl: 1, faqUrl: 1, passPct: 1 };
+  /* Which fields a locale actually replaced, per slug. dt() below reads this so a
+     field the locale did not cover can be marked up as English instead of passing
+     silently as Spanish text that happens to be in English. */
+  var I18N_DONE = {};
+  /* The About page's copy lives in GPEN_ABOUT, not in COURSES, so it gets the same
+     treatment through a synthetic slug: a locale can carry an `about` object with any
+     subset of those keys, and whatever it does not carry is marked as English by
+     dt("__about__", …). No app.js change is needed to translate the About page — add
+     the object to the locale file and it takes effect. */
+  var I18N_ABOUT = "__about__";
+  function applyAboutI18n() {
+    var o = window.GPEN_I18N && window.GPEN_I18N.about;
+    if (!o || !window.GPEN_ABOUT) return;
+    I18N_DONE[I18N_ABOUT] = o;
+    Object.keys(o).forEach(function (k) { window.GPEN_ABOUT[k] = o[k]; });
+  }
+  function applyCourseI18n() {
+    var over = window.GPEN_I18N && window.GPEN_I18N.courses;
+    if (!over) return;
+    COURSES.forEach(function (c) {
+      var o = over[c.slug]; if (!o) return;
+      I18N_DONE[c.slug] = o;
+      Object.keys(o).forEach(function (k) {
+        if (I18N_NEVER[k]) return;
+        if (k === "howToSell" && c.howToSell) {
+          Object.keys(o.howToSell).forEach(function (hk) {
+            if (I18N_NEVER[hk]) return;
+            c.howToSell[hk] = o.howToSell[hk];
+          });
+          return;
+        }
+        c[k] = o[k];
+      });
+    });
+  }
   function langSelHTML() {
     return '<div class="langsel" id="lang-select">' +
       '<button type="button" class="langsel-btn" id="lang-btn" aria-haspopup="true" aria-expanded="false" aria-label="Language: ' + LANGS[curLang] + '">' +
@@ -392,16 +513,36 @@
             '<span class="langmenu-code">' + l.toUpperCase() + "</span>" +
             '<span class="langmenu-name">' + LANGS[l] + "</span>" +
             (on ? '<span class="langmenu-tick">' + ic("check") + "</span>" : "") +
-            (l !== "en" ? '<span class="langmenu-soon">Soon</span>' : "") +
           "</button>";
         }).join("") +
       "</div>" +
     "</div>";
   }
+  /* A full reload, not a re-render. Every string on the page goes through t() at
+     render time, so switching in place would mean re-rendering the current route
+     AND the header AND re-running its bindings — and index.html is what chooses
+     which locale file to load, so the new bundle only exists after a fresh boot.
+     Writing localStorage and reloading is one line and cannot leave half the page
+     in the old language. */
   function setLang(l) {
     if (!Object.prototype.hasOwnProperty.call(LANGS, l)) return;
-    if (l !== "en") { toast(LANGS[l] + " is coming soon \u2014 translations are on the way."); return; }
-    curLang = l;
+    if (l === curLang) return;
+    try { localStorage.setItem(K_LANG, l); } catch (e) {}
+    // Keep the hash: a rep switching language mid-course lands back on the same
+    // product, not at the top of the home page.
+    location.reload();
+  }
+  /* Machine translation, stated on every page in the language being read. The
+     alternative is a rep trusting a translated product claim as if a person had
+     checked it. Only the interface and the product reference are translated: quiz
+     questions and the eligibility attestation stay in English on purpose, because a
+     mistranslated answer choice fails a rep who answered correctly, and the
+     attestation is a legal statement. */
+  function i18nNoticeHTML() {
+    if (curLang === "en") return "";
+    return '<div class="mtnotice" role="note">' + ic("globe") +
+      "<span>" + t("Machine translated and pending review. Quiz questions stay in English.") + "</span>" +
+    "</div>";
   }
   function bindLangSel() {
     document.addEventListener("click", function (ev) {
@@ -435,9 +576,9 @@
   /* ---- toast ------------------------------------------------------------- */
   var toastT;
   function toast(msg) {
-    var t = $("#toast"); if (!t) { t = document.createElement("div"); t.id = "toast"; t.setAttribute("role", "status"); t.setAttribute("aria-live", "polite"); document.body.appendChild(t); }
-    t.textContent = msg; t.classList.add("show"); clearTimeout(toastT);
-    toastT = setTimeout(function () { t.classList.remove("show"); }, 2600);
+    var el = $("#toast"); if (!el) { el = document.createElement("div"); el.id = "toast"; el.setAttribute("role", "status"); el.setAttribute("aria-live", "polite"); document.body.appendChild(el); }
+    el.textContent = msg; el.classList.add("show"); clearTimeout(toastT);
+    toastT = setTimeout(function () { el.classList.remove("show"); }, 2600);
   }
 
   /* ---- header ------------------------------------------------------------ */
@@ -460,7 +601,7 @@
        functions is header() + …content… + footer(), so the landmark wraps the
        page content without touching all five — and the skip link gives keyboard
        users a way past a nav that re-renders on every route. */
-    return '<a class="skip" href="#main">Skip to content</a>' +
+    return '<a class="skip" href="#main">' + t("Skip to content") + "</a>" +
       (DRAW_PREVIEW
       ? '<div class="preview-bar">' + ic("spark") + " <b>Preview</b> — sweepstakes shown for review. Not live; no entries are recorded.</div>"
       : "") +
@@ -474,15 +615,14 @@
       // Courses / Binder / About lived only in the footer, below a nine-section
       // course page — effectively unreachable on a phone.
       '<nav class="hdr-nav" aria-label="Main">' +
-        nav("courses", "#/", "Courses") +
-        nav("about", "#/about", "About") +
+        nav("courses", "#/", t("Products")) +
+        nav("about", "#/about", t("About")) +
       "</nav>" +
-      // The language selector only offers English today; picking anything else
-      // just toasts "coming soon", so it stays hidden until a locale file exists.
       ((CFG.i18n && CFG.i18n.enabled) ? langSelHTML() : "") +
       // Not a link: it pointed at #/, same as the logo and the Courses tab.
       (e ? '<span class="hdr-user"><span class="hdr-u-name">' + esc(e.name) + '</span><span class="hdr-u-store">' + esc(e.store || "") + "</span></span>" : "") +
     "</header>" +
+      i18nNoticeHTML() +
     '<main id="main" tabindex="-1">';
   }
   /* The skip link's href="#main" would otherwise be swallowed by the hash router
@@ -510,68 +650,37 @@
           (cn ? ": " + cn + " course certificate" + (cn === 1 ? "" : "s") : "") +
           ".\n\nThis cannot be undone. Continue?")) {
         localStorage.removeItem(K_STATE); localStorage.removeItem(K_ENROLL);
-        toast("Progress cleared \u2014 fresh start \uD83C\uDF31");
+        toast(tx("Progress cleared."));
         go("#/");
       }
     });
   }
 
-  /* ======================= THE HOME HERO ===================================
-     The landing page used to be a brochure ABOUT the training: five sections of
-     persuasion before a rep could touch anything. This is the training itself, in
-     the first screen, and it shows whoever is looking their single most useful
-     next action:
-       nobody yet   -> a real question from the real bank. Answer it and you have
-                       already started; the card then becomes an on-ramp into the
-                       exact product that question was about.
-       mid-progress -> where they left off, what is next, what it unlocks.
-       fully done   -> their top code and their certificate.
-     Nothing here writes to storage — the pop quiz is deliberately zero-commitment
-     and pre-enrollment, so a first visit still collects nothing about anybody. */
-
-  /* Questions worth meeting a stranger with: floor scenarios, not spec recall.
-     The health-adjacent items are deliberately excluded — they are good training
-     (the correct answer is to decline and redirect) but as a landing-page teaser
-  var heroQ = null;   // the question this visit is showing; kept for the answer handler
-
-
-
-  /* Returning rep: the hero IS the resume control. */
-  /* ======================= THE HOME HEADER ==================================
-     One professional status module in three states. It replaces a mascot-narrated
-     masthead and a "can you answer this" pop quiz: for a shop-floor employee the
-     useful information is how far through the six products they are, which one is
-     next, and what completing them is worth. Sentences stay under 20 words and
-     carry no idiom, per the ASD-STE100 rules the copy is written to.
+  /* ======================= THE HOME MASTHEAD ================================
+     Two states, and neither of them sells the training: mid-progress names the page
+     and gets out of the way, and fully-complete hands over the code and the
+     certificate. Nothing here writes to storage, so a first visit still collects
+     nothing about anybody. Sentences stay under 20 words and carry no idiom, per
+     the ASD-STE100 rules the copy is written to — which is also what makes them
+     translate cleanly.
      ====================================================================== */
+  /* Masthead only. The progress bar, the facts row, the Start/Resume button, the
+     next-tier nudge and the six product pips all lived here and are gone: the pips
+     duplicated the product cards immediately below them, the button pointed at the
+     first of those same cards, and between them they pushed the actual lineup a
+     full phone screen down the page. What is left names the page and gets out of
+     the way. Per-product status still shows on each card, and the reward ladder
+     still states the tiers, each in exactly one place now. */
   function heroHTML(done, total) {
     if (done >= total) return heroDoneHTML(total);
     var s = getState();
-    var open = COURSES.filter(function (c) { var r = s.courses[c.slug]; return r && !r.passed; })[0];
-    var target = open || nextCourse(null);
-    var pct = unlockPct(done);
     var started = done > 0 || COURSES.some(function (c) { return s.courses[c.slug]; });
-    var pips = COURSES.map(function (c) {
-      return '<a class="hp-pip' + (coursePassed(c.slug) ? " on" : "") + '" href="#/course/' + c.slug + '">' +
-        (coursePassed(c.slug) ? ic("check") : "") + "<span>" + esc(c.name) + "</span></a>";
-    }).join("");
     return '<section class="hero hero-prog reveal">' +
       '<div class="hero-in">' +
-        '<span class="hero-eyebrow">' + ic("cap") + " " + esc(CFG.programName || "Product training") + "</span>" +
+        '<span class="hero-eyebrow">' + ic("cap") + " " + esc(CFG.programName || tx("Product training")) + "</span>" +
         '<h1 class="hero-h1">' + (started
-            ? "Continue your product training."
-            : "Product training for retail staff.") + "</h1>" +
-        '<p class="hero-sub">' + (started
-            ? "You have completed <b>" + done + " of " + total + "</b> products."
-            : total + " products. Learn the features, the price and how to offer each one at checkout.") + "</p>" +
-        '<div class="hp-bar" role="img" aria-label="' + done + " of " + total + ' products complete"><i style="width:' + Math.round((done / total) * 100) + '%"></i></div>' +
-        '<ul class="hero-facts"><li>Free</li><li>' + total + " products</li><li>Pass each quiz to earn a discount code</li></ul>" +
-        (target
-          ? '<a class="btn xl hero-cta" href="#/course/' + target.slug + '">' +
-              (open ? "Resume" : "Start") + ": " + esc(target.name) + " " + ic("arrow") + "</a>"
-          : "") +
-        (pct ? '<p class="hero-note">Complete one more product to reach <b>' + pct + '% off</b>.</p>' : "") +
-        '<div class="hp-pips">' + pips + "</div>" +
+            ? t("Continue your product training.")
+            : t("Product training for retail staff.")) + "</h1>" +
       "</div>" +
     "</section>";
   }
@@ -580,12 +689,12 @@
   function heroDoneHTML(total) {
     return '<section class="hero hero-done reveal">' +
       '<div class="hero-in">' +
-        '<span class="hero-eyebrow">' + ic("award") + " Training complete &middot; " + total + " of " + total + "</span>" +
-        '<h1 class="hero-h1">All products complete.</h1>' +
-        '<p class="hero-sub">Your discount code is below. Your certificate is on record.</p>' +
-        '<button class="code hero-code" id="hero-code" hidden><span>••••••</span><em>' + ic("tag") + " Copy code</em></button>" +
+        '<span class="hero-eyebrow">' + ic("award") + " " + tf("Training complete &middot; {total} of {total}", { total: total }) + "</span>" +
+        '<h1 class="hero-h1">' + t("All products complete.") + "</h1>" +
+        '<p class="hero-sub">' + t("Your discount code is below. Your certificate is on record.") + "</p>" +
+        '<button class="code hero-code" id="hero-code" hidden><span>••••••</span><em>' + ic("tag") + " " + t("Copy code") + "</em></button>" +
         '<div class="hero-actions">' +
-          '<a class="btn xl ghost" href="#/certified">View certificate ' + ic("arrow") + "</a>" +
+          '<a class="btn xl ghost" href="#/certified">' + t("View certificate") + " " + ic("arrow") + "</a>" +
         "</div>" +
       "</div>" +
     "</section>";
@@ -615,8 +724,8 @@
       heroHTML(done, total) +
 
       '<section class="hub reveal">' +
-        '<div class="sec-h" id="courses"><h2>Products</h2></div>' +
-        '<p class="catalog-lede">Each product takes about five minutes. Complete them in any order.</p>' +
+        '<div class="sec-h" id="courses"><h2>' + t("Products") + "</h2></div>" +
+        '<p class="catalog-lede">' + t("Each product takes about five minutes. Complete them in any order.") + "</p>" +
         lineupHTML() +
       "</section>" +
 
@@ -640,8 +749,8 @@
   function rewardsBlock(done) {
     return '<section class="loop reveal">' +
       '<div class="loop-head">' +
-        "<h2>Discount codes</h2>" +
-        '<p class="loop-sub">Each completed product raises your discount at gpen.com. Codes are for completing training only.</p>' +
+        "<h2>" + t("Discount codes") + "</h2>" +
+        '<p class="loop-sub">' + t("Each completed product raises your discount at gpen.com. Codes are for completing training only.") + "</p>" +
       "</div>" +
       rewardsSection(done) +
     "</section>";
@@ -674,28 +783,35 @@
   /* A plain, readable course card — the home page lists COURSES, not cards.
      The trading card is the reward you get for finishing one. */
   /* The home lineup, sectioned by product family (mirrors the internal G Pen
-     product portal): 510 Batteries, Dry Herb Vaporizers, Concentrate. `match`
-     buckets each course by its data.js category; groups with no products drop out. */
+     product portal): Dry Herb, 510 Batteries, Concentrate. Groups with no products
+     drop out.
+
+     Bucketing is on `family`, a stable key in data.js, NOT on a regex against
+     `category`. It used to be /Dry Herb/i.test(c.category) — and `category` is
+     DISPLAY copy, so the moment the Spanish locale rendered it as "Vaporizador de
+     hierba seca" the Dry Herb and Concentrate panels matched nothing and four of the
+     six products silently disappeared from the home page in every non-English
+     language. The 510 panel survived only because "510" is a numeral. Never route
+     logic through a translated string. */
   var LINEUP_GROUPS = [
-    // Retitled from "Dry Herb Vaporizers" when the Grinder joined it: the panel now
-    // holds two vapes and an accessory, so the group name has to cover both. The
-    // /Dry Herb/i match already picks up "Dry Herb Accessory" with no change.
-    { key: "dryherb", title: "Dry Herb Accessories", sub: "Vaporizers and accessories for flower", icon: "leaf", match: function (c) { return /Dry Herb/i.test(c.category); } },
-    { key: "510", title: "510 Batteries", sub: "510-thread cartridge batteries", icon: "battery", match: function (c) { return /510/.test(c.category); } },
-    { key: "concentrate", title: "Concentrate", sub: "Tools for wax, rosin and other concentrates", icon: "drop", match: function (c) { return /Concentrate/i.test(c.category); } },
+    // Retitled from "Dry Herb Vaporizers" when the Grinder joined it: the panel
+    // holds two vapes and an accessory, so the group name has to cover both.
+    { key: "dryherb", title: "Dry Herb Accessories", sub: "Vaporizers and accessories for flower", icon: "leaf" },
+    { key: "510", title: "510 Batteries", sub: "510-thread cartridge batteries", icon: "battery" },
+    { key: "concentrate", title: "Concentrate", sub: "Tools for wax, rosin and other concentrates", icon: "drop" },
   ];
   function lineupHTML() {
     var panels = LINEUP_GROUPS.map(function (g) {
-      var items = COURSES.filter(g.match);
+      var items = COURSES.filter(function (c) { return c.family === g.key; });
       if (!items.length) return "";
       // ≤2 products pair up two-across on desktop so a small family doesn't span an empty row.
       var narrow = items.length <= 2 ? " fam-narrow" : "";
       return '<section class="famgroup fam-' + g.key + narrow + '">' +
           '<div class="fam-head">' +
             '<span class="fam-ic" aria-hidden="true">' + ic(g.icon) + "</span>" +
-            '<h3 class="fam-name">' + esc(g.title) + "</h3>" +
+            '<h3 class="fam-name">' + t(g.title) + "</h3>" +
             '<span class="fam-count">' + items.length + "</span>" +
-            '<span class="fam-blurb">' + esc(g.sub) + "</span>" +
+            '<span class="fam-blurb">' + t(g.sub) + "</span>" +
           "</div>" +
           '<div class="fam-body"><div class="course-grid">' + items.map(courseCard).join("") + "</div></div>" +
         "</section>";
@@ -712,11 +828,11 @@
         "<h3>" + esc(c.name) + "</h3>" +
         '<span class="cc-cat">' + esc(c.category) + "</span>" +
         '<p class="cc-diff">' + esc(c.differentiator || c.tagline) + "</p>" +
-        (c.msrp ? '<span class="cc-price">' + esc(c.msrp) + ' <em>MSRP</em></span>' : "") +
+        (c.msrp ? '<span class="cc-price">' + esc(c.msrp) + " <em>" + t("MSRP") + "</em></span>" : "") +
         '<span class="cc-foot">' +
-          (done ? '<span class="cc-status on">' + ic("check") + " Certified " + rec.score + "%</span>"
-                : '<span class="cc-status">Not yet certified</span>') +
-          '<span class="cc-go">' + (done ? "Review" : "Open") + " " + esc(c.name) + " " + ic("arrow") + "</span>" +
+          (done ? '<span class="cc-status on">' + ic("check") + " " + tf("Certified {score}%", { score: rec.score }) + "</span>"
+                : '<span class="cc-status">' + t("Not yet certified") + "</span>") +
+          '<span class="cc-go">' + (done ? t("Review") : t("Open")) + " " + esc(c.name) + " " + ic("arrow") + "</span>" +
         "</span>" +
       "</span>" +
     "</a>";
@@ -733,9 +849,9 @@
     return '<section class="cs-band reveal">' +
       '<div class="cs-inner">' +
         '<div class="cs-copy">' +
-          '<span class="eyebrow cs-eyebrow">Questions about a product?</span>' +
-          "<h2>Talk to our team.</h2>" +
-          "<p>Our crew knows the hardware, not a script. Call or email when a customer&rsquo;s standing there with a device that won&rsquo;t hit, when you need a spec you can&rsquo;t remember, or when you want the straight answer before you say it out loud.</p>" +
+          '<span class="eyebrow cs-eyebrow">' + t("Questions about a product?") + "</span>" +
+          "<h2>" + t("Talk to our team.") + "</h2>" +
+          "<p>" + t("Our team knows the hardware. Call or email when a customer is at the counter with a device that will not work, when you need a specification you cannot remember, or when you want the correct answer before you say it out loud.") + "</p>" +
         "</div>" +
         '<div class="cs-actions">' +
           (phone ? '<a class="cs-btn cs-btn-primary" href="' + esc(tel) + '">' + ic("phone") + "<span>" + esc(phone) + "</span></a>" : "") +
@@ -751,11 +867,11 @@
     var hasProgress = !!getEnroll() || (getState().courses && Object.keys(getState().courses).length > 0);
     return "</main>" + supportBand() +
       '<footer class="foot"><img src="assets/img/gpen-g-black.png" class="foot-g light" alt=""/><img src="assets/img/gpen-g-white.png" class="foot-g dark" alt=""/>' +
-      '<div class="foot-nav"><a href="#/">Products</a><a href="#/about">About G Pen</a><a href="' + esc(CFG.shopUrl) + '" target="_blank" rel="noopener">Shop gpen.com</a></div>' +
-      (hasProgress ? '<button class="foot-reset" id="reset" type="button">' + ic("refresh") + " Reset my progress &amp; start over</button>" : "") +
-      "<p>" + esc(CFG.programName) + " · " + esc(CFG.footerNote || "for authorized G Pen retail partners.") +
-        " Program &amp; press: <a href=\"mailto:" + esc(CFG.contactEmail) + "\">" + esc(CFG.contactEmail) + "</a>" +
-        (CFG.privacyUrl ? ' · <a href="' + esc(CFG.privacyUrl) + '" target="_blank" rel="noopener">Privacy</a>' : "") + "</p>" +
+      '<div class="foot-nav"><a href="#/">' + t("Products") + '</a><a href="#/about">' + t("About G Pen") + '</a><a href="' + esc(CFG.shopUrl) + '" target="_blank" rel="noopener">' + t("Shop gpen.com") + "</a></div>" +
+      (hasProgress ? '<button class="foot-reset" id="reset" type="button">' + ic("refresh") + " " + t("Reset my progress and start over") + "</button>" : "") +
+      "<p>" + esc(CFG.programName) + " · " + tx(CFG.footerNote || "for authorized G Pen retail partners.") +
+        " " + t("Program and press:") + " <a href=\"mailto:" + esc(CFG.contactEmail) + "\">" + esc(CFG.contactEmail) + "</a>" +
+        (CFG.privacyUrl ? ' · <a href="' + esc(CFG.privacyUrl) + '" target="_blank" rel="noopener">' + t("Privacy") + "</a>" : "") + "</p>" +
       '<p class="foot-motto">A Grenco Science joint · est. 2012 · <em>In Vapore Veritas</em></p>' +
       "</footer>";
   }
@@ -772,27 +888,32 @@
     var total = COURSES.length;                 // the full lineup
     var held = tierAt(done), up = nextTier(done);
     var top = LADDER[LADDER.length - 1];
-    var head = !held ? "Pass one course to unlock your first code"
-      : (up ? held.pct + "% off unlocked — " + (up.pct === top.pct ? "one more course for the top discount" : "keep certifying")
-            : "Full lineup certified. The top discount is unlocked.");
-    function need(n) { var d = n - done; return d + " more course" + (d === 1 ? "" : "s") + " to unlock"; }
+    var head = !held ? t("Pass one course to unlock your first code")
+      : (up ? tf("{pct}% off unlocked", { pct: held.pct }) + " — " + (up.pct === top.pct ? t("one more course for the top discount") : t("keep certifying"))
+            : t("Full lineup certified. The top discount is unlocked."));
+    // Plural as a whole sentence, not "course" + "s": Spanish, German, French and
+    // Portuguese all inflect more than the noun, and Italian changes the article.
+    function need(n) {
+      var d = n - done;
+      return d === 1 ? t("1 more course to unlock") : tf("{n} more courses to unlock", { n: d });
+    }
     // Every rung but the last renders as a card; the top rung is the capstone.
     // The "N more courses to unlock" hint goes ONLY on the rung they are actually
     // climbing next. On every other rung it restates the requirement already in
     // rw-sub — at 0 done, "Pass any 1 course" and "1 more course to unlock" are the
     // same sentence twice, on all four cards, which is what a first-time rep saw.
-    var rungs = LADDER.slice(0, -1).map(function (t) {
-      var got = done >= t.at, isNext = !!up && up.at === t.at;
-      return rewardCard(t.key, got, t.pct + "% OFF",
-        t.at === 1 ? "Pass any 1 course" : "Pass any " + t.at + " courses",
+    var rungs = LADDER.slice(0, -1).map(function (rung) {
+      var got = done >= rung.at, isNext = !!up && up.at === rung.at;
+      return rewardCard(rung.key, got, rung.pct + "% OFF",
+        rung.at === 1 ? t("Pass any 1 course") : tf("Pass any {n} courses", { n: rung.at }),
         // ...and not at zero done, where "N more to unlock" is word-for-word the
         // requirement above it. The hint only earns its line once it is counting DOWN
         // from something. "Next up" plus the requirement is the whole story at zero.
-        (isNext && done > 0) ? need(t.at) : "",
-        got ? "Unlocked" : (isNext ? "Next up" : "Locked"));
+        (isNext && done > 0) ? need(rung.at) : "",
+        got ? t("Unlocked") : (isNext ? t("Next up") : t("Locked")));
     }).join("");
-    return '<div class="sec-h"><h2>What you unlock</h2><span>' + head + "</span></div>" +
-      '<p class="rw-terms-head">Rewards are for completing training. They are not tied to sales, orders, or product recommendations.</p>' +
+    return '<div class="sec-h"><h2>' + t("What you unlock") + "</h2><span>" + head + "</span></div>" +
+      '<p class="rw-terms-head">' + t("Rewards are for completing training. They are not tied to sales, orders, or product recommendations.") + "</p>" +
       '<div class="rewards">' + rungs + "</div>" +
       grandCard(done >= total, done, total);
   }
@@ -806,22 +927,22 @@
     return '<div class="rw-card grand ' + (unlocked ? "on" : "off") + '">' +
       '<div class="rw-top"><span class="rw-ic">' + ic(unlocked ? "award" : "lock") + "</span>" +
         // Without a live prize there is no "grand prize" to promise — it's the top rung.
-        '<span class="rw-status">' + (unlocked ? (draw ? prizeCopy().statusOn : "Unlocked") : (draw ? "Grand prize" : "Top reward")) + "</span></div>" +
-      '<div class="rw-big">' + (draw ? "FREE G PEN <em>+ " + topPct() + "%</em>" : topPct() + "% OFF") + "</div>" +
-      '<div class="rw-sub">Certify all ' + total + " &mdash; " + (draw ? prizeCopy().rule + " " + topPct() + "% off is yours either way." : "your best code on gpen.com, plus the master certificate.") + "</div>" +
+        '<span class="rw-status">' + (unlocked ? (draw ? prizeCopy().statusOn : t("Unlocked")) : (draw ? t("Grand prize") : t("Top discount"))) + "</span></div>" +
+      '<div class="rw-big">' + (draw ? t("FREE G PEN") + " <em>+ " + topPct() + "%</em>" : topPct() + "% OFF") + "</div>" +
+      '<div class="rw-sub">' + tf("Certify all {total}", { total: total }) + " &mdash; " + (draw ? prizeCopy().rule + " " + tf("{pct}% off is yours either way.", { pct: topPct() }) : t("your best code on gpen.com, plus the master certificate.")) + "</div>" +
       (unlocked
-        ? '<button class="rw-code" data-rwcode="secret"><span class="rw-code-v">••••••</span><em>' + ic("tag") + " Tap to copy</em></button>" +
-          '<a class="rw-cert" href="#/certified">View master certificate &rarr;</a>' +
+        ? '<button class="rw-code" data-rwcode="secret"><span class="rw-code-v">••••••</span><em>' + ic("tag") + " " + t("Tap to copy") + "</em></button>" +
+          '<a class="rw-cert" href="#/certified">' + t("View master certificate") + " &rarr;</a>" +
           // grandCard bypasses rewardCard, so it needs its own terms line.
           rwTermsHTML("secret")
-        : (isNext ? '<div class="rw-lock">' + ic("spark") + " " + d + " more course" + (d === 1 ? "" : "s") + " to unlock</div>" : "")) +
+        : (isNext ? '<div class="rw-lock">' + ic("spark") + " " + (d === 1 ? t("1 more course to unlock") : tf("{n} more courses to unlock", { n: d })) + "</div>" : "")) +
     "</div>";
   }
   // "Whether it expires / stacks / is single-use" is the first thing a dispensary
   // partner asks — answer it wherever a code is shown, not just in the config.
   function rwTermsHTML(type) {
-    var t = ((CFG.discount || {})[type] || {}).terms;
-    return t ? '<p class="rw-terms">' + esc(t) + "</p>" : "";
+    var terms = ((CFG.discount || {})[type] || {}).terms;
+    return terms ? '<p class="rw-terms">' + t(terms) + "</p>" : "";
   }
   /* Renders the CLIMBING rungs only. Its one caller maps LADDER.slice(0, -1), which
      drops the last rung — the only one keyed "secret" — so the capstone never comes
@@ -831,12 +952,12 @@
   function rewardCard(type, unlocked, big, sub, lockMsg, status) {
     if (unlocked) lockMsg = "";
     return '<div class="rw-card ' + (unlocked ? "on" : "off") + '">' +
-      '<div class="rw-top"><span class="rw-ic">' + ic(unlocked ? "tag" : "lock") + '</span><span class="rw-status">' + esc(status || (unlocked ? "Unlocked" : "Locked")) + "</span></div>" +
+      '<div class="rw-top"><span class="rw-ic">' + ic(unlocked ? "tag" : "lock") + '</span><span class="rw-status">' + (status || (unlocked ? t("Unlocked") : t("Locked"))) + "</span></div>" +
       '<div class="rw-big">' + big + "</div>" +
       '<div class="rw-sub">' + sub + "</div>" +
       (unlocked
-        ? '<button class="rw-code" data-rwcode="' + type + '"><span class="rw-code-v">••••••</span><em>' + ic("tag") + " Tap to copy</em></button>" +
-          '<a class="rw-shop" href="' + esc(CFG.shopUrl) + '" target="_blank" rel="noopener">Shop gpen.com ' + ic("arrow") + "</a>" +
+        ? '<button class="rw-code" data-rwcode="' + type + '"><span class="rw-code-v">••••••</span><em>' + ic("tag") + " " + t("Tap to copy") + "</em></button>" +
+          '<a class="rw-shop" href="' + esc(CFG.shopUrl) + '" target="_blank" rel="noopener">' + t("Shop gpen.com") + " " + ic("arrow") + "</a>" +
           rwTermsHTML(type)
         // No hint on a rung they are not climbing yet — the lock icon, the dimmed
         // .off treatment and the "Locked" status already carry it. An empty rw-lock
@@ -848,7 +969,7 @@
     if (navigator.clipboard) navigator.clipboard.writeText(text).then(function () { toast(okMsg); }, function () { toast(text); });
     else toast(text);
   }
-  function copyCode(code) { copyText(code, "Code copied — " + code); }
+  function copyCode(code) { copyText(code, tfx("Code copied — {code}", { code: code })); }
   function fillRewards() {
     var e = getEnroll() || {};
     $$("[data-rwcode]").forEach(function (btn) {
@@ -886,35 +1007,51 @@
     var n = 0;
     function ref(title, body) {
       if (!body) return "";
-      return '<details class="ref-item"><summary>' + esc(title) + "</summary><div class=\"ref-body\">" + body + "</div></details>";
+      return '<details class="ref-item"><summary>' + title + "</summary><div class=\"ref-body\">" + body + "</div></details>";
     }
     app.innerHTML = header() +
       '<section class="course reveal">' +
-        '<a class="back" href="#/">' + ic("back") + " All products</a>" +
+        '<a class="back" href="#/">' + ic("back") + " " + t("All products") + "</a>" +
         '<div class="cx-hero' + (c.heroImg ? "" : " no-life") + '" style="--accent:' + c.accent + '">' +
           '<div class="cx-hero-media"><img src="' + esc(sized(hero, 760)) + '" alt="' + esc(c.name) + '" loading="eager"/></div>' +
           '<div class="cx-hero-body">' +
-            '<span class="ch-eyebrow">' + ic("cap") + " Product training" + (passed ? ' · <b class="ch-done">' + ic("check") + " Complete</b>" : "") + "</span>" +
+            '<span class="ch-eyebrow">' + ic("cap") + " " + t("Product training") + (passed ? ' · <b class="ch-done">' + ic("check") + " " + t("Complete") + "</b>" : "") + "</span>" +
             "<h1>" + esc(c.name) + "</h1>" +
-            '<span class="cx-cat">' + esc(c.category) + " · " + esc(c.msrp) + " MSRP</span>" +
+            '<span class="cx-cat">' + esc(c.category) + " · " + esc(c.msrp) + " " + t("MSRP") + "</span>" +
             "<p>" + esc(c.tagline) + "</p>" +
-            '<div class="ch-meta">' + c.quiz.length + " questions · " + c.passPct + "% to pass · about " + c.minutes + " minutes</div>" +
+            '<div class="ch-meta">' + tf("{q} questions · {pct}% to pass · about {min} minutes", { q: c.quiz.length, pct: c.passPct, min: c.minutes }) + "</div>" +
           "</div>" +
         "</div>" +
 
         // 1. The three facts to hold in your head.
         (c.howToSell && c.howToSell.keyFacts && c.howToSell.keyFacts.length
-          ? secHead(++n, "Three key points") + floorFactsHTML(c) : "") +
+          ? secHead(++n, t("Three key points")) + floorFactsHTML(c) : "") +
 
-        // 2. The counter moment. This is the section the client asked to build the
+        // 2. What the product IS, in the words the storefront uses, plus the feature
+        //    list. This was buried in the collapsed reference under "Full
+        //    description", which meant a rep could reach the quiz having read three
+        //    fragments and a sales script but never a description of the product.
+        //    The deep specification table stays collapsed: a rep needs "5 voltage
+        //    settings", not "zinc alloy, 3.94 x 0.5 x 0.25 in".
+        (descHTML || (c.highlights && c.highlights.length)
+          ? secHead(++n, t("About this product")) +
+            '<div class="aboutprod">' +
+              (descHTML ? '<div class="prose">' + descHTML + "</div>" : "") +
+              (c.highlights && c.highlights.length
+                ? '<ul class="hl-list">' + c.highlights.map(function (h) { return "<li>" + ic("check") + "<span>" + esc(h) + "</span></li>"; }).join("") + "</ul>"
+                : "") +
+            "</div>"
+          : "") +
+
+        // 3. The counter moment. This is the section the client asked to build the
         //    portal around, so it sits as high as it can while still following the
-        //    facts that make it make sense.
-        (c.howToSell ? secHead(++n, "At the counter") + howToSellHTML(c) : "") +
+        //    facts and the description that make it make sense.
+        (c.howToSell ? secHead(++n, t("At the counter")) + howToSellHTML(c) : "") +
 
-        // 3. One video. The grid stays for products that have more than one, but the
+        // 4. One video. The grid stays for products that have more than one, but the
         //    heading is singular-first because most have one or two.
         (c.videos && c.videos.length
-        ? secHead(++n, c.videos.length > 1 ? "Videos" : "Video") +
+        ? secHead(++n, c.videos.length > 1 ? t("Videos") : t("Video")) +
         '<div class="vid-grid">' + c.videos.map(function (v) {
           return '<button class="vid" data-yt="' + esc(v.youtube || "") + '" data-title="' + esc(v.title) + '">' +
             '<span class="vid-thumb"><img src="' + esc(v.thumb) + '" alt="" loading="lazy"/><span class="vid-play">' + ic("play") + "</span></span>" +
@@ -922,20 +1059,18 @@
         }).join("") + "</div>"
         : "") +
 
-        // 4. The quiz.
-        secHead(++n, passed ? "Your certificate" : "Quiz") +
+        // 5. The quiz.
+        secHead(++n, passed ? t("Your certificate") : t("Quiz")) +
         '<div id="quiz-zone"></div>' +
 
         // Reference material, collapsed. Out of the path, one tap away.
         '<div class="refblock">' +
-          '<h2 class="ref-h">Product reference</h2>' +
-          ref("Full description", '<div class="prose">' + descHTML + "</div>" +
-              (c.highlights && c.highlights.length ? '<ul class="hl-list">' + c.highlights.map(function (h) { return "<li>" + ic("check") + "<span>" + esc(h) + "</span></li>"; }).join("") + "</ul>" : "")) +
-          ref("Photos", galleryHTML(c)) +
-          ref("Specifications", (c.specs && c.specs.length) ? specTableHTML(c.specs) : "") +
-          ref("How to use it", (c.howToUse && c.howToUse.length) ? stepListHTML(c.howToUse) : "") +
-          ref("How to clean it", (c.howToClean && c.howToClean.length) ? stepListHTML(c.howToClean) : "") +
-          ref("Common customer questions", (c.faq && c.faq.length) ? faqHTML(c.faq) : "") +
+          '<h2 class="ref-h">' + t("Product reference") + "</h2>" +
+          ref(t("Photos"), galleryHTML(c)) +
+          ref(t("Full specifications"), (c.specs && c.specs.length) ? specTableHTML(c.specs, c.slug) : "") +
+          ref(t("How to use it"), (c.howToUse && c.howToUse.length) ? stepListHTML(c.howToUse, c.slug, "howToUse") : "") +
+          ref(t("How to clean it"), (c.howToClean && c.howToClean.length) ? stepListHTML(c.howToClean, c.slug, "howToClean") : "") +
+          ref(t("Common customer questions"), (c.faq && c.faq.length) ? faqHTML(c.faq, c.slug) : "") +
         "</div>" +
       "</section>" +
       footer();
@@ -945,7 +1080,7 @@
     revealOnScroll();
   }
 
-  function secHead(n, t) { return '<div class="sec-h big"><span class="sec-n">' + n + "</span><h2>" + t + "</h2></div>"; }
+  function secHead(n, label) { return '<div class="sec-h big"><span class="sec-n">' + n + "</span><h2>" + label + "</h2></div>"; }
   /* The sales battlecard. A rep should be able to scan it in seconds and read
      the "say this" lines out loud verbatim. Fixed block order so muscle memory
      builds: trigger → 3 facts → talk track → which-one close → objections → AOV. */
@@ -955,10 +1090,24 @@
   function floorFactsHTML(c) {
     var facts = (c.howToSell && c.howToSell.keyFacts) || [];
     if (!facts.length) return "";
-    return '<div class="floorfacts">' + facts.map(function (t, i) {
-      return '<div class="ff-card"><span class="ff-n" aria-hidden="true">' + (i + 1) + "</span><p>" + esc(t) + "</p></div>";
+    return '<div class="floorfacts">' + facts.map(function (fact, i) {
+      return '<div class="ff-card"><span class="ff-n" aria-hidden="true">' + (i + 1) + "</span><p>" + esc(fact) + "</p></div>";
     }).join("") + "</div>";
   }
+  /* ONE example, then a disclosure. This section used to render everything at once —
+     the trigger, the mistake, the script, two or three counter scenarios, the
+     either/or close and three or four objection cards — roughly 350 words a rep had
+     to scroll past to reach the quiz. The median retail associate gives training
+     about eight minutes a MONTH, so a wall of scripts is a wall they skip.
+
+     Visible now: who to offer it to, why it matters, and the one line to say. That
+     is the whole job at a counter. Everything else is real and still here, behind
+     one summary that says how much is in there — a rep working a slow Tuesday can
+     open it, and a rep between customers is not punished for not.
+
+     Deliberately outside the disclosure: the common mistake. It is the only block
+     that exists to stop a rep saying something wrong, including the health-claim
+     rule, and a compliance warning nobody opens is not a warning. */
   function howToSellHTML(c) {
     var h = c.howToSell; if (!h) return "";
     var sibs = (h.pairsWith || []).map(function (sl) {
@@ -967,29 +1116,41 @@
     }).join("");
     var objs = (h.objections || []).map(function (o) {
       return '<div class="obj-card">' +
-        '<div class="obj-says"><em>They say</em><span>&ldquo;' + esc(o.says) + '&rdquo;</span></div>' +
-        '<div class="obj-say"><em>You say</em><span>' + esc(o.say) + "</span></div>" +
+        '<div class="obj-says"><em>' + t("They say") + "</em><span>&ldquo;" + esc(o.says) + "&rdquo;</span></div>" +
+        '<div class="obj-say"><em>' + t("You say") + "</em><span>" + esc(o.say) + "</span></div>" +
         (o.why ? '<div class="obj-why">' + ic("spark") + "<span>" + esc(o.why) + "</span></div>" : "") +
       "</div>";
     }).join("");
     // Counter scenarios: what you SEE in the basket → what you say.
-    var sces = (h.scenarios || []).map(function (s) {
-      return '<div class="scn"><em>You see</em>' +
-        '<span class="scn-sees">' + esc(s.sees) + "</span>" +
-        '<span class="scn-say">&ldquo;' + esc(s.say) + "&rdquo;</span></div>";
+    var sces = (h.scenarios || []).map(function (sc) {
+      return '<div class="scn"><em>' + t("You see") + "</em>" +
+        '<span class="scn-sees">' + esc(sc.sees) + "</span>" +
+        '<span class="scn-say">&ldquo;' + esc(sc.say) + "&rdquo;</span></div>";
     }).join("");
+    // What the summary promises, counted from what is actually in there.
+    var extras = (h.scenarios || []).length + (h.objections || []).length + (h.whichClose ? 1 : 0);
+    var more = (sces || objs || h.whichClose || h.aov)
+      ? '<details class="sell-more">' +
+          "<summary>" + ic("caret") +
+            "<span>" + tf("More scripts and objections ({n})", { n: extras }) + "</span>" +
+          "</summary>" +
+          '<div class="sell-more-body">' +
+            (sces ? '<div class="sell-scns"><h4>' + t("Counter scenarios") + "</h4>" + sces + "</div>" : "") +
+            (h.whichClose ? '<div class="sell-close"><em>' + t("The either/or close") + "</em>&ldquo;" + esc(h.whichClose) + "&rdquo;</div>" : "") +
+            (objs ? '<div class="sell-objs"><h4>' + t("When they hesitate") + "</h4>" + objs + "</div>" : "") +
+            (h.aov ? '<p class="sell-aov">' + ic("tag") + "<span>" + esc(h.aov) + "</span></p>" : "") +
+          "</div>" +
+        "</details>"
+      : "";
     return '<div class="sell2" style="--accent:' + (c.accent || "var(--gold-bright)") + '">' +
       '<div class="sell-pair">' +
-        '<div class="sell-cue">' + ic("tag") + "Customer is buying <b>" + esc((h.upsellFrom || "").toUpperCase()) + "</b></div>" +
+        '<div class="sell-cue">' + ic("tag") + tf("Customer is buying <b>{what}</b>", { what: esc(tx(h.upsellFrom || "").toUpperCase()) }) + "</div>" +
         "<p>" + esc(h.vital) + "</p>" +
-        (sibs ? '<div class="sell-sibs"><span>Pair with</span>' + sibs + "</div>" : "") +
+        (sibs ? '<div class="sell-sibs"><span>' + t("Pair with") + "</span>" + sibs + "</div>" : "") +
       "</div>" +
-      (h.trap ? '<p class="sell-trap">' + ic("spark") + "<span><b>Common mistake:</b> " + esc(h.trap) + "</span></p>" : "") +
-      (h.talkTrack && h.talkTrack.say ? '<blockquote class="sell-say"><em>Say this</em>&ldquo;' + esc(h.talkTrack.say) + "&rdquo;</blockquote>" : "") +
-      (sces ? '<div class="sell-scns"><h4>Counter scenarios</h4>' + sces + "</div>" : "") +
-      (h.whichClose ? '<div class="sell-close"><em>The either/or close</em>&ldquo;' + esc(h.whichClose) + "&rdquo;</div>" : "") +
-      (objs ? '<div class="sell-objs"><h4>When they hesitate</h4>' + objs + "</div>" : "") +
-      (h.aov ? '<p class="sell-aov">' + ic("tag") + "<span>" + esc(h.aov) + "</span></p>" : "") +
+      (h.talkTrack && h.talkTrack.say ? '<blockquote class="sell-say"><em>' + t("Say this") + "</em>&ldquo;" + esc(h.talkTrack.say) + "&rdquo;</blockquote>" : "") +
+      (h.trap ? '<p class="sell-trap">' + ic("spark") + "<span><b>" + t("Common mistake:") + "</b> " + esc(h.trap) + "</span></p>" : "") +
+      more +
     "</div>";
   }
   function galleryHTML(c) {
@@ -999,14 +1160,14 @@
         (g.caption ? '<figcaption>' + esc(g.caption) + "</figcaption>" : "") + "</figure>";
     }).join("") + "</div>";
   }
-  function specTableHTML(specs) {
+  function specTableHTML(specs, slug) {
     return '<div class="spectable">' + specs.map(function (sp) {
-      return '<div class="spec-row"><span class="spec-k">' + esc(sp.label) + '</span><span class="spec-v">' + sp.value + "</span></div>";
+      return '<div class="spec-row"><span class="spec-k">' + dt(slug, "specs", esc(sp.label)) + '</span><span class="spec-v">' + dt(slug, "specs", sp.value) + "</span></div>";
     }).join("") + "</div>";
   }
-  function stepListHTML(steps) {
+  function stepListHTML(steps, slug, field) {
     return '<ol class="steps-list">' + steps.map(function (st, i) {
-      return '<li><span class="sl-n">' + (i + 1) + "</span><span>" + st + "</span></li>";
+      return '<li><span class="sl-n">' + (i + 1) + "</span><span>" + dt(slug, field, st) + "</span></li>";
     }).join("") + "</ol>";
   }
   /* Native <details>, matching the reference block around it. The previous version
@@ -1014,28 +1175,28 @@
      bindFaq() to toggle both; that binding is gone, so keeping the old markup would
      have left every answer permanently unreachable. Disclosure now costs no JS and
      the aria state is the browser's job. */
-  function faqHTML(faq) {
+  function faqHTML(faq, slug) {
     return '<div class="faq">' + faq.map(function (f) {
-      return '<details class="faq-item"><summary class="faq-q"><span>' + esc(f.q) + "</span></summary>" +
-        '<div class="faq-a"><p>' + esc(f.a) + "</p></div></details>";
+      return '<details class="faq-item"><summary class="faq-q"><span>' + dt(slug, "faq", esc(f.q)) + "</span></summary>" +
+        '<div class="faq-a"><p>' + dt(slug, "faq", esc(f.a)) + "</p></div></details>";
     }).join("") + "</div>";
   }
 
   function bindVideos() {
     $$(".vid").forEach(function (b) {
       b.addEventListener("click", function () {
-        var yt = b.getAttribute("data-yt"); if (!yt) { toast("Video coming soon"); return; }
+        var yt = b.getAttribute("data-yt"); if (!yt) { toast(tx("Video coming soon.")); return; }
         openVideo(yt, b.getAttribute("data-title"));
       });
     });
   }
   function openVideo(yt, title) {
     var m = document.createElement("div"); m.className = "modal";
-    m.innerHTML = '<div class="modal-in"><button class="modal-x" aria-label="Close">×</button>' +
+    m.innerHTML = '<div class="modal-in"><button class="modal-x" aria-label="' + tx("Close") + '">×</button>' +
       '<div class="modal-frame"><iframe src="https://www.youtube.com/embed/' + esc(yt) + '?autoplay=1&rel=0" title="' + esc(title) + '" allow="autoplay; encrypted-media; fullscreen" allowfullscreen></iframe></div>' +
       '<div class="modal-t">' + esc(title) + "</div></div>";
     document.body.appendChild(m); document.body.classList.add("noscroll");
-    var release = manageModalFocus(m, title ? "Video: " + title : "Video");
+    var release = manageModalFocus(m, title ? tfx("Video: {title}", { title: title }) : tx("Video"));
     // Unbind on EVERY close path, not just Escape — otherwise each video opened
     // leaves a live keydown listener on document.
     function close() { document.removeEventListener("keydown", onEsc); release(); m.remove(); document.body.classList.remove("noscroll"); }
@@ -1058,10 +1219,10 @@
   function showCertifiedState(c, rec) {
     var zone = $("#quiz-zone"), e = getEnroll() || {};
     zone.innerHTML =
-      '<div class="result pass"><div class="result-score">' + rec.score + '%<span>certified</span></div>' +
-        "<h3>" + ic("check") + " You're a certified " + esc(c.name) + " Specialist</h3>" +
-        "<p>Certificate earned " + esc(rec.date) + ". Your certificate and discount code are below. Retake the quiz at any time to improve your score.</p>" +
-        '<button class="btn ghost" id="retake">' + ic("refresh") + " Retake quiz</button>" +
+      '<div class="result pass"><div class="result-score">' + rec.score + "%<span>" + t("certified") + "</span></div>" +
+        "<h3>" + ic("check") + " " + tf("You are a certified {product} Specialist", { product: esc(c.name) }) + "</h3>" +
+        "<p>" + tf("Certificate earned {date}.", { date: esc(rec.date) }) + " " + t("Your certificate and discount code are below. Retake the quiz at any time to improve your score.") + "</p>" +
+        '<button class="btn ghost" id="retake">' + ic("refresh") + " " + t("Retake quiz") + "</button>" +
       "</div>" +
       '<div id="cert-zone"></div><div id="reward-zone" class="reward-wrap"></div>';
     showCertificate(c, rec.name || e.name || "", rec.date, rec.score, rec.certId, $("#cert-zone"));
@@ -1078,19 +1239,23 @@
     zone.innerHTML =
       '<div class="certify">' +
         '<div class="certify-badge">' + ic("award") + "</div>" +
-        "<h3>" + (owned ? "Retake the quiz" : "Get certified" + (pct ? " &amp; unlock " + pct + "% off" : "")) + "</h3>" +
+        "<h3>" + (owned ? t("Retake the quiz") : (pct ? tf("Get certified and unlock {pct}% off", { pct: pct }) : t("Get certified"))) + "</h3>" +
         '<p class="lead">' + (owned
-          ? "Retake the " + c.quiz.length + "-question quiz (score " + c.passPct + "%+) to refresh your score on your <strong>" + esc(c.name) + "</strong> certificate. Your discount code is unchanged."
-          : "Score " + c.passPct + "%+ on the " + c.quiz.length + "-question quiz to earn your <strong>" + esc(c.name) + "</strong> Product Specialist certificate and a gpen.com discount code. Spell your name the way you want it printed on the certificate.") + "</p>" +
+          ? tf("Retake the {n}-question quiz (score {pct}%+) to refresh your score on your <strong>{product}</strong> certificate. Your discount code is unchanged.", { n: c.quiz.length, pct: c.passPct, product: esc(c.name) })
+          : tf("Score {pct}%+ on the {n}-question quiz to earn your <strong>{product}</strong> Product Specialist certificate and a gpen.com discount code. Spell your name the way you want it printed on the certificate.", { pct: c.passPct, n: c.quiz.length, product: esc(c.name) })) + "</p>" +
         '<div class="certify-form">' +
-          field("name", "Your full name", "text", e.name, "Jane Budtender", "name") +
-          field("email", "Email address", "email", e.email, "you@store.com", "email") +
-          field("store", "Store / shop name", "text", e.store, "Cloud 9 Smoke Shop", "organization") +
+          field("name", t("Your full name"), "text", e.name, tx("Jane Budtender"), "name") +
+          field("email", t("Email address"), "email", e.email, "you@store.com", "email") +
+          field("store", t("Store name"), "text", e.store, tx("Cloud 9 Smoke Shop"), "organization") +
           // Never pre-checked: the attestation is per person, and on a shared
           // counter tablet an inherited tick would attest for someone else.
+          /* NOT translated, in any locale. This is a legal statement a person is
+             affirming about themselves, and a machine-translated version of it is
+             not the statement counsel reviewed. It stays in English until a
+             qualified translation is signed off per market. */
           '<label class="attest"><input type="checkbox" id="f-attest" />' +
-            "<span>I confirm I am 21 or older and currently work as authorized retail staff at a licensed dispensary or smoke shop.</span></label>" +
-          '<button class="btn xl full" id="start-quiz">Start the quiz ' + ic("arrow") + "</button>" +
+            '<span lang="en">I confirm I am 21 or older and currently work as authorized retail staff at a licensed dispensary or smoke shop.</span></label>' +
+          '<button class="btn xl full" id="start-quiz">' + t("Start the quiz") + " " + ic("arrow") + "</button>" +
           /* ONE unconditional disclosure, deliberately not branched on whether a
              webhook is configured yet. The old copy reassured reps that data
              "saves to this browser only" until a store "enables" reporting —
@@ -1099,17 +1264,17 @@
              so anyone who certified under that reassurance would have had their
              details sent the moment a webhook was pasted, with no re-consent.
              Everyone now agrees to the same thing up front. */
-          '<p class="form-fine"><b>Use your own phone</b> — progress and certificates save to this browser, so a shared tablet mixes reps together. ' +
-            "Your name, email and store are recorded so G&nbsp;Pen can credit the completion to your shop, and may be sent to G&nbsp;Pen for that purpose." +
-            (CFG.privacyUrl ? ' <a href="' + esc(CFG.privacyUrl) + '" target="_blank" rel="noopener">Privacy</a>.' : "") + "</p>" +
+          '<p class="form-fine"><b>' + t("Use your own phone.") + "</b> " + t("Progress and certificates save to this browser, so a shared tablet mixes staff together.") + " " +
+            t("Your name, email and store are recorded so G Pen can credit the completion to your shop, and may be sent to G Pen for that purpose.") +
+            (CFG.privacyUrl ? ' <a href="' + esc(CFG.privacyUrl) + '" target="_blank" rel="noopener">' + t("Privacy") + "</a>." : "") + "</p>" +
         "</div>" +
       "</div>";
     $("#start-quiz").addEventListener("click", function () {
       var name = $("#f-name").value.trim(), email = $("#f-email").value.trim(), store = $("#f-store").value.trim();
-      if (!name) { toast("Enter your name for the certificate"); $("#f-name").focus(); return; }
-      if (!email || email.indexOf("@") < 0) { toast("Enter a valid email"); $("#f-email").focus(); return; }
-      if (!store) { toast("Enter your store name"); $("#f-store").focus(); return; }
-      if (!$("#f-attest").checked) { toast("Please confirm you're 21+ and retail staff"); $("#f-attest").focus(); return; }
+      if (!name) { toast(tx("Enter your name for the certificate.")); $("#f-name").focus(); return; }
+      if (!email || email.indexOf("@") < 0) { toast(tx("Enter a valid email address.")); $("#f-email").focus(); return; }
+      if (!store) { toast(tx("Enter your store name.")); $("#f-store").focus(); return; }
+      if (!$("#f-attest").checked) { toast(tx("Confirm you are 21 or older and authorized retail staff.")); $("#f-attest").focus(); return; }
       var prev = getEnroll();
       /* Shared counter tablet: a second rep would otherwise inherit the first
          rep's passed courses and mint certificates on top of them. The form
@@ -1122,9 +1287,11 @@
       var handover = !!prev && (!sameId(prev.name, name) || !sameId(prev.email, email));
       if (handover) {
         var n = completedCount();
-        var who = (prev.name || "someone else") + (sameId(prev.name, name) && prev.email ? " (" + prev.email + ")" : "");
-        if (!confirm("This device is signed in as " + who + ".\n\nContinuing as " + name + " will clear " + (prev.name || "their") + "'s progress on this device" +
-            (n ? " — including " + n + " course certificate" + (n === 1 ? "" : "s") : "") + ". This can't be undone.\n\nContinue as " + name + "?")) return;
+        var who = (prev.name || tx("someone else")) + (sameId(prev.name, name) && prev.email ? " (" + prev.email + ")" : "");
+        var lost = n === 0 ? "" : (n === 1 ? tx("1 course certificate") : tfx("{n} course certificates", { n: n }));
+        if (!confirm(tfx("This device is signed in as {who}.", { who: who }) + "\n\n" +
+            tfx("Continuing as {name} will clear the progress saved on this device{lost}. This cannot be undone.", { name: name, lost: lost ? ", " + tfx("including {lost}", { lost: lost }) : "" }) + "\n\n" +
+            tfx("Continue as {name}?", { name: name }))) return;
         localStorage.removeItem(K_STATE);
       }
       setEnroll({ name: name, email: email, store: store, attest21: true, attestedAt: new Date().toISOString(), ts: (!handover && prev && prev.ts) || new Date().toISOString() });
@@ -1146,13 +1313,13 @@
       var q = c.quiz[order[i]];
       zone.innerHTML = '<div class="quiz">' +
         '<div class="quiz-bar"><div class="quiz-bar-fill" style="width:' + Math.round((i / c.quiz.length) * 100) + '%"></div></div>' +
-        '<div class="quiz-count"><span class="qc-num">Question ' + (i + 1) + " of " + c.quiz.length + "</span>" +
-          '<span class="quiz-score">' + ic("check") + " <b>" + correctSoFar + "</b> correct</span></div>" +
-        '<div class="quiz-q">' + esc(q.q) + "</div>" +
+        '<div class="quiz-count"><span class="qc-num">' + tf("Question {i} of {n}", { i: i + 1, n: c.quiz.length }) + "</span>" +
+          '<span class="quiz-score">' + ic("check") + " " + tf("<b>{n}</b> correct", { n: correctSoFar }) + "</span></div>" +
+        '<div class="quiz-q">' + en(esc(q.q)) + "</div>" +
         // Choices render in a shuffled order, but data-ci keeps each choice's
         // ORIGINAL index so the answer check (ci === q.answer) is unaffected.
         '<div class="quiz-choices">' + shuffle(q.choices.map(function (_, ci) { return ci; })).map(function (ci, pos) {
-          return '<button class="choice" data-ci="' + ci + '"><span class="ch-key">' + String.fromCharCode(65 + pos) + "</span><span>" + esc(q.choices[ci]) + "</span></button>";
+          return '<button class="choice" data-ci="' + ci + '"><span class="ch-key">' + String.fromCharCode(65 + pos) + "</span><span>" + en(esc(q.choices[ci])) + "</span></button>";
         }).join("") + "</div>" +
         '<div class="quiz-why" hidden></div>' +
         '<button class="btn xl next" id="q-next" hidden></button>' +
@@ -1174,8 +1341,8 @@
         b.disabled = true;
         // Right/wrong was carried by colour alone. Label it for anyone who can't
         // use colour, and for screen readers reading back the options.
-        if (bci === q.answer) { b.classList.add("correct"); b.setAttribute("aria-label", b.textContent.trim() + " — correct answer"); }
-        else if (bci === ci) { b.classList.add("wrong"); b.setAttribute("aria-label", b.textContent.trim() + " — your answer, incorrect"); }
+        if (bci === q.answer) { b.classList.add("correct"); b.setAttribute("aria-label", b.textContent.trim() + " — " + tx("correct answer")); }
+        else if (bci === ci) { b.classList.add("wrong"); b.setAttribute("aria-label", b.textContent.trim() + " — " + tx("your answer, incorrect")); }
       });
       var why = $(".quiz-why", zone); why.hidden = false;
       why.className = "quiz-why " + (correct ? "ok" : "no");
@@ -1185,10 +1352,10 @@
       // Verdict then reason. The verdict is a fixed word, never a randomised line, so
       // a screen reader hears the same thing every time.
       why.innerHTML =
-        '<span class="qw-text"><b class="qw-verdict">' + (correct ? "Correct." : "Incorrect.") + "</b> " +
-        esc(q.why) + "</span>";
+        '<span class="qw-text"><b class="qw-verdict">' + (correct ? t("Correct.") : t("Incorrect.")) + "</b> " +
+        en(esc(q.why)) + "</span>";
       var n = $("#q-next", zone); n.hidden = false;
-      n.innerHTML = (i + 1 < c.quiz.length ? "Next question " + ic("arrow") : "See my results " + ic("arrow"));
+      n.innerHTML = (i + 1 < c.quiz.length ? t("Next question") + " " + ic("arrow") : t("See my results") + " " + ic("arrow"));
       // The explainer is the best teaching moment in the quiz and it renders
       // below the fold on a phone. block:"end" (plus scroll-margin-bottom) lands
       // the Next button fully on screen with the explainer above it — "nearest"
@@ -1221,9 +1388,13 @@
     var needCorrect = Math.ceil((c.passPct / 100) * c.quiz.length);
     var away = Math.max(1, needCorrect - correct);
     zone.innerHTML = '<div class="result fail" tabindex="-1" role="status" aria-live="polite">' +
-      '<div class="result-score">' + pct + '%<span>' + correct + " of " + c.quiz.length + " correct</span></div>" +
-      "<h3>Not passed</h3><p>You needed " + c.passPct + "% to pass and were " + away + " question" + (away === 1 ? "" : "s") + " short. Review the answers below, then try again.</p>" +
-      '<button class="btn xl" id="retry">' + ic("refresh") + " Retake the quiz</button>" +
+      '<div class="result-score">' + pct + "%<span>" + tf("{correct} of {n} correct", { correct: correct, n: c.quiz.length }) + "</span></div>" +
+      "<h3>" + t("Not passed") + "</h3><p>" +
+        (away === 1
+          ? tf("You needed {pct}% to pass and were 1 question short.", { pct: c.passPct })
+          : tf("You needed {pct}% to pass and were {away} questions short.", { pct: c.passPct, away: away })) +
+        " " + t("Review the answers below, then try again.") + "</p>" +
+      '<button class="btn xl" id="retry">' + ic("refresh") + " " + t("Retake the quiz") + "</button>" +
     "</div>" +
     missedReviewHTML(c, order, answers);
     $("#retry").addEventListener("click", function () { runQuiz(c); });
@@ -1272,14 +1443,14 @@
 
     var master = isMasterEarned();
     var progNote = firstTime ? ""
-      : (improved ? " This is your best score so far."
-                  : " Your best score of " + rec.score + "% remains on your certificate.");
+      : (improved ? " " + t("This is your best score so far.")
+                  : " " + tf("Your best score of {score}% remains on your certificate.", { score: rec.score }));
     var next = firstTime && !master ? nextCourse(c.slug) : null;
     var zone = $("#quiz-zone");
     zone.innerHTML = '<div class="result pass" tabindex="-1" role="status" aria-live="polite">' +
-        '<div class="result-score">' + pct + '%<span>' + correct + " of " + c.quiz.length + " correct</span></div>" +
-        "<h3>" + ic("check") + " Passed</h3>" +
-        "<p>You are certified on the <strong>" + esc(c.name) + "</strong>." + progNote + "</p>" +
+        '<div class="result-score">' + pct + "%<span>" + tf("{correct} of {n} correct", { correct: correct, n: c.quiz.length }) + "</span></div>" +
+        "<h3>" + ic("check") + " " + t("Passed") + "</h3>" +
+        "<p>" + tf("You are certified on the <strong>{product}</strong>.", { product: esc(c.name) }) + progNote + "</p>" +
       "</div>" +
       '<div id="cert-zone"></div>' +
       '<div id="reward-zone" class="reward-wrap"></div>' +
@@ -1289,10 +1460,10 @@
       // single un-wrapped line — the banner for the biggest moment in the app rendered
       // as a row of squeezed one-word columns. Three items now: icon, text, arrow.
       (master ? '<a class="master-unlock" href="#/certified">' + ic("award") +
-                  '<span class="mu-txt">All products complete. Open your certificate and your <strong>' + topPct() + "% discount code</strong>.</span>" + ic("arrow") + "</a>"
-              : next ? '<a class="btn xl nextup-cta" href="#/course/' + next.slug + '">Next product: ' + esc(next.name) + " " + ic("arrow") + "</a>" +
-                       '<a class="linklike backdash" href="#/">Back to all products</a>'
-              : '<a class="btn ghost xl backdash" href="#/">Back to all products ' + ic("arrow") + "</a>");
+                  '<span class="mu-txt">' + tf("All products complete. Open your certificate and your <strong>{pct}% discount code</strong>.", { pct: topPct() }) + "</span>" + ic("arrow") + "</a>"
+              : next ? '<a class="btn xl nextup-cta" href="#/course/' + next.slug + '">' + tf("Next product: {product}", { product: esc(next.name) }) + " " + ic("arrow") + "</a>" +
+                       '<a class="linklike backdash" href="#/">' + t("Back to all products") + "</a>"
+              : '<a class="btn ghost xl backdash" href="#/">' + t("Back to all products") + " " + ic("arrow") + "</a>");
     showCertificate(c, e.name, rec.date, rec.score, rec.certId, $("#cert-zone"));
     // State is already saved above, so completedCount() includes this pass —
     // mint the tier they now hold (5/5 must issue 40%, not the 25% first rung).
@@ -1319,12 +1490,12 @@
       box.innerHTML = '<div class="reward">' +
         '<div class="reward-ic">' + ic("tag") + "</div>" +
         // Name the rung so climbing a tier reads as an event, not a repeat.
-        '<div class="reward-eyebrow">' + (type === "secret" ? "Top discount unlocked. Full lineup certified." : (type === "course" ? "Reward unlocked" : "New tier unlocked")) + "</div>" +
-        "<h3>" + esc(r.label) + "</h3>" +
-        '<button class="code" id="code-copy" title="Copy code"><span>' + esc(r.code) + '</span><em>Tap to copy</em></button>' +
-        "<p>" + esc(r.note || "") + "</p>" +
-        '<a class="btn xl" href="' + esc(CFG.shopUrl) + '" target="_blank" rel="noopener">Shop gpen.com ' + ic("arrow") + "</a>" +
-        '<p class="reward-terms">' + (r.terms ? esc(r.terms) + " " : "") + "Earned by completing training — not tied to sales, orders, or product recommendations.</p>" +
+        '<div class="reward-eyebrow">' + (type === "secret" ? t("Top discount unlocked. Full lineup certified.") : (type === "course" ? t("Reward unlocked") : t("New tier unlocked"))) + "</div>" +
+        "<h3>" + t(r.label) + "</h3>" +
+        '<button class="code" id="code-copy" title="' + tx("Copy code") + '"><span>' + esc(r.code) + "</span><em>" + t("Tap to copy") + "</em></button>" +
+        "<p>" + (r.note ? t(r.note) : "") + "</p>" +
+        '<a class="btn xl" href="' + esc(CFG.shopUrl) + '" target="_blank" rel="noopener">' + t("Shop gpen.com") + " " + ic("arrow") + "</a>" +
+        '<p class="reward-terms">' + (r.terms ? esc(r.terms) + " " : "") + t("Earned by completing training. Not tied to sales, orders, or product recommendations.") + "</p>" +
       "</div>";
       // Was an inline re-implementation of copyText() that had already drifted from it:
       // it skipped sfx.play("copy") and toasted "Code copied!" instead of naming the
@@ -1408,25 +1579,25 @@
       '<div class="cert" id="cert-card">' +
         '<div class="cert-inner">' +
           '<div class="cert-logo"><img src="assets/img/gpen-g-black.png" alt="G Pen"/></div>' +
-          '<div class="cert-eyebrow">G Pen · Product Specialist Program</div>' +
-          '<h3 class="cert-award">Certificate of Completion</h3>' +
-          '<div class="cert-presented">This certifies that</div>' +
+          '<div class="cert-eyebrow">G Pen · ' + t("Product Specialist Program") + "</div>" +
+          '<h3 class="cert-award">' + t("Certificate of Completion") + "</h3>" +
+          '<div class="cert-presented">' + t("This certifies that") + "</div>" +
           '<div class="cert-name">' + esc(nm) + "</div>" +
-          '<div class="cert-desc">has successfully completed the Product Specialist training and demonstrated expert product knowledge of the</div>' +
+          '<div class="cert-desc">' + t("has completed the Product Specialist training and demonstrated expert product knowledge of the") + "</div>" +
           '<div class="cert-product">' + esc(product) + "</div>" +
-          sealHTML(pct, "PRODUCT SPECIALIST") +
+          sealHTML(pct, tx("PRODUCT SPECIALIST")) +
           '<div class="cert-foot">' +
-            '<div class="cert-fcol"><span class="cert-fv">' + esc(date) + '</span><span class="cert-fl">Date Issued</span></div>' +
-            '<div class="cert-fcol"><span class="cert-fv cert-sig">Grenco Science</span><span class="cert-fl">Authorized By</span></div>' +
-            '<div class="cert-fcol"><span class="cert-fv">' + esc(cid) + '</span><span class="cert-fl">Certificate ID</span></div>' +
+            '<div class="cert-fcol"><span class="cert-fv">' + esc(date) + '</span><span class="cert-fl">' + t("Date Issued") + "</span></div>" +
+            '<div class="cert-fcol"><span class="cert-fv cert-sig">Grenco Science</span><span class="cert-fl">' + t("Authorized By") + "</span></div>" +
+            '<div class="cert-fcol"><span class="cert-fv">' + esc(cid) + '</span><span class="cert-fl">' + t("Certificate ID") + "</span></div>" +
           "</div>" +
         "</div>" +
       "</div>" +
       '<div class="cert-actions">' +
-        '<button class="btn" id="cert-print">' + ic("print") + " Print certificate</button>" +
-        '<button class="btn ghost" id="cert-dl">' + ic("dl") + " Download image</button>" +
-        '<button class="btn gold" id="cert-ig">' + ic("share") + " Save story image</button>" +
-        '<button class="btn ghost" id="cert-mail">' + ic("mail") + " Email it</button>" +
+        '<button class="btn" id="cert-print">' + ic("print") + " " + t("Print certificate") + "</button>" +
+        '<button class="btn ghost" id="cert-dl">' + ic("dl") + " " + t("Download image") + "</button>" +
+        '<button class="btn gold" id="cert-ig">' + ic("share") + " " + t("Save story image") + "</button>" +
+        '<button class="btn ghost" id="cert-mail">' + ic("mail") + " " + t("Email it") + "</button>" +
       "</div>";
     $("#cert-print").addEventListener("click", printCert);
     $("#cert-dl").addEventListener("click", function () { downloadCertificate(product, nm, date, pct, cid, "PRODUCT SPECIALIST"); });
@@ -1482,13 +1653,6 @@
   // ---- Shareable IG story / reel image (1080×1920) --------------------------
   var CERT_LOGO_W = new Image(); CERT_LOGO_W.crossOrigin = "anonymous"; CERT_LOGO_W.src = "assets/img/gpen-g-white.png";
 
-  /* =========================================================================
-     SAVE A CARD AS AN IMAGE
-     Renders the trading card to a 1080x1500 canvas so it can be posted. The
-     product photos come from the Shopify CDN, which is CORS-clean, so the
-     canvas stays untainted and toBlob() works.
-
-
   /* The finish-line moment. Copy comes from prizeCopy() so it always matches the
      configured mechanic; the completion is logged via the webhook, which is also
      what counts positions and picks winners (see REPORTING.md). */
@@ -1499,12 +1663,12 @@
       // right beneath it already says word for word; the body then opened by
       // restating the eyebrow. Three announcements of one fact. Eyebrow states the
       // achievement, headline delivers the prize news, body explains the mechanic.
-      '<span class="sw-eyebrow">' + ic("spark") + " Full lineup certified</span>" +
+      '<span class="sw-eyebrow">' + ic("spark") + " " + t("Full lineup certified") + "</span>" +
       '<h2 class="sw-h">' + p.headline + "</h2>" +
-      '<p class="sw-body">' + p.rule + " We will email you if you are selected. Your <b>" + topPct() + "% off</b> code is available now, on every product in the lineup.</p>" +
+      '<p class="sw-body">' + p.rule + " " + t("We will email you if you are selected.") + " " + tf("Your <b>{pct}% off</b> code is available now, on every product in the lineup.", { pct: topPct() }) + "</p>" +
       '<div class="sw-actions">' +
-        '<button class="btn xl sw-copy">' + ic("tag") + " Copy your " + topPct() + "% code</button>" +
-        '<a class="btn xl ghost" href="' + esc(CFG.shopUrl) + '" target="_blank" rel="noopener">Shop &amp; test on gpen.com ' + ic("arrow") + "</a>" +
+        '<button class="btn xl sw-copy">' + ic("tag") + " " + tf("Copy your {pct}% code", { pct: topPct() }) + "</button>" +
+        '<a class="btn xl ghost" href="' + esc(CFG.shopUrl) + '" target="_blank" rel="noopener">' + t("Shop gpen.com") + " " + ic("arrow") + "</a>" +
       "</div>" +
       // No rulesUrl fallback: the draft rules page is deliberately not deployed.
       '<p class="sw-fine">' + esc(prizeCopy().fine) + (CFG.sweepstakes && CFG.sweepstakes.rulesUrl ? " <a href=\"" + esc(CFG.sweepstakes.rulesUrl) + '" target="_blank" rel="noopener">Official Rules</a>.' : "") + "</p>" +
@@ -1522,10 +1686,10 @@
 
     app.innerHTML = header() +
       '<section class="course reveal">' +
-        '<a class="back" href="#/">' + ic("back") + " All courses</a>" +
+        '<a class="back" href="#/">' + ic("back") + " " + t("All products") + "</a>" +
         '<div class="master-hero">' + ic("award") +
-          "<h1>Full lineup certified</h1>" +
-          "<p>" + esc(e.name.split(" ")[0]) + ", you have completed every course in " + esc(CFG.programName) + ". You are now a <strong>fully trained G Pen Product Specialist</strong>.</p>" +
+          "<h1>" + t("Full lineup certified") + "</h1>" +
+          "<p>" + tf("{name}, you have completed every course in {program}. You are now a <strong>fully trained G Pen Product Specialist</strong>.", { name: esc(e.name.split(" ")[0]), program: esc(CFG.programName) }) + "</p>" +
         "</div>" +
         (drawLive() ? sweepsPanelHTML(e) : "") +
         '<div id="mcert"></div>' +
@@ -1538,23 +1702,23 @@
       '<div class="cert master" id="cert-card"><div class="cert-inner">' +
         '<div class="cert-logo"><img src="assets/img/gpen-g-black.png" alt="G Pen"/></div>' +
         '<div class="cert-eyebrow">G Pen · ' + esc(CFG.programName) + "</div>" +
-        '<h3 class="cert-award">Full Lineup Certified</h3>' +
-        '<div class="cert-presented">This certifies that</div>' +
+        '<h3 class="cert-award">' + t("Full Lineup Certified") + "</h3>" +
+        '<div class="cert-presented">' + t("This certifies that") + "</div>" +
         '<div class="cert-name">' + esc(e.name) + "</div>" +
-        '<div class="cert-desc">has completed every Product Specialist course and is recognized as a</div>' +
-        '<div class="cert-product">Fully Trained G Pen Product Specialist</div>' +
-        sealHTML(0, "PRODUCT SPECIALIST") +
+        '<div class="cert-desc">' + t("has completed every Product Specialist course and is recognized as a") + "</div>" +
+        '<div class="cert-product">' + t("Fully Trained G Pen Product Specialist") + "</div>" +
+        sealHTML(0, tx("PRODUCT SPECIALIST")) +
         '<div class="cert-foot">' +
-          '<div class="cert-fcol"><span class="cert-fv">' + esc(date) + '</span><span class="cert-fl">Date Issued</span></div>' +
-          '<div class="cert-fcol"><span class="cert-fv cert-sig">Grenco Science</span><span class="cert-fl">Authorized By</span></div>' +
-          '<div class="cert-fcol"><span class="cert-fv">' + esc(cid) + '</span><span class="cert-fl">Certificate ID</span></div>' +
+          '<div class="cert-fcol"><span class="cert-fv">' + esc(date) + '</span><span class="cert-fl">' + t("Date Issued") + "</span></div>" +
+          '<div class="cert-fcol"><span class="cert-fv cert-sig">Grenco Science</span><span class="cert-fl">' + t("Authorized By") + "</span></div>" +
+          '<div class="cert-fcol"><span class="cert-fv">' + esc(cid) + '</span><span class="cert-fl">' + t("Certificate ID") + "</span></div>" +
         "</div>" +
       "</div></div>" +
       '<div class="cert-actions">' +
-        '<button class="btn" id="cert-print">' + ic("print") + " Print certificate</button>" +
-        '<button class="btn ghost" id="cert-dl">' + ic("dl") + " Download image</button>" +
-        '<button class="btn gold" id="cert-ig">' + ic("share") + " Save story image</button>" +
-        '<button class="btn ghost" id="cert-mail">' + ic("mail") + " Email it</button>" +
+        '<button class="btn" id="cert-print">' + ic("print") + " " + t("Print certificate") + "</button>" +
+        '<button class="btn ghost" id="cert-dl">' + ic("dl") + " " + t("Download image") + "</button>" +
+        '<button class="btn gold" id="cert-ig">' + ic("share") + " " + t("Save story image") + "</button>" +
+        '<button class="btn ghost" id="cert-mail">' + ic("mail") + " " + t("Email it") + "</button>" +
       "</div>";
     $("#cert-print").addEventListener("click", printCert);
     $("#cert-dl").addEventListener("click", function () { downloadCertificate("G Pen Product Specialist", e.name, date, 0, cid, "FULL LINEUP"); });
@@ -1580,31 +1744,31 @@
   function renderAbout() {
     var a = window.GPEN_ABOUT || {};
     var e = getEnroll();
-    setTitleDoc("About G Pen");
-    var founding = (Array.isArray(a.foundingStory) ? a.foundingStory : [a.foundingStory || ""]).map(function (p) { return "<p>" + esc(p) + "</p>"; }).join("");
+    setTitleDoc(tx("About G Pen"));
+    var founding = (Array.isArray(a.foundingStory) ? a.foundingStory : [a.foundingStory || ""]).map(function (p) { return "<p>" + dt(I18N_ABOUT, "foundingStory", esc(p)) + "</p>"; }).join("");
     app.innerHTML = header() +
       '<section class="about reveal">' +
-        '<a class="back" href="#/">' + ic("back") + " Home</a>" +
+        '<a class="back" href="#/">' + ic("back") + " " + t("Products") + "</a>" +
         '<div class="about-hero">' +
           '<img class="about-g" src="assets/img/gpen-g-white.png" alt="G Pen"/>' +
-          '<span class="ch-eyebrow">' + ic("cap") + " About the brand</span>" +
+          '<span class="ch-eyebrow">' + ic("cap") + " " + t("About the brand") + "</span>" +
           // Derived, not hardcoded: this h1 said "15 years" while the stat tile
           // directly below it said "14+" — a contradiction on one screen. Both
           // now come from the founding year, so they cannot drift or go stale.
-          "<h1>" + brandYears() + " years of leading the culture.</h1>" +
-          "<p>" + esc(a.intro || "") + "</p>" +
+          "<h1>" + tf("{years} years of leading the culture.", { years: brandYears() }) + "</h1>" +
+          "<p>" + dt(I18N_ABOUT, "intro", esc(a.intro || "")) + "</p>" +
         "</div>" +
-        (a.stats ? '<div class="about-stats">' + a.stats.map(function (s) { return '<div class="astat"><strong>' + esc(s.number) + "</strong><span>" + esc(s.label) + "</span></div>"; }).join("") + "</div>" : "") +
-        '<div class="about-block"><h2>Our story</h2>' + founding + "</div>" +
-        (a.milestones ? '<div class="about-block"><h2>Milestones</h2><ol class="timeline">' + a.milestones.map(function (m) {
-          return '<li><span class="tl-year">' + esc(m.year) + "</span><span class=\"tl-dot\"></span><p>" + esc(m.text) + "</p></li>";
+        (a.stats ? '<div class="about-stats">' + a.stats.map(function (s) { return '<div class="astat"><strong>' + esc(s.number) + "</strong><span>" + dt(I18N_ABOUT, "stats", esc(s.label)) + "</span></div>"; }).join("") + "</div>" : "") +
+        '<div class="about-block"><h2>' + t("Our story") + "</h2>" + founding + "</div>" +
+        (a.milestones ? '<div class="about-block"><h2>' + t("Milestones") + '</h2><ol class="timeline">' + a.milestones.map(function (m) {
+          return '<li><span class="tl-year">' + esc(m.year) + "</span><span class=\"tl-dot\"></span><p>" + dt(I18N_ABOUT, "milestones", esc(m.text)) + "</p></li>";
         }).join("") + "</ol></div>" : "") +
-        (a.collaborations ? '<div class="about-block"><h2>Iconic collaborations</h2><p class="lead">G Pen has partnered with some of the biggest names in music and cannabis:</p><div class="collabs">' +
+        (a.collaborations ? '<div class="about-block"><h2>' + t("Collaborations") + '</h2><p class="lead">' + t("G Pen has partnered with leading names in music and cannabis:") + '</p><div class="collabs">' +
           a.collaborations.map(function (c) { return '<span class="collab">' + esc(c) + "</span>"; }).join("") + "</div>" +
           "</div>" : "") +
-        (a.globalReach ? '<div class="about-block glob"><h2>A global brand</h2><p>' + esc(a.globalReach) + "</p></div>" : "") +
-        (a.social ? '<div class="about-block"><h2>Join the movement</h2>' +
-          (a.socialPitch ? '<p class="lead">' + esc(a.socialPitch) + "</p>" : "") +
+        (a.globalReach ? '<div class="about-block glob"><h2>' + t("A global brand") + "</h2><p>" + dt(I18N_ABOUT, "globalReach", esc(a.globalReach)) + "</p></div>" : "") +
+        (a.social ? '<div class="about-block"><h2>' + t("Follow G Pen") + "</h2>" +
+          (a.socialPitch ? '<p class="lead">' + dt(I18N_ABOUT, "socialPitch", esc(a.socialPitch)) + "</p>" : "") +
           '<div class="social-grid">' + a.social.map(function (sc) {
             return '<a class="social-card" href="' + esc(sc.url) + '" target="_blank" rel="noopener">' +
               '<span class="soc-net">' + esc(sc.network) + "</span>" +
@@ -1613,16 +1777,11 @@
               '<span class="soc-handle">' + esc(sc.handle) + " " + ic("arrow") + "</span>" +
             "</a>";
           }).join("") + "</div></div>" : "") +
-        '<div class="about-close">' + ic("tag") + "<p>" + esc(a.closing || "") + "</p></div>" +
-        '<a class="btn xl center-btn" href="#/">' + (e ? "Back to my courses" : "Browse courses") + " " + ic("arrow") + "</a>" +
+        '<div class="about-close">' + ic("tag") + "<p>" + dt(I18N_ABOUT, "closing", esc(a.closing || "")) + "</p></div>" +
+        '<a class="btn xl center-btn" href="#/">' + (e ? t("Back to my courses") : t("Browse products")) + " " + ic("arrow") + "</a>" +
       "</section>" + footer();
     revealOnScroll();
   }
-
-
-  /* =========================================================================
-     CARD INSPECTOR — pull a card out of the sleeve and really look at it.
-     Big, holographic, tilts with your pointer/finger, and flips to the back.
 
 
   /* ---- reveal-on-scroll -------------------------------------------------- */
@@ -1683,6 +1842,10 @@
   }
   function boot() {
     app = $("#app"); // re-resolve in case the script loaded before #app parsed
+    // Before the first render, and before any reporting reads a course name.
+    applyCourseI18n();
+    applyAboutI18n();
+    document.documentElement.setAttribute("lang", curLang);
     // Backfill: someone who earned a tier before it existed still gets reported
     // once. Both calls no-op unless the tier is newly reached and unrecorded.
     // Backfill: anyone who earned a tier before it reported (or before a webhook
@@ -1703,11 +1866,11 @@
     (function () {
       var codes = CFG.discount || {};
       LADDER.forEach(function (rung) {
-        var t = codes[rung.key];
-        if (!t) return;
+        var cfgTier = codes[rung.key];
+        if (!cfgTier) return;
         // Both the code (GPENPRO25) and the label ("25% off ...") carry the number.
-        var inCode = String(t.code || "").match(/(\d{2})\s*$/);
-        var inLabel = String(t.label || "").match(/(\d{2})\s*%/);
+        var inCode = String(cfgTier.code || "").match(/(\d{2})\s*$/);
+        var inLabel = String(cfgTier.label || "").match(/(\d{2})\s*%/);
         [["code", inCode], ["label", inLabel]].forEach(function (pair) {
           if (pair[1] && Number(pair[1][1]) !== rung.pct) {
             console.warn("[gpen-training] reward mismatch: LADDER says " + rung.pct + "% at " +

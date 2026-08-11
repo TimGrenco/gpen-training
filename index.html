@@ -65,7 +65,19 @@
   <script>
     (function () {
       var CSS = "assets/css/styles.css";
-      var JS = ["assets/js/config.js", "assets/js/data.js", "assets/js/app.js"];
+      // The chosen locale loads BEFORE app.js and AFTER data.js: app.js reads
+      // window.GPEN_I18N at definition time, and the course overrides are applied
+      // onto the data. A <script> tag, not fetch(), so the portal still runs from a
+      // file:// copy. An unknown or missing value simply leaves the site English.
+      var LOCALES = { es: 1, de: 1, fr: 1, it: 1, pt: 1 };
+      var lang = null;
+      try { lang = localStorage.getItem("gpt.lang"); } catch (e) {}
+      var JS = ["assets/js/config.js", "assets/js/data.js"]
+        .concat(LOCALES[lang] ? ["assets/data/i18n/" + lang + ".js"] : [])
+        .concat(["assets/js/app.js"]);
+      // Set before first paint so assistive tech and the browser's own hyphenation
+      // and quote rules are right from the start, not after the app boots.
+      if (LOCALES[lang]) document.documentElement.setAttribute("lang", lang);
       var current = null, loaded = false;
 
       function inject(v) {
@@ -76,7 +88,7 @@
         document.head.appendChild(link);
         JS.forEach(function (src) {
           var s = document.createElement("script");
-          s.src = src + q; s.async = false; // keep config -> data -> app order
+          s.src = src + q; s.async = false; // keep config -> data -> locale -> app order
           document.head.appendChild(s);
         });
       }

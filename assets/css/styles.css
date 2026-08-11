@@ -536,6 +536,32 @@ a.linklike.backdash { display: grid; place-items: center; min-height: 44px; widt
 .hl-list li { display: flex; align-items: flex-start; gap: 10px; font-size: 14.5px; font-weight: 600; }
 .hl-list li .ic { flex: none; width: 22px; height: 22px; display: grid; place-items: center; background: var(--gold-bright); color: #1a1509; border-radius: 50%; margin-top: 1px; }
 .hl-list li svg { width: 13px; height: 13px; }
+/* "About this product" — the storefront description plus the feature list, now a
+   numbered section near the top of a course rather than a collapsed accordion row.
+   Same card treatment as the key-point cards above it so the page reads as one
+   sequence, not as prose dropped between two components. */
+.aboutprod { background: #fff; border: 1px solid var(--line); border-radius: var(--r-md);
+  padding: 20px; box-shadow: var(--shadow); }
+.aboutprod .prose p:last-child { margin-bottom: 0; }
+.aboutprod .hl-list { margin-top: 14px; padding-top: 14px; border-top: 1px solid var(--line); }
+
+/* The battlecard disclosure. Everything past the one example lives in here. The
+   summary is a real 44px row with a caret that rotates, because a disclosure people
+   cannot find is the same as content that is not there. */
+.sell-more { margin-top: 10px; border: 1px solid var(--line); border-radius: var(--r-md); background: #fff; }
+.sell-more > summary { display: flex; align-items: center; gap: 9px; min-height: 48px; padding: 0 16px;
+  cursor: pointer; list-style: none; font-size: 14px; font-weight: 800; color: var(--ink); }
+.sell-more > summary::-webkit-details-marker { display: none; }
+.sell-more > summary .ic { flex: none; display: inline-flex; color: var(--stone); transition: transform .18s ease; }
+.sell-more > summary svg { width: 16px; height: 16px; }
+.sell-more[open] > summary .ic { transform: rotate(180deg); }
+.sell-more[open] > summary { border-bottom: 1px solid var(--line); }
+.sell-more > summary:hover { color: var(--gold); }
+.sell-more-body { padding: 14px 16px 16px; display: grid; gap: 12px; }
+.sell-more-body > *:first-child { margin-top: 0; }
+@media (max-width: 400px) {
+  .aboutprod { padding-left: 16px; padding-right: 16px; }
+}
 
 .gallery { display: grid; grid-template-columns: repeat(2, 1fr); gap: 10px; margin-top: 18px; }
 .ga-item { margin: 0; border-radius: var(--r-md); overflow: hidden; background: #fff; border: 1px solid var(--line); box-shadow: var(--shadow); }
@@ -1088,12 +1114,17 @@ a.linklike.backdash { display: grid; place-items: center; min-height: 44px; widt
 .langmenu-item.on .langmenu-code { color: var(--ink); }
 .langmenu-tick { flex: none; display: inline-flex; color: var(--gold); }
 .langmenu-tick svg { width: 14px; height: 14px; }
-.langmenu-soon {
-  flex: none; font-size: 9.5px; font-weight: 900; letter-spacing: .08em; text-transform: uppercase;
-  color: var(--stone); background: var(--cream); border: 1px solid var(--line);
-  padding: 2px 6px; border-radius: 999px;
+/* The machine-translation notice. Deliberately not dismissible and not subtle: it
+   is the difference between a rep reading a translated product claim as reviewed
+   copy and reading it as a machine's best guess. Rendered on every route. */
+.mtnotice {
+  display: flex; align-items: flex-start; gap: 9px;
+  max-width: var(--maxw); margin: 0 auto; padding: 11px var(--gutter);
+  background: #fdf7e8; border-bottom: 1px solid #efe2c2;
+  font-size: 12.5px; font-weight: 700; line-height: 1.45; color: #6b5320;
 }
-.langmenu-item:hover .langmenu-soon { background: #fff; }
+.mtnotice svg { width: 15px; height: 15px; flex: none; margin-top: 1px; color: var(--gold); }
+.mtnotice span[lang="en"] { font-style: italic; }
 @media (max-width: 470px) {
   .langsel-btn { padding: 5px 7px; gap: 3px; }
   .langsel-globe svg { width: 15px; height: 15px; }
@@ -1133,43 +1164,6 @@ a.linklike.backdash { display: grid; place-items: center; min-height: 44px; widt
 .hero-sub { margin: 10px 0 0; color: var(--ink-2); font-size: clamp(14.5px,2vw,17px); line-height: 1.5; }
 .hero-sub b { color: var(--ink); font-weight: 900; }
 .hero-sub b.gold { color: var(--gold); }
-.hero-facts { display: flex; flex-wrap: wrap; align-items: center; gap: 4px 7px; list-style: none;
-  margin: 12px 0 0; padding: 0; font-size: 13px; font-weight: 800; color: var(--ink); }
-/* The dot is its own inline mark with symmetric spacing from the gap, not a
-   negative margin — that assumed the previous item was always on the SAME line,
-   and below ~328px the third item wraps and the dot hung off the left edge. */
-.hero-facts li + li::before { content: "\00b7"; color: var(--gold); margin-right: 7px; }
-.hero-facts .gold { color: var(--gold); }
-/* Below the width where all three facts fit on one line, a separator dot is wrong
-   whatever its margins: the item that wraps carries the dot to the start of the
-   next line, where it reads as a stray mark rather than as punctuation between two
-   things. So stop separating and start listing — one fact per line, every line
-   with its own bullet, which is what the eye expects from a stacked list. */
-@media (max-width: 560px) {
-  .hero-facts { flex-direction: column; align-items: flex-start; gap: 5px; }
-  .hero-facts li { display: flex; gap: 7px; }
-  /* Both selectors, same declaration: `li + li::before` outranks a bare
-     `li::before` (one more type selector), so resetting it and re-declaring the
-     bullet on `li` alone would leave every item after the first with no mark. */
-  .hero-facts li::before,
-  .hero-facts li + li::before { content: "\00b7"; color: var(--gold); margin-right: 0; }
-}
-/* Named og-pop-LG deliberately: as a second 
-
-/* ---- returning rep ---- */
-.hp-bar { height: 10px; margin-top: 18px; border-radius: 999px; background: var(--line); overflow: hidden; }
-.hp-bar i { display: block; height: 100%; background: linear-gradient(90deg, var(--gold-bright), var(--gold)); }
-.hero-cta { margin-top: 18px; }
-/* The one-more-product nudge under the CTA. Same measure and colour as .hero-sub;
-   it had no rule at all and was falling back to the UA paragraph margins. */
-.hero-note { margin: 12px 0 0; font-size: 14.5px; color: var(--ink-2); }
-.hero-note b { color: var(--gold); font-weight: 900; }
-.hp-pips { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 18px; }
-.hp-pip { display: inline-flex; align-items: center; gap: 6px; padding: 11px 14px; border-radius: 999px;
-  border: 1.5px solid var(--line); background: var(--paper); font-size: 13.5px; font-weight: 800; color: var(--stone); }
-.hp-pip svg { width: 13px; height: 13px; flex: none; color: var(--ok); }
-.hp-pip.on { border-color: var(--ok); background: #f0f7f1; color: var(--ink); }
-.hp-pip:hover { border-color: var(--gold-bright); }
 
 /* ---- certified ---- */
 .hero-code { margin-top: 18px; }
