@@ -148,8 +148,7 @@ h1, h2, h3, h4 { margin: 0; line-height: 1.08; letter-spacing: -.02em; }
 @media (max-width: 720px) {
   .hdr-nav { gap: 2px; margin-left: 2px; overflow-x: auto; scrollbar-width: none; -webkit-overflow-scrolling: touch; }
   .hdr-nav::-webkit-scrollbar { display: none; }
-  .hdr-navlink { padding: 6px 9px; font-size: 13px; }
-  .nl-the { display: none; }          /* "The Binder" -> "Binder" */
+  .hdr-navlink { padding: 6px 9px; font-size: 13px; }          /* "The Binder" -> "Binder" */
 }
 /* Below this the wordmark yields entirely — the G mark still carries the brand,
    and navigation matters more than a logotype that was ellipsizing to "G PEN …". */
@@ -250,7 +249,6 @@ h1, h2, h3, h4 { margin: 0; line-height: 1.08; letter-spacing: -.02em; }
 .certify-form { display: grid; gap: 14px; max-width: 420px; margin: 0 auto; text-align: left; }
 .certify-form .btn { margin-top: 4px; }
 
-
 .sec-h { display: flex; align-items: baseline; justify-content: space-between; gap: 12px; margin: 8px 0 16px; }
 .sec-h h2 { font-size: var(--h2); }
 .sec-h span { font-size: 13px; color: var(--stone); font-weight: 700; }
@@ -305,7 +303,6 @@ h1, h2, h3, h4 { margin: 0; line-height: 1.08; letter-spacing: -.02em; }
 .sell-cue { display: flex; align-items: center; gap: 8px; flex-wrap: wrap; font-size: 13px; font-weight: 800; text-transform: uppercase; letter-spacing: .04em; color: var(--ink); }
 .sell-cue b { color: var(--gold); }
 .sell-cue svg { width: 15px; height: 15px; color: var(--gold); }
-.sell-cue-em { font-size: 20px; line-height: 1; }
 .sell-pair p { margin: 8px 0 0; font-size: 15px; line-height: 1.55; color: var(--ink-2); }
 .sell-sibs { display: flex; align-items: center; flex-wrap: wrap; gap: 8px; margin-top: 12px; }
 .sell-sibs span { font-size: 12px; font-weight: 800; text-transform: uppercase; letter-spacing: .05em; color: var(--stone); }
@@ -490,11 +487,8 @@ a.linklike.backdash { display: block; width: auto; margin-top: 10px; text-align:
    and copying a code is exactly when both are on screen at once. */
 #toast { position: fixed; left: 50%; bottom: calc(76px + env(safe-area-inset-bottom, 0px)); transform: translateX(-50%) translateY(20px); z-index: 120; background: var(--ink); color: #fff; font-weight: 700; font-size: 14px; padding: 12px 20px; border-radius: 999px; box-shadow: var(--shadow-lg); opacity: 0; pointer-events: none; transition: opacity .25s, transform .25s; }
 #toast.show { opacity: 1; transform: translateX(-50%) translateY(0); }
-.confetti { position: fixed; inset: 0; z-index: 110; pointer-events: none; }
 
 /* =============================== RICH COURSE ============================ */
-.ghost-dark { --bg: transparent; --fg: #fff; border-color: rgba(255,255,255,.4); }
-.ghost-dark:hover { border-color: #fff; background: rgba(255,255,255,.08); }
 .foot-nav { display: flex; flex-wrap: wrap; gap: 6px 20px; justify-content: center; margin-bottom: 14px; }
 .foot-nav a { font-weight: 700; font-size: 13px; color: var(--ink); text-decoration: none; }
 .foot-nav a:hover { color: var(--gold); }
@@ -613,35 +607,6 @@ a.linklike.backdash { display: block; width: auto; margin-top: 10px; text-align:
 .about-close svg { width: 22px; height: 22px; }
 .about-close p { margin: 0; font-size: 15px; color: #eae9e2; line-height: 1.55; }
 
-/* =============================== LIFESTYLE ============================ */
-/* editorial masonry collage of real-people-using-product shots */
-.life-mosaic { columns: 3; column-gap: 12px; margin: 18px 0 4px; }
-.lm-cell { break-inside: avoid; margin: 0 0 12px; border-radius: var(--r-md); overflow: hidden; box-shadow: var(--shadow); background: var(--cream); }
-.lm-cell img { width: 100%; display: block; transition: transform .5s cubic-bezier(.2,.7,.3,1); }
-.lm-cell:hover img { transform: scale(1.06); }
-@media (max-width: 760px) { .life-mosaic { columns: 2; column-gap: 10px; } .lm-cell { margin-bottom: 10px; border-radius: 13px; } }
-
-/* a cinematic full-bleed lifestyle band */
-.life-cinema {
-  position: relative; max-width: var(--maxw); margin: 44px auto; border-radius: var(--r-lg); overflow: hidden;
-  min-height: clamp(230px, 32vw, 400px); background-size: cover; background-position: center;
-  display: grid; align-items: end; box-shadow: var(--shadow);
-}
-.life-cinema::before { content: ""; position: absolute; inset: 0; background: linear-gradient(180deg, rgba(10,10,10,.12), rgba(10,10,10,.34) 44%, rgba(10,10,10,.86)); }
-.lc-inner { position: relative; z-index: 1; padding: clamp(22px, 4vw, 42px); color: #fff; }
-.lc-eyebrow { display: block; font-size: var(--eyebrow-size); font-weight: var(--eyebrow-weight); letter-spacing: var(--eyebrow-tracking); text-transform: uppercase; color: var(--gold-bright); margin-bottom: 8px; }
-/* Cinematic lifestyle-band headline — a hero moment, intentionally larger than
-   the section --h2 cap so the "in real hands" photos land with impact. */
-.lc-inner h2 { font-size: clamp(24px, 4.4vw, 42px); font-weight: 900; letter-spacing: -.02em; line-height: 1.06; max-width: 18ch; }
-.lc-sub { margin: 8px 0 0; font-size: clamp(14px, 1.8vw, 16px); line-height: 1.5; color: #e3e2db; max-width: 40ch; }
-/* course pages already sit in a padded section, so trim the cinema's side margin */
-.course .life-cinema { margin: 26px 0; }
-/* Home lifestyle moment — refined + page-aligned: sits inside the gutter like
-   every other home section, a hair shorter, with a gold top hairline for polish. */
-.life-cinema.home { margin: 4px auto; width: calc(100% - 2 * var(--gutter, 24px)); min-height: clamp(220px, 30vw, 360px); border-top: 2px solid var(--gold-bright); }
-.life-cinema.home::before { background: linear-gradient(120deg, rgba(10,10,10,.66) 0%, rgba(10,10,10,.30) 45%, rgba(10,10,10,.72) 100%); }
-.life-cinema.home .lc-inner { max-width: var(--maxw); margin: 0 auto; width: 100%; }
-
 /* =============================== REWARDS TRACKER ====================== */
 /* Rewards are earned by finishing training, never by selling — stated plainly
    because supplier incentives tied to sales are restricted in several states. */
@@ -686,30 +651,10 @@ a.linklike.backdash { display: block; width: auto; margin-top: 10px; text-align:
 .sec-h.sub span { font-size: 12px; color: var(--stone); font-weight: 700; }
 
 /* =============================== INTERACTIVE ========================== */
-.sticky-cta {
-  /* viewport-fit=cover is declared, so the primary CTA would otherwise sit in the
-     iPhone home-indicator gesture zone. Always pass the 0px fallback. */
-  position: fixed; left: 50%; bottom: calc(18px + env(safe-area-inset-bottom, 0px)); transform: translate(-50%, 160%); z-index: 60;
-  display: inline-flex; align-items: center; gap: 8px; background: var(--gold-bright); color: #1a1509;
-  font-family: var(--font); font-weight: 800; font-size: 15px; padding: 13px 22px; border: 0; border-radius: 999px;
-  box-shadow: 0 12px 34px rgba(0,0,0,.3); cursor: pointer; opacity: 0; white-space: nowrap;
-  transition: transform .32s cubic-bezier(.2,.8,.2,1), opacity .3s, box-shadow .2s;
-  max-width: calc(100vw - 24px);
-}
-.sticky-cta.show { transform: translate(-50%, 0); opacity: 1; }
-.sticky-cta:hover { box-shadow: 0 14px 40px rgba(0,0,0,.36); }
-.sticky-cta b { font-weight: 900; }
-.sticky-cta svg { width: 18px; height: 18px; }
-
-.quiz-streak { float: right; display: inline-flex; align-items: center; gap: 4px; color: var(--ember); font-weight: 800; text-transform: none; letter-spacing: 0; animation: streak-in .3s ease; }
-.quiz-streak svg { width: 15px; height: 15px; }
-.streak-pop { display: inline-flex; align-items: center; gap: 3px; color: var(--ember); font-weight: 900; animation: streak-in .3s ease; }
-.streak-pop svg { width: 14px; height: 14px; }
-@keyframes streak-in { from { transform: scale(.7); opacity: 0; } to { transform: scale(1); opacity: 1; } }
 
 .cert { animation: cert-reveal .7s cubic-bezier(.2,.8,.2,1) both; }
 @keyframes cert-reveal { from { opacity: 0; transform: translateY(18px) scale(.96); } to { opacity: 1; transform: none; } }
-@media (prefers-reduced-motion: reduce) { .cert, .quiz-streak, .streak-pop { animation: none; } }
+@media (prefers-reduced-motion: reduce) { .cert{ animation: none; } }
 .rw-card.secret.off { border-style: dashed; border-color: var(--gold); background: linear-gradient(160deg, #fff, #f8f3e6); }
 .rw-card.secret.off .rw-ic { background: rgba(254,200,112,.2); color: var(--gold); }
 .rw-card.secret.off .rw-status { color: var(--gold); }
@@ -781,7 +726,7 @@ a.linklike.backdash { display: block; width: auto; margin-top: 10px; text-align:
      live page instead of an empty sheet — just without the chrome. */
   body.printing > *:not(#print-sheet) { display: none !important; }
   body.printing #print-sheet { display: block !important; }
-  .hdr, .sticky-cta, .preview-bar { display: none !important; }
+  .hdr, .preview-bar { display: none !important; }
   body { background: #fff; }
   .cert { border-color: #000; box-shadow: none; margin: 0; }
   .cert.master { background: #fff; border-color: #000; }
@@ -791,42 +736,8 @@ a.linklike.backdash { display: block; width: auto; margin-top: 10px; text-align:
   .cert.master .cert-fv { color: #000; }
 }
 
-/* Class rank — Freshman → Certified G */
-
-/* Rotating "Did you know?" card */
-.fact-card {
-  display: flex; align-items: center; gap: 16px; margin: 26px 0;
-  padding: 18px 18px 18px 20px; border-radius: var(--r-md);
-  background: var(--cream); border: 1.5px dashed var(--gold-bright);
-}
-.fact-em { font-size: 30px; line-height: 1; flex: none; }
-.fact-body { flex: 1; min-width: 0; }
-.fact-k { display: block; font-size: var(--eyebrow-size); font-weight: var(--eyebrow-weight); letter-spacing: var(--eyebrow-tracking); text-transform: uppercase; color: var(--gold); margin-bottom: 3px; }
-.fact-body p { font-size: 14.5px; line-height: 1.55; color: var(--ink); margin: 0; }
-.fact-more {
-  flex: none; width: 40px; height: 40px; border-radius: 50%; cursor: pointer;
-  border: 1.5px solid var(--line); background: #fff; display: grid; place-items: center;
-  color: var(--stone); transition: transform .2s, color .2s, border-color .2s;
-}
-.fact-more:hover { color: var(--gold); border-color: var(--gold-bright); transform: rotate(90deg); }
-.fact-more svg { width: 17px; height: 17px; }
-.fact-card.flip { animation: fact-flip .45s ease; }
-@keyframes fact-flip { 0% { opacity: .25; transform: translateY(6px); } 100% { opacity: 1; transform: none; } }
-
 .foot-motto { margin-top: 10px; font-size: 12px; color: var(--stone); opacity: .8; }
 .foot-motto em { font-style: italic; }
-
-@media (max-width: 520px) {
-  .fact-card { gap: 12px; padding: 15px; border-radius: 15px; }
-  .fact-em { font-size: 25px; }
-  .fact-body p { font-size: 13.5px; }
-  .fact-more { width: 34px; height: 34px; }
-}
-
-@media (prefers-reduced-motion: reduce) {
-   .fact-card.flip { animation: none; }
-  .fact-more:hover { transform: none; }
-}
 
 /* Rank chip earns its own line under the store name, and the badge row
    needs breathing room before the next section heading. */
@@ -836,292 +747,12 @@ a.linklike.backdash { display: block; width: auto; margin-top: 10px; text-align:
    Card geometry is driven by --cw (card width). Everything inside scales off
    it so one card renders identically in the catalog, the binder, and a modal.
    ====================================================================== */
-.tcg-grid {
-  display: grid; gap: 22px; margin: 6px 0 4px;
-  grid-template-columns: 1fr;
-  perspective: 1600px;
-}
-@media (min-width: 620px) { .tcg-grid { grid-template-columns: repeat(2, 1fr); gap: 20px; } }
-@media (min-width: 1000px) { .tcg-grid { grid-template-columns: repeat(3, 1fr); gap: 24px; } }
-.tcg-grid.single { grid-template-columns: 1fr; max-width: 380px; margin: 6px auto 4px; }
 
 .catalog-lede { color: var(--stone); font-size: 15px; line-height: 1.6; margin: -4px 0 20px; max-width: 62ch; }
 .catalog-lede b { color: var(--ink); font-weight: 800; }
 
-/* ---- the card ---------------------------------------------------------- */
-.tcg {
-  --mx: 50%; --my: 50%; --rx: 0deg; --ry: 0deg;
-  display: block; text-decoration: none; color: var(--ink);
-  border-radius: var(--r-md); position: relative;
-  background: linear-gradient(160deg, #f2c75a 0%, #d9a63c 18%, #f7e2a4 42%, #c8952f 62%, #f2c75a 100%);
-  padding: 7px;
-  box-shadow: 0 10px 26px rgba(0,0,0,.16), 0 2px 6px rgba(0,0,0,.1);
-  transform: rotateX(var(--rx)) rotateY(var(--ry));
-  transform-style: preserve-3d;
-  transition: transform .25s cubic-bezier(.2,.7,.3,1), box-shadow .25s;
-  will-change: transform;
-}
-.tcg:hover { box-shadow: 0 22px 46px rgba(0,0,0,.24), 0 3px 8px rgba(0,0,0,.12); }
-/* Not-yet-collected cards read as a plain, un-foiled print run. */
-.tcg:not(.owned):not(.secret) { background: linear-gradient(160deg, #d8d4cb, #b9b4a9 45%, #ddd9d1); }
-.tcg-inner {
-  display: flex; flex-direction: column; gap: 8px;
-  background: var(--paper); border-radius: 10px; padding: 11px 11px 12px;
-  position: relative; overflow: hidden; min-height: 100%;
-}
+   /* Base Set is 7 with the Grinder */
 
-/* Holo treatment, only on cards you own.
-   A real holo card puts the foil BEHIND the artwork: starburst rays and glitter
-   inside the art window, product printed clean on top. Painting the rainbow over
-   the product just recolours it (Dash+ came out purple). Layer order in the art
-   window: rays ::before (z1), product img (z2), glitter ::after (z3), stamps (z5).
-   The card as a whole gets a pointer-tracked glare (z4) and a slow sheen (z6). */
-.tcg-shine { position: absolute; inset: 0; pointer-events: none; opacity: 0; z-index: 4; border-radius: 10px; }
-.tcg.owned .tcg-shine, .tcg.secret .tcg-shine {
-  opacity: 1;
-  background: radial-gradient(circle at var(--mx) var(--my), rgba(255,255,255,.30) 0%, rgba(255,255,255,0) 46%);
-  mix-blend-mode: screen;
-}
-
-.tcg-art { isolation: isolate; }
-
-/* starburst foil */
-.tcg.owned .tcg-art::before, .tcg.secret .tcg-art::before {
-  content: ""; position: absolute; inset: -45%; z-index: 1; pointer-events: none;
-  background:
-    repeating-conic-gradient(from 0deg at 50% 50%,
-      rgba(255,255,255,.9) 0deg 1.4deg, rgba(255,255,255,0) 1.4deg 5deg),
-    conic-gradient(from 210deg at 50% 50%,
-      rgba(255,0,128,.55), rgba(255,214,0,.55), rgba(0,255,196,.55),
-      rgba(0,153,255,.55), rgba(190,0,255,.55), rgba(255,0,128,.55));
-  background-blend-mode: overlay;
-  opacity: .5;
-  animation: holo-spin 34s linear infinite;
-}
-.tcg.r-rare.owned .tcg-art::before { opacity: .68; }
-/* The secret rare is gold foil, so its rays stay in the gold family. */
-.tcg.secret .tcg-art::before {
-  background:
-    repeating-conic-gradient(from 0deg at 50% 50%,
-      rgba(255,232,170,.9) 0deg 1.4deg, rgba(255,232,170,0) 1.4deg 5deg),
-    conic-gradient(from 210deg at 50% 50%,
-      rgba(255,214,0,.75), rgba(255,166,60,.75), rgba(255,244,200,.75),
-      rgba(200,149,47,.75), rgba(255,214,0,.75));
-  background-blend-mode: multiply;
-  /* `overlay` darkens against the near-black art window; `screen` makes the
-     gold rays glow out of it, which is what gold foil actually does. */
-  mix-blend-mode: screen;
-  opacity: .5;
-}
-@keyframes holo-spin { to { transform: rotate(360deg); } }
-
-/* glitter dust across the art window */
-.tcg.owned .tcg-art::after, .tcg.secret .tcg-art::after {
-  content: ""; position: absolute; inset: 0; z-index: 3; pointer-events: none;
-  background-image: radial-gradient(rgba(255,255,255,.95) 1px, transparent 1.3px);
-  background-size: 18px 18px;
-  opacity: .18; mix-blend-mode: screen;
-  animation: glitter 4.2s ease-in-out infinite;
-}
-@keyframes glitter { 0%, 100% { background-position: 0 0; opacity: .14; } 50% { background-position: 8px 5px; opacity: .24; } }
-
-/* a slow sheen crossing the card, staggered so a row doesn't flash in unison */
-.tcg.owned .tcg-inner::after, .tcg.secret .tcg-inner::after {
-  content: ""; position: absolute; inset: 0; z-index: 6; pointer-events: none;
-  background: linear-gradient(112deg, transparent 42%, rgba(255,255,255,.34) 50%, transparent 58%);
-  transform: translateX(-130%);
-  animation: card-sweep 7s ease-in-out infinite;
-}
-/* The binder wraps every card in a .pocket, so a `> .tcg` child combinator matched
-   nothing there and the sheen fired on all six cards in unison; the only grid where
-   .tcg IS a direct child is .tcg-grid.single, which holds exactly one card, so
-   nth-child(2..6) never matched anywhere. Target the pocket instead. */
-.tcg-grid > .pocket:nth-child(2) .tcg-inner::after { animation-delay: 1.1s; }
-.tcg-grid > .pocket:nth-child(3) .tcg-inner::after { animation-delay: 2.2s; }
-.tcg-grid > .pocket:nth-child(4) .tcg-inner::after { animation-delay: 3.3s; }
-.tcg-grid > .pocket:nth-child(5) .tcg-inner::after { animation-delay: 4.4s; }
-.tcg-grid > .pocket:nth-child(6) .tcg-inner::after { animation-delay: 5.5s; }
-.tcg-grid > .pocket:nth-child(7) .tcg-inner::after { animation-delay: 6.6s; }   /* Base Set is 7 with the Grinder */
-@keyframes card-sweep { 0%, 78% { transform: translateX(-130%); } 100% { transform: translateX(130%); } }
-
-.tcg-stamp, .tcg-featured, .tcg-perfect { z-index: 5; }
-
-/* head */
-.tcg-head { display: grid; gap: 2px; }
-.tcg-stage { font-size: 9.5px; font-weight: 800; letter-spacing: .1em; text-transform: uppercase; color: var(--stone); }
-.tcg-name-row { display: flex; align-items: baseline; justify-content: space-between; gap: 8px; }
-.tcg-name { font-size: 22px; font-weight: 900; letter-spacing: -.02em; line-height: 1.1; }
-.tcg-hp { display: flex; align-items: baseline; gap: 3px; flex: none; }
-.tcg-hp em { font-style: normal; font-size: 9px; font-weight: 800; color: var(--stone); }
-.tcg-hp b { font-size: 17px; font-weight: 900; }
-.tcg-el { font-style: normal; font-size: 15px; margin-left: 2px; }
-
-/* art window */
-.tcg-art {
-  position: relative; border-radius: 6px; overflow: hidden;
-  border: 3px solid rgba(0,0,0,.12);
-  background: linear-gradient(165deg, color-mix(in srgb, var(--tint) 16%, #fff), color-mix(in srgb, var(--accent) 26%, #fff));
-  aspect-ratio: 16 / 11; display: grid; place-items: center;
-}
-/* `height: 100%` can't resolve against an aspect-ratio-derived height, so the
-   square product photo sized itself off its own 1:1 ratio, overflowed the 16:11
-   art window and was clipped at the bottom. Absolute positioning gives it a
-   definite box to contain into. */
-.tcg-art > img {
-  position: absolute; inset: 9px; z-index: 2;
-  width: calc(100% - 18px); height: calc(100% - 18px);
-  object-fit: contain; padding: 0;
-}
-.tcg.secret .tcg-art > img { inset: 22px; width: calc(100% - 44px); height: calc(100% - 44px); }
-.tcg:not(.owned):not(.secret) .tcg-art { filter: saturate(.55); }
-.tcg-stamp, .tcg-featured, .tcg-perfect {
-  position: absolute; left: 8px; top: 8px; z-index: 2;
-  display: inline-flex; align-items: center; gap: 5px;
-  font-size: 10px; font-weight: 900; letter-spacing: .07em; text-transform: uppercase;
-  padding: 5px 9px; border-radius: 999px;
-}
-.tcg-stamp { background: var(--ink); color: var(--gold-bright); }
-.tcg-featured { background: var(--gold-bright); color: var(--ink); }
-.tcg-perfect {
-  left: auto; right: 8px; color: #2a1a00;
-  background: linear-gradient(100deg,#ff5f9e,#ffd54a,#4be3b0,#4aa8ff,#c07bff);
-  background-size: 260% 100%;
-  animation: perfect-shift 5s ease-in-out infinite;
-  box-shadow: 0 2px 10px rgba(0,0,0,.22);
-}
-@keyframes perfect-shift { 0%, 100% { background-position: 0% 50%; } 50% { background-position: 100% 50%; } }
-.tcg-stamp svg, .tcg-featured svg, .tcg-perfect svg { width: 11px; height: 11px; }
-
-/* type bar */
-.tcg-typebar {
-  display: flex; align-items: center; justify-content: space-between; gap: 8px;
-  background: color-mix(in srgb, var(--tint) 12%, var(--cream));
-  border-radius: 5px; padding: 5px 9px;
-  border-left: 4px solid var(--tint);
-}
-.tcg-typebar em { font-style: normal; font-size: 10.5px; font-weight: 800; letter-spacing: .04em; text-transform: uppercase; color: var(--ink); }
-.tcg-typebar b { font-size: 13px; font-weight: 900; }
-
-/* attacks */
-.tcg-moves { display: grid; gap: 7px; padding: 2px 0; }
-.tcg-move { display: grid; grid-template-columns: auto 1fr auto; gap: 9px; align-items: start; }
-.mv-cost { display: inline-flex; gap: 3px; padding-top: 2px; }
-/* A real TCG energy cost is a coloured disc, not a bare emoji. */
-.mv-e {
-  font-style: normal; display: inline-grid; place-items: center;
-  width: 19px; height: 19px; border-radius: 50%; flex: none;
-  font-size: 10px; line-height: 1;
-  background: radial-gradient(circle at 34% 28%, #fff, color-mix(in srgb, var(--tint) 42%, #fff));
-  border: 1.5px solid color-mix(in srgb, var(--tint) 55%, #8d8d86);
-  box-shadow: inset 0 -1px 2px rgba(0,0,0,.08);
-}
-.tcg.secret .mv-e {
-  background: radial-gradient(circle at 34% 28%, #fff6dc, #c8952f);
-  border-color: #f7e2a4;
-}
-.mv-body { display: grid; gap: 1px; min-width: 0; }
-.mv-body b { font-size: 13.5px; font-weight: 900; letter-spacing: -.01em; }
-.mv-body em { font-style: normal; font-size: 11px; line-height: 1.42; color: var(--stone); }
-.mv-dmg { font-size: 14px; font-weight: 900; flex: none; letter-spacing: -.02em; }
-
-/* the weakness/resistance/retreat strip, repurposed for real specs */
-.tcg-stats {
-  display: grid; grid-template-columns: repeat(3, 1fr); gap: 6px;
-  border-top: 1px solid var(--line); border-bottom: 1px solid var(--line);
-  padding: 6px 0; margin-top: auto;
-}
-.tcg-stats span { display: grid; gap: 1px; text-align: center; }
-.tcg-stats em { font-style: normal; font-size: 8.5px; font-weight: 800; letter-spacing: .07em; text-transform: uppercase; color: var(--stone); }
-.tcg-stats b { font-size: 12px; font-weight: 900; }
-
-.tcg-flavor { font-size: 11px; font-style: italic; line-height: 1.45; color: var(--stone); padding: 0 2px; }
-
-.tcg-foot { display: flex; align-items: center; justify-content: space-between; gap: 8px; font-size: 8.5px; font-weight: 800; letter-spacing: .06em; text-transform: uppercase; color: var(--stone); }
-.tcg-no { display: inline-flex; align-items: center; gap: 4px; flex: none; }
-.tcg-rar { font-style: normal; font-size: 10px; color: var(--gold); }
-.tcg.r-common .tcg-rar { color: var(--stone); }
-
-.tcg-cta { display: flex; align-items: center; justify-content: space-between; gap: 8px; padding-top: 2px; }
-.tcg-cta em { font-style: normal; display: inline-flex; align-items: center; gap: 5px; font-size: 11.5px; font-weight: 800; color: var(--gold); }
-.tcg-cta em svg { width: 13px; height: 13px; }
-.tcg.owned .tcg-cta em { color: var(--ok); }
-.tcg-cta b { display: inline-flex; align-items: center; gap: 4px; font-size: 12.5px; font-weight: 900; }
-.tcg-cta b svg { width: 13px; height: 13px; }
-
-/* featured "start here" card gets a gentle glow */
-.tcg.featured { box-shadow: 0 0 0 3px rgba(254,200,112,.5), 0 14px 32px rgba(0,0,0,.18); }
-
-/* ---- secret rare ------------------------------------------------------- */
-.tcg.secret { background: linear-gradient(135deg,#8a6b28,#f7e2a4 20%,#c8952f 40%,#fff3cf 55%,#c8952f 72%,#8a6b28 100%); }
-.tcg.secret .tcg-inner { background: linear-gradient(170deg,#1b1710,#0d0b07); color: #f6ecd4; }
-.tcg.secret.gold .tcg-inner { background: linear-gradient(170deg,#2a2110,#15100a); }
-.tcg.secret .tcg-stage, .tcg.secret .tcg-hp em, .tcg.secret .mv-body em,
-.tcg.secret .tcg-stats em, .tcg.secret .tcg-flavor, .tcg.secret .tcg-foot { color: #b39a63; }
-.tcg.secret .tcg-art { border-color: rgba(200,149,47,.55); background: radial-gradient(circle at 50% 42%, #3d2f12, #0d0a06 78%); }
-.tcg.secret .tcg-art > img { opacity: .95; }
-.tcg.secret .tcg-typebar { background: rgba(200,149,47,.14); border-left-color: var(--gold-bright); }
-.tcg.secret .tcg-typebar em, .tcg.secret .tcg-typebar b { color: var(--gold-bright); }
-.tcg.secret .tcg-stats { border-color: rgba(200,149,47,.28); }
-.tcg.secret .tcg-stamp { background: var(--gold-bright); color: #211a08; }
-.tcg.secret .tcg-rar { color: var(--gold-bright); }
-.tcg.secret .tcg-cta em { color: var(--gold-bright); }
-.tcg.secret.gold { animation: gold-breathe 4.5s ease-in-out infinite; }
-@keyframes gold-breathe {
-  0%, 100% { box-shadow: 0 0 0 0 rgba(254,200,112,.42), 0 14px 34px rgba(0,0,0,.3); }
-  50% { box-shadow: 0 0 0 9px rgba(254,200,112,0), 0 14px 34px rgba(0,0,0,.3); }
-}
-
-/* ---- card back (secret rare, still locked) ----------------------------- */
-.tcg.back { background: linear-gradient(160deg,#3a3227,#171412 50%,#3a3227); cursor: default; }
-.tcg.back .tcg-inner {
-  background:
-    repeating-linear-gradient(45deg, rgba(200,149,47,.07) 0 10px, transparent 10px 20px),
-    linear-gradient(170deg,#1c1813,#0c0a08);
-  align-items: center; justify-content: center; text-align: center; gap: 12px; padding: 26px 16px;
-  /* keeps card proportions when it sits alone in a one-column grid */
-  min-height: 400px;
-}
-.back-art { position: relative; display: grid; place-items: center; }
-.back-art img { width: 74px; height: 74px; object-fit: contain; opacity: .16; }
-.back-q { position: absolute; font-size: 46px; font-weight: 900; color: var(--gold-bright); opacity: .9; }
-.back-name { font-size: 12px; font-weight: 900; letter-spacing: .18em; text-transform: uppercase; color: var(--gold-bright); }
-.back-msg { font-size: 12px; line-height: 1.5; color: #b39a63; display: flex; align-items: center; gap: 6px; flex-wrap: wrap; justify-content: center; }
-.back-msg b { color: var(--gold-bright); }
-.back-msg svg { width: 13px; height: 13px; }
-.tcg.back .tcg-foot { width: 100%; margin-top: 6px; color: #7d6a44; }
-.tcg.back .tcg-rar { color: var(--gold-bright); }
-/* ---- the card-pull moment ---------------------------------------------- */
-.pull-modal .pull-in {
-  position: relative; width: min(380px, 100%);
-  display: grid; gap: 16px; justify-items: center; text-align: center;
-}
-.pull-kicker {
-  display: inline-flex; align-items: center; gap: 7px;
-  font-size: 12px; font-weight: 900; letter-spacing: .14em; text-transform: uppercase;
-  color: var(--gold-bright);
-}
-.pull-kicker svg { width: 15px; height: 15px; }
-/* The modal centres its own text; the card inside must not inherit that. */
-.pull-card { width: 100%; text-align: left; animation: pull-in .72s cubic-bezier(.2,.9,.25,1) both; }
-@keyframes pull-in {
-  0% { transform: perspective(1200px) rotateY(92deg) scale(.72); opacity: 0; }
-  60% { transform: perspective(1200px) rotateY(-9deg) scale(1.03); opacity: 1; }
-  100% { transform: perspective(1200px) rotateY(0) scale(1); opacity: 1; }
-}
-.pull-note { font-size: 13.5px; line-height: 1.55; color: #d8d2c4; max-width: 34ch; }
-.pull-note b { color: var(--gold-bright); font-weight: 900; }
-.pull-modal .modal-x { position: absolute; top: -6px; right: -4px; z-index: 5; color: #fff; }
-.pull-ok { width: 100%; }
-
-/* ---- header binder counter --------------------------------------------- */
-.hdr-binder {
-  display: inline-flex; align-items: center; gap: 6px; margin-right: 12px;
-  padding: 7px 12px; border-radius: 999px; text-decoration: none;
-  border: 1.5px solid var(--line); background: var(--paper); color: var(--ink);
-  transition: border-color .2s, transform .2s;
-}
-.hdr-binder:hover { border-color: var(--gold-bright); transform: translateY(-1px); }
-.hb-word { font-size: 12.5px; font-weight: 900; letter-spacing: -.01em; white-space: nowrap; }
 /* Five pips, not "2/5". A glance shows how far along you are and how much is
    left; a fraction makes you do arithmetic. */
 .pips { display: inline-flex; align-items: center; gap: 3px; }
@@ -1132,58 +763,8 @@ a.linklike.backdash { display: block; width: auto; margin-top: 10px; text-align:
 }
 .pip.on { background: var(--gold-bright); border-color: var(--gold); transform: scale(1.2); }
 
-/* ---- university crest --------------------------------------------------- */
-.crest { width: 84px; height: 84px; display: block; }
-.cr-ring { fill: none; stroke: currentColor; stroke-width: 1.6; opacity: .55; }
-.cr-ring.thin { stroke-width: .8; opacity: .35; }
-.cr-disc { fill: currentColor; opacity: .06; }
-.cr-t { font-size: 10px; font-weight: 800; letter-spacing: .18em; fill: currentColor; }
-.cr-t.sm { font-size: 7.4px; letter-spacing: .14em; opacity: .7; }
-.cr-star { font-size: 9px; fill: currentColor; opacity: .6; }
-.cr-est { font-size: 8px; font-weight: 800; letter-spacing: .18em; fill: currentColor; opacity: .65; }
-.cr-yr { font-size: 19px; font-weight: 900; letter-spacing: -.01em; fill: currentColor; }
-.crest.big { width: 104px; height: 104px; margin: 0 auto 14px; color: var(--gold-bright); }
-
 /* ---- the binder page ---------------------------------------------------- */
 .binder { max-width: var(--maxw); margin: 0 auto; padding: var(--sec-y) var(--gutter) 20px; display: grid; gap: 4px; }
-.bn-hero {
-  text-align: center; border-radius: var(--r-lg); padding: clamp(28px,5vw,48px) clamp(18px,4vw,40px);
-  background: linear-gradient(165deg,#191919,#0b0b0b); color: #fff; margin-bottom: 26px;
-}
-.bn-hero h1 { font-size: var(--h1); font-weight: 900; letter-spacing: -.03em; margin: 6px 0 8px; }
-.bn-hero p { color: #cfc9bb; font-size: 15px; line-height: 1.6; max-width: 52ch; margin: 0 auto; }
-.bn-hero .ch-eyebrow { justify-content: center; }
-.bn-meter { height: 10px; border-radius: 999px; background: rgba(255,255,255,.13); overflow: hidden; margin: 22px auto 10px; max-width: 460px; }
-.bn-meter-fill { height: 100%; border-radius: 999px; background: linear-gradient(90deg,#c8952f,#FEC870); transition: width 1s cubic-bezier(.3,.8,.3,1); }
-.bn-count { font-size: 13px; font-weight: 700; color: #cfc9bb; }
-.bn-count b { color: var(--gold-bright); font-size: 16px; font-weight: 900; }
-.bn-share {
-  margin-top: 30px; text-align: center; border-radius: var(--r-md); padding: 28px 20px;
-  background: var(--cream); border: 1.5px dashed var(--gold-bright);
-}
-.bn-share h3 { display: inline-flex; align-items: center; gap: 8px; font-size: 19px; font-weight: 900; }
-.bn-share h3 svg { width: 18px; height: 18px; color: var(--gold); }
-.bn-share p { color: var(--stone); font-size: 14px; margin: 6px 0 18px; }
-.bn-share p b { color: var(--ink); font-weight: 800; }
-.bn-share-row { display: flex; flex-wrap: wrap; gap: 10px; justify-content: center; }
-
-@media (max-width: 520px) {
-  .hdr-binder { margin-right: 8px; padding: 6px 9px; gap: 4px; }
-  .hb-word { font-size: 11.5px; }
-  .tcg-name { font-size: 20px; }
-  .bn-hero { border-radius: var(--r-md); }
-}
-
-@media (prefers-reduced-motion: reduce) {
-  .tcg { transform: none !important; transition: none; }
-  .tcg.secret.gold { animation: none; }
-  .pull-card { animation: none; }
-  .tcg.owned .tcg-art::before, .tcg.secret .tcg-art::before,
-  .tcg.owned .tcg-art::after, .tcg.secret .tcg-art::after,
-  .tcg.owned .tcg-inner::after, .tcg.secret .tcg-inner::after,
-  .tcg-perfect { animation: none; }
-  .tcg.owned .tcg-inner::after, .tcg.secret .tcg-inner::after { display: none; }
-}
 
 /* Header yielding order, tightest first: the user's store line hides, then the
    name shrinks and ellipsizes, then the wordmark ellipsizes, then the wordmark is
@@ -1216,141 +797,7 @@ a.linklike.backdash { display: block; width: auto; margin-top: 10px; text-align:
   .hdr-user { display: none; }
 }
 
-/* Save / add-to-binder actions under a pulled card */
-.pull-actions { display: grid; gap: 10px; width: 100%; }
-@media (min-width: 420px) { .pull-actions { grid-template-columns: 1fr 1fr; } }
-.pull-actions .btn { width: 100%; white-space: nowrap; padding-left: 14px; padding-right: 14px; font-size: 15px; }
-.tcg-new {
-  position: absolute; top: -10px; right: -8px; z-index: 9;
-  padding: 6px 13px; border-radius: 999px;
-  font-size: 11px; font-weight: 900; letter-spacing: .1em; text-transform: uppercase;
-  color: #2a1a00; background: linear-gradient(120deg, #fff3cf, #FEC870 55%, #f2c75a);
-  border: 2px solid #fff; box-shadow: 0 4px 14px rgba(0,0,0,.28);
-  transform: rotate(7deg);
-  animation: new-pop .5s cubic-bezier(.2,1.5,.4,1) both, new-bob 2.4s ease-in-out .5s infinite;
-  pointer-events: none;
-}
-@keyframes new-pop { 0% { transform: rotate(7deg) scale(0); } 100% { transform: rotate(7deg) scale(1); } }
-@keyframes new-bob {
-  0%, 100% { transform: rotate(7deg) translateY(0); }
-  50% { transform: rotate(7deg) translateY(-3px); }
-}
-
-/* The foil border on an owned card shimmers instead of sitting flat. */
-.tcg.owned, .tcg.secret { background-size: 220% 220%; animation: foil-drift 9s ease-in-out infinite; }
-.tcg.is-new { box-shadow: 0 0 0 3px rgba(254,200,112,.55), 0 18px 40px rgba(0,0,0,.24); }
-@keyframes foil-drift {
-  0%, 100% { background-position: 0% 50%; }
-  50% { background-position: 100% 50%; }
-}
-
-/* Two sparkles twinkling in the art window of an owned card. */
-.tcg.owned .tcg-art .spk, .tcg.secret .tcg-art .spk {
-  position: absolute; z-index: 4; pointer-events: none;
-  font-size: 14px; line-height: 1; opacity: 0; font-style: normal;
-  color: #fff; text-shadow: 0 0 6px rgba(255,255,255,.95), 0 0 14px rgba(254,200,112,.85);
-  animation: twinkle 3.6s ease-in-out infinite;
-}
-.tcg-art .spk.a { top: 12%; right: 16%; }
-.tcg-art .spk.b { bottom: 16%; left: 12%; animation-delay: 1.8s; }
-@keyframes twinkle {
-  0%, 72%, 100% { opacity: 0; transform: scale(.4) rotate(0deg); }
-  84% { opacity: 1; transform: scale(1) rotate(25deg); }
-}
-
-/* Rarity symbol reads at a glance: gold star for rare, gold triple for secret. */
-.tcg.r-rare .tcg-rar { color: var(--gold); text-shadow: 0 0 8px rgba(254,200,112,.9); }
-.tcg.secret .tcg-rar { letter-spacing: -1px; text-shadow: 0 0 10px rgba(254,200,112,.8); }
-
-/* The locked card back gets a gold shimmer so the empty slot still tempts you. */
-.tcg.back .back-q { animation: q-pulse 2.8s ease-in-out infinite; }
-@keyframes q-pulse { 0%, 100% { opacity: .75; transform: scale(1); } 50% { opacity: 1; transform: scale(1.09); } }
-.tcg.back .tcg-inner::before {
-  content: ""; position: absolute; inset: 0; pointer-events: none;
-  background: linear-gradient(112deg, transparent 43%, rgba(254,200,112,.16) 50%, transparent 57%);
-  transform: translateX(-130%);
-  animation: card-sweep 5.5s ease-in-out infinite;
-}
-
-@media (max-width: 520px) {
-  .tcg-new { top: -8px; right: -4px; font-size: 10px; padding: 5px 10px; }
-}
-
-@media (prefers-reduced-motion: reduce) {
-  .tcg-new { animation: none; }
-  .tcg.owned, .tcg.secret { animation: none; }
-  .tcg-art .spk { display: none; }
-}
-
-/* ==================== BOOSTER PACK (the pull ritual) ===================== */
-/* Block flow, not nested grid: a grid item with no in-flow content collapsed
-   the pack to 0 wide despite a definite width. Block + margin auto is stable. */
-.pull-stage { position: relative; display: block; text-align: center; min-height: 360px; width: min(360px, 86vw); margin: 0 auto; }
 /* the reveal starts hidden behind the pack, then flips in */
-/* (the global [hidden] rule near the top now covers this) */
-.pull-reveal { display: grid; gap: 16px; justify-items: center; text-align: center; width: 100%; animation: reveal-fade .5s ease both; }
-@keyframes reveal-fade { from { opacity: 0; transform: translateY(8px); } to { opacity: 1; transform: none; } }
-
-.pull-pack {
-  position: relative; width: min(228px, 66vw); margin: 0 auto;
-  border: 0; padding: 0; background: none; cursor: pointer; display: block;
-  animation: pack-float 3s ease-in-out infinite;
-  filter: drop-shadow(0 20px 34px rgba(0,0,0,.42));
-}
-@keyframes pack-float { 0%, 100% { transform: translateY(0) rotate(-1.6deg); } 50% { transform: translateY(-11px) rotate(1.6deg); } }
-/* pk-main is in-flow and carries the aspect-ratio, so it gives the pack a
-   definite size — the absolute layers (top strip, glow, hint) sit over it. */
-.pk-main {
-  position: relative; width: 100%; aspect-ratio: 5 / 7; border-radius: 15px; overflow: hidden;
-  background: linear-gradient(150deg, #f2c75a, #c8952f 38%, #8a6b28 54%, #f7e2a4 76%, #c8952f);
-  border: 2px solid rgba(255,255,255,.42);
-  display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 16px;
-}
-.pk-main::before { /* faint pinstripe foil texture */
-  content: ""; position: absolute; inset: 0; opacity: .5;
-  background: repeating-linear-gradient(58deg, rgba(255,255,255,.16) 0 2px, transparent 2px 9px);
-}
-.pk-eyebrow { position: relative; font-size: var(--eyebrow-size); font-weight: var(--eyebrow-weight); letter-spacing: var(--eyebrow-tracking); text-transform: uppercase; color: #2a1a00; }
-.pk-logo { position: relative; }
-.pk-logo img { width: 92px; height: 92px; object-fit: contain; filter: drop-shadow(0 3px 7px rgba(0,0,0,.32)); opacity: .96; }
-.pk-set { position: relative; font-size: 11px; font-weight: 800; letter-spacing: .13em; text-transform: uppercase; color: #3a2a05; background: rgba(255,255,255,.4); padding: 4px 11px; border-radius: 999px; }
-.pk-glow { position: absolute; inset: 0; z-index: 2; pointer-events: none; border-radius: 15px;
-  background: linear-gradient(115deg, transparent 40%, rgba(255,255,255,.62) 50%, transparent 60%);
-  transform: translateX(-120%); animation: pk-shine 2.7s ease-in-out infinite; }
-@keyframes pk-shine { 0%, 55% { transform: translateX(-120%); } 100% { transform: translateX(120%); } }
-.pk-top {
-  position: absolute; top: 0; left: 0; right: 0; height: 21%; z-index: 3;
-  background: linear-gradient(150deg, #fff3cf, #d9a63c);
-  border-bottom: 3px dashed rgba(0,0,0,.28); border-radius: 15px 15px 3px 3px;
-  transform-origin: 50% 100%;
-}
-.pk-hint {
-  position: absolute; bottom: -38px; left: 0; right: 0; text-align: center;
-  display: inline-flex; align-items: center; justify-content: center; gap: 5px;
-  font-size: 13px; font-weight: 800; color: var(--gold-bright); letter-spacing: .01em;
-  animation: pk-nudge 1.4s ease-in-out infinite;
-}
-.pk-hint svg { width: 14px; height: 14px; }
-@keyframes pk-nudge { 0%, 100% { opacity: .55; transform: translateY(0); } 50% { opacity: 1; transform: translateY(3px); } }
-
-/* the tear */
-.pull-pack.ripping { animation: pack-jolt .5s ease; pointer-events: none; }
-@keyframes pack-jolt { 0% { transform: translateY(-11px) rotate(1.6deg); } 20% { transform: translateX(-5px) rotate(-3deg); } 40% { transform: translateX(5px) rotate(3deg); } 100% { transform: none; } }
-.pull-pack.ripping .pk-top { animation: pk-tear .52s cubic-bezier(.3,.7,.3,1) forwards; }
-@keyframes pk-tear { to { transform: translateY(-160%) rotate(-15deg); opacity: 0; } }
-.pull-pack.ripping .pk-main { animation: pk-open .56s ease forwards; }
-@keyframes pk-open { 0% { transform: scale(1); } 22% { transform: scale(1.05) rotate(1deg); } 100% { transform: scale(.58) translateY(34px); opacity: 0; } }
-.pull-pack.ripping .pk-hint, .pull-pack.ripping .pk-glow { opacity: 0; }
-.pull-pack.ripping::after { /* light burst */
-  content: ""; position: absolute; inset: -12%; z-index: 4; pointer-events: none; border-radius: 24px;
-  background: radial-gradient(circle at 50% 44%, rgba(255,255,255,.95), rgba(254,200,112,.55) 30%, transparent 64%);
-  animation: pk-burst .58s ease-out forwards;
-}
-@keyframes pk-burst { 0% { opacity: 0; transform: scale(.3); } 38% { opacity: 1; } 100% { opacity: 0; transform: scale(1.9); } }
-
-@media (prefers-reduced-motion: reduce) {
-  .pull-pack, .pk-glow { animation: none; }
-}
 
 /* ==================== AMBIENT VAPOR ===================================== */
 .vapor { position: absolute; inset: 0; overflow: hidden; pointer-events: none; }
@@ -1366,10 +813,6 @@ a.linklike.backdash { display: block; width: auto; margin-top: 10px; text-align:
   78% { opacity: .4; }
   100% { transform: translateY(-400px) scale(1.75); opacity: 0; }
 }
-/* keep the hero's real content above the vapor + gradient */
-.bn-hero { position: relative; overflow: hidden; }
-.bn-hero > *:not(.vapor) { position: relative; z-index: 1; }
-.bn-hero .vapor .vap { background: radial-gradient(circle, rgba(254,200,112,.22), rgba(254,200,112,0) 66%); }
 @media (prefers-reduced-motion: reduce) { .vapor { display: none; } }
 
 /* ============== PRODUCT REFERENCE (collapsed, below the learning path) =====
@@ -1408,44 +851,8 @@ a.linklike.backdash { display: block; width: auto; margin-top: 10px; text-align:
 #qscore.pop { animation: score-pop .34s cubic-bezier(.2,1.6,.4,1); display: inline-block; }
 @keyframes score-pop { 0% { transform: scale(1); color: var(--ok); } 45% { transform: scale(1.5); color: var(--ok); } 100% { transform: scale(1); } }
 
-.pt-fly {
-  position: absolute; z-index: 5; transform: translate(-50%, 0);
-  font-size: 22px; font-weight: 900; color: var(--ok); pointer-events: none; white-space: nowrap;
-  text-shadow: 0 2px 8px rgba(0,0,0,.18);
-  animation: pt-rise 1.05s cubic-bezier(.2,.7,.3,1) forwards;
-}
-.pt-fly em { font-style: normal; color: var(--ember); font-size: 16px; margin-left: 3px; }
-@keyframes pt-rise {
-  0% { opacity: 0; transform: translate(-50%, 6px) scale(.7); }
-  20% { opacity: 1; transform: translate(-50%, -6px) scale(1.1); }
-  100% { opacity: 0; transform: translate(-50%, -64px) scale(1); }
-}
-
-/* letter grade on the results screen */
-.grade-card {
-  display: inline-flex; align-items: center; gap: 16px; margin: 0 auto 6px;
-  padding: 14px 22px 14px 16px; border-radius: var(--r-md); background: var(--cream);
-  border: 2px solid var(--line);
-  animation: grade-in .6s cubic-bezier(.2,1.4,.4,1) both;
-}
-.grade-big {
-  font-size: 52px; font-weight: 900; line-height: 1; letter-spacing: -.03em;
-  width: 84px; height: 84px; display: grid; place-items: center; border-radius: var(--r-md);
-  color: #fff; background: var(--ink);
-}
-.grade-card.g-A .grade-big { background: linear-gradient(140deg, #2f8f5b, #1f6f43); }
-.grade-card.g-B .grade-big { background: linear-gradient(140deg, #c8952f, #FEC870); color: #2a1a00; }
-.grade-card.g-C .grade-big { background: linear-gradient(140deg, #D75D43, #b8492f); }
-.grade-card.g-D .grade-big, .grade-card.g-F .grade-big { background: linear-gradient(140deg, #555, #333); }
-.grade-meta { display: grid; gap: 3px; text-align: left; }
-.grade-meta b { font-size: 19px; font-weight: 900; }
-.grade-meta em { font-style: normal; display: inline-flex; align-items: center; gap: 5px; font-size: 13px; font-weight: 800; color: var(--gold); }
-.grade-meta em svg { width: 13px; height: 13px; }
-@keyframes grade-in { 0% { opacity: 0; transform: scale(.5) rotate(-8deg); } 60% { transform: scale(1.06) rotate(2deg); } 100% { opacity: 1; transform: none; } }
-
 @media (prefers-reduced-motion: reduce) {
-  .pt-fly { animation: none; opacity: 1; }
-  #qscore.pop, .grade-card { animation: none; }
+  #qscore.pop{ animation: none; }
 }
 .pocket {
   position: relative; display: flex; border-radius: 15px; padding: 9px;
@@ -1467,14 +874,6 @@ a.linklike.backdash { display: block; width: auto; margin-top: 10px; text-align:
 }
 
 /* ==================== SOUND TOGGLE ====================================== */
-.hdr-sound {
-  flex: none; width: 38px; height: 38px; margin-right: 4px;
-  display: grid; place-items: center; border-radius: 50%; cursor: pointer;
-  border: 1.5px solid var(--line); background: var(--paper); color: var(--ink);
-  transition: border-color .2s, transform .15s, color .2s;
-}
-.hdr-sound:hover { border-color: var(--gold-bright); color: var(--gold); transform: translateY(-1px); }
-.hdr-sound svg { width: 18px; height: 18px; }
 /* REMOVED a dead rule that used to sit here:
      @media (max-width: 400px) { .hdr-sound { width: 34px; height: 34px; } }
    It never applied at any width — the max-width:470px block below sets 32px at
@@ -1494,48 +893,9 @@ a.linklike.backdash { display: block; width: auto; margin-top: 10px; text-align:
   .hdr { padding-left: 12px; padding-right: 12px; gap: 8px; }
   .hdr-logo { width: 26px; height: 26px; }
   .hdr-name { font-size: 14px; letter-spacing: 0; }
-  .hdr-sound { width: 32px; height: 32px; margin-right: 2px; }
-  .hdr-sound svg { width: 16px; height: 16px; }
-  .hdr-binder { padding: 5px 9px; gap: 4px; }
-  .hb-word { font-size: 11px; }
 }
-
-/* ==================== CARD → BINDER FLIGHT =============================== */
-.pull-modal.fading { opacity: 0; pointer-events: none; transition: opacity .3s ease; }
-.fly-clone { will-change: transform, opacity; border-radius: 15px; box-shadow: 0 22px 44px rgba(0,0,0,.32); overflow: hidden; }
-.hdr-binder.pop { animation: chip-pop .55s cubic-bezier(.2,1.7,.4,1); }
-@keyframes chip-pop {
-  0% { transform: scale(1); }
-  35% { transform: scale(1.4); background: var(--gold-bright); border-color: var(--gold); }
-  100% { transform: scale(1); }
-}
-@media (prefers-reduced-motion: reduce) { .hdr-binder.pop { animation: none; } }
 
 /* ==================== PROFESSOR O.G. (the mascot) ======================= */
-/* two classes deep so page-level `<container> svg` rules can't shrink him */
-.og-art .og-svg, .og-mini .og-svg, .og-say .og-svg { width: 100%; height: 100%; display: block; overflow: visible; }
-
-/* his "office hours" block on the home hub */
-.og-block {
-  display: flex; align-items: center; gap: 16px; margin: 4px 0 18px;
-  padding: 14px 18px 14px 14px; border-radius: var(--r-lg);
-  background: linear-gradient(120deg, #17140e, #0e0c08);
-  border: 1.5px solid rgba(200,149,47,.35);
-}
-.og-art { flex: none; width: 78px; height: 84px; }
-.og-art .og-svg { animation: og-bob 4.2s ease-in-out infinite; transform-origin: 50% 90%; }
-@keyframes og-bob { 0%, 100% { transform: translateY(0) rotate(-1.5deg); } 50% { transform: translateY(-4px) rotate(1.5deg); } }
-.og-bubble { position: relative; flex: 1; min-width: 0; background: var(--paper); border-radius: var(--r-md); padding: 12px 15px; }
-.og-bubble::before { /* speech tail pointing at O.G. */
-  content: ""; position: absolute; left: -8px; top: 50%; transform: translateY(-50%);
-  border: 8px solid transparent; border-right-color: var(--paper); border-left: 0;
-}
-.og-name { display: flex; align-items: baseline; gap: 8px; flex-wrap: wrap; font-size: 13px; font-weight: 900; color: var(--ink); }
-.og-name em { font-style: normal; font-size: 10.5px; font-weight: 800; letter-spacing: .08em; text-transform: uppercase; color: var(--gold); }
-.og-bubble p { margin: 3px 0 0; font-size: 14.5px; line-height: 1.5; color: var(--ink); }
-
-/* small inline head — quiz feedback, pull note */
-.og-mini { flex: none; display: inline-block; width: 42px; height: 46px; vertical-align: middle; }
 
 /* quiz feedback becomes a row: O.G. reacts, then explains */
 .quiz-why { display: flex; align-items: flex-start; gap: 12px; }
@@ -1544,116 +904,6 @@ a.linklike.backdash { display: block; width: auto; margin-top: 10px; text-align:
 .qw-verdict { font-weight: 900; letter-spacing: -.01em; }
 .quiz-why.ok .qw-verdict { color: var(--ok); }
 .quiz-why.no .qw-verdict { color: var(--bad); }
-
-/* his line inside the card-pull note */
-.og-say { display: flex; align-items: center; gap: 9px; justify-content: center; margin-bottom: 8px; }
-.og-say em { font-style: italic; font-size: 13px; line-height: 1.4; color: var(--gold-bright); text-align: left; }
-
-@media (max-width: 520px) {
-  .og-block { gap: 11px; padding: 12px 13px 12px 10px; border-radius: var(--r-md); }
-  .og-art { width: 62px; height: 68px; }
-  .og-bubble p { font-size: 13.5px; }
-  .og-mini { width: 36px; height: 40px; }
-}
-@media (prefers-reduced-motion: reduce) { .og-art .og-svg { animation: none; } }
-
-/* ==================== O.G. — blink, tap, bounce =========================== */
-.og-eyes { transform-box: view-box; transform-origin: 110px 110px; animation: og-blink 5.4s infinite; }
-@keyframes og-blink { 0%, 93%, 100% { transform: scaleY(1); } 96% { transform: scaleY(.08); } }
-.og-m-proud .og-eyes { animation: none; }
-/* he's a button now */
-.og-block { width: 100%; text-align: left; cursor: pointer; font: inherit; }
-.og-block:hover .og-art { transform: scale(1.06) rotate(-3deg); }
-.og-art { transition: transform .25s cubic-bezier(.2,1.4,.4,1); }
-.og-block.pop { animation: og-pop .5s cubic-bezier(.2,1.5,.4,1); }
-@keyframes og-pop { 0% { transform: scale(1); } 40% { transform: scale(1.02); } 100% { transform: scale(1); } }
-.og-hint { display: inline-flex; align-items: center; gap: 5px; margin-top: 6px; font-size: 11px; font-weight: 800; letter-spacing: .07em; text-transform: uppercase; color: var(--gold); opacity: .75; }
-.og-hint svg { width: 12px; height: 12px; }
-@media (prefers-reduced-motion: reduce) { .og-eyes, .og-block.pop { animation: none; } }
-
-/* ==================== CARD INSPECTOR ==================================== */
-.insp-modal .insp-in { display: grid; gap: 16px; justify-items: center; width: min(400px, 100%); position: relative; }
-.insp-modal .modal-x { position: absolute; top: -8px; right: -4px; z-index: 6; color: #fff; }
-.insp-stage { width: 100%; perspective: 1400px; touch-action: none; }
-.insp-card {
-  --rx: 0deg; --ry: 0deg; --flip: 0deg;
-  position: relative; transform-style: preserve-3d; width: 100%;
-  transform: rotateX(var(--rx)) rotateY(calc(var(--ry) + var(--flip)));
-  transition: transform .5s cubic-bezier(.25,.8,.3,1);
-  animation: insp-in .55s cubic-bezier(.2,.9,.25,1) both;
-}
-@keyframes insp-in { 0% { opacity: 0; transform: translateY(24px) scale(.86); } 100% { opacity: 1; } }
-/* Don't rely on backface culling (it doesn't reliably hide the back face here) —
-   the faces are swapped by `.show-back` at the midpoint of the turn, while the
-   card is edge-on and invisible anyway. Bulletproof in every engine. */
-.insp-face { backface-visibility: hidden; }
-.insp-face.back { position: absolute; inset: 0; transform: rotateY(180deg); visibility: hidden; }
-.insp-card.show-back .insp-face.back { visibility: visible; }
-.insp-card.show-back .insp-face.front { visibility: hidden; }
-/* The .tcg carries its own `transform` + `transform-style: preserve-3d` (for the
-   hover tilt), which builds a nested 3D context that defeats the face's
-   backface-visibility — the back would show through mirrored. Flatten it here;
-   the inspector card does the tilting now. */
-.insp-face .tcg {
-  pointer-events: none; transform: none !important; transform-style: flat;
-  backface-visibility: hidden; animation: none;
-}
-.insp-face.back .tcg.cardback { height: 100%; }
-/* crank the holo up — this is the "really look at it" moment */
-.insp-face.front .tcg.owned .tcg-art::before, .insp-face.front .tcg.secret .tcg-art::before { opacity: .8; }
-.insp-face.front .tcg.owned .tcg-art::after, .insp-face.front .tcg.secret .tcg-art::after { opacity: .34; }
-.insp-face.front .tcg.owned .tcg-shine, .insp-face.front .tcg.secret .tcg-shine {
-  background:
-    radial-gradient(circle at var(--mx) var(--my), rgba(255,255,255,.55) 0%, rgba(255,255,255,0) 40%),
-    conic-gradient(from 200deg at var(--mx) var(--my),
-      rgba(255,0,128,.16), rgba(255,214,0,.16), rgba(0,255,196,.16),
-      rgba(0,153,255,.16), rgba(190,0,255,.16), rgba(255,0,128,.16));
-  mix-blend-mode: color-dodge;
-}
-.insp-card { box-shadow: 0 40px 70px rgba(0,0,0,.5); border-radius: var(--r-md); }
-
-/* the card back */
-.tcg.cardback { background: linear-gradient(150deg, #c8952f, #8a6b28 45%, #f2c75a 70%, #8a6b28); }
-.tcg.cardback .tcg-inner {
-  background:
-    repeating-linear-gradient(45deg, rgba(200,149,47,.12) 0 12px, transparent 12px 24px),
-    linear-gradient(170deg, #1d1913, #0c0a07);
-  align-items: center; justify-content: center; text-align: center; gap: 14px; padding: 34px 18px;
-}
-.cb-art { position: relative; display: grid; place-items: center; }
-.cb-art img { width: 96px; height: 96px; object-fit: contain; opacity: .95; }
-.cb-name { font-size: 17px; font-weight: 900; letter-spacing: .12em; text-transform: uppercase; color: var(--gold-bright); }
-.cb-sub { font-size: 10.5px; font-weight: 800; letter-spacing: .12em; text-transform: uppercase; color: #8d7a4f; }
-
-.insp-meta { display: grid; gap: 2px; text-align: center; color: #fff; }
-.insp-meta b { font-size: 21px; font-weight: 900; }
-.insp-meta span { font-size: 12px; font-weight: 800; letter-spacing: .08em; text-transform: uppercase; color: var(--gold-bright); }
-.insp-actions { display: flex; gap: 9px; flex-wrap: wrap; justify-content: center; width: 100%; }
-/* flex:1 split the 400px-capped card three ways at ~127px each, but "Review course"
-   needs ~170px and white-space:nowrap forbids wrapping, so its label painted
-   outside its own pill at every width above the 460px stacking breakpoint.
-   Size to content and let the row wrap instead — the container is already
-   flex-wrap:wrap, so a button that will not fit drops to a second line intact. */
-.insp-actions .btn { flex: 0 0 auto; max-width: 100%; white-space: nowrap; padding-left: 14px; padding-right: 14px; }
-/* owned cards in the binder invite a tap */
-.pocket .tcg.owned, .pocket .tcg.secret { cursor: zoom-in; }
-@media (prefers-reduced-motion: reduce) { .insp-card { animation: none; transition: none; } }
-
-/* inspector on small screens: let tall cards scroll, and stack the actions */
-.insp-modal { overflow-y: auto; }
-/* Same fix for the card-pull modal. `.modal` is a centred grid with no overflow
-   and body scroll is locked, so on a short phone the ~770px pull stage overflowed
-   both ends — the close X and "Add to binder" were BOTH unreachable, trapping the
-   rep in the payoff moment. Scoped to .pull-modal so the video and certificate
-   modals keep their centred behaviour. */
-.pull-modal { display: flex; flex-direction: column; align-items: center; overflow-y: auto;
-  padding: 28px 16px calc(28px + env(safe-area-inset-bottom, 0px)); -webkit-overflow-scrolling: touch; }
-.pull-modal .pull-in { margin-block: auto; flex: none; }
-@media (max-width: 460px) {
-  .insp-actions { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; }
-  .insp-actions .btn { min-width: 0; flex: none; width: 100%; }
-  .insp-actions .btn:last-child { grid-column: 1 / -1; }
-}
 
 /* ============ HERO v2: Grenco crest + a big animated Professor O.G. ======= */
 /* The lifestyle photo is gone; the hero is a dark stage for the mascot. */
@@ -1668,7 +918,6 @@ a.linklike.backdash { display: block; width: auto; margin-top: 10px; text-align:
 
 /* the lifestyle grid now sits under the courses and runs tighter */
 
-/* ==================== HOW IT WORKS (3 steps, up front) ================== */
 /* ============== THE LINEUP — product cards ===============================
    Rigidly uniform: same fields, same order, same scale on every card, so the
    eye compares products instead of layouts. Nothing is featured, locked, or
@@ -1813,27 +1062,17 @@ a.linklike.backdash { display: block; width: auto; margin-top: 10px; text-align:
 }
 /* ≤400px: keep the progress pips but drop the "N/5" text (an earlier version hid
    the whole chip, which removed the progress signal on an iPhone SE / 12-16). */
-@media (max-width: 400px) {
-  /* 40px + the header's 12px padding top and bottom = 64px of content in a header
-   whose --hdr-h is 57px here, so every scroll-into-view landed 8px under the
-   sticky bar. Sized to fit the declared header height instead. */
-  .hdr-binder { min-height: 32px; padding: 5px 8px; }
-  .hb-word { display: none; }
-}
+
 /* ≤365px the chip has to go entirely: with .hdr-nav no longer shrinking, keeping
    it crushed the G mark to zero width. Navigation and the brand both outrank a
    progress indicator that the lineup below already shows per card — and the nav's
    own "Binder" link still reaches the destination. Must sit AFTER .hdr-binder's
    base rule, which sets display:inline-flex at equal specificity. */
-@media (max-width: 365px) { .hdr-binder { display: none; } }
 
 /* =========================================================================
    THE HOME HERO — state-aware. The page used to open with a masthead ABOUT the
-   training; this opens with the training. Three states, one job each:
-     .hero-quiz  a first-timer gets a REAL question from the real bank. Answering
-                 costs nothing and saves nothing, and the card then becomes an
-                 on-ramp into the exact product the question was about.
-     .hero-prog  a returning rep gets where they left off and what it unlocks.
+   training; this opens with the training. Two states, one job each:
+     .hero-prog  where the rep left off, what is next, and what it unlocks.
      .hero-done  a certified rep gets their code and certificate, not a pitch.
    Narrow measure (--readw) on purpose: this is one thing to read and one thing
    to tap, not a magazine spread.
@@ -1861,66 +1100,16 @@ a.linklike.backdash { display: block; width: auto; margin-top: 10px; text-align:
    and below ~328px the third item wraps and the dot hung off the left edge. */
 .hero-facts li + li::before { content: "\00b7"; color: var(--gold); margin-right: 7px; }
 .hero-facts .gold { color: var(--gold); }
-
-/* ---- the pop quiz ---- */
-.pq { margin-top: 20px; background: #fff; border: 1px solid var(--line); border-radius: var(--r-lg);
-  padding: clamp(16px,3vw,24px); box-shadow: var(--shadow); }
-.pq-ask { display: flex; align-items: center; gap: 10px; margin-bottom: 12px; }
-.pq-who { font-size: var(--eyebrow-size); font-weight: var(--eyebrow-weight); letter-spacing: var(--eyebrow-tracking);
-  text-transform: uppercase; color: var(--stone); }
-.pq-og { flex: none; width: clamp(44px,9vw,60px); line-height: 0; filter: drop-shadow(0 6px 12px rgba(0,0,0,.18)); }
-.pq-og svg { width: 100%; height: auto; display: block; }
-.pq-og.pop { animation: og-pop-lg .5s cubic-bezier(.2,1.7,.4,1); }
-/* Named og-pop-LG deliberately: as a second @keyframes og-pop it would win over
-   the one .og-block.pop uses and scale that whole dark panel instead. */
-@keyframes og-pop-lg { 0% { transform: scale(1); } 40% { transform: scale(1.12) rotate(-5deg); } 100% { transform: scale(1); } }
-.pq-q { font-size: clamp(16px,2.3vw,19px); font-weight: 800; line-height: 1.4; letter-spacing: -.01em; }
-.pq-choices { display: grid; gap: 10px; margin-top: 16px; }
-.pq-choice { display: flex; align-items: center; gap: 11px; width: 100%; min-height: 48px; text-align: left;
-  padding: 11px 14px; border-radius: var(--r-md); border: 1.5px solid var(--line); background: var(--paper);
-  font: inherit; font-size: 14.5px; font-weight: 600; line-height: 1.38; color: var(--ink); cursor: pointer;
-  transition: border-color .15s, background .15s, transform .15s; }
-.pq-choice:hover:not(:disabled) { border-color: var(--gold-bright); transform: translateY(-1px); }
-.pq-choice[aria-disabled="true"] { cursor: default; }
-.pq-key { flex: none; width: 26px; height: 26px; display: grid; place-items: center; border-radius: 50%;
-  background: var(--ink); color: #fff; font-size: 12px; font-weight: 900; }
-/* Right and wrong are never colour alone — the correct choice keeps a check-style
-   green key AND is the only one paired with the "The answer" block below. */
-.pq-choice.ok { border-color: var(--ok); background: #f0f7f1; }
-.pq-choice.ok .pq-key { background: var(--ok); }
-.pq-choice.no { border-color: var(--bad); background: #fbf0ee; }
-.pq-choice.no .pq-key { background: var(--bad); }
-.pq-out:empty { display: none; }
-.pq-out { margin-top: 16px; padding-top: 16px; border-top: 1px solid var(--line); }
-.pq-verdict { display: flex; align-items: flex-start; gap: 8px; font-size: 16px; font-weight: 800; line-height: 1.4; }
-/* ic() emits <span class="ic">, so a bare "> span" matched the ICON too and made it
-   a growing flex item: measured a 278px icon box around an 18px glyph at 1280, and a
-   13px box the glyph overflowed at 390. Pin the icon, grow only the prose — the same
-   shape as .master-unlock .mu-txt and .hl-list li .ic. */
-.pq-verdict > .ic { flex: none; }
-.pq-verdict > .pqv-txt { flex: 1 1 auto; min-width: 0; }
-.pq-verdict svg { width: 18px; height: 18px; flex: none; }
-.pq-verdict.ok { color: var(--ok); }
-.pq-verdict.no { color: var(--gold); }
-.pq-answer { display: flex; flex-direction: column; gap: 2px; margin-top: 10px; padding: 12px 14px;
-  border-radius: var(--r-sm); background: #f0f7f1; }
-.pq-answer em { font-style: normal; font-size: var(--eyebrow-size); font-weight: var(--eyebrow-weight);
-  letter-spacing: var(--eyebrow-tracking); text-transform: uppercase; color: var(--ok); }
-.pq-answer span { font-size: 15px; font-weight: 700; color: #17402a; }
-.pq-why { margin-top: 10px; color: var(--ink-2); font-size: 14.5px; line-height: 1.55; }
-.pq-next { display: flex; flex-wrap: wrap; align-items: center; gap: 12px; margin-top: 16px; }
-.hero-skip { display: inline-flex; align-items: center; gap: 6px; margin-top: 12px; padding: 12px 0;
-  background: none; border: 0; font: inherit; font-size: 14px; font-weight: 800; color: var(--stone); cursor: pointer; }
-.hero-skip:hover { color: var(--ink); }
-/* Once answered, the card offers its own two ways on ("Learn this one" and
-   "or pick a different product"), so a third "skip it" underneath is noise. */
-.pq.done ~ .hero-skip { display: none; }
-.hero-skip svg { width: 14px; height: 14px; }
+/* Named og-pop-LG deliberately: as a second 
 
 /* ---- returning rep ---- */
 .hp-bar { height: 10px; margin-top: 18px; border-radius: 999px; background: var(--line); overflow: hidden; }
 .hp-bar i { display: block; height: 100%; background: linear-gradient(90deg, var(--gold-bright), var(--gold)); }
 .hero-cta { margin-top: 18px; }
+/* The one-more-product nudge under the CTA. Same measure and colour as .hero-sub;
+   it had no rule at all and was falling back to the UA paragraph margins. */
+.hero-note { margin: 12px 0 0; font-size: 14.5px; color: var(--ink-2); }
+.hero-note b { color: var(--gold); font-weight: 900; }
 .hp-pips { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 18px; }
 .hp-pip { display: inline-flex; align-items: center; gap: 6px; padding: 11px 14px; border-radius: 999px;
   border: 1.5px solid var(--line); background: var(--paper); font-size: 13.5px; font-weight: 800; color: var(--stone); }
@@ -1932,33 +1121,9 @@ a.linklike.backdash { display: block; width: auto; margin-top: 10px; text-align:
 .hero-code { margin-top: 18px; }
 .hero-actions { display: flex; flex-wrap: wrap; gap: 12px; margin-top: 16px; }
 
-@media (min-width: 760px) { .pq-choices { grid-template-columns: 1fr 1fr; } }
-@media (prefers-reduced-motion: reduce) { .pq-og.pop { animation: none; } }
-
 /* =========================================================================
    THE FLOOR DRILL — the battlecard's pairing reflex, on the home page.
    ====================================================================== */
-.floordrill { max-width: var(--maxw); margin: 0 auto; padding: var(--sec-y) var(--gutter) 4px; }
-.fd-ask { margin: -4px 0 12px; color: var(--stone); font-size: 15px; font-weight: 600; }
-.fd-chips { display: flex; flex-wrap: wrap; gap: 10px; }
-.fd-chip { display: inline-flex; align-items: center; gap: 8px; padding: 11px 18px; border-radius: 999px;
-  border: 1.5px solid var(--line); background: var(--paper); color: var(--ink); font-size: 15px; font-weight: 800;
-  cursor: pointer; transition: border-color .15s, transform .15s, background .15s, color .15s; }
-.fd-chip:hover { border-color: var(--gold-bright); transform: translateY(-2px); }
-.fd-chip.on { background: var(--ink); color: #fff; border-color: var(--ink); }
-.fd-cue { font-size: 18px; line-height: 1; }
-.fd-answer { display: none; margin-top: 14px; }
-.fd-answer.show { display: block; }
-.fd-card { border: 1px solid var(--line); border-left: 5px solid var(--accent, var(--gold-bright)); border-radius: var(--r-md);
-  padding: 16px 18px; background: #fff; box-shadow: var(--shadow); }
-.fd-hand { display: block; font-size: 17px; font-weight: 900; letter-spacing: -.01em; }
-.fd-why { margin: 6px 0 10px; color: var(--ink-2); font-size: 14.5px; line-height: 1.5; }
-.fd-more { display: inline-flex; align-items: center; gap: 5px; font-size: 13.5px; font-weight: 900; color: var(--ink); text-decoration: none; }
-.fd-more svg { width: 14px; height: 14px; }
-
-/* O.G. sign-off — bookends the page with the same face that opened it. */
-.signoff { max-width: var(--maxw); margin: 0 auto; padding: var(--sec-y) var(--gutter) var(--sec-y-end); }
-.signoff-inner { max-width: 640px; margin: 0 auto; }
 
 /* The free-G-Pen sweepstakes panel — the finish-line moment on the master cert. */
 .sweeps { max-width: 640px; margin: 22px auto 8px; padding: clamp(20px,4vw,30px); border-radius: var(--r-lg);
@@ -1971,7 +1136,6 @@ a.linklike.backdash { display: block; width: auto; margin-top: 10px; text-align:
 .sw-actions { display: flex; flex-wrap: wrap; gap: 10px; justify-content: center; margin-top: 18px; }
 .sw-fine { margin: 16px auto 0; max-width: 54ch; font-size: 11px; line-height: 1.5; color: #8f8e88; }
 .sw-fine a { color: #b9b8b0; text-decoration: underline; }
-
 
 /* =========================================================================
    THE LOOP — the incentive story, told exactly once, below the lineup.

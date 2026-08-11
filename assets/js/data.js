@@ -75,10 +75,11 @@ window.GPEN_COURSES = [
     category: "Dry Herb Vaporizer",
     tagline: "Pocket-sized dry herb vaporizer with temperature control.",
     differentiator: "The entry dry herb vaporizer. Simple to use.",
-    featured: "Start here",
     minutes: 9, passPct: 80, msrp: "$49.95", accent: "#FEC870",
     cover: CDN + "Dash2_thumb_01.png?v=1782936076",
     heroImg: LIFE + "dash-ii/f37d082035ae142949fa4dfe33aeebf6d9b556a2745187c26db91bc2ca08a020.jpg",
+    // productUrl / faqUrl are provenance: the pages every spec and description
+    // on this course was verified against. Nothing renders them.
     productUrl: "https://www.gpen.com/products/g-pen-dash-ii-vaporizer",
     faqUrl: "https://www.gpen.com/pages/dash-ii-faq",
     gallery: [
@@ -132,7 +133,6 @@ window.GPEN_COURSES = [
     ],
     howToSell: {
       upsellFrom: "Flower",
-      cue: "🌿",
       pairsWith: ["dash-plus"],
       // No invented fractions: "half the terpenes" was a fabricated statistic.
       vital: "A vaporizer heats ground flower instead of burning it, which gives a clearer flavor of the strain. The Dash II is the lowest-priced way into that.",
@@ -230,7 +230,6 @@ window.GPEN_COURSES = [
     ],
     howToSell: {
       upsellFrom: "Flower",
-      cue: "🌿",
       pairsWith: ["dash-ii"],
       vital: "The titanium chamber and hybrid heating give more vapor and a fuller flavor than the Dash II. This is the model for a customer buying higher-grade flower.",
       aov: "Present the Dash II at $49.95 first, then this at $99.95. Showing the two together doubles the device value on the same flower sale.",
@@ -336,7 +335,6 @@ window.GPEN_COURSES = [
     ],
     howToSell: {
       upsellFrom: "Flower",
-      cue: "🌿",
       pairsWith: ["dash-ii", "dash-plus"],
       vital: "Every flower customer grinds somehow. This is the cheapest thing on the counter that improves what they already bought, and it is the accessory that makes a Dash pack evenly.",
       aov: "A $19.95 mechanical add-on with nothing to break and nothing to charge. It attaches to any flower sale, and it ships as a 10-pack POP display so it can live right at the register.",
@@ -424,7 +422,6 @@ window.GPEN_COURSES = [
     ],
     howToSell: {
       upsellFrom: "Dabs / concentrate",
-      cue: "🍯",
       pairsWith: [],
       vital: "Concentrate needs a tool to handle it, and a cold tool drags and leaves residue behind. The heated ceramic tip releases it cleanly into the rig, so less of what they paid for is wasted.",
       aov: "A $24.95 add-on that fits every concentrate sale. Anyone buying wax or rosin is already working with a cold tool, so the need exists before you mention it.",
@@ -521,7 +518,6 @@ window.GPEN_COURSES = [
     ],
     howToSell: {
       upsellFrom: "510 cartridge",
-      cue: "🛢",
       pairsWith: ["510-original"],
       vital: "It does the same job as any 510 battery, but the mouthpiece stores inside the body. That keeps the cartridge discreet and shielded from light.",
       aov: "The step-up cartridge battery. Against the $12.95 510 Original, this adds discretion and five voltage settings, and doubles the value of the battery attach.",
@@ -619,7 +615,6 @@ window.GPEN_COURSES = [
     ],
     howToSell: {
       upsellFrom: "510 cartridge",
-      cue: "🛢",
       pairsWith: ["hydout"],
       vital: "A cartridge does not work without a battery. This is the lowest-priced way to make the cartridge they are already buying usable.",
       aov: "At $12.95 this is the simplest attach in the store, because the need is absolute: no customer should leave with a cartridge and no way to use it.",
@@ -695,237 +690,4 @@ window.GPEN_ABOUT = {
   ],
   socialPitch: "G Pen has one of the biggest, most engaged communities in the space — nearly 300K on Instagram alone. Tag @gpen and use #GPen in your store content, and follow along for drops, collabs, and how-tos you can share with customers.",
   closing: "When you sell a G Pen, you're sharing more than a device — you're handing customers a piece of vaporization history built by one of the originals. Know the story, and every conversation becomes an easy, confident sale.",
-};
-
-/* =============================================================================
-   FUN LAYER — ranks, quips & trivia. All editable, none of it affects scoring.
-   ========================================================================== */
-
-/* Randomized end-of-quiz feedback — keeps quizzes from feeling like a compliance
-   module. ONLY `fail` and `pass` are read: quip() is called from exactly two places,
-   the two result screens. PER-ANSWER feedback is the mascot's, not this object's —
-   tune that tone in GPEN_MASCOT.lines.correct / .wrong. There used to be `correct`
-   and `wrong` arrays here too (14 strings) that nothing could ever reach, so an
-   editor sharpening quiz tone would have been editing dead copy. */
-window.GPEN_QUIPS = {
-  fail: [
-    "So close!", "Almost had it.", "Take a breath and run it back.", "Not this time — but soon.",
-  ],
-  pass: [
-    "You passed!", "Certified.", "Nailed it.", "Straight A's over here.",
-  ],
-};
-
-/* Rotating "Did you know?" cards — light trivia, no quiz, no points. Pure vibes. */
-window.GPEN_FACTS = [
-  { emoji: "🕓", text: "\"420\" started with five San Rafael high-schoolers — the Waldos — who met at 4:20pm by a Louis Pasteur statue in 1971." },
-  { emoji: "❄️", text: "Those frosty crystals on good flower are trichomes — the resin glands where nearly all the cannabinoids and terpenes actually live." },
-  { emoji: "👃", text: "Terpenes are why one strain smells like diesel and another like mango. Limonene, myrcene, pinene — they're in your citrus peel too." },
-  { emoji: "🌡️", text: "Vaporizers heat below the combustion point (~450°F / 232°C), which is exactly why vapor isn't smoke." },
-  { emoji: "🎤", text: "Snoop Dogg partnered with G Pen in 2013 — one of the first true celebrity collaborations in the vaporizer world." },
-  { emoji: "🍫", text: "Anandamide, one of your body's own cannabinoids, is named after the Sanskrit word for \"bliss.\" It's also found in chocolate." },
-  { emoji: "🌿", text: "Hemp is one of the oldest cultivated crops on Earth — woven fabric samples date back roughly 10,000 years." },
-  { emoji: "🫙", text: "Light and heat degrade cannabinoids faster than anything else. Cool, dark, airtight — that's the whole storage lecture." },
-  { emoji: "⚡", text: "A dirty chamber is the #1 cause of \"my vape stopped hitting.\" Nine times out of ten it's a cleaning issue, not a defect." },
-  { emoji: "🤝", text: "The \"entourage effect\" is the theory that cannabinoids and terpenes work better together than any one compound alone." },
-  { emoji: "🔌", text: "Voltage is the whole game on a 510 cart: too low and it barely vapes, too high and you scorch the oil. That's why the Hydout gives you five settings instead of three." },
-  { emoji: "🏭", text: "Grenco Science shipped its first G Pen in 2012, back when \"vape pen\" wasn't even a phrase people used." },
-];
-
-/* =============================================================================
-   THE COLLECTION — trading-card metadata
-   -----------------------------------------------------------------------------
-   Every course is a collectible card. Pass its quiz at 80%+ and you "pull" it.
-   Collect the 5-card Base Set to reveal the Certified G secret rare; find all
-   the hidden trivia eggs to upgrade that card to full gold.
-
-   Per card:
-     no        : card number in the set (printed bottom-right as "N/6")
-     rarity    : "common" | "uncommon" | "rare"   (drives the symbol + foil)
-     element   : key into GPEN_ELEMENTS below
-     code      : course code, university-catalog style (printed on the card)
-     power     : the "HP" analog — battery capacity
-     moves     : [{ name, cost, dmg, text }] — real specs dressed up as attacks
-     statsRow  : the weakness/resistance/retreat row, repurposed for real specs
-   ========================================================================== */
-window.GPEN_ELEMENTS = {
-  herb: { emoji: "🌿", label: "Dry Herb", tint: "#2f8f5b" },
-  conc: { emoji: "🔥", label: "Concentrate", tint: "#D75D43" },
-  cart: { emoji: "🔋", label: "Cartridge", tint: "#3f6fb5" },
-  gold: { emoji: "👑", label: "Certified", tint: "#c8952f" },
-};
-
-window.GPEN_RARITY = {
-  common:   { sym: "●",   label: "Common" },
-  uncommon: { sym: "◆",   label: "Uncommon" },
-  rare:     { sym: "★",   label: "Rare Holo" },
-  secret:   { sym: "★★★", label: "Secret Rare" },
-};
-
-window.GPEN_SET = { name: "Base Set", total: 7, illus: "Illus. Grenco Science" };   // 6 products + the Certified G secret
-
-window.GPEN_CARDS = {
-  "dash-ii": {
-    no: 1, rarity: "uncommon", element: "herb", code: "VAPE 101",
-    power: "1,100", powerUnit: "mAh",
-    moves: [
-      { name: "Quick Draw", cost: 1, dmg: "30s", text: "The 0.4g ceramic chamber is session-ready in about 30 seconds." },
-      // Badge is "OLED", not a tolerance. The spec table (Temp control) says only
-      // "Precise, adjustable" — no increment or accuracy figure is published for the
-      // Dash II, so a "±1°" badge invented one, and dmg is painted into the PNG a rep
-      // downloads and shares. Never put a number here that isn't in the spec table.
-      { name: "Dial It In", cost: 2, dmg: "OLED", text: "Precise temperature control with a live OLED readout." },
-    ],
-    statsRow: [{ k: "Heat-up", v: "~30s" }, { k: "Warranty", v: "6 mo" }, { k: "Charge", v: "USB-C" }],
-  },
-  "dash-plus": {
-    no: 2, rarity: "rare", element: "herb", code: "VAPE 201",
-    power: "1,800", powerUnit: "mAh",
-    moves: [
-      { name: "Hybrid Heat", cost: 2, dmg: "20s", text: "Convection and conduction together, through a full titanium chamber." },
-      { name: "Long Session", cost: 3, dmg: "40m", text: "1,800mAh delivers roughly 40 minutes of heating per charge." },
-    ],
-    statsRow: [{ k: "Heat-up", v: "~20s" }, { k: "Warranty", v: "2 yr" }, { k: "Charge", v: "USB-C" }],
-  },
-  grinder: {
-    no: 3, rarity: "common", element: "herb", code: "PREP 101",
-    power: "64", powerUnit: "mm",
-    moves: [
-      { name: "Even Grind", cost: 1, dmg: "3-PC", text: "Patented micro-rounded teeth separate flower instead of shredding it." },
-      { name: "Nothing Left Behind", cost: 2, dmg: "NO SCREEN", text: "No kief screen, so trichomes stay with the flower instead of in a forgotten chamber." },
-    ],
-    statsRow: [{ k: "Size", v: "64mm" }, { k: "Body", v: "Aluminum" }, { k: "Power", v: "None" }],
-    flavor: "The cheapest thing on the counter that makes everything else work better.",
-  },
-  "melt-hot-knife": {
-    no: 4, rarity: "common", element: "conc", code: "CONC 210",
-    power: "500", powerUnit: "mAh",
-    moves: [
-      { name: "Hot Knife", cost: 1, dmg: "302°F", text: "Ceramic tip hits ~150°C so concentrate releases clean instead of stringing." },
-      { name: "Pocket Carry", cost: 1, dmg: "—", text: "The smallest hot knife on the market. It goes everywhere you do." },
-    ],
-    statsRow: [{ k: "Tip temp", v: "150°C" }, { k: "Warranty", v: "90 d" }, { k: "Charge", v: "USB-C" }],
-  },
-  "hydout": {
-    no: 5, rarity: "uncommon", element: "cart", code: "CART 110",
-    power: "400", powerUnit: "mAh",
-    moves: [
-      { name: "Stealth Mode", cost: 1, dmg: "—", text: "A hidden magnetic mouthpiece cover keeps the cart out of sight." },
-      { name: "Fine Tune", cost: 2, dmg: "3.8V", text: "Five voltage settings from 2.4V to 3.8V, plus a 1.8V preheat." },
-    ],
-    statsRow: [{ k: "Voltages", v: "5" }, { k: "Warranty", v: "90 d" }, { k: "Charge", v: "USB-C" }],
-  },
-  "510-original": {
-    no: 6, rarity: "common", element: "cart", code: "CART 101",
-    power: "400", powerUnit: "mAh",
-    moves: [
-      { name: "Breath Activated", cost: 1, dmg: "—", text: "No buttons, no menus. Inhale and it fires." },
-      { name: "Three Presets", cost: 1, dmg: "3.8V", text: "Cycle 3.2V / 3.6V / 3.8V to match any cartridge." },
-    ],
-    // No warranty stat here: the 510 Original course does not state one, and a
-    // card asserting "90 d" is a term a rep could repeat to a customer.
-    statsRow: [{ k: "Presets", v: "3" }, { k: "Auto-off", v: "10 min" }, { k: "Charge", v: "USB-C" }],
-  },
-};
-
-/* The 6th card, the Certified G. Collect all five product cards and it reveals
-   in gold — it carries the program’s top reward: 40% off. */
-window.GPEN_SECRET_CARD = {
-  no: 7, rarity: "secret", element: "gold", code: "G 420",   // always the LAST number in the set
-  name: "Certified G", power: "∞", powerUnit: "",
-  moves: [
-    { name: "Total Recall", cost: 3, dmg: "5/5", text: "Knows every G Pen product cold — specs, cleaning, objections, all of it." },
-    // Badge is "MAX", not a percentage. data.js cannot reach topPct(), so a number
-    // typed here would be the one place on this card that does NOT follow LADDER —
-    // and the card already prints the derived percentage three times (typebar,
-    // stats row, gold CTA), so a fourth was repetition as well as a drift risk.
-    { name: "House Discount", cost: 2, dmg: "MAX", text: "The highest reward in the program. Nobody else on the floor has this card." },
-  ],
-  // NOTE: no statsRow here on purpose. app.js builds the secret card's stats row
-  // itself so Lineup and Reward come from live state and LADDER; a statsRow field
-  // on this object is never read, so editing one would silently do nothing.
-  flavor: "Fully trained. Fully loaded. A G Pen Product Specialist in every sense.",
-};
-
-/* =============================================================================
-   PROFESSOR O.G. — the mascot (Original G, tenured owl, Dean of G Pen U)
-   -----------------------------------------------------------------------------
-   Voice: playful and clever. He drops real knowledge, hypes your pulls, and
-   never, ever sounds like a compliance module. Edit the lines freely.
-   ========================================================================== */
-window.GPEN_MASCOT = {
-  name: "Professor O.G.",
-  short: "Prof. O.G.",
-  title: "Dean of G Pen University",
-  // home greeting, by how far along they are
-  welcome: [
-    "Welcome to G Pen U. I&rsquo;m Professor O.G. &mdash; Original G, tenured, and yes, the chain is real.",
-    "Class is in session. Pick any product, watch the tape, then show me you actually know it.",
-  ],
-  started: [
-    "Good pull. The set isn&rsquo;t gonna collect itself, though.",
-    "You&rsquo;re building a rep out there. Keep it rolling.",
-  ],
-  almost: [
-    "One card left. Don&rsquo;t leave me hanging here.",
-    "So close I can taste it. Finish the set.",
-  ],
-  done: [
-    "Certified G. You&rsquo;ve officially out-studied the faculty.",
-    "Gold chain, gold card. Go run the floor.",
-  ],
-  // quiz reactions
-  correct: [
-    "That&rsquo;s the one. Textbook.",
-    "Ayy &mdash; big brain.",
-    "You&rsquo;ve been reading. Respect.",
-    "Smooth. Like a 20-second heat-up.",
-  ],
-  wrong: [
-    "Not quite &mdash; even I misplace my glasses.",
-    "Nah. Circle back, you&rsquo;ve got it.",
-    "Close, but the syllabus disagrees.",
-  ],
-  // card pull
-  pull: [
-    "Ooh &mdash; fresh out the pack. Sleeve it up.",
-    "That&rsquo;s a clean pull. Straight to the binder.",
-    "Certified. Add it to the collection.",
-  ],
-  perfect: ["Perfect score?! Save some knowledge for the rest of us."],
-  // tap him for a random one of these
-  idle: [
-    "Terpenes are why one jar smells like diesel and the next like mango. Same plant. Wild.",
-    "Pop quiz: a customer says their vape &ldquo;died.&rdquo; Nine times out of ten? It&rsquo;s just dirty. Clean the chamber.",
-    "The trick to selling isn&rsquo;t talking more. It&rsquo;s knowing the answer before they finish asking.",
-    "Vapor isn&rsquo;t smoke. Stay under the combustion point and you&rsquo;ve got a whole different product category.",
-    "I&rsquo;ve been tenured since 2012. That&rsquo;s a whole degree in staying calm.",
-    "Yes, the chain is real. No, you cannot borrow it.",
-    // "don't pack it" read as an instruction not to pack at all, which is the
-    // opposite verb from the Dash II step ("pack lightly with the pick tool").
-    "Grind it, pack it light. Airflow is the whole ballgame.",
-    "Hoo. Sorry &mdash; occupational hazard.",
-  ],
-  // his line on the binder page, by how full it is
-  // Shown whenever the binder is NOT full — which includes a rep with ZERO cards, so
-  // these cannot presuppose that any card exists. The two lines that used to live here
-  // ("That's a clean collection you've got there. Tap a card to really look at it.")
-  // greeted an empty binder as though it were full. binderEmpty covers 0.
-  binderEmpty: [
-    "Empty for now. Pass a course and the first card lands right here.",
-    "Nothing in the sleeves yet. That is what the lineup is for.",
-  ],
-  binder: [
-    "That&rsquo;s a clean collection you&rsquo;ve got there. Tap a card to really look at it.",
-    "Sleeves on, corners sharp. This is how you treat a set.",
-  ],
-  binderFull: [
-    "Every slot filled. I&rsquo;d frame it, but you already sleeved it.",
-  ],
-  // right before the quiz on a course page
-  quizIntro: [
-    "Alright. Show me what you picked up. 80% and the card&rsquo;s yours.",
-    "No pressure. Well &mdash; a little. There&rsquo;s a card on the line.",
-    "You&rsquo;ve read the material. Now go earn the sleeve.",
-  ],
 };

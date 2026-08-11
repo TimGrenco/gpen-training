@@ -3,9 +3,8 @@
    A small hash-routed SPA. No framework, no backend. Progress in localStorage.
 
    Routes: "/" home (state-aware hero + the product lineup, grouped by family)
-           "/course/<slug>"  sell-first course page, ending in the quiz
-           "/collection"     the Binder — the six collectible cards
-           "/certified"      the all-five master certificate
+           "/course/<slug>"  product course: key points, counter script, video, quiz
+           "/certified"      the full-lineup master certificate
            "/about"          brand story
    There is no sign-up gate: everything is browsable, and name/email/store are
    collected just-in-time when a rep opts into a quiz.
@@ -198,13 +197,6 @@
     return LADDER.reduce(function (best, x) { return x.pct > best ? x.pct : best; }, 0);
   }
 
-  /* =========================================================================
-     THE COLLECTION — trading cards
-     Every course is a card you pull by passing its quiz at 80%+. Collect all
-     five to reveal the gold Certified G — the 6th card and the program's top reward.
-     ====================================================================== */
-
-  /* ---- fun layer: quips, "did you know" ---------------------------------- */
   function pick(arr) { return arr && arr.length ? arr[Math.floor(Math.random() * arr.length)] : ""; }
   // Fisher–Yates — used to shuffle quiz question + choice order per attempt so a
   // retake isn't byte-identical (reps learn the material, not answer positions).
@@ -356,7 +348,6 @@
     award: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="8" r="6"/><path d="M15.5 13.5L17 22l-5-3-5 3 1.5-8.5"/></svg>',
     arrow: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14M13 6l6 6-6 6"/></svg>',
     back: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M19 12H5M11 6l-6 6 6 6"/></svg>',
-    fire: '<svg viewBox="0 0 24 24" fill="currentColor"><path d="M12 2c1 3-1 4-2 6-1 2 0 4 2 4 1 0 2-1 2-3 2 2 3 4 3 6a5 5 0 11-10 0c0-4 3-6 5-13z"/></svg>',
     lock: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><rect x="4" y="11" width="16" height="9" rx="2"/><path d="M8 11V8a4 4 0 118 0v3"/></svg>',
     tag: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 12l-8 8-9-9V3h8z"/><circle cx="7.5" cy="7.5" r="1.5" fill="currentColor"/></svg>',
     print: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M6 9V2h12v7"/><rect x="4" y="9" width="16" height="8" rx="2"/><path d="M6 14h12v8H6z"/></svg>',
@@ -376,16 +367,6 @@
     caret: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="m6 9 6 6 6-6"/></svg>',
   };
   function ic(n) { return '<span class="ic">' + (IC[n] || "") + "</span>"; }
-
-  /* =========================================================================
-     PROFESSOR O.G. — the mascot. A tenured owl in a black G Pen beanie with a
-     gold chain and a G Pen logo pendant, and he is visibly baked. Drawn as
-     inline SVG so he scales and reads on light, dark, and at 40px.
-     Moods: chill (his default, heavy-lidded) | hyped | think | proud | oops
-     ====================================================================== */
-
-  /* The Floor Drill — the loved battlecard's pairing reflex, on the home page.
-     One question ("someone's buying…") → one answer (hand them X + the why +
 
   /* =========================================================================
      LANGUAGE SELECTOR — same language set + endonym pattern as assets.gpen.com.
@@ -582,7 +563,7 @@
             : "Product training for retail staff.") + "</h1>" +
         '<p class="hero-sub">' + (started
             ? "You have completed <b>" + done + " of " + total + "</b> products."
-            : "Six products. Learn the features, the price and how to offer each one at checkout.") + "</p>" +
+            : total + " products. Learn the features, the price and how to offer each one at checkout.") + "</p>" +
         '<div class="hp-bar" role="img" aria-label="' + done + " of " + total + ' products complete"><i style="width:' + Math.round((done / total) * 100) + '%"></i></div>' +
         '<ul class="hero-facts"><li>Free</li><li>' + total + " products</li><li>Pass each quiz to earn a discount code</li></ul>" +
         (target
@@ -1157,7 +1138,7 @@
   }
   function runQuiz(c) {
     var order = shuffle(c.quiz.map(function (_, i) { return i; }));
-    var i = 0, answers = [], streak = 0, points = 0, zone = $("#quiz-zone");
+    var i = 0, answers = [], correctSoFar = 0, zone = $("#quiz-zone");
     step(true);
     zone.scrollIntoView({ behavior: "smooth", block: "start" });
 
@@ -1170,8 +1151,7 @@
       zone.innerHTML = '<div class="quiz">' +
         '<div class="quiz-bar"><div class="quiz-bar-fill" style="width:' + Math.round((i / c.quiz.length) * 100) + '%"></div></div>' +
         '<div class="quiz-count"><span class="qc-num">Question ' + (i + 1) + " of " + c.quiz.length + "</span>" +
-          (streak >= 2 ? '<span class="quiz-streak">' + ic("fire") + " ×" + Math.min(streak, 5) + " combo</span>" : "") +
-          '<span class="quiz-score">' + ic("spark") + ' <b id="qscore">' + points + "</b> pts</span></div>" +
+          '<span class="quiz-score">' + ic("check") + " <b>" + correctSoFar + "</b> correct</span></div>" +
         '<div class="quiz-q">' + esc(q.q) + "</div>" +
         // Choices render in a shuffled order, but data-ci keeps each choice's
         // ORIGINAL index so the answer check (ci === q.answer) is unaffected.
@@ -1181,38 +1161,18 @@
         '<div class="quiz-why" hidden></div>' +
         '<button class="btn xl next" id="q-next" hidden></button>' +
       "</div>";
-      $$(".choice", zone).forEach(function (b) { b.addEventListener("click", function () { choose(parseInt(b.getAttribute("data-ci"), 10), q, b); }); });
+      $$(".choice", zone).forEach(function (b) { b.addEventListener("click", function () { choose(parseInt(b.getAttribute("data-ci"), 10), q); }); });
       // "instant", not "auto": auto defers to CSS, and html{scroll-behavior:smooth}
       // would animate the jump to each new question — a long, sluggish glide on a
       // tall desktop page. Advancing a question should snap; only the explainer
       // reveal in choose() is worth animating.
       if (!first) zone.scrollIntoView({ behavior: "instant", block: "start" });
     }
-    // A correct answer flings its points up from the tapped choice.
-    function flyPoints(gain, mult, btn) {
-      var quiz = $(".quiz", zone); if (!quiz) return;
-      var qr = quiz.getBoundingClientRect(), br = btn.getBoundingClientRect();
-      var fly = document.createElement("div");
-      fly.className = "pt-fly";
-      fly.innerHTML = "+" + gain + (mult > 1 ? '<em>×' + mult + "</em>" : "");
-      fly.style.left = (br.left - qr.left + br.width / 2) + "px";
-      fly.style.top = (br.top - qr.top + 6) + "px";
-      quiz.appendChild(fly);
-      setTimeout(function () { fly.remove(); }, 1100);
-    }
-    function bumpScore() {
-      var el = $("#qscore", zone); if (!el) return;
-      el.textContent = points; el.classList.remove("pop"); void el.offsetWidth; el.classList.add("pop");
-    }
-    function choose(ci, q, btn) {
+    function choose(ci, q) {
       if (answers[i] != null) return;
       answers[i] = ci;
       var correct = ci === q.answer;
-      if (correct) {
-        streak += 1;
-        var mult = Math.min(streak, 5), gain = 100 * mult;
-        points += gain; flyPoints(gain, mult, btn); bumpScore();
-      }
+      if (correct) correctSoFar += 1;
       $$(".choice", zone).forEach(function (b) {
         var bci = parseInt(b.getAttribute("data-ci"), 10);
         b.disabled = true;
@@ -1246,11 +1206,11 @@
       var correct = 0; order.forEach(function (qi, pos) { if (answers[pos] === c.quiz[qi].answer) correct++; });
       var pct = Math.round((correct / c.quiz.length) * 100), passed = pct >= c.passPct;
       logEvent("quiz", { course: c.slug, score: pct, passed: passed });
-      if (!passed) return quizFail(c, correct, pct, points, order, answers);
-      quizPass(c, correct, pct, points, order, answers);
+      if (!passed) return quizFail(c, correct, pct, order, answers);
+      quizPass(c, correct, pct, order, answers);
     }
   }
-  function quizFail(c, correct, pct, points, order, answers) {
+  function quizFail(c, correct, pct, order, answers) {
     var zone = $("#quiz-zone");
     // Record the attempt so home can offer to pick it back up — the progress hero
     // looks for a started-but-unpassed course, and before this nothing ever wrote
@@ -1287,12 +1247,7 @@
     var r = zone && $(".result", zone);
     if (r && r.focus) setTimeout(function () { r.focus(); }, 0);
   }
-  /* The floating "Get certified · N% off" CTA is rendered only when the course is not
-     yet passed, but quizPass replaces just #quiz-zone — the button and its live scroll
-     handler are outside it and survived. So the moment a rep certified, scrolling back
-     up the course page still floated a CTA selling them a tier they now hold (or, at
-     5/5, a 25% first rung they are years past). It belongs to the un-certified state,
-  function quizPass(c, correct, pct, points, order, answers) {
+  function quizPass(c, correct, pct, order, answers) {
     // `|| {}` matters here more than anywhere: this was the ONE call site of ~18 that
     // dereferenced getEnroll() bare. setEnroll() deliberately swallows write failures,
     // so wherever localStorage.setItem throws (Safari "Block all cookies", a

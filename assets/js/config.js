@@ -72,21 +72,21 @@ window.TRAINING_CONFIG = {
     course: {
       code: "GPENPRO25",
       label: "25% off your next order at gpen.com",
-      note: "Use this code at checkout on gpen.com to buy and test the product you just got certified on.",
+      note: "Enter this code at checkout on gpen.com. It applies to the whole order.",
       terms: "One use per person. Not combinable with other offers. Use your highest unlocked code.",
     },
     // Unlocked at 2 certified products. 30% off.
     trio: {
       code: "GPENHOLO30",
       label: "30% off your next order at gpen.com",
-      note: "Two products deep. You know the lineup better than most of the floor — here's a bigger cut.",
+      note: "Two products certified. Your discount goes up with each product you complete.",
       terms: "One use per person. Not combinable with other offers. Use your highest unlocked code.",
     },
     // Unlocked at 4 certified products. 35% off.
     master: {
       code: "GPENELITE35",
       label: "35% off your entire order at gpen.com",
-      note: "Four products certified. One more and you unlock the full 40%.",
+      note: "Four products certified. Complete the remaining products to reach the highest tier.",
       terms: "One use per person. Not combinable with other offers. Use your highest unlocked code.",
     },
     // Unlocked once EVERY course is complete — the whole lineup. 40% off.
@@ -96,7 +96,7 @@ window.TRAINING_CONFIG = {
     secret: {
       code: "CERTIFIEDG40",
       label: "40% off your entire order at gpen.com",
-      note: "You certified on the whole lineup — the top reward in the program. Put it toward your own device: the reps who know these products best are the ones who've actually used one.",
+      note: "Every product in the lineup is certified. This is the highest tier in the program.",
       terms: "One use per person. Not combinable with other offers. Use your highest unlocked code.",
     },
     // OPTIONAL: give a specific product its own course code. Keyed by course slug.
