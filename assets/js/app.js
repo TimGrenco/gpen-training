@@ -134,7 +134,7 @@
   function getEnroll() { try { return JSON.parse(localStorage.getItem(K_ENROLL) || "null"); } catch (e) { return null; } }
   function setEnroll(v) { try { localStorage.setItem(K_ENROLL, JSON.stringify(v)); } catch (e) {} }
   function getState() {
-    var d = { courses: {}, streak: { count: 0, last: null }, master: null, trio: null, log: [] };
+    var d = { courses: {}, master: null, trio: null, log: [] };
     var s;
     try { s = Object.assign(d, JSON.parse(localStorage.getItem(K_STATE) || "{}")); } catch (e) { return d; }
     return s;
@@ -152,14 +152,6 @@
     s.log.push(Object.assign({ type: type, at: new Date().toISOString() }, data || {}));
     if (!st) setState(s);   // the caller owns the write when it handed us its state
     return s;
-  }
-  function touchStreak() {
-    var s = getState(), t = todayKey();
-    if (s.streak.last === t) return s.streak.count;
-    var y = new Date(); y.setDate(y.getDate() - 1);
-    var yk = y.getFullYear() + "-" + (y.getMonth() + 1) + "-" + y.getDate();
-    s.streak.count = (s.streak.last === yk) ? (s.streak.count + 1) : 1;
-    s.streak.last = t; setState(s); return s.streak.count;
   }
   /* Replaces the old cardOwned(): it was an alias for exactly this pass check, kept
      only because the collectible layer wanted card-flavoured naming. */
@@ -214,7 +206,6 @@
      ====================================================================== */
 
   /* ---- fun layer: quips, "did you know" ---------------------------------- */
-  var FACTS = window.GPEN_FACTS || [];
   function pick(arr) { return arr && arr.length ? arr[Math.floor(Math.random() * arr.length)] : ""; }
   // Fisher–Yates — used to shuffle quiz question + choice order per attempt so a
   // retake isn't byte-identical (reps learn the material, not answer positions).
@@ -234,45 +225,6 @@
     }).filter(Boolean);
     if (!rows.length) return "";
     return '<div class="qreview"><h4>' + ic("cap") + " Worth another look &middot; " + rows.length + " missed</h4>" + rows.join("") + "</div>";
-  }
-  function quip(kind) {
-    var q = (window.GPEN_QUIPS || {})[kind];
-    return pick(q) || (kind === "correct" ? "Correct!" : "Not quite.");
-  }
-  // A rotating trivia card. No points, no quiz — just something to enjoy.
-  function factCard() {
-    if (!FACTS.length) return "";
-    var f = pick(FACTS);
-    return '<div class="fact-card reveal" data-fact>' +
-      '<span class="fact-em">' + f.emoji + "</span>" +
-      '<div class="fact-body"><span class="fact-k">Did you know?</span><p>' + esc(f.text) + "</p></div>" +
-      '<button class="fact-more" type="button" aria-label="Another fact" title="Hit me with another">' + ic("refresh") + "</button>" +
-    "</div>";
-  }
-  function bindFacts() {
-    $$("[data-fact]").forEach(function (card) {
-      var btn = $(".fact-more", card); if (!btn) return;
-      btn.addEventListener("click", function () {
-        var f = pick(FACTS);
-        $(".fact-em", card).textContent = f.emoji;
-        $(".fact-body p", card).textContent = f.text;
-        card.classList.remove("flip"); void card.offsetWidth; card.classList.add("flip");
-      });
-    });
-  }
-  // Tap the footer G four times. Nothing to win — just a wink.
-  function bindLogoFun() {
-    var taps = 0, timer = null;
-    $$(".foot-g").forEach(function (g) {
-      g.style.cursor = "pointer";
-      g.addEventListener("click", function () {
-        taps++; clearTimeout(timer); timer = setTimeout(function () { taps = 0; }, 1400);
-        if (taps >= 4) {
-          taps = 0; confetti();
-          toast("🌬️ Secret handshake accepted. Class dismissed.");
-        }
-      });
-    });
   }
 
 
@@ -432,161 +384,9 @@
      inline SVG so he scales and reads on light, dark, and at 40px.
      Moods: chill (his default, heavy-lidded) | hyped | think | proud | oops
      ====================================================================== */
-  var MASCOT = window.GPEN_MASCOT || {};
-  function mascotSVG(mood) {
-    mood = mood || "chill";
-    var closed = mood === "proud";
-    // "chill" is his default — and he is comfortably baked
-    var lid = ({ chill: 22, hyped: 2, think: 14, proud: 0, oops: 8 })[mood] || 0;
-    var pupR = mood === "hyped" ? 12 : 10;
-    var pupDX = mood === "think" ? 5 : 0;
-    // droopy, uneven lids do most of the heavy lifting on the stoned look
-    var tilt = ({ chill: 7, hyped: 0, think: 4, proud: 0, oops: 2 })[mood] || 0;
-    var brows = ({
-      chill: ["M66 88 L104 83", "M154 88 L116 83"],
-      hyped: ["M64 82 L104 76", "M156 82 L116 76"],
-      think: ["M66 94 L104 78", "M154 84 L116 82"],
-      proud: ["M66 88 L104 84", "M154 88 L116 84"],
-      oops: ["M66 80 L104 90", "M154 80 L116 90"],
-    })[mood] || ["M66 88 L104 83", "M154 88 L116 83"];
-    var uid = "og" + mood + (mascotSVG.n = (mascotSVG.n || 0) + 1);
-
-    function eye(cx) {
-      if (closed) {
-        return '<path d="M' + (cx - 19) + " 116 Q" + cx + " 98 " + (cx + 19) + ' 116" fill="none" stroke="#1f1f1f" stroke-width="6" stroke-linecap="round"/>';
-      }
-      var id = uid + "c" + cx;
-      return '<clipPath id="' + id + '"><circle cx="' + cx + '" cy="110" r="24"/></clipPath>' +
-        '<circle cx="' + cx + '" cy="110" r="24" fill="#ffffff"/>' +
-        '<g clip-path="url(#' + id + ')">' +
-          // warm, faintly bloodshot wash in the eye
-          '<circle cx="' + cx + '" cy="118" r="24" fill="#f6dcd4" opacity=".55"/>' +
-          '<circle cx="' + (cx + pupDX) + '" cy="116" r="' + pupR + '" fill="#1a1a1a"/>' +
-          '<circle cx="' + (cx + pupDX + 4) + '" cy="112" r="4" fill="#fff"/>' +
-          (lid ? '<rect x="' + (cx - 28) + '" y="' + (84 - (22 - lid)) + '" width="56" height="' + lid + '" fill="#e2dccc"' +
-            (tilt ? ' transform="rotate(' + (cx < 110 ? tilt : -tilt) + " " + cx + " " + (84 + lid) + ')"' : "") + "/>" : "") +
-        "</g>" +
-        '<circle cx="' + cx + '" cy="110" r="24" fill="none" stroke="#c8952f" stroke-width="3.5"/>';
-    }
-
-    return '<svg class="og-svg og-m-' + mood + '" viewBox="0 0 220 240" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">' +
-      // body + wings
-      '<ellipse cx="110" cy="138" rx="72" ry="76" fill="#2b2b2b"/>' +
-      '<path d="M40 132 Q24 172 48 206 Q42 164 56 134 Z" fill="#1e1e1e"/>' +
-      '<path d="M180 132 Q196 172 172 206 Q178 164 164 134 Z" fill="#1e1e1e"/>' +
-      // facial disc
-      '<ellipse cx="110" cy="110" rx="60" ry="48" fill="#f3efe3"/>' +
-      // eyes + brows
-      '<g class="og-eyes">' + eye(86) + eye(134) + "</g>" +
-      '<path d="' + brows[0] + '" stroke="#2b2b2b" stroke-width="6.5" stroke-linecap="round" fill="none"/>' +
-      '<path d="' + brows[1] + '" stroke="#2b2b2b" stroke-width="6.5" stroke-linecap="round" fill="none"/>' +
-      // beak
-      '<path d="M110 128 L100 144 L120 144 Z" fill="#FEC870"/>' +
-      '<path d="M110 144 L105 151 L115 151 Z" fill="#c8952f"/>' +
-      // extremely relaxed cheeks
-      '<ellipse cx="66" cy="136" rx="15" ry="8" fill="#e0725f" opacity=".32"/>' +
-      '<ellipse cx="154" cy="136" rx="15" ry="8" fill="#e0725f" opacity=".32"/>' +
-      // gold chain with a G Pen logo pendant
-      '<path d="M72 166 Q110 204 148 166" fill="none" stroke="#FEC870" stroke-width="5" stroke-linecap="round"/>' +
-      '<circle cx="110" cy="198" r="18" fill="#FEC870" stroke="#c8952f" stroke-width="2.5"/>' +
-      '<image href="assets/img/gpen-g-black.png" x="97" y="185" width="26" height="26" preserveAspectRatio="xMidYMid meet"/>' +
-      // black G Pen beanie — snug dome + folded cuff, sits clear of the brows
-      '<path d="M52 56 Q50 10 110 8 Q170 10 168 56 Z" fill="#1c1c1c"/>' +
-      '<path d="M80 54 Q75 28 94 14" stroke="#2e2e2e" stroke-width="3.5" fill="none" stroke-linecap="round"/>' +
-      '<path d="M110 54 L110 9" stroke="#2e2e2e" stroke-width="3.5" stroke-linecap="round"/>' +
-      '<path d="M140 54 Q145 28 126 14" stroke="#2e2e2e" stroke-width="3.5" fill="none" stroke-linecap="round"/>' +
-      '<rect x="44" y="42" width="132" height="28" rx="14" fill="#111"/>' +
-      '<rect x="44" y="42" width="132" height="28" rx="14" fill="none" stroke="#343434" stroke-width="1.5"/>' +
-      '<path d="M62 47 L62 65 M78 47 L78 65 M94 47 L94 65 M142 47 L142 65 M158 47 L158 65" stroke="#2b2b2b" stroke-width="2" stroke-linecap="round"/>' +
-      '<image href="assets/img/gpen-g-white.png" x="99" y="45" width="22" height="22" preserveAspectRatio="xMidYMid meet"/>' +
-      // talons
-      '<path d="M88 212 l0 11 M83 223 l10 0 M132 212 l0 11 M127 223 l10 0" stroke="#c8952f" stroke-width="4" stroke-linecap="round"/>' +
-    "</svg>";
-  }
-  function ogLine(key) { return pick(MASCOT[key] || []) || ""; }
-  // A small O.G. head used inline (quiz feedback, pull note).
-  function ogMini(mood) { return '<span class="og-mini">' + mascotSVG(mood) + "</span>"; }
-  // O.G. with a speech bubble — his "office hours" block on the hub.
-  function ogSays(mood, line) {
-    return '<button class="og-block reveal" type="button" aria-label="Tap Professor O.G. for a tip">' +
-      '<span class="og-art">' + mascotSVG(mood) + "</span>" +
-      '<div class="og-bubble">' +
-        '<span class="og-name">' + esc(MASCOT.short || "Prof. O.G.") + '<em>' + esc(MASCOT.title || "") + "</em></span>" +
-        "<p>" + line + "</p>" +
-        '<span class="og-hint">' + ic("spark") + " Tap the Prof</span>" +
-      "</div>" +
-    "</button>";
-  }
-  // Tap him: he hoots, changes his face, and drops a fresh bit of wisdom.
-  function bindMascot() {
-    $$(".og-block").forEach(function (b) {
-      b.addEventListener("click", function () {
-        sfx.play("hoot");
-        var art = $(".og-art", b), p = $(".og-bubble p", b);
-        if (p) p.innerHTML = ogLine("idle");
-        if (art) art.innerHTML = mascotSVG(pick(["hyped", "think", "chill", "proud"]));
-        b.classList.remove("pop"); void b.offsetWidth; b.classList.add("pop");
-      });
-    });
-  }
-  // Which greeting he opens with, based on how far along they are.
-  function ogGreeting() {
-    var done = completedCount(), total = COURSES.length;
-    if (isMasterEarned()) return ogSays("proud", ogLine("done"));
-    if (done === 0) return ogSays("chill", ogLine("welcome"));
-    if (done >= total - 1) return ogSays("hyped", ogLine("almost"));
-    return ogSays("chill", ogLine("started"));
-  }
-  // The masthead headline IS the Dean's voice — same branch logic as ogGreeting,
-  // but returns a plain string for the <h1>. State-0 gets a fixed mission line so
-  // a first-time visitor's headline copy is stable; returning staff hear him.
-  function ogGreetingLine(done, total) {
-    if (isMasterEarned()) return ogLine("done");
-    if (done === 0) return "Learn the gear. Get up to " + topPct() + "% off.";
-    if (done >= total - 1) return ogLine("almost");
-    return ogLine("started");
-  }
 
   /* The Floor Drill — the loved battlecard's pairing reflex, on the home page.
      One question ("someone's buying…") → one answer (hand them X + the why +
-     a link into that product's full battlecard). Reuses howToSell data only. */
-  function floorDrill() {
-    // Ordered list, not an object — numeric-like keys ("510") would otherwise sort first.
-    var PAIR = [
-      { key: "flower", cue: "🌿", label: "Flower", slug: "dash-ii" },
-      { key: "cart", cue: "🛢", label: "510 cart", slug: "hydout" },
-      { key: "dabs", cue: "🍯", label: "Dabs", slug: "melt-hot-knife" },
-    ];
-    var chips = PAIR.map(function (p) {
-      return '<button class="fd-chip" type="button" data-pair="' + p.key + '"><span class="fd-cue">' + p.cue + "</span>" + p.label + "</button>";
-    }).join("");
-    return '<section class="floordrill reveal">' +
-      // Title then the question then the chips. The section subtitle used to ask
-      // "What do you hand them?" one line above "A customer walks up buying...",
-      // which is the same question twice; the prompt belongs next to the buttons.
-      '<div class="sec-h"><h2>The floor drill</h2></div>' +
-      '<p class="fd-ask">A customer walks up buying&hellip;</p>' +
-      '<div class="fd-chips">' + chips + "</div>" +
-      '<div class="fd-answer" id="fd-answer" aria-live="polite"></div>' +
-    "</section>";
-  }
-  function bindFloorDrill() {
-    var PAIR = { flower: "dash-ii", cart: "hydout", dabs: "melt-hot-knife" };
-    var out = $("#fd-answer"); if (!out) return;
-    $$(".fd-chip").forEach(function (ch) {
-      ch.addEventListener("click", function () {
-        $$(".fd-chip").forEach(function (x) { x.classList.remove("on"); });
-        ch.classList.add("on");
-        var c = courseBySlug(PAIR[ch.getAttribute("data-pair")]); if (!c || !c.howToSell) return;
-        out.innerHTML = '<div class="fd-card" style="--accent:' + c.accent + '">' +
-          '<b class="fd-hand">Hand them the ' + esc(c.name) + "</b>" +
-          '<p class="fd-why">' + esc(c.howToSell.vital) + "</p>" +
-          '<a class="fd-more" href="#/course/' + c.slug + '">See the full battlecard ' + ic("arrow") + "</a>" +
-        "</div>";
-        out.classList.add("show");
-      });
-    });
-  }
 
   /* =========================================================================
      LANGUAGE SELECTOR — same language set + endonym pattern as assets.gpen.com.
@@ -631,7 +431,6 @@
       if (btn) {
         var open = wrap.classList.toggle("open");
         btn.setAttribute("aria-expanded", open ? "true" : "false");
-        sfx.play("tick");
         return;
       }
       if (item) {
@@ -653,96 +452,12 @@
     });
   }
 
-  /* ---- sound fx (synthesized Web Audio; no asset files, gesture-triggered) - */
-  var sfx = (function () {
-    var KEY = "gpt.sound";
-    var on = (function () { try { return localStorage.getItem(KEY) !== "off"; } catch (e) { return true; } })();
-    var ctx = null;
-    function ac() {
-      if (ctx) return ctx;
-      try { ctx = new (window.AudioContext || window.webkitAudioContext)(); } catch (e) { ctx = null; }
-      return ctx;
-    }
-    function tone(freq, start, dur, type, gain) {
-      var c = ac(); if (!c) return;
-      var o = c.createOscillator(), g = c.createGain();
-      o.type = type || "sine"; o.frequency.value = freq;
-      var t0 = c.currentTime + (start || 0);
-      g.gain.setValueAtTime(0.0001, t0);
-      g.gain.exponentialRampToValueAtTime(gain || 0.18, t0 + 0.012);
-      g.gain.exponentialRampToValueAtTime(0.0001, t0 + (dur || 0.15));
-      o.connect(g); g.connect(c.destination);
-      o.start(t0); o.stop(t0 + (dur || 0.15) + 0.03);
-    }
-    function noise(start, dur, gain, hp) {
-      var c = ac(); if (!c) return;
-      var n = Math.max(1, Math.floor((dur || 0.2) * c.sampleRate));
-      var buf = c.createBuffer(1, n, c.sampleRate), d = buf.getChannelData(0);
-      for (var i = 0; i < n; i++) d[i] = (Math.random() * 2 - 1) * (1 - i / n);
-      var s = c.createBufferSource(); s.buffer = buf;
-      var f = c.createBiquadFilter(); f.type = "highpass"; f.frequency.value = hp || 1100;
-      var g = c.createGain(); g.gain.value = gain || 0.14;
-      s.connect(f); f.connect(g); g.connect(c.destination);
-      s.start(c.currentTime + (start || 0));
-    }
-    var lib = {
-      correct: function () { tone(660, 0, 0.12, "sine", 0.16); tone(880, 0.08, 0.14, "sine", 0.16); },
-      wrong: function () { tone(196, 0, 0.2, "square", 0.12); tone(147, 0.06, 0.22, "square", 0.1); },
-      combo: function () { [523, 659, 784, 1046].forEach(function (f, i) { tone(f, i * 0.055, 0.13, "triangle", 0.15); }); },
-      pull: function () { noise(0, 0.26, 0.16, 900); [784, 1046, 1318].forEach(function (f, i) { tone(f, 0.14 + i * 0.05, 0.18, "sine", 0.15); }); },
-      pass: function () { [523, 659, 784, 1046].forEach(function (f, i) { tone(f, i * 0.1, 0.24, "triangle", 0.17); }); },
-      copy: function () { tone(880, 0, 0.05, "square", 0.09); tone(1320, 0.04, 0.05, "square", 0.07); },
-      tick: function () { tone(660, 0, 0.04, "sine", 0.07); },
-      // Prof. O.G.'s two-note hoot
-      hoot: function () { tone(392, 0, 0.16, "sine", 0.13); tone(330, 0.17, 0.26, "sine", 0.12); },
-      flip: function () { noise(0, 0.13, 0.11, 1600); },              // card / page turn
-      whoosh: function () { noise(0, 0.3, 0.1, 500); tone(520, 0.04, 0.22, "sine", 0.08); },
-    };
-    return {
-      play: function (name) {
-        if (!on) return;
-        var c = ac(); if (c && c.state === "suspended") { try { c.resume(); } catch (e) {} }
-        var f = lib[name]; if (f) try { f(); } catch (e) {}
-      },
-      toggle: function () {
-        on = !on; try { localStorage.setItem(KEY, on ? "on" : "off"); } catch (e) {}
-        if (on) this.play("tick");
-        return on;
-      },
-      isOn: function () { return on; },
-    };
-  })();
-
-  /* ---- toast + confetti -------------------------------------------------- */
+  /* ---- toast ------------------------------------------------------------- */
   var toastT;
   function toast(msg) {
     var t = $("#toast"); if (!t) { t = document.createElement("div"); t.id = "toast"; t.setAttribute("role", "status"); t.setAttribute("aria-live", "polite"); document.body.appendChild(t); }
     t.textContent = msg; t.classList.add("show"); clearTimeout(toastT);
     toastT = setTimeout(function () { t.classList.remove("show"); }, 2600);
-  }
-  function confetti() {
-    // The one animation in the app that ignored the OS setting: nine CSS
-    // prefers-reduced-motion blocks plus JS guards in bindCardTilt, flyToBinder and
-    // showPull all honour it, and then 140 particles ran full-viewport for 2.6s
-    // anyway — showPull even calls this on the reduced-motion path, where it skips
-    // the pack tear specifically to avoid motion.
-    if (window.matchMedia && window.matchMedia("(prefers-reduced-motion: reduce)").matches) return;
-    var c = document.createElement("canvas"); c.className = "confetti"; document.body.appendChild(c);
-    var x = c.getContext("2d"), W, H;
-    function size() { W = c.width = window.innerWidth; H = c.height = window.innerHeight; }
-    size();
-    var cols = ["#FEC870", "#D75D43", "#111111", "#FFFFFF", "#E8E8E1"], P = [];
-    for (var i = 0; i < 140; i++) P.push({ x: Math.random() * W, y: -20 - Math.random() * H, r: 4 + Math.random() * 7, c: cols[i % cols.length], s: 2 + Math.random() * 4, a: Math.random() * 6, va: (Math.random() - 0.5) * 0.3 });
-    var t0 = Date.now();
-    (function frame() {
-      x.clearRect(0, 0, W, H);
-      P.forEach(function (p) {
-        p.y += p.s; p.x += Math.sin((p.y + p.a) / 40) * 1.4; p.a += p.va;
-        x.save(); x.translate(p.x, p.y); x.rotate(p.a); x.fillStyle = p.c;
-        x.fillRect(-p.r / 2, -p.r / 2, p.r, p.r * 0.5); x.restore();
-      });
-      if (Date.now() - t0 < 2600) requestAnimationFrame(frame); else c.remove();
-    })();
   }
 
   /* ---- header ------------------------------------------------------------ */
@@ -785,23 +500,10 @@
       // The language selector only offers English today; picking anything else
       // just toasts "coming soon", so it stays hidden until a locale file exists.
       ((CFG.i18n && CFG.i18n.enabled) ? langSelHTML() : "") +
-      '<button class="hdr-sound" id="sound-toggle" title="' + (sfx.isOn() ? "Sound on" : "Sound off") + '" aria-label="Toggle sound" aria-pressed="' + (sfx.isOn() ? "true" : "false") + '">' + ic(sfx.isOn() ? "sound" : "mute") + "</button>" +
       // Not a link: it pointed at #/, same as the logo and the Courses tab.
       (e ? '<span class="hdr-user"><span class="hdr-u-name">' + esc(e.name) + '</span><span class="hdr-u-store">' + esc(e.store || "") + "</span></span>" : "") +
     "</header>" +
     '<main id="main" tabindex="-1">';
-  }
-  // Sound toggle survives re-renders via a single delegated listener (bound in boot).
-  function bindSoundToggle() {
-    document.addEventListener("click", function (ev) {
-      var btn = ev.target.closest && ev.target.closest("#sound-toggle");
-      if (!btn) return;
-      var nowOn = sfx.toggle();
-      btn.innerHTML = ic(nowOn ? "sound" : "mute");
-      btn.title = nowOn ? "Sound on" : "Sound off";
-      btn.setAttribute("aria-pressed", nowOn ? "true" : "false");
-      toast(nowOn ? "\uD83D\uDD0A Sound on" : "\uD83D\uDD07 Sound off");
-    });
   }
   /* The skip link's href="#main" would otherwise be swallowed by the hash router
      \u2014 route() would read "main" as a page and re-render home. Intercept it and
@@ -825,7 +527,7 @@
       // tablet this button is the only handoff, and there is no undo or export.
       var who = getEnroll() || {}, cn = completedCount();
       if (confirm("This erases " + (who.name ? who.name + "'s" : "all") + " training on this device" +
-          (cn ? ": " + cn + " course certificate" + (cn === 1 ? "" : "s") + ", earned cards and streak" : "") +
+          (cn ? ": " + cn + " course certificate" + (cn === 1 ? "" : "s") : "") +
           ".\n\nThis cannot be undone. Continue?")) {
         localStorage.removeItem(K_STATE); localStorage.removeItem(K_ENROLL);
         toast("Progress cleared \u2014 fresh start \uD83C\uDF31");
@@ -850,172 +552,69 @@
   /* Questions worth meeting a stranger with: floor scenarios, not spec recall.
      The health-adjacent items are deliberately excluded — they are good training
      (the correct answer is to decline and redirect) but as a landing-page teaser
-     they would read as the site raising the subject. */
-  function heroPool() {
-    var INCLUDE = /customer|shopper|walks up|holds up|regular/i;
-    var EXCLUDE = /cough|lung|health|medical|anxiety|sleep|pain|nausea|doctor/i;
-    var pool = [];
-    COURSES.forEach(function (c) {
-      (c.quiz || []).forEach(function (q) {
-        if (!INCLUDE.test(q.q) || EXCLUDE.test(q.q)) return;
-        if ((q.choices || []).some(function (ch) { return EXCLUDE.test(ch); })) return;
-        pool.push({ q: q, course: c });
-      });
-    });
-    return pool;
-  }
   var heroQ = null;   // the question this visit is showing; kept for the answer handler
 
-  function popQuizHTML() {
-    var pool = heroPool();
-    if (!pool.length) return "";                     // no eligible question: fall back
-    heroQ = pool[Math.floor(Math.random() * pool.length)];
-    var q = heroQ.q;
-    // Shuffle display order but keep each choice's real index, exactly like the
-    // real quiz does, so the answer key can never drift from what is on screen.
-    var order = shuffle(q.choices.map(function (_, i) { return i; }));
-    return '<section class="hero hero-quiz reveal">' +
-      '<div class="hero-in">' +
-        '<span class="hero-eyebrow">' + ic("cap") + " G Pen University &middot; Pop quiz</span>" +
-        '<h1 class="hero-h1">Can you answer this?</h1>' +
-        '<p class="hero-sub">One real question from the real training. Nothing saved, nothing to sign up for.</p>' +
-        // The reward hook still has to live above the fold — it is the single
-        // strongest reason a rep keeps going — but as one scannable line, not the
-        // four separate retellings the old masthead had.
-        '<ul class="hero-facts"><li>Free</li><li>' + COURSES.length + " courses</li><li class=\"gold\">Up to " + topPct() + "% off gpen.com</li></ul>" +
-        '<div class="pq" id="pq">' +
-          // The Dean asks it, from a HEADER row rather than beside the text. Sat next
-          // to the question he took a third of the width, and the longest question in
-          // the bank (181 chars) then ran to 11 lines in a 188px column at 320px.
-          // He reacts to the answer — the only motion in the hero, and the reason a
-          // wrong answer still feels like someone is on your side.
-          '<div class="pq-ask">' +
-            '<span class="pq-og" id="pq-og" aria-hidden="true">' + mascotSVG("think") + "</span>" +
-            '<span class="pq-who">' + esc(MASCOT.name || "Professor O.G.") + " asks</span>" +
-          "</div>" +
-          '<div class="pq-q">' + esc(q.q) + "</div>" +
-          '<div class="pq-choices">' +
-            order.map(function (ci, pos) {
-              return '<button class="pq-choice" type="button" data-ci="' + ci + '">' +
-                '<span class="pq-key">' + String.fromCharCode(65 + pos) + "</span>" +
-                "<span>" + esc(q.choices[ci]) + "</span></button>";
-            }).join("") +
-          "</div>" +
-          '<div class="pq-out" id="pq-out" role="status" aria-live="polite"></div>' +
-        "</div>" +
-        '<button class="hero-skip" type="button" data-scroll="courses">Skip it &mdash; show me the courses ' + ic("arrow") + "</button>" +
-      "</div>" +
-    "</section>";
-  }
 
-  function bindPopQuiz() {
-    var pq = $("#pq"); if (!pq || !heroQ) return;
-    var q = heroQ.q, course = heroQ.course;
-    $$(".pq-choice", pq).forEach(function (b) {
-      b.addEventListener("click", function () {
-        if (pq.classList.contains("done")) return;   // one shot; it is a taste, not a score
-        pq.classList.add("done");
-        var ci = parseInt(b.getAttribute("data-ci"), 10);
-        var right = ci === q.answer;
-        // aria-disabled, NOT disabled: disabling the button the rep just activated
-        // removes it from the focus order, and the browser drops focus to <body> —
-        // so their next Tab restarted at the skip link, a whole header away from the
-        // CTA this interaction exists to offer. Re-answering is already blocked by
-        // the pq.classList "done" guard at the top of this handler.
-        $$(".pq-choice", pq).forEach(function (o) {
-          var oci = parseInt(o.getAttribute("data-ci"), 10);
-          o.setAttribute("aria-disabled", "true");
-          if (oci === q.answer) o.classList.add("ok");
-          else if (oci === ci) o.classList.add("no");
-        });
-        sfx.play(right ? "pass" : "tick");
-        // Warm either way. Getting it wrong is the entire reason the site exists,
-        // so it must never read as a rebuke on someone's first five seconds.
-        // Icon + ONE span. .pq-verdict is display:flex, so leaving the prose loose
-        // would make every text run and the <b> its own flex item and break the
-        // sentence into columns — the same trap that broke .master-unlock.
-        var head = right
-          ? ic("check") + '<span class="pqv-txt"><b>Nailed it.</b> That is exactly the play.</span>'
-          : ic("spark") + '<span class="pqv-txt"><b>That one catches a lot of people.</b> Here is the play:</span>';
-        $("#pq-out", pq).innerHTML =
-          '<div class="pq-verdict ' + (right ? "ok" : "no") + '">' + head + "</div>" +
-          (right ? "" : '<div class="pq-answer"><em>The answer</em><span>' + esc(q.choices[q.answer]) + "</span></div>") +
-          (q.why ? '<div class="pq-why">' + esc(q.why) + "</div>" : "") +
-          '<div class="pq-next">' +
-            '<a class="btn xl" href="#/course/' + course.slug + '">' +
-              (right ? "Keep going" : "Learn this one") + " &mdash; " + esc(course.name) + " " + ic("arrow") + "</a>" +
-            '<button class="linklike" type="button" data-scroll="courses">or pick a different product</button>' +
-          "</div>";
-        // Re-bind: the scroll link above is injected after renderHome wired the others.
-        $$("[data-scroll]", pq).forEach(function (el) {
-          el.addEventListener("click", function () { scrollToId(el.getAttribute("data-scroll")); });
-        });
-        // Swap the SVG inside a stable wrapper. Rewriting the <svg> tag itself would
-        // give it two class attributes and the mood styling would silently stop.
-        var og = $("#pq-og");
-        // He starts on "think", so BOTH outcomes have to move him to something else
-        // or the reaction reads as no reaction at all.
-        if (og) { og.innerHTML = mascotSVG(right ? "proud" : "chill"); og.classList.add("pop"); }
-        // Put the caret on the outcome that just appeared, the same way the real
-        // quiz's result block does. Without this a keyboard rep is left on a button
-        // that is now aria-disabled, with the verdict and CTA below them unread.
-        var out = $("#pq-out", pq);
-        if (out) { out.setAttribute("tabindex", "-1"); setTimeout(function () { out.focus(); }, 0); }
-      });
-    });
-  }
 
   /* Returning rep: the hero IS the resume control. */
-  function heroProgressHTML(done, total) {
+  /* ======================= THE HOME HEADER ==================================
+     One professional status module in three states. It replaces a mascot-narrated
+     masthead and a "can you answer this" pop quiz: for a shop-floor employee the
+     useful information is how far through the six products they are, which one is
+     next, and what completing them is worth. Sentences stay under 20 words and
+     carry no idiom, per the ASD-STE100 rules the copy is written to.
+     ====================================================================== */
+  function heroHTML(done, total) {
+    if (done >= total) return heroDoneHTML(total);
     var s = getState();
     var open = COURSES.filter(function (c) { var r = s.courses[c.slug]; return r && !r.passed; })[0];
     var target = open || nextCourse(null);
     var pct = unlockPct(done);
+    var started = done > 0 || COURSES.some(function (c) { return s.courses[c.slug]; });
     var pips = COURSES.map(function (c) {
-      return '<a class="hp-pip' + (coursePassed(c.slug) ? " on" : "") + '" href="#/course/' + c.slug + '" title="' + esc(c.name) + '">' +
+      return '<a class="hp-pip' + (coursePassed(c.slug) ? " on" : "") + '" href="#/course/' + c.slug + '">' +
         (coursePassed(c.slug) ? ic("check") : "") + "<span>" + esc(c.name) + "</span></a>";
     }).join("");
     return '<section class="hero hero-prog reveal">' +
       '<div class="hero-in">' +
-        '<span class="hero-eyebrow">' + ic("cap") + " Welcome back</span>" +
-        '<h1 class="hero-h1">' + ogGreetingLine(done, total) + "</h1>" +
-        '<div class="hp-bar" role="img" aria-label="' + done + " of " + total + ' courses certified"><i style="width:' + Math.round((done / total) * 100) + '%"></i></div>' +
-        '<p class="hero-sub"><b>' + done + " of " + total + "</b> certified" +
-          (pct ? ' &middot; one more unlocks <b class="gold">' + pct + "% off</b>" : "") + "</p>" +
+        '<span class="hero-eyebrow">' + ic("cap") + " " + esc(CFG.programName || "Product training") + "</span>" +
+        '<h1 class="hero-h1">' + (started
+            ? "Continue your product training."
+            : "Product training for retail staff.") + "</h1>" +
+        '<p class="hero-sub">' + (started
+            ? "You have completed <b>" + done + " of " + total + "</b> products."
+            : "Six products. Learn the features, the price and how to offer each one at checkout.") + "</p>" +
+        '<div class="hp-bar" role="img" aria-label="' + done + " of " + total + ' products complete"><i style="width:' + Math.round((done / total) * 100) + '%"></i></div>' +
+        '<ul class="hero-facts"><li>Free</li><li>' + total + " products</li><li>Pass each quiz to earn a discount code</li></ul>" +
         (target
           ? '<a class="btn xl hero-cta" href="#/course/' + target.slug + '">' +
-              (open ? "Pick up where you left off" : "Start") + " &mdash; " + esc(target.name) + " " + ic("arrow") + "</a>"
+              (open ? "Resume" : "Start") + ": " + esc(target.name) + " " + ic("arrow") + "</a>"
           : "") +
+        (pct ? '<p class="hero-note">Complete one more product to reach <b>' + pct + '% off</b>.</p>' : "") +
         '<div class="hp-pips">' + pips + "</div>" +
       "</div>" +
     "</section>";
   }
 
-  /* Fully certified: nothing left to sell them — hand over the goods.
-     The code renders as an empty shell and is filled by fillHeroCode() through
-     issueRewardCode(), which config.js documents as the ONLY place a code is
-     minted. Reading TRAINING_CONFIG.discount.secret.code straight out of config
-     here would work today and silently break the day the client swaps that
-     function for the Shopify Admin API it is explicitly designed for: every other
-     surface would show the rep's unique code and this one would still show the
-     generic config string. */
+  /* All products complete: hand over the code and the certificate, state it once. */
   function heroDoneHTML(total) {
     return '<section class="hero hero-done reveal">' +
       '<div class="hero-in">' +
-        '<span class="hero-eyebrow">' + ic("award") + " Certified G &middot; " + total + " of " + total + "</span>" +
-        '<h1 class="hero-h1">' + ogGreetingLine(total, total) + "</h1>" +
-        '<p class="hero-sub">Your top code is live on gpen.com.</p>' +
-        '<button class="code hero-code" id="hero-code" hidden><span>••••••</span><em>' + ic("tag") + " Tap to copy</em></button>" +
+        '<span class="hero-eyebrow">' + ic("award") + " Training complete &middot; " + total + " of " + total + "</span>" +
+        '<h1 class="hero-h1">All products complete.</h1>' +
+        '<p class="hero-sub">Your discount code is below. Your certificate is on record.</p>' +
+        '<button class="code hero-code" id="hero-code" hidden><span>••••••</span><em>' + ic("tag") + " Copy code</em></button>" +
         '<div class="hero-actions">' +
-          '<a class="btn xl ghost" href="#/certified">View your certificate ' + ic("arrow") + "</a>" +
+          '<a class="btn xl ghost" href="#/certified">View certificate ' + ic("arrow") + "</a>" +
         "</div>" +
       "</div>" +
     "</section>";
   }
 
-  /* Mint the certified hero's code the same way every other reward surface does.
-     Stays hidden until a code actually comes back, so a misconfigured or failing
-     issuer shows nothing rather than an empty dashed box promising a discount. */
+  /* Mint the code the same way every other reward surface does. Stays hidden until
+     a code actually comes back, so a misconfigured issuer shows nothing rather than
+     an empty box promising a discount. issueRewardCode() is the only minting point
+     (see config.js), so the day it becomes a Shopify Admin API call this follows. */
   function fillHeroCode() {
     var btn = $("#hero-code"); if (!btn) return;
     var e = getEnroll() || {};
@@ -1028,89 +627,52 @@
       }, function (err) { if (window.console) console.warn("[gpen-training] hero code could not be issued", err); });
   }
 
-  function heroHTML(done, total) {
-    if (done >= total) return heroDoneHTML(total);
-    var s = getState();
-    var started = COURSES.some(function (c) { return s.courses[c.slug]; });
-    if (done > 0 || started) return heroProgressHTML(done, total);
-    return popQuizHTML() || heroProgressHTML(done, total);
-  }
-
   /* ---- HOME (browse-first hub) ------------------------------------------- */
   function renderHome() {
-    var e = getEnroll(), done = completedCount(), total = COURSES.length;
+    var done = completedCount(), total = COURSES.length;
 
     app.innerHTML = header() +
       heroHTML(done, total) +
 
-      // resumeStrip is gone from here: the progress hero above IS the resume control
-      // now, and repeating it one section later was the same nudge twice.
       '<section class="hub reveal">' +
-        '<div class="sec-h" id="courses"><h2>Learn the G Pen Lineup</h2></div>' +
-        '<p class="catalog-lede">Take training courses on all of our current products.</p>' +
+        '<div class="sec-h" id="courses"><h2>Products</h2></div>' +
+        '<p class="catalog-lede">Each product takes about five minutes. Complete them in any order.</p>' +
         lineupHTML() +
       "</section>" +
 
-      // A single refined lifestyle moment — the gear in real hands, so the scale
-      // and the vibe land before the reward story. Not a marquee; one editorial shot.
-      lifestyleCinema((window.GPEN_LIFESTYLE || [])[0], "The G Pen life", "This is the gear, in real hands.", "Customers ask how it feels to hold. Know the answer.", "home") +
-      floorDrill() +
-      theLoop(done) +
-      '<section class="signoff reveal"><div class="signoff-inner">' + ogSays("proud", "That&rsquo;s the whole lineup. You can&rsquo;t sell what you&rsquo;ve never held &mdash; now go run the floor.") + "</div></section>" +
+      // The reward table only. The motivational band that used to sit here ("Get
+      // certified. Carry one yourself.") and the mascot sign-off below it were the
+      // two least professional blocks on the page and carried no product information.
+      rewardsBlock(done) +
       footer();
 
     fillRewards();
-    bindPopQuiz();
     fillHeroCode();
     $$("[data-goto]").forEach(function (el) { el.addEventListener("click", function () { go("#/course/" + el.getAttribute("data-goto")); }); });
     $$("[data-scroll]").forEach(function (el) { el.addEventListener("click", function () { scrollToId(el.getAttribute("data-scroll")); }); });
-    // (footer "Reset my progress" is bound globally in boot via bindReset — works on every page)
     revealOnScroll();
   }
 
-
-  /* The Loop — the reward story, told exactly ONCE, below the product lineup.
-     The collection is already signalled by the header pips and the ladder, so this
-     is a single three-beat rail (learn → pass → discount) rather than the old
-     step-cards plus binder teaser. Note the framing: the reward follows
-     COMPLETING TRAINING, never selling. */
-  function theLoop(done) {
+  /* The reward section. Its old headline ("Get certified. Carry one yourself." plus
+     "Put a G Pen in your pocket and you're the rec.") was consumer marketing aimed at
+     the employee rather than training information, so it is replaced by a plain
+     statement of the mechanic. rewardsSection() renders the tiers. */
+  function rewardsBlock(done) {
     return '<section class="loop reveal">' +
-      // The head is the MOTIVATION (why carry one yourself); the ladder below is the
-      // MECHANIC. There used to be a numbered "Learn it -> Pass the quiz -> % off"
-      // rail between them, which made this a third telling of the same three steps.
-      // Deleted rather than reworded. (The masthead deck that used to carry the
-      // first telling is gone too — the pop-quiz hero now demonstrates the mechanic
-      // instead of describing it, and the ladder still gives the actual numbers.)
       '<div class="loop-head">' +
-        "<h2>Get certified. Carry one yourself.</h2>" +
-        '<p class="loop-sub">Customers trust the staff who actually use it. Put a G&nbsp;Pen in your pocket and you&rsquo;re the rec.</p>' +
+        "<h2>Discount codes</h2>" +
+        '<p class="loop-sub">Each completed product raises your discount at gpen.com. Codes are for completing training only.</p>' +
       "</div>" +
       rewardsSection(done) +
     "</section>";
   }
+
   function scrollToId(id) { var el = document.getElementById(id); if (el) el.scrollIntoView({ behavior: "smooth", block: "start" }); }
   function lifestyleImgs() {
     if (window.GPEN_LIFESTYLE && window.GPEN_LIFESTYLE.length) return window.GPEN_LIFESTYLE.slice();
     var out = [];
     COURSES.forEach(function (c) { if (c.heroImg) out.push(c.heroImg); if (c.gallery && c.gallery[0]) out.push(c.gallery[0].url); });
     return out;
-  }
-  // A static editorial collage of real-people-using-product shots (masonry).
-  function lifestyleMosaic(n, start) {
-    var imgs = lifestyleImgs().slice(start || 0, (start || 0) + (n || 7));
-    if (!imgs.length) return "";
-    return '<div class="life-mosaic">' + imgs.map(function (u) {
-      return '<figure class="lm-cell"><img src="' + esc(u) + '" alt="Real people using G Pen products" loading="lazy" decoding="async"/></figure>';
-    }).join("") + "</div>";
-  }
-  // A full-width cinematic lifestyle band used as a divider / on course pages.
-  function lifestyleCinema(img, eyebrow, line, sub, cls) {
-    if (!img) return "";
-    return '<section class="life-cinema reveal ' + (cls || "") + '" style="background-image:url(\'' + esc(img) + '\')">' +
-      '<div class="lc-inner"><span class="lc-eyebrow">' + esc(eyebrow) + "</span><h2>" + esc(line) + "</h2>" +
-      (sub ? '<p class="lc-sub">' + esc(sub) + "</p>" : "") +
-    "</div></section>";
   }
   // A lifestyle shot of a specific product (matched by folder in the CDN path).
   function productLifeImg(slug, exclude) {
@@ -1303,7 +865,6 @@
     "</div>";
   }
   function copyText(text, okMsg) {
-    sfx.play("copy");
     if (navigator.clipboard) navigator.clipboard.writeText(text).then(function () { toast(okMsg); }, function () { toast(text); });
     else toast(text);
   }
@@ -1371,20 +932,17 @@
         '<div class="prose">' + descHTML + "</div>" +
         (c.highlights && c.highlights.length ? '<ul class="hl-list">' + c.highlights.map(function (h) { return "<li>" + ic("check") + "<span>" + esc(h) + "</span></li>"; }).join("") + "</ul>" : "") +
         galleryHTML(c) +
-        lifestyleCinema(productLifeImg(c.slug, c.heroImg), "In the wild", "The " + c.name + " out in the world.") +
 
         (c.howToUse && c.howToUse.length ? secHead(++n, "How to use it") + stepListHTML(c.howToUse) : "") +
         (c.howToClean && c.howToClean.length ? secHead(++n, "How to clean it") + stepListHTML(c.howToClean) : "") +
         (c.specs && c.specs.length ? secHead(++n, "Tech specs") + specTableHTML(c.specs) : "") +
         (c.faq && c.faq.length ? secHead(++n, "Questions you&rsquo;ll get") + faqHTML(c.faq) : "") +
-        factCard() +
 
         // Heading and intro follow the same branch as the zone below them. They used
         // to be unconditional, so an already-certified course still headed this
         // section "Get certified" and had the Dean ask if you were ready for the quiz,
         // directly above your own certificate.
         secHead(++n, rec && rec.passed ? "Your certificate" : "Get certified") +
-        (rec && rec.passed ? "" : ogSays("think", ogLine("quizIntro"))) +
         '<div id="quiz-zone"></div>' +
       "</section>" +
       // Promise the tier they'd actually hold after this course, not a flat 25%.
@@ -1664,8 +1222,7 @@
         streak += 1;
         var mult = Math.min(streak, 5), gain = 100 * mult;
         points += gain; flyPoints(gain, mult, btn); bumpScore();
-        sfx.play(streak >= 3 ? "combo" : "correct");
-      } else { streak = 0; sfx.play("wrong"); }
+      }
       $$(".choice", zone).forEach(function (b) {
         var bci = parseInt(b.getAttribute("data-ci"), 10);
         b.disabled = true;
@@ -1676,16 +1233,14 @@
       });
       var why = $(".quiz-why", zone); why.hidden = false;
       why.className = "quiz-why " + (correct ? "ok" : "no");
-      // The verdict was carried by colour and a RANDOMISED quip, and was never
       // announced. role=status makes the explainer speak, and the fixed word in
-      // front of the quip means the verdict never depends on which line came up.
       why.setAttribute("role", "status");
       why.setAttribute("aria-live", "polite");
-      // Professor O.G. reacts to every answer, then explains.
-      why.innerHTML = ogMini(correct ? "hyped" : "oops") +
+      // Verdict then reason. The verdict is a fixed word, never a randomised line, so
+      // a screen reader hears the same thing every time.
+      why.innerHTML =
         '<span class="qw-text"><b class="qw-verdict">' + (correct ? "Correct." : "Incorrect.") + "</b> " +
-        '<strong>' + (correct ? ic("check") + " " + ogLine("correct") : ogLine("wrong")) + "</strong> " +
-        (correct && streak >= 3 ? '<span class="streak-pop">' + ic("fire") + " ×" + Math.min(streak, 5) + " combo!</span> " : "") + esc(q.why) + "</span>";
+        esc(q.why) + "</span>";
       var n = $("#q-next", zone); n.hidden = false;
       n.innerHTML = (i + 1 < c.quiz.length ? "Next question " + ic("arrow") : "See my results " + ic("arrow"));
       // The explainer is the best teaching moment in the quiz and it renders
@@ -1704,23 +1259,6 @@
       if (!passed) return quizFail(c, correct, pct, points, order, answers);
       quizPass(c, correct, pct, points, order, answers);
     }
-  }
-  // Letter grade for the results screen — a little arcade payoff.
-  function gradeFor(pct) {
-    if (pct >= 100) return { g: "A+", label: "Flawless victory" };
-    if (pct >= 90) return { g: "A", label: "Certified genius" };
-    if (pct >= 80) return { g: "B", label: "Solid work" };
-    if (pct >= 70) return { g: "C", label: "So close" };
-    if (pct >= 60) return { g: "D", label: "Almost there" };
-    return { g: "F", label: "Run it back" };
-  }
-  function gradeHTML(pct, points) {
-    var gr = gradeFor(pct);
-    return '<div class="grade-card g-' + gr.g.charAt(0) + '">' +
-      '<span class="grade-big">' + gr.g + "</span>" +
-      '<span class="grade-meta"><b>' + esc(gr.label) + "</b>" +
-        (points != null ? '<em>' + ic("spark") + " " + points.toLocaleString() + " pts</em>" : "") + "</span>" +
-    "</div>";
   }
   function quizFail(c, correct, pct, points, order, answers) {
     var zone = $("#quiz-zone");
@@ -2054,7 +1592,6 @@
           "<h1>You're Certified G</h1>" +
           "<p>Congratulations, " + esc(e.name.split(" ")[0]) + " — you've completed every course in " + esc(CFG.programName) + " and are officially a <strong>fully trained G Pen Product Specialist</strong>. You know the whole lineup cold.</p>" +
         "</div>" +
-        ogSays("proud", ogLine("done")) +
         (drawLive() ? sweepsPanelHTML(e) : "") +
         '<div id="mcert"></div>' +
         '<div id="mreward" class="reward-wrap"></div>' +
@@ -2100,7 +1637,6 @@
     // every Back-navigation to the certificate, which cheapens it fast.
     if (!getState().masterCelebrated) {
       var cs = getState(); cs.masterCelebrated = new Date().toISOString(); setState(cs);
-      confetti();
     }
     revealOnScroll();
   }
@@ -2124,7 +1660,6 @@
           "<p>" + esc(a.intro || "") + "</p>" +
         "</div>" +
         (a.stats ? '<div class="about-stats">' + a.stats.map(function (s) { return '<div class="astat"><strong>' + esc(s.number) + "</strong><span>" + esc(s.label) + "</span></div>"; }).join("") + "</div>" : "") +
-        lifestyleMosaic(7, 0) +
         '<div class="about-block"><h2>Our story</h2>' + founding + "</div>" +
         (a.milestones ? '<div class="about-block"><h2>Milestones</h2><ol class="timeline">' + a.milestones.map(function (m) {
           return '<li><span class="tl-year">' + esc(m.year) + "</span><span class=\"tl-dot\"></span><p>" + esc(m.text) + "</p></li>";
@@ -2143,7 +1678,6 @@
               '<span class="soc-handle">' + esc(sc.handle) + " " + ic("arrow") + "</span>" +
             "</a>";
           }).join("") + "</div></div>" : "") +
-        factCard() +
         '<div class="about-close">' + ic("tag") + "<p>" + esc(a.closing || "") + "</p></div>" +
         '<a class="btn xl center-btn" href="#/">' + (e ? "Back to my courses" : "Browse courses") + " " + ic("arrow") + "</a>" +
       "</section>" + footer();
@@ -2189,7 +1723,7 @@
      each one's OWN close() where it published one: removing the node is not the same
      as closing the modal — close() is what cancels the pull's 4.6s auto-open timer and
      unbinds the document-level Escape listeners. Removing only the node left both
-     alive, so navigating away from a sealed booster pack fired confetti and a sound
+     alive, so navigating away from an open modal left its timer running
      over the next page 4.6s later, and every video/inspector open leaked a listener.
      Fall back to remove() for any overlay that never registered a teardown. */
   function clearStrayOverlays() {
@@ -2211,10 +1745,6 @@
     else if (parts[0] === "certified") { renderCertified(); pageKey = ""; }
     else if (parts[0] === "about") { renderAbout(); pageKey = "about"; }
     else renderHome(); // "/", "/dashboard", "/enroll" and anything else → the hub
-    bindFacts();
-    bindLogoFun();
-    bindMascot();
-    bindFloorDrill();
   }
   function boot() {
     app = $("#app"); // re-resolve in case the script loaded before #app parsed
@@ -2257,7 +1787,6 @@
     // thing a dispensary compliance lead will flag, so make it impossible to miss.
     if (!CFG.privacyUrl) console.warn("[gpen-training] config.privacyUrl is empty — the certification form collects name/email/store and states the data may be sent to G Pen, but no privacy notice is linked anywhere. Host one and set privacyUrl before sharing this with partners.");
     if (!app) { return document.addEventListener("DOMContentLoaded", boot, { once: true }); }
-    bindSoundToggle();
     bindReset();
     bindSkipLink();
     bindLangSel();
