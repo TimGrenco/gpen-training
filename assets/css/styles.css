@@ -553,18 +553,21 @@ a.linklike.backdash { display: block; width: auto; margin-top: 10px; text-align:
 
 .faq { display: grid; gap: 8px; }
 .faq-item { background: #fff; border: 1px solid var(--line); border-radius: var(--r-sm); overflow: hidden; box-shadow: var(--shadow); }
-.faq-q { width: 100%; display: flex; align-items: center; gap: 12px; padding: 15px 18px; background: none; border: 0; font: inherit; font-weight: 700; font-size: 15px; text-align: left; cursor: pointer; }
+.faq-q { width: 100%; display: flex; align-items: center; gap: 12px; padding: 15px 18px; background: none; border: 0; font: inherit; font-weight: 700; font-size: 15px; text-align: left; cursor: pointer; list-style: none; }
+.faq-q::-webkit-details-marker { display: none; }
+.faq-q::after { content: "+"; font-size: 20px; font-weight: 400; color: var(--gold); line-height: 1; transition: transform .18s ease; }
 .faq-q span:first-child { flex: 1; }
-.faq-caret { flex: none; font-size: 22px; font-weight: 400; color: var(--gold); line-height: 1; transition: transform .18s; }
-.faq-item.open .faq-caret { transform: rotate(45deg); }
+.faq-item[open] .faq-q::after { transform: rotate(45deg); }
 /* max-height:0 alone only makes the answer INVISIBLE — computed display stays block
    and visibility stays visible, so every collapsed answer remained in the
    accessibility tree. A screen reader read all six FAQ answers on the course page
    whether or not they were open, while each toggle reported aria-expanded="false":
    the state was a lie about content that was being announced anyway. visibility
    takes it out of the tree and still transitions. */
-.faq-a { max-height: 0; overflow: hidden; visibility: hidden; transition: max-height .28s ease, visibility .28s ease; }
-.faq-item.open .faq-a { max-height: 360px; visibility: visible; }
+/* The FAQ is native <details> now, so the browser owns show/hide. The old
+   max-height:0 + visibility pair (and the .open class that drove it) are gone:
+   .faq-a is simply the open content. */
+.faq-a { }
 .faq-a p { margin: 0; padding: 0 18px 16px; font-size: 14.5px; color: var(--stone); line-height: 1.55; }
 
 /* =============================== ABOUT ================================= */
@@ -1368,6 +1371,32 @@ a.linklike.backdash { display: block; width: auto; margin-top: 10px; text-align:
 .bn-hero > *:not(.vapor) { position: relative; z-index: 1; }
 .bn-hero .vapor .vap { background: radial-gradient(circle, rgba(254,200,112,.22), rgba(254,200,112,0) 66%); }
 @media (prefers-reduced-motion: reduce) { .vapor { display: none; } }
+
+/* ============== PRODUCT REFERENCE (collapsed, below the learning path) =====
+   Native <details>, so disclosure costs no JavaScript and is keyboard and
+   screen-reader accessible without any aria bookkeeping. Written with logical
+   properties throughout: the five locales are all LTR, but this stylesheet has
+   no logical properties anywhere else, and adding them while writing new rules
+   is free where retrofitting later is not. */
+.refblock { margin-top: clamp(28px,4vw,44px); border-top: 1px solid var(--line); padding-top: clamp(20px,3vw,28px); }
+.ref-h { font-size: var(--eyebrow-size); font-weight: var(--eyebrow-weight); letter-spacing: var(--eyebrow-tracking);
+  text-transform: uppercase; color: var(--stone); margin-bottom: 10px; }
+.ref-item { border: 1px solid var(--line); border-radius: var(--r-sm); background: #fff; margin-bottom: 8px; }
+.ref-item > summary { cursor: pointer; padding: 14px 16px; font-size: 15px; font-weight: 800; color: var(--ink);
+  display: flex; align-items: center; justify-content: space-between; gap: 12px; list-style: none; }
+.ref-item > summary::-webkit-details-marker { display: none; }
+/* The disclosure caret is drawn from the summary so no icon markup is needed, and
+   it rotates on open. Uses inline-end so it sits correctly if a locale is ever RTL. */
+.ref-item > summary::after { content: "+"; font-size: 20px; font-weight: 400; color: var(--stone);
+  line-height: 1; transition: transform .18s ease; }
+.ref-item[open] > summary::after { transform: rotate(45deg); }
+.ref-item > summary:hover { background: var(--paper); }
+.ref-item > summary:focus-visible { outline: 2px solid var(--gold); outline-offset: -2px; }
+.ref-body { padding: 0 16px 16px; }
+.ref-body > *:first-child { margin-block-start: 0; }
+/* The FAQ inside the reference block is itself a list of details; strip the outer
+   card treatment so it does not read as a card inside a card. */
+.ref-body .faq-item { border-inline-start: 0; border-inline-end: 0; border-radius: 0; box-shadow: none; }
 
 /* ==================== QUIZ ARCADE JUICE ================================= */
 .quiz { position: relative; }

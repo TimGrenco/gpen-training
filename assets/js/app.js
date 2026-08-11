@@ -26,7 +26,6 @@
   var CFG = window.TRAINING_CONFIG;
   var COURSES = window.GPEN_COURSES || [];
   var app = $("#app");
-  var stickyHandler = null;     // scroll handler for the course "get certified" nudge
 
   function esc(s) { return String(s == null ? "" : s).replace(/[&<>"']/g, function (m) { return ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" })[m]; }); }
   function courseBySlug(slug) { return COURSES.filter(function (c) { return c.slug === slug; })[0]; }
@@ -883,44 +882,58 @@
   }
 
   /* ---- COURSE ------------------------------------------------------------ */
+  /* ======================= THE COURSE PAGE ==================================
+     Four numbered sections above the fold, then everything else inside a native
+     <details> reference block. The old page ran nine numbered sections plus a
+     gallery, a full-bleed lifestyle band and a trivia card, which is a long scroll
+     for someone standing behind a counter. The learning path is now: the three
+     things to remember, how to offer it at checkout, one video, the quiz. Anything
+     a rep needs only occasionally — full description, photos, specifications, use,
+     cleaning, customer questions — is one tap away and out of the path.
+
+     Native <details> is deliberate: it needs no JavaScript, it is keyboard and
+     screen-reader accessible for free, and it is find-in-page friendly in modern
+     browsers. bindFaq() and its custom aria bookkeeping are gone with it.
+     ====================================================================== */
   function renderCourse(slug) {
     var c = courseBySlug(slug); if (!c) return go("#/");
-    var s = getState(), rec = s.courses[c.slug];
+    var s = getState(), rec = s.courses[c.slug], passed = !!(rec && rec.passed);
     setTitleDoc(c.name + " — Training");
 
     var hero = c.heroImg || c.cover;
     var descHTML = (Array.isArray(c.description) ? c.description : [c.description]).map(function (p) { return "<p>" + p + "</p>"; }).join("");
     var n = 0;
+    function ref(title, body) {
+      if (!body) return "";
+      return '<details class="ref-item"><summary>' + esc(title) + "</summary><div class=\"ref-body\">" + body + "</div></details>";
+    }
     app.innerHTML = header() +
       '<section class="course reveal">' +
-        '<a class="back" href="#/">' + ic("back") + " All courses</a>" +
+        '<a class="back" href="#/">' + ic("back") + " All products</a>" +
         '<div class="cx-hero' + (c.heroImg ? "" : " no-life") + '" style="--accent:' + c.accent + '">' +
-          // Full-bleed banner, so ask for a wider source than the card thumbs.
           '<div class="cx-hero-media"><img src="' + esc(sized(hero, 760)) + '" alt="' + esc(c.name) + '" loading="eager"/></div>' +
           '<div class="cx-hero-body">' +
-            '<span class="ch-eyebrow">' + ic("cap") + " Product Specialist Course" + (rec && rec.passed ? ' · <b class="ch-done">' + ic("check") + " Certified</b>" : "") + "</span>" +
+            '<span class="ch-eyebrow">' + ic("cap") + " Product training" + (passed ? ' · <b class="ch-done">' + ic("check") + " Complete</b>" : "") + "</span>" +
             "<h1>" + esc(c.name) + "</h1>" +
-            '<span class="cx-cat">' + esc(c.category) + " · " + esc(c.msrp) + "</span>" +
+            '<span class="cx-cat">' + esc(c.category) + " · " + esc(c.msrp) + " MSRP</span>" +
             "<p>" + esc(c.tagline) + "</p>" +
-            // Accessory courses can legitimately have no video yet, so the count is
-            // omitted rather than printed as "0 videos", and the array is never
-            // dereferenced blind.
-            '<div class="ch-meta">' + ((c.videos && c.videos.length) ? c.videos.length + " videos · " : "") + c.quiz.length + " questions · " + c.passPct + "% to pass · ~" + c.minutes + " min</div>" +
+            '<div class="ch-meta">' + c.quiz.length + " questions · " + c.passPct + "% to pass · about " + c.minutes + " minutes</div>" +
           "</div>" +
         "</div>" +
 
-        // SELLING LEADS. The battlecard is the only floor-usable asset here and it
-        // used to sit below ~8 minutes of video, a gallery, an 11-row spec table,
-        // cleaning steps and an FAQ. Moving it up also makes it the advance
-        // organizer these courses lacked, and puts the memorable floor facts ahead
-        // of the spec dump instead of after it.
+        // 1. The three facts to hold in your head.
         (c.howToSell && c.howToSell.keyFacts && c.howToSell.keyFacts.length
-          ? secHead(++n, "Know these three cold") + floorFactsHTML(c) : "") +
+          ? secHead(++n, "Three key points") + floorFactsHTML(c) : "") +
 
-        (c.howToSell ? secHead(++n, "How to sell it") + howToSellHTML(c) : "") +
+        // 2. The counter moment. This is the section the client asked to build the
+        //    portal around, so it sits as high as it can while still following the
+        //    facts that make it make sense.
+        (c.howToSell ? secHead(++n, "At the counter") + howToSellHTML(c) : "") +
 
+        // 3. One video. The grid stays for products that have more than one, but the
+        //    heading is singular-first because most have one or two.
         (c.videos && c.videos.length
-        ? secHead(++n, "Watch the tape") +
+        ? secHead(++n, c.videos.length > 1 ? "Videos" : "Video") +
         '<div class="vid-grid">' + c.videos.map(function (v) {
           return '<button class="vid" data-yt="' + esc(v.youtube || "") + '" data-title="' + esc(v.title) + '">' +
             '<span class="vid-thumb"><img src="' + esc(v.thumb) + '" alt="" loading="lazy"/><span class="vid-play">' + ic("play") + "</span></span>" +
@@ -928,49 +941,29 @@
         }).join("") + "</div>"
         : "") +
 
-        secHead(++n, "What it is") +
-        '<div class="prose">' + descHTML + "</div>" +
-        (c.highlights && c.highlights.length ? '<ul class="hl-list">' + c.highlights.map(function (h) { return "<li>" + ic("check") + "<span>" + esc(h) + "</span></li>"; }).join("") + "</ul>" : "") +
-        galleryHTML(c) +
-
-        (c.howToUse && c.howToUse.length ? secHead(++n, "How to use it") + stepListHTML(c.howToUse) : "") +
-        (c.howToClean && c.howToClean.length ? secHead(++n, "How to clean it") + stepListHTML(c.howToClean) : "") +
-        (c.specs && c.specs.length ? secHead(++n, "Tech specs") + specTableHTML(c.specs) : "") +
-        (c.faq && c.faq.length ? secHead(++n, "Questions you&rsquo;ll get") + faqHTML(c.faq) : "") +
-
-        // Heading and intro follow the same branch as the zone below them. They used
-        // to be unconditional, so an already-certified course still headed this
-        // section "Get certified" and had the Dean ask if you were ready for the quiz,
-        // directly above your own certificate.
-        secHead(++n, rec && rec.passed ? "Your certificate" : "Get certified") +
+        // 4. The quiz.
+        secHead(++n, passed ? "Your certificate" : "Quiz") +
         '<div id="quiz-zone"></div>' +
+
+        // Reference material, collapsed. Out of the path, one tap away.
+        '<div class="refblock">' +
+          '<h2 class="ref-h">Product reference</h2>' +
+          ref("Full description", '<div class="prose">' + descHTML + "</div>" +
+              (c.highlights && c.highlights.length ? '<ul class="hl-list">' + c.highlights.map(function (h) { return "<li>" + ic("check") + "<span>" + esc(h) + "</span></li>"; }).join("") + "</ul>" : "")) +
+          ref("Photos", galleryHTML(c)) +
+          ref("Specifications", (c.specs && c.specs.length) ? specTableHTML(c.specs) : "") +
+          ref("How to use it", (c.howToUse && c.howToUse.length) ? stepListHTML(c.howToUse) : "") +
+          ref("How to clean it", (c.howToClean && c.howToClean.length) ? stepListHTML(c.howToClean) : "") +
+          ref("Common customer questions", (c.faq && c.faq.length) ? faqHTML(c.faq) : "") +
+        "</div>" +
       "</section>" +
-      // Promise the tier they'd actually hold after this course, not a flat 25%.
-      (rec && rec.passed ? "" : '<button class="sticky-cta" id="sticky-cta">' + ic("cap") + " Get certified" + (unlockPct(completedCount()) ? " · <b>" + unlockPct(completedCount()) + "% off</b>" : "") + "</button>") +
       footer();
 
     bindVideos();
-    bindFaq();
     renderQuizIntro(c);
-    bindStickyCta();
     revealOnScroll();
   }
-  function bindStickyCta() {
-    if (stickyHandler) { window.removeEventListener("scroll", stickyHandler); stickyHandler = null; }
-    var scta = $("#sticky-cta"); if (!scta) return;
-    scta.addEventListener("click", function () { scrollToId("quiz-zone"); });
-    var qz = $("#quiz-zone");
-    // Scroll-based (reliable everywhere): show once past the hero, hide when the
-    // certify section is on screen.
-    stickyHandler = function () {
-      var cta = $("#sticky-cta"); if (!cta) return;
-      var qzTop = qz ? qz.getBoundingClientRect().top : 1e9;
-      cta.classList.toggle("show", window.scrollY > 220 && qzTop > window.innerHeight - 100);
-    };
-    window.addEventListener("scroll", stickyHandler, { passive: true });
-    stickyHandler();
-    setTimeout(stickyHandler, 500);
-  }
+
   function secHead(n, t) { return '<div class="sec-h big"><span class="sec-n">' + n + "</span><h2>" + t + "</h2></div>"; }
   /* The sales battlecard. A rep should be able to scan it in seconds and read
      the "say this" lines out loud verbatim. Fixed block order so muscle memory
@@ -1039,19 +1032,16 @@
       return '<li><span class="sl-n">' + (i + 1) + "</span><span>" + st + "</span></li>";
     }).join("") + "</ol>";
   }
+  /* Native <details>, matching the reference block around it. The previous version
+     emitted a <button aria-expanded> plus a max-height:0 panel and depended on
+     bindFaq() to toggle both; that binding is gone, so keeping the old markup would
+     have left every answer permanently unreachable. Disclosure now costs no JS and
+     the aria state is the browser's job. */
   function faqHTML(faq) {
-    return '<div class="faq">' + faq.map(function (f, i) {
-      return '<div class="faq-item"><button class="faq-q" data-faq="' + i + '" aria-expanded="false" aria-controls="faq-a-' + i + '"><span>' + esc(f.q) + '</span><span class="faq-caret" aria-hidden="true">+</span></button>' +
-        '<div class="faq-a" id="faq-a-' + i + '"><p>' + esc(f.a) + "</p></div></div>";
+    return '<div class="faq">' + faq.map(function (f) {
+      return '<details class="faq-item"><summary class="faq-q"><span>' + esc(f.q) + "</span></summary>" +
+        '<div class="faq-a"><p>' + esc(f.a) + "</p></div></details>";
     }).join("") + "</div>";
-  }
-  function bindFaq() {
-    $$(".faq-q").forEach(function (b) {
-      b.addEventListener("click", function () {
-        var open = b.closest(".faq-item").classList.toggle("open");
-        b.setAttribute("aria-expanded", open ? "true" : "false");
-      });
-    });
   }
 
   function bindVideos() {
@@ -1302,13 +1292,7 @@
      handler are outside it and survived. So the moment a rep certified, scrolling back
      up the course page still floated a CTA selling them a tier they now hold (or, at
      5/5, a 25% first rung they are years past). It belongs to the un-certified state,
-     so retire it the instant that state ends. */
-  function retireStickyCta() {
-    if (stickyHandler) { window.removeEventListener("scroll", stickyHandler); stickyHandler = null; }
-    var el = $("#sticky-cta"); if (el) el.remove();
-  }
   function quizPass(c, correct, pct, points, order, answers) {
-    retireStickyCta();
     // `|| {}` matters here more than anywhere: this was the ONE call site of ~18 that
     // dereferenced getEnroll() bare. setEnroll() deliberately swallows write failures,
     // so wherever localStorage.setItem throws (Safari "Block all cookies", a
