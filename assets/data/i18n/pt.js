@@ -40,7 +40,7 @@ window.GPEN_I18N = {
     "View certificate": "Ver certificado",
 
     /* ---- home hero ---- */
-    "Essentials for Every Session": "O essencial para cada sessão",
+    "Product Training Portal": "Portal de treinamento de produto",
     "G Pen now offers accessories for every customer, all new products are under $50 MSRP": "A G Pen agora oferece acessórios para cada cliente; todos os produtos novos custam menos de $50 MSRP",
     "A G Pen retail shelf: the full range of countertop POP displays, each with its price flag.": "Uma prateleira de loja G Pen: toda a linha de displays POP de balcão, cada um com sua etiqueta de preço.",
 
@@ -59,7 +59,7 @@ window.GPEN_I18N = {
     "Open": "Abrir",
 
     /* ---- reward ladder ---- */
-    "Discount codes": "Códigos de desconto",
+    "Earn Discount Codes": "Ganhe códigos de desconto",
     "Each completed product raises your discount at gpen.com. Codes are for completing training only.": "Cada produto concluído aumenta seu desconto em gpen.com. Os códigos são apenas pela conclusão do treinamento.",
     "What you unlock": "O que você desbloqueia",
     "Rewards are for completing training. They are not tied to sales, orders, or product recommendations.": "As recompensas são pela conclusão do treinamento. Não estão vinculadas a vendas, pedidos ou recomendações de produto.",
