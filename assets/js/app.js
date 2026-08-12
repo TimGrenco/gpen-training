@@ -773,8 +773,8 @@
   function rewardsBlock(done) {
     return '<section class="loop reveal">' +
       '<div class="loop-head">' +
-        "<h2>" + t("Earn Discount Codes") + "</h2>" +
-        '<p class="loop-sub">' + t("Each completed product raises your discount at gpen.com.") + "</p>" +
+        "<h2>" + t("Earn Exclusive Discounts") + "</h2>" +
+        '<p class="loop-sub">' + t("Complete product courses and quizzes to unlock bigger discounts on gpen.com") + "</p>" +
       "</div>" +
       rewardsSection(done) +
     "</section>";
@@ -909,11 +909,11 @@
      rung also carries the free-device prize IF drawLive() — see prizeCopy(). */
   function rewardsSection(done) {
     var total = COURSES.length;                 // the full lineup
-    var held = tierAt(done), up = nextTier(done);
+    // `held` is no longer read: the running status line it fed ("25% off unlocked, one
+    // more course for the top discount") is gone from the header, and each card already
+    // states its own state — Unlocked / Next up / Locked — plus its requirement.
+    var up = nextTier(done);
     var top = LADDER[LADDER.length - 1];
-    var head = !held ? t("Pass one course to unlock your first code")
-      : (up ? tf("{pct}% off unlocked", { pct: held.pct }) + " — " + (up.pct === top.pct ? t("one more course for the top discount") : t("keep certifying"))
-            : t("Full lineup certified. The top discount is unlocked."));
     // Plural as a whole sentence, not "course" + "s": Spanish, German, French and
     // Portuguese all inflect more than the noun, and Italian changes the article.
     function need(n) {
@@ -935,10 +935,13 @@
         (isNext && done > 0) ? need(rung.at) : "",
         got ? t("Unlocked") : (isNext ? t("Next up") : t("Locked")));
     }).join("");
-    return '<p class="rw-status-line">' + head + "</p>" +
-      '<p class="rw-terms-head">' + t("Rewards are for completing training. They are not tied to sales, orders, or product recommendations.") + "</p>" +
-      '<div class="rewards">' + rungs + "</div>" +
-      grandCard(done >= total, done, total);
+    return '<div class="rewards">' + rungs + "</div>" +
+      grandCard(done >= total, done, total) +
+      // Fine print, under the thing it qualifies rather than above it. It does have to
+      // be here: this is the block that advertises 25-40% off, and without it the
+      // "not tied to sales, orders, or product recommendations" statement appears only
+      // on the reward panel a rep sees after passing a quiz.
+      '<p class="rw-terms-head">' + t("Rewards are for completing training. They are not tied to sales, orders, or product recommendations.") + "</p>";
   }
   // The full-lineup capstone: a free-G-Pen draw entry + the guaranteed 40% code.
   function grandCard(unlocked, done, total) {

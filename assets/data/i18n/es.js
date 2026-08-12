@@ -69,14 +69,9 @@ window.GPEN_I18N = {
     "Open": "Abrir",
 
     /* ---- reward ladder ---- */
-    "Earn Discount Codes": "Consiga códigos de descuento",
-    "Each completed product raises your discount at gpen.com.": "Cada producto completado aumenta su descuento en gpen.com.",
+    "Earn Exclusive Discounts": "Consiga descuentos exclusivos",
+    "Complete product courses and quizzes to unlock bigger discounts on gpen.com": "Complete los cursos de producto y los exámenes para desbloquear descuentos mayores en gpen.com",
     "Rewards are for completing training. They are not tied to sales, orders, or product recommendations.": "Las recompensas son por completar la formación. No están vinculadas a ventas, pedidos ni recomendaciones de producto.",
-    "Pass one course to unlock your first code": "Apruebe un curso para desbloquear su primer código",
-    "{pct}% off unlocked": "{pct}% de descuento desbloqueado",
-    "one more course for the top discount": "un curso más para el descuento máximo",
-    "keep certifying": "siga certificándose",
-    "Full lineup certified. The top discount is unlocked.": "Gama completa certificada. El descuento máximo está desbloqueado.",
     "1 more course to unlock": "1 curso más para desbloquear",
     "{n} more courses to unlock": "{n} cursos más para desbloquear",
     "Pass any 1 course": "Apruebe 1 curso cualquiera",

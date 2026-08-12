@@ -1,7 +1,24 @@
-# G Pen Training is a partner tool, not a public marketing page.
-# index.html already carries <meta name="robots" content="noindex">, but that tag
-# cannot cover the non-HTML files GitHub Pages also serves from this repo —
-# README.md and REPORTING.md among them, which describe the reward mechanics and
-# the internal setup. Disallow the whole origin.
+# G Pen Training is a partner tool, not a public marketing page. It must not appear
+# in search results.
+#
+# HOW THIS WORKS, because the obvious configuration is the wrong one. A blanket
+# "Disallow: /" — which is what this file used to say — stops a crawler FETCHING the
+# page, which means it can never read the <meta name="robots" content="noindex">
+# inside it. Google's own guidance is explicit: a URL blocked here can still be
+# indexed from an external link, listed without a snippet, and noindex cannot be
+# honoured because it was never seen. Blocking and de-indexing are opposites.
+#
+# So: the HTML is crawlable ON PURPOSE, and every page of it carries noindex. The
+# crawler fetches it, reads "do not index", and drops it.
 User-agent: *
-Disallow: /
+Allow: /$
+Allow: /index.html
+Allow: /404.html
+
+# Everything below cannot carry a meta tag, so robots.txt is the only lever. The
+# internal docs that used to sit at the root — README.md and REPORTING.md, which
+# describe the reward mechanics and the webhook setup — now live in .github/, which
+# GitHub Pages does not publish at all, so they are no longer reachable by anyone.
+Disallow: /assets/data/
+Disallow: /tools/
+Disallow: /version.json
