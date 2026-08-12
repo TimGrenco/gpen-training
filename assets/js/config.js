@@ -170,7 +170,13 @@ window.TRAINING_CONFIG = {
      Two-minute setup instructions are in REPORTING.md. No API keys live in
      this file — you only paste a webhook URL, so it's safe on a public site. */
   reporting: {
-    url: "",          // e.g. "https://script.google.com/macros/s/AKfyc.../exec"
+    /* The tracking sheet's Apps Script web app. Live and verified: posting a course
+       event and its code_issued event returns {"ok":true} and upserts one row keyed on
+       certId. See google-sheet/README.md.
+
+       Posted fire-and-forget with mode:"no-cors", so the response is never read — which
+       is why Apps Script's redirect-to-echo dance does not matter here. */
+    url: "https://script.google.com/macros/s/AKfycbxWDedfr6SIknMT7TTt_VtyOjdos8avlcKlic1t-T0P44wY9sZFWYhLc_bQaZDuL8nv/exec",
   },
 };
 
