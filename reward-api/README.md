@@ -32,20 +32,24 @@ an alphabet with no `I`, `L`, `O` or `U` because reps read them down a phone lin
 
 ## Setup, once
 
-### 1. A Shopify custom app with two scopes
+### 1. A Shopify app with two scopes
 
-In the Shopify admin: **Settings → Apps and sales channels → Develop apps → Create an
-app**. Name it something like `Training rewards`.
+Creating a custom app from the store admin stopped being possible on **1 January 2026**.
+New apps come from the [Dev Dashboard](https://dev.shopify.com/dashboard) instead —
+older guides that point at *Settings → Apps and sales channels → Develop apps* predate
+that change.
 
-Under **Configuration → Admin API integration**, grant exactly:
+**Apps → Create app**, name it `Training rewards`, then:
 
-- `write_discounts`
-- `read_discounts`
+- grant exactly two access scopes: `write_discounts` and `read_discounts`
+- set distribution to **Custom distribution** for `grencoscience.myshopify.com`
+  (one store, no Shopify review — the supported replacement for a single-store custom
+  app; the choice is permanent)
+- install it on the store and copy the **Admin API access token** (`shpat_…`)
 
-Nothing else. This app never needs to see an order, a customer or a product.
-
-**Install** the app, then copy the **Admin API access token** (`shpat_…`). It is shown
-once.
+Two scopes, nothing else. This app never needs to see an order, a customer or a
+product, and both were confirmed sufficient by validating the create mutation and the
+redemption query against the live store.
 
 ### 2. Deploy this folder to Vercel
 

@@ -12,21 +12,34 @@ sale and stops trusting the portal.
 
 ---
 
-## Step 1 — Shopify custom app (5 min)
+## Step 1 — Shopify app + token (5–10 min)
 
-Shopify admin → **Settings → Apps and sales channels → Develop apps → Create an app**.
-Name it `Training rewards`.
+> **The old route is closed.** Creating a custom app from the store admin
+> (Settings → Apps and sales channels → Develop apps) stopped being possible on
+> **1 January 2026**. Existing admin-created apps still work; new ones must come from
+> the **Dev Dashboard**. If you find a guide pointing at the admin, it predates that.
 
-**Configuration → Admin API integration**, grant exactly two scopes:
+Go to the Dev Dashboard for the Grenco Science organisation:
+<https://dev.shopify.com/dashboard>
 
-- `write_discounts`
-- `read_discounts`
+1. **Apps → Create app**. Under *Start from Dev Dashboard*, name it `Training rewards`
+   → **Create**. (Ignore the Shopify CLI option — that scaffolds a whole app project,
+   which we do not need. This endpoint is 170 lines and already written.)
+2. Add the **access scopes**, exactly two:
+   - `write_discounts` — to mint a code
+   - `read_discounts` — for the hourly redemption sync
 
-Nothing else. This app never needs to see an order, a customer or a product.
+   Nothing else. This app never needs to see an order, a customer or a product, and
+   the schema validator confirms these two are sufficient for both operations.
+3. Set **distribution** to **Custom distribution**, targeting `grencoscience.myshopify.com`.
+   Custom distribution means one store (or one Plus organisation's stores) and no
+   Shopify review. It is the supported replacement for a single-store custom app.
+   **This choice is permanent** — an app cannot be switched to public later.
+4. **Install** it on the store via the generated install link.
+5. Copy the **Admin API access token** (`shpat_…`) from the app's credentials.
 
-**Install** the app, then copy the **Admin API access token** (`shpat_…`). Shopify shows
-it once. Paste it straight into Vercel in the next step — don't put it in a doc, a
-Slack message, or the repo.
+Paste the token straight into Vercel in the next step. Don't put it in a doc, a Slack
+message, or the repo — it is full write access to store discounts.
 
 ---
 
