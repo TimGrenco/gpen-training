@@ -38,6 +38,10 @@
   /* type scale */
   --h1: clamp(28px, 6.5vw, 46px);   /* page titles + heroes */
   --h2: clamp(23px, 4.2vw, 34px);   /* section headings */
+  /* The hero pair. Shared by the home masthead and the lineup heading below it so
+     the two read as one voice; edit here and both move together. */
+  --h1-hero: clamp(26px, 4.4vw, 44px);
+  --lede: clamp(15.5px, 2.3vw, 20px);
   --h3: 20px;
   --h2-s: 22px;                     /* smaller section-header tier */
   --h2-xs: 16px;                    /* sub-section header tier */
@@ -874,7 +878,14 @@ a.linklike.backdash { display: grid; place-items: center; min-height: 44px; widt
    it so one card renders identically in the catalog, the binder, and a modal.
    ====================================================================== */
 
-.catalog-lede { color: var(--stone); font-size: 15px; line-height: 1.6; margin: -4px 0 20px; max-width: 62ch; }
+/* The lineup heading and its line are set to the hero pair, not to the smaller
+   section scale, so "Explore the Product Lineup" carries the same weight as
+   "Essentials for Every Session" above it. Scoped to .hub: the reward-ladder headings
+   further down keep the section scale, which is what makes the page read as one big
+   statement followed by two smaller ones. */
+.hub .sec-h h2 { font-size: var(--h1-hero); font-weight: 900; letter-spacing: -.025em; line-height: 1.06; }
+.catalog-lede { color: var(--ink-2); font-size: var(--lede); font-weight: 700; line-height: 1.45;
+  margin: 12px 0 22px; max-width: 46ch; }
 .catalog-lede b { color: var(--ink); font-weight: 800; }
 
    /* Base Set is 7 with the Grinder */
@@ -1254,7 +1265,7 @@ a.linklike.backdash { display: grid; place-items: center; min-height: 44px; widt
    and lede keep a readable measure, but the photo takes the full --maxw band: it is
    the point of the section and cropping it to the text column would waste it. */
 .hero-lede { margin: 12px 0 0; max-width: 46ch; color: var(--ink-2);
-  font-size: clamp(15.5px, 2.3vw, 20px); font-weight: 700; line-height: 1.45; }
+  font-size: var(--lede); font-weight: 700; line-height: 1.45; }
 /* `.hero-in > .hero-shot`, not `.hero-shot`: `.hero-in > *` further down this file caps
    every child at --readw at the SAME specificity, and it comes later, so a bare
    .hero-shot rule would silently lose the cascade and crop the band to the text column. */
@@ -1268,7 +1279,7 @@ a.linklike.backdash { display: grid; place-items: center; min-height: 44px; widt
   font-size: var(--eyebrow-size); font-weight: var(--eyebrow-weight); letter-spacing: var(--eyebrow-tracking);
   text-transform: uppercase; color: var(--stone); }
 .hero-eyebrow svg { width: 14px; height: 14px; flex: none; color: var(--gold); }
-.hero-h1 { margin-top: 10px; font-size: clamp(26px,4.4vw,44px); font-weight: 900; letter-spacing: -.025em; line-height: 1.06; }
+.hero-h1 { margin-top: 10px; font-size: var(--h1-hero); font-weight: 900; letter-spacing: -.025em; line-height: 1.06; }
 .hero-sub { margin: 10px 0 0; color: var(--ink-2); font-size: clamp(14.5px,2vw,17px); line-height: 1.5; }
 .hero-sub b { color: var(--ink); font-weight: 900; }
 .hero-sub b.gold { color: var(--gold); }
