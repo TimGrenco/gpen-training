@@ -27,7 +27,7 @@
    ========================================================================== */
 window.TRAINING_CONFIG = {
   brand: "G Pen",
-  programName: "G Pen University",
+  programName: "G Pen Training",
   shopUrl: "https://www.gpen.com",
   /* The home-page hero photograph: the POP-display program merchandised on a real
      shelf. Swap the file or point this at a new one to change it — set it to ""

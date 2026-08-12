@@ -125,7 +125,7 @@ function doPost(e) {
     var prize = ROTATION[(winnerIndex - 1) % ROTATION.length];
     sheet.getRange(row, 11).setValue("WINNER — " + prize);   // col K
     MailApp.sendEmail(NOTIFY,
-      "G Pen University winner #" + winnerIndex + " — " + prize,
+      "G Pen Training winner #" + winnerIndex + " — " + prize,
       d.name + " (" + d.email + ", " + d.store + ") is full-lineup certification #" +
       position + " and wins: " + prize + "\n\nCert ID: " + d.certId);
   }

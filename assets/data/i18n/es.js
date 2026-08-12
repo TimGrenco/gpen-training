@@ -1,5 +1,5 @@
 /* =============================================================================
-   G PEN UNIVERSITY — ESPAÑOL (es)
+   G PEN TRAINING — ESPAÑOL (es)
 
    MACHINE TRANSLATED, PENDING NATIVE REVIEW. The portal says so on every page.
 

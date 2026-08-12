@@ -1,5 +1,5 @@
 /* =============================================================================
-   G PEN UNIVERSITY — FRANÇAIS (fr)
+   G PEN TRAINING — FRANÇAIS (fr)
 
    MACHINE TRANSLATED, PENDING NATIVE REVIEW. The portal says so on every page.
    See es.js for the full editor notes — the same rules apply here:

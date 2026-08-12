@@ -1,5 +1,5 @@
 /* =============================================================================
-   G PEN UNIVERSITY — DEUTSCH (de)
+   G PEN TRAINING — DEUTSCH (de)
 
    MACHINE TRANSLATED, PENDING NATIVE REVIEW. The portal says so on every page.
    See es.js for the full editor notes — the same rules apply here:

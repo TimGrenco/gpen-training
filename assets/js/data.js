@@ -1,5 +1,5 @@
 /* =============================================================================
-   G PEN UNIVERSITY — COURSE DATA
+   G PEN TRAINING — COURSE DATA
    -----------------------------------------------------------------------------
    One entry per product course. Content harvested from the G Pen asset portal,
    the gpen.com product/FAQ pages, and official manuals.

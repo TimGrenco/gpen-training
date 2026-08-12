@@ -1,4 +1,4 @@
-# G Pen University — Product Specialist Training
+# G Pen Training — Product Specialist Training
 
 A fun, mobile-first, gamified training + certification site for budtenders and
 smoke-shop employees. Staff learn each G Pen product, pass a quiz, earn a

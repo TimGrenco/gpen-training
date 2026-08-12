@@ -618,7 +618,7 @@
       '<header class="hdr' + (e ? " has-user" : "") + '">' +
       '<a class="hdr-brand" href="#/">' +
         '<img src="assets/img/gpen-g-black.png" class="hdr-logo light" alt="G Pen"/>' +
-        '<span class="hdr-name">G Pen <em>University</em></span>' +
+        '<span class="hdr-name">G Pen <em>Training</em></span>' +
       "</a>" +
       // Courses / Binder / About lived only in the footer, below a nine-section
       // course page — effectively unreachable on a phone.
@@ -1024,7 +1024,7 @@
   function renderCourse(slug) {
     var c = courseBySlug(slug); if (!c) return go("#/");
     var s = getState(), rec = s.courses[c.slug], passed = !!(rec && rec.passed);
-    setTitleDoc(c.name + " — Training");
+    setTitleDoc(c.name);
 
     var hero = c.heroImg || c.cover;
     var descHTML = (Array.isArray(c.description) ? c.description : [c.description]).map(function (p) { return "<p>" + p + "</p>"; }).join("");
@@ -1735,7 +1735,7 @@
       '<div class="cert" id="cert-card">' +
         '<div class="cert-inner">' +
           '<div class="cert-logo"><img src="assets/img/gpen-g-black.png" alt="G Pen"/></div>' +
-          '<div class="cert-eyebrow">G Pen · ' + t("Product Specialist Program") + "</div>" +
+          '<div class="cert-eyebrow">' + esc(CFG.programName) + " · " + t("Product Specialist Program") + "</div>" +
           '<h3 class="cert-award">' + t("Certificate of Completion") + "</h3>" +
           '<div class="cert-presented">' + t("This certifies that") + "</div>" +
           '<div class="cert-name">' + esc(nm) + "</div>" +
@@ -1857,7 +1857,7 @@
     box.innerHTML =
       '<div class="cert master" id="cert-card"><div class="cert-inner">' +
         '<div class="cert-logo"><img src="assets/img/gpen-g-black.png" alt="G Pen"/></div>' +
-        '<div class="cert-eyebrow">G Pen · ' + esc(CFG.programName) + "</div>" +
+        '<div class="cert-eyebrow">' + esc(CFG.programName) + "</div>" +
         '<h3 class="cert-award">' + t("Full Lineup Certified") + "</h3>" +
         '<div class="cert-presented">' + t("This certifies that") + "</div>" +
         '<div class="cert-name">' + esc(e.name) + "</div>" +
@@ -1957,7 +1957,7 @@
     document.addEventListener("visibilitychange", function () { if (!document.hidden) revealAll(); }, { once: true });
     setTimeout(revealAll, 1600);
   }
-  // Passing the program name itself produced "G Pen University · G Pen University"
+  // Passing the program name itself produced "G Pen Training · G Pen Training"
   // on home and the master certificate.
   function setTitleDoc(t) { document.title = (t && t !== CFG.programName) ? t + " · " + CFG.programName : CFG.programName; }
 
