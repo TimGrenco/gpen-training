@@ -34,6 +34,12 @@ for (const m of app.matchAll(/\bt(?:x|f|fx)?\(\s*"((?:[^"\\]|\\.)*)"/g)) {
   keys.add(m[1].replace(/\\"/g, '"').replace(/\\\\/g, "\\"));
 }
 for (const m of app.matchAll(/(?:title|sub): "([^"]+)"/g)) keys.add(m[1]);
+// Fallback literals inside a lookup: tx(CFG.footerNote || "for authorized …").
+// Without this the fallback reads as a stale key when config supplies a value.
+for (const m of app.matchAll(/\bt(?:x|f|fx)?\([^)"]*\|\|\s*"((?:[^"\\]|\\.)*)"/g)) {
+  // `tx(h.upsellFrom || "")` is an empty-string guard, not a translatable string.
+  if (m[1]) keys.add(m[1].replace(/\\"/g, '"').replace(/\\\\/g, "\\"));
+}
 // tx(h.upsellFrom) and t(r.label/note/terms) pass VARIABLES, so those literals live
 // in data.js and config.js rather than in app.js. Collect them from the source.
 COURSES_FOR_KEYS.forEach((c) => { if (c.howToSell && c.howToSell.upsellFrom) keys.add(c.howToSell.upsellFrom); });

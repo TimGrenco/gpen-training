@@ -117,6 +117,16 @@ window.GPEN_I18N = {
     "You say": "Sie sagen",
     "You see": "Sie sehen",
 
+    /* ---- packaging ---- */
+    "Packaging": "Verpackung",
+    "Retail box": "Verkaufsverpackung",
+    "Retail POP display": "POP-Display für den Handel",
+    "Ships in a retail-ready POP display, {n} units per display.": "Wird in einem verkaufsfertigen POP-Display geliefert, mit {n} Einheiten pro Display.",
+    "Ships in a retail-ready POP display.": "Wird in einem verkaufsfertigen POP-Display geliefert.",
+    "not included": "nicht enthalten",
+    "View {label} full size": "{label} in voller Größe ansehen",
+    "Image": "Bild",
+
     /* ---- certify form ---- */
     "certified": "zertifiziert",
     "You are a certified {product} Specialist": "Sie sind zertifizierter {product} Specialist",
@@ -233,6 +243,10 @@ window.GPEN_I18N = {
 
   courses: {
     "dash-ii": {
+      packaging: {
+        inBox: ["G Pen Dash II Vaporizer", "Integriertes Ladewerkzeug", "Silikonhülle für das Mundstück"],
+        notIncluded: ["USB-C-Ladekabel"],
+      },
       category: "Vaporizer für trockene Kräuter",
       tagline: "Taschenformat-Vaporizer für trockene Kräuter mit Temperaturregelung.",
       differentiator: "Der Einstiegs-Vaporizer für trockene Kräuter. Einfach zu bedienen.",
@@ -265,6 +279,10 @@ window.GPEN_I18N = {
       },
     },
     "dash-plus": {
+      packaging: {
+        inBox: ["Dash+ Vaporizer", "Silikonhülle für das Mundstück", "Ladewerkzeug mit Schlüsselanhänger", "USB-C-Ladekabel"],
+        notIncluded: [],
+      },
       category: "Vaporizer für trockene Kräuter",
       tagline: "Hybride Konvektion und Konduktion in einer Kammer aus Volltitan.",
       differentiator: "Titankammer und hybride Heiztechnik. Das nächsthöhere Modell.",
@@ -327,6 +345,10 @@ window.GPEN_I18N = {
       },
     },
     "melt-hot-knife": {
+      packaging: {
+        inBox: ["G Pen Melt Hot Knife", "Schutzkappe für unterwegs"],
+        notIncluded: ["USB-C-Ladekabel"],
+      },
       category: "Werkzeug für Konzentrate",
       tagline: "Das kleinste Hot Knife am Markt. Befüllt sauber mit Konzentrat.",
       differentiator: "Elektrisches Hot Knife. Nimmt auf und gibt ohne Rückstände ab.",
@@ -357,6 +379,10 @@ window.GPEN_I18N = {
       },
     },
     "hydout": {
+      packaging: {
+        inBox: ["G Pen Hydout 510-Akku", "Magnetische Mundstückabdeckung"],
+        notIncluded: ["510-Kartusche", "USB-C-Ladekabel"],
+      },
       category: "Akku für 510-Kartuschen",
       tagline: "510-Akku mit im Gehäuse verstautem Mundstück.",
       differentiator: "510-Akku mit innen verborgenem Mundstück.",
@@ -388,6 +414,10 @@ window.GPEN_I18N = {
       },
     },
     "510-original": {
+      packaging: {
+        inBox: ["G Pen 510 Original Akku"],
+        notIncluded: ["USB-C-Ladegerät", "510-Kartusche"],
+      },
       category: "Akku für 510-Kartuschen",
       tagline: "Der kleinste und einfachste 510-Akku, den wir bauen.",
       differentiator: "Der kleinste und preiswerteste 510-Akku von G Pen.",

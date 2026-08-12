@@ -129,6 +129,16 @@ window.GPEN_I18N = {
     "You say": "Usted dice",
     "You see": "Usted ve",
 
+    /* ---- packaging ---- */
+    "Packaging": "Embalaje",
+    "Retail box": "Caja de venta",
+    "Retail POP display": "Expositor POP de tienda",
+    "Ships in a retail-ready POP display, {n} units per display.": "Se sirve en un expositor POP listo para tienda, con {n} unidades por expositor.",
+    "Ships in a retail-ready POP display.": "Se sirve en un expositor POP listo para tienda.",
+    "not included": "no incluido",
+    "View {label} full size": "Ver {label} a tamaño completo",
+    "Image": "Imagen",
+
     /* ---- certify form ---- */
     "certified": "certificado",
     "You are a certified {product} Specialist": "Es especialista certificado en {product}",
@@ -248,6 +258,10 @@ window.GPEN_I18N = {
      names, prices, photos and videos are refused by the merge in app.js. */
   courses: {
     "dash-ii": {
+      packaging: {
+        inBox: ["Vaporizador G Pen Dash II", "Herramienta de carga integrada", "Funda de silicona para la boquilla"],
+        notIncluded: ["Cable de carga USB-C"],
+      },
       category: "Vaporizador de hierba seca",
       tagline: "Vaporizador de hierba seca de bolsillo con control de temperatura.",
       differentiator: "El vaporizador de hierba seca de entrada. Fácil de usar.",
@@ -280,6 +294,10 @@ window.GPEN_I18N = {
       },
     },
     "dash-plus": {
+      packaging: {
+        inBox: ["Vaporizador Dash+", "Funda de silicona para la boquilla", "Herramienta de carga con llavero", "Cable de carga USB-C"],
+        notIncluded: [],
+      },
       category: "Vaporizador de hierba seca",
       tagline: "Convección + conducción híbridas en una cámara de titanio completa.",
       differentiator: "Cámara de titanio y calentamiento híbrido. El modelo superior.",
@@ -342,6 +360,10 @@ window.GPEN_I18N = {
       },
     },
     "melt-hot-knife": {
+      packaging: {
+        inBox: ["G Pen Melt hot knife", "Tapa protectora de viaje"],
+        notIncluded: ["Cable de carga USB-C"],
+      },
       category: "Herramienta para concentrados",
       tagline: "El hot knife más pequeño del mercado. Carga el concentrado de forma limpia.",
       differentiator: "Hot knife eléctrico. Recoge y suelta sin residuos.",
@@ -372,6 +394,10 @@ window.GPEN_I18N = {
       },
     },
     "hydout": {
+      packaging: {
+        inBox: ["Batería 510 G Pen Hydout", "Tapa magnética de la boquilla"],
+        notIncluded: ["Cartucho 510", "Cable de carga USB-C"],
+      },
       category: "Batería para cartuchos 510",
       tagline: "Batería 510 con la boquilla guardada dentro del cuerpo.",
       differentiator: "Batería 510 con la boquilla escondida dentro.",
@@ -403,6 +429,10 @@ window.GPEN_I18N = {
       },
     },
     "510-original": {
+      packaging: {
+        inBox: ["Batería G Pen 510 Original"],
+        notIncluded: ["Cargador USB-C", "Cartucho 510"],
+      },
       category: "Batería para cartuchos 510",
       tagline: "La batería 510 más pequeña y sencilla que hacemos.",
       differentiator: "La batería 510 de G Pen más pequeña y económica.",

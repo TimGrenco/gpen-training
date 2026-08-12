@@ -540,6 +540,55 @@ a.linklike.backdash { display: grid; place-items: center; min-height: 44px; widt
    numbered section near the top of a course rather than a collapsed accordion row.
    Same card treatment as the key-point cards above it so the page reads as one
    sequence, not as prose dropped between two components. */
+/* =========================================================================
+   PACKAGING — the retail box, what is inside it, and the POP display.
+   Sits directly under the course hero, unnumbered: recognising the box is what
+   happens first on a shop floor. Two cards side by side on a tablet and up, one
+   above the other on a phone, so neither photo shrinks below recognisable.
+   ====================================================================== */
+.packaging { margin: clamp(20px,3vw,28px) 0 0; }
+.pk-h { font-size: var(--eyebrow-size); font-weight: var(--eyebrow-weight); letter-spacing: var(--eyebrow-tracking);
+  text-transform: uppercase; color: var(--stone); margin: 0 0 10px; }
+.pk-grid { display: grid; gap: 12px; }
+@media (min-width: 700px) {
+  .pk-grid { grid-template-columns: 1fr 1fr; align-items: start; }
+  .pk-grid.pk-one { grid-template-columns: minmax(0, 400px); }
+}
+.pk-card { background: #fff; border: 1px solid var(--line); border-radius: var(--r-md); overflow: hidden; box-shadow: var(--shadow); }
+/* The photo is a button, not an <img> in a link: it opens an overlay, which is an
+   action on this page rather than a navigation. */
+.pk-shot { position: relative; display: block; width: 100%; padding: 0; border: 0; cursor: zoom-in;
+  background: var(--cream); line-height: 0; }
+.pk-shot img { width: 100%; height: auto; aspect-ratio: 1 / 1; object-fit: contain; display: block; }
+.pk-zoom { position: absolute; right: 10px; bottom: 10px; width: 34px; height: 34px; border-radius: 50%;
+  display: grid; place-items: center; background: rgba(17,17,17,.72); color: #fff;
+  transition: background .18s ease; }
+.pk-zoom svg { width: 16px; height: 16px; }
+.pk-shot:hover .pk-zoom, .pk-shot:focus-visible .pk-zoom { background: var(--ink); }
+.pk-body { padding: 16px 18px 18px; }
+.pk-body h4 { margin: 0 0 10px; font-size: 15px; font-weight: 900; }
+.pk-body p { margin: 0; font-size: 14px; line-height: 1.5; color: var(--ink-2); }
+/* One list, two states. The not-included rows are the ones that cause a customer to
+   come back, so they read as a warning rather than as more of the same list. */
+.pk-list { list-style: none; margin: 0; padding: 0; display: grid; gap: 7px; }
+.pk-list li { display: flex; align-items: flex-start; gap: 9px; font-size: 14.5px; line-height: 1.45; }
+.pk-list .ic { flex: none; width: 20px; height: 20px; display: grid; place-items: center; border-radius: 50%; margin-top: 1px; }
+.pk-list svg { width: 12px; height: 12px; }
+.pk-in { color: var(--ink); font-weight: 700; }
+.pk-in .ic { background: #e8f3ea; color: var(--ok); }
+.pk-out { color: var(--stone); font-weight: 700; }
+.pk-out .ic { background: #fbeae6; color: var(--bad); }
+.pk-out em { font-style: normal; font-weight: 900; color: var(--bad); text-transform: uppercase;
+  font-size: 10.5px; letter-spacing: .06em; white-space: nowrap; }
+/* Full-size image overlay: shares .modal with the video player, but the frame is the
+   image itself, so it is capped rather than aspect-locked. */
+.imgmodal .modal-in { max-width: min(680px, 100%); }
+.imgmodal-img { display: block; width: 100%; height: auto; max-height: 76vh; object-fit: contain;
+  border-radius: var(--r-md); background: #fff; }
+@media (max-width: 400px) {
+  .pk-body { padding-left: 16px; padding-right: 16px; }
+}
+
 .aboutprod { background: #fff; border: 1px solid var(--line); border-radius: var(--r-md);
   padding: 20px; box-shadow: var(--shadow); }
 .aboutprod .prose p:last-child { margin-bottom: 0; }

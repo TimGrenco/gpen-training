@@ -360,6 +360,8 @@
     sound: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M11 5L6 9H3v6h3l5 4z"/><path d="M15.5 8.5a5 5 0 010 7"/><path d="M18.5 5.5a9 9 0 010 13"/></svg>',
     mute: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M11 5L6 9H3v6h3l5 4z"/><path d="M22 9l-6 6M16 9l6 6"/></svg>',
     globe: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><path d="M3.6 9h16.8M3.6 15h16.8"/><path d="M12 3a14 14 0 0 1 0 18a14 14 0 0 1 0-18Z"/></svg>',
+    search: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="7"/><path d="m20 20-3.5-3.5M8 11h6"/></svg>',
+    close: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round"><path d="M6 6l12 12M18 6L6 18"/></svg>',
     caret: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="m6 9 6 6 6-6"/></svg>',
   };
   function ic(n) { return '<span class="ic">' + (IC[n] || "") + "</span>"; }
@@ -462,7 +464,10 @@
      answer wrong, and a rep fails a quiz they answered correctly. Same reason
      `name`, `msrp` and the media keys are refused: product names, prices, photos
      and discount codes are identical in every language. */
-  var I18N_NEVER = { quiz: 1, slug: 1, name: 1, msrp: 1, family: 1, accent: 1, cover: 1, heroImg: 1, videos: 1, gallery: 1, pairsWith: 1, productUrl: 1, faqUrl: 1, passPct: 1 };
+  var I18N_NEVER = { quiz: 1, slug: 1, name: 1, msrp: 1, family: 1, accent: 1, cover: 1, heroImg: 1, videos: 1, gallery: 1, pairsWith: 1, productUrl: 1, faqUrl: 1, passPct: 1,
+                     box: 1, pop: 1, perDisplay: 1 };
+  // Objects whose keys merge rather than replace wholesale.
+  var NESTED = { howToSell: 1, packaging: 1 };
   /* Which fields a locale actually replaced, per slug. dt() below reads this so a
      field the locale did not cover can be marked up as English instead of passing
      silently as Spanish text that happens to be in English. */
@@ -487,10 +492,13 @@
       I18N_DONE[c.slug] = o;
       Object.keys(o).forEach(function (k) {
         if (I18N_NEVER[k]) return;
-        if (k === "howToSell" && c.howToSell) {
-          Object.keys(o.howToSell).forEach(function (hk) {
-            if (I18N_NEVER[hk]) return;
-            c.howToSell[hk] = o.howToSell[hk];
+        // Nested objects MERGE key by key instead of replacing. A locale that
+        // translates only packaging.inBox must not take the image URLs and the
+        // per-display count with it, which a plain assignment would.
+        if (NESTED[k] && c[k]) {
+          Object.keys(o[k]).forEach(function (nk) {
+            if (I18N_NEVER[nk]) return;
+            c[k][nk] = o[k][nk];
           });
           return;
         }
@@ -1023,6 +1031,12 @@
           "</div>" +
         "</div>" +
 
+        // What the rep will physically hold: the retail box, what is inside it, and
+        // the POP display it arrives in. Unnumbered and directly under the hero,
+        // because recognising the box is the first thing that happens on a shop
+        // floor — before any feature, before any script.
+        packagingHTML(c) +
+
         // 1. The three facts to hold in your head.
         (c.howToSell && c.howToSell.keyFacts && c.howToSell.keyFacts.length
           ? secHead(++n, t("Three key points")) + floorFactsHTML(c) : "") +
@@ -1083,6 +1097,7 @@
       footer();
 
     bindVideos();
+    bindPackaging();
     renderQuizIntro(c);
     revealOnScroll();
   }
@@ -1160,6 +1175,83 @@
       more +
     "</div>";
   }
+  /* PACKAGING. Two cards: the retail box with its contents, and the POP display it
+     ships inside. Both thumbnails open full size, because a rep comparing the box in
+     their hand to the box on screen needs to see the artwork, not a 140px crop.
+
+     "What's in the box" earns its place next to the box photo rather than in the
+     spec accordion: most of these devices no longer include a charging cable, and a
+     customer who gets home without one comes back. The not-included items are styled
+     as a distinct, harder line for the same reason — they are the ones that generate
+     a return, so they must not read as part of the same list.
+
+     A product with no `packaging` block renders nothing at all. That is the Grinder
+     today; when its images are added to the asset portal, the only change needed is
+     the data block in data.js. */
+  function packagingHTML(c) {
+    var p = c.packaging;
+    if (!p || (!p.box && !p.pop)) return "";
+    function card(img, label, body) {
+      return '<div class="pk-card">' +
+        '<button class="pk-shot" data-img="' + esc(img) + '" data-caption="' + esc(label) + '" aria-label="' +
+          tfx("View {label} full size", { label: label }) + '">' +
+          '<img src="' + esc(img) + '" alt="' + esc(label) + '" loading="lazy"/>' +
+          '<span class="pk-zoom" aria-hidden="true">' + ic("search") + "</span>" +
+        "</button>" +
+        '<div class="pk-body"><h4>' + label + "</h4>" + body + "</div>" +
+      "</div>";
+    }
+    // Included and not-included are one list with two states, not two lists: a rep
+    // reads it top to bottom once, and the ✗ rows are the ones they must mention.
+    var contents = "";
+    if ((p.inBox && p.inBox.length) || (p.notIncluded && p.notIncluded.length)) {
+      contents = '<ul class="pk-list">' +
+        (p.inBox || []).map(function (i) {
+          return '<li class="pk-in">' + ic("check") + "<span>" + dt(c.slug, "packaging", esc(i)) + "</span></li>";
+        }).join("") +
+        (p.notIncluded || []).map(function (i) {
+          return '<li class="pk-out">' + ic("close") + "<span>" + dt(c.slug, "packaging", esc(i)) +
+            ' <em>' + t("not included") + "</em></span></li>";
+        }).join("") +
+      "</ul>";
+    }
+    return '<section class="packaging">' +
+      '<h2 class="pk-h">' + t("Packaging") + "</h2>" +
+      // A product with no POP display (the Dash+) gets a one-column grid rather than
+      // a two-column one with a hole in it, capped at the width the card would have
+      // had in the pair so the photo is the same size on every product.
+      '<div class="pk-grid' + (p.box && p.pop ? "" : " pk-one") + '">' +
+        (p.box ? card(p.box, t("Retail box"), contents) : "") +
+        (p.pop ? card(p.pop, t("Retail POP display"),
+          '<p>' + (p.perDisplay
+            ? tf("Ships in a retail-ready POP display, {n} units per display.", { n: p.perDisplay })
+            : t("Ships in a retail-ready POP display.")) + "</p>") : "") +
+      "</div>" +
+    "</section>";
+  }
+
+  /* Full-size image overlay. Same teardown contract as openVideo(): the router calls
+     __teardown on route change, so the document-level Escape listener cannot outlive
+     the node it belongs to. */
+  function openImage(src, caption) {
+    var m = document.createElement("div"); m.className = "modal imgmodal";
+    m.innerHTML = '<div class="modal-in"><button class="modal-x" aria-label="' + tx("Close") + '">×</button>' +
+      '<img class="imgmodal-img" src="' + esc(src) + '" alt="' + esc(caption || "") + '"/>' +
+      (caption ? '<div class="modal-t">' + esc(caption) + "</div>" : "") + "</div>";
+    document.body.appendChild(m); document.body.classList.add("noscroll");
+    var release = manageModalFocus(m, caption || tx("Image"));
+    function close() { document.removeEventListener("keydown", onEsc); release(); m.remove(); document.body.classList.remove("noscroll"); }
+    function onEsc(ev) { if (ev.key === "Escape") close(); }
+    m.__teardown = close;
+    m.addEventListener("click", function (ev) { if (ev.target === m || ev.target.closest(".modal-x")) close(); });
+    document.addEventListener("keydown", onEsc);
+  }
+  function bindPackaging() {
+    $$(".pk-shot").forEach(function (b) {
+      b.addEventListener("click", function () { openImage(b.getAttribute("data-img"), b.getAttribute("data-caption")); });
+    });
+  }
+
   function galleryHTML(c) {
     if (!c.gallery || !c.gallery.length) return "";
     return '<div class="gallery">' + c.gallery.map(function (g) {

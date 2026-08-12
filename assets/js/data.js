@@ -79,6 +79,15 @@ window.GPEN_COURSES = [
     minutes: 9, passPct: 80, msrp: "$49.95", accent: "#FEC870",
     cover: CDN + "Dash2_thumb_01.png?v=1782936076",
     heroImg: LIFE + "dash-ii/f37d082035ae142949fa4dfe33aeebf6d9b556a2745187c26db91bc2ca08a020.jpg",
+    /* Packaging, from the asset portal's synced "Packaging" folder. `perDisplay`
+       is the inner-pack count on the SKU sheet — what a store actually receives. */
+    packaging: {
+      box: LIFE + "dash-ii/04b596f545b1102e2eabdcf72bf97966379f050f79ce58d19ee59c64e1626b73.jpg",
+      pop: LIFE + "dash-ii/724cced5aa650e369377feb04e9f49054c7c00ed936b48ef2ab813c98783cb49.jpg",
+      perDisplay: "10",
+      inBox: ["G Pen Dash II vaporizer", "Built-in loading tool", "Silicone mouthpiece sleeve"],
+      notIncluded: ["USB-C charging cable"],
+    },
     // productUrl / faqUrl are provenance: the pages every spec and description
     // on this course was verified against. Nothing renders them.
     productUrl: "https://www.gpen.com/products/g-pen-dash-ii-vaporizer",
@@ -182,6 +191,13 @@ window.GPEN_COURSES = [
     minutes: 9, passPct: 80, msrp: "$99.95", accent: "#D75D43",
     cover: CDN + "dash__vape_thumb_5e14bcb4-a63a-4cc3-8078-e57fc572e4da.png?v=1729247649",
     heroImg: LIFE + "dash-plus/5e5f67089995d3cfba84f862caf73d287ae9bc1d86d05818dde9204e6fce4b74.jpg",
+    /* No POP display for the Dash+ — it ships as a single unit only, which is why
+       the SKU sheet lists its inner pack as N/A. The section renders one card. */
+    packaging: {
+      box: LIFE + "dash-plus/37bc777dbc866911332713bc01829c0e2dba3c97bc7d970d57d224e7da185e7b.jpg",
+      inBox: ["Dash+ vaporizer", "Mouthpiece silicone sleeve", "Loading tool with keychain", "USB-C charging cable"],
+      notIncluded: [],
+    },
     productUrl: "https://www.gpen.com/products/g-pen-dash-plus-vaporizer",
     gallery: [
       { url: CDN + "dash__vape_thumb_2_455ab888-db45-48a5-8680-3f5c685cd05f.jpg?v=1729247650", caption: "Full-color LED display" },
@@ -291,6 +307,9 @@ window.GPEN_COURSES = [
        transparent render the moment marketing produces one. */
     cover: "assets/img/grinder-cover.png",
     heroImg: LIFE + "slim-3-piece-grinder/6120e7c350834c0bc55f5b70288d5102d25d49bb546603d0fc2919f243c9f3da.jpg",
+    /* Packaging assets pending — the grinder has no "Packaging" folder in the asset
+       portal yet. packagingHTML() renders nothing until this block exists, so
+       adding it here is the only change needed when the images land. */
     productUrl: "",
     gallery: [
       { url: CDN + "stashgrinder_thumb_03.jpg", caption: "Three pieces: lid, grinding ring, catch cup" },
@@ -379,6 +398,13 @@ window.GPEN_COURSES = [
     minutes: 7, passPct: 80, msrp: "$24.95", accent: "#E8833A",
     cover: CDN + "Melt_thumbA.png?v=1772813232",
     heroImg: LIFE + "melt/b1cac7548cacc2f2b15e0b9385e6ff04e8a8168f7dbec9e1be8f8354dc506aea.jpg",
+    packaging: {
+      box: LIFE + "melt/a831957ad756e42f0d8b13053463f621777b42649d01b141e0b3e9ede7c3417a.jpg",
+      pop: LIFE + "melt/628e9f284fb810bfa05a760c85834f37860f0b0a153fa722d0be65289bf9df26.jpg",
+      perDisplay: "20",
+      inBox: ["G Pen Melt hot knife", "Protective travel cap"],
+      notIncluded: ["USB-C charging cable"],
+    },
     productUrl: "https://www.gpen.com/products/g-pen-melt",
     gallery: [
       { url: CDN + "Melt_thumb_05.jpg?v=1772808678", caption: "Rapid-heat ceramic tip" },
@@ -472,6 +498,13 @@ window.GPEN_COURSES = [
     minutes: 8, passPct: 80, msrp: "$24.95", accent: "#7E8AA2",
     cover: CDN + "Hydout_vape_01.png?v=1762467078",
     heroImg: LIFE + "hydout/ad92f94cf68885a5ecb0b673ca262349a3f7c0476bf1762cbb375d2289bf39b1.jpg",
+    packaging: {
+      box: LIFE + "hydout/4439b92f07acc9f80b7aa5899b8819efaf6f5d7366b04341efb7fda07dbd1056.jpg",
+      pop: LIFE + "hydout/9a919bb3e6e6f6073f0dc9936df41d2811a88782290ef8451f3f1f8b18858e6d.jpg",
+      perDisplay: "10",
+      inBox: ["G Pen Hydout 510 battery", "Magnetic mouthpiece cover"],
+      notIncluded: ["510 cartridge", "USB-C charging cable"],
+    },
     productUrl: "https://www.gpen.com/products/g-pen-hydout",
     gallery: [
       { url: CDN + "Hydout_vape_thumb_07.jpg?v=1762461585", caption: "Low-key sessions, on the go" },
@@ -571,6 +604,13 @@ window.GPEN_COURSES = [
     minutes: 7, passPct: 80, msrp: "$12.95", accent: "#A9A296",
     cover: CDN + "510_on_white_01.png?v=1767045174",
     heroImg: LIFE + "510-original/058259adc75c62d0fe69f23e94cbb694621854da02665759ab93ad284e329267.jpg",
+    packaging: {
+      box: LIFE + "510-original/70b73f25507013009c2fad970c5725efb2bff1e0cf615335f82ca988f6798ff0.jpg",
+      pop: LIFE + "510-original/97c99ee846af2e0ff3833804d029f130dec0f2af58cd246443fa8a5494b48f55.jpg",
+      perDisplay: "20",
+      inBox: ["G Pen 510 Original battery"],
+      notIncluded: ["USB-C charger", "510 cartridge"],
+    },
     productUrl: "https://www.gpen.com/products/g-pen-510-original",
     gallery: [
       { url: CDN + "510_thumb_06_b4bfbf97-a651-4032-9723-ecc13f5493cf.jpg?v=1767045041", caption: "Ultra-portable, effortless to use" },

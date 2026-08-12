@@ -116,6 +116,16 @@ window.GPEN_I18N = {
     "You say": "Vous dites",
     "You see": "Vous voyez",
 
+    /* ---- packaging ---- */
+    "Packaging": "Emballage",
+    "Retail box": "Boîte de vente",
+    "Retail POP display": "Présentoir POP pour le magasin",
+    "Ships in a retail-ready POP display, {n} units per display.": "Livré dans un présentoir POP prêt pour la vente, avec {n} unités par présentoir.",
+    "Ships in a retail-ready POP display.": "Livré dans un présentoir POP prêt pour la vente.",
+    "not included": "non inclus",
+    "View {label} full size": "Voir {label} en taille réelle",
+    "Image": "Image",
+
     /* ---- certify form ---- */
     "certified": "certifié",
     "You are a certified {product} Specialist": "Vous êtes spécialiste {product} certifié",
@@ -232,6 +242,10 @@ window.GPEN_I18N = {
 
   courses: {
     "dash-ii": {
+      packaging: {
+        inBox: ["Vaporisateur G Pen Dash II", "Outil de remplissage intégré", "Manchon en silicone pour l'embout"],
+        notIncluded: ["Câble de charge USB-C"],
+      },
       category: "Vaporisateur pour herbe sèche",
       tagline: "Vaporisateur de poche pour herbe sèche avec réglage de température.",
       differentiator: "Le vaporisateur d'entrée de gamme pour herbe sèche. Simple à utiliser.",
@@ -264,6 +278,10 @@ window.GPEN_I18N = {
       },
     },
     "dash-plus": {
+      packaging: {
+        inBox: ["Vaporisateur Dash+", "Manchon en silicone pour l'embout", "Outil de remplissage avec porte-clés", "Câble de charge USB-C"],
+        notIncluded: [],
+      },
       category: "Vaporisateur pour herbe sèche",
       tagline: "Convection et conduction hybrides dans une chambre tout titane.",
       differentiator: "Chambre en titane et chauffe hybride. Le modèle supérieur.",
@@ -326,6 +344,10 @@ window.GPEN_I18N = {
       },
     },
     "melt-hot-knife": {
+      packaging: {
+        inBox: ["G Pen Melt hot knife", "Capuchon de protection de voyage"],
+        notIncluded: ["Câble de charge USB-C"],
+      },
       category: "Outil pour concentrés",
       tagline: "Le plus petit hot knife du marché. Charge le concentré proprement.",
       differentiator: "Hot knife électrique. Prélève et dépose sans résidu.",
@@ -356,6 +378,10 @@ window.GPEN_I18N = {
       },
     },
     "hydout": {
+      packaging: {
+        inBox: ["Batterie 510 G Pen Hydout", "Capuchon magnétique d'embout"],
+        notIncluded: ["Cartouche 510", "Câble de charge USB-C"],
+      },
       category: "Batterie pour cartouches 510",
       tagline: "Batterie 510 dont l'embout se range à l'intérieur du corps.",
       differentiator: "Batterie 510 avec l'embout dissimulé à l'intérieur.",
@@ -387,6 +413,10 @@ window.GPEN_I18N = {
       },
     },
     "510-original": {
+      packaging: {
+        inBox: ["Batterie G Pen 510 Original"],
+        notIncluded: ["Chargeur USB-C", "Cartouche 510"],
+      },
       category: "Batterie pour cartouches 510",
       tagline: "La batterie 510 la plus petite et la plus simple que nous fabriquons.",
       differentiator: "La batterie 510 G Pen la plus petite et la moins chère.",
