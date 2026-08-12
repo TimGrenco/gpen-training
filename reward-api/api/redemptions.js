@@ -67,10 +67,22 @@ module.exports = async function handler(req, res) {
   if (req.method !== "POST") return res.status(405).json({ error: "POST only" });
   if (origin && !ALLOWED_ORIGINS.includes(origin)) return res.status(403).json({ error: "origin not allowed" });
 
-  // A shared secret, because this one is called by a sheet rather than a browser and
-  // there is no origin to check. Set SYNC_SECRET in Vercel and in the Apps Script.
+  /* A shared secret, because this one is called by a sheet rather than a browser, so
+     there is no origin to check — an absent Origin is allowed above precisely so Apps
+     Script can reach it.
+
+     FAILS CLOSED. This was `if (secret && ...)`, which skipped the check whenever
+     SYNC_SECRET was unset — an unconfigured deploy was an unauthenticated one. That is
+     the wrong way round: the moment SHOPIFY_ADMIN_TOKEN is set and this variable is
+     forgotten, anyone could ask whether any code had been redeemed, and enumerate
+     codes while they were at it. Refusing to answer without a secret costs a clear
+     error message; guessing wrong costs a public oracle. */
   const secret = process.env.SYNC_SECRET;
-  if (secret && req.headers["x-sync-secret"] !== secret) return res.status(401).json({ error: "bad or missing x-sync-secret" });
+  if (!secret) {
+    console.error("SYNC_SECRET is not set; refusing every request until it is");
+    return res.status(500).json({ error: "SYNC_SECRET is not configured on the server" });
+  }
+  if (req.headers["x-sync-secret"] !== secret) return res.status(401).json({ error: "bad or missing x-sync-secret" });
 
   let body = req.body;
   if (typeof body === "string") { try { body = JSON.parse(body); } catch (e) { body = null; } }
