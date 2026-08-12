@@ -45,7 +45,11 @@ that change.
 - set distribution to **Custom distribution** for `grencoscience.myshopify.com`
   (one store, no Shopify review — the supported replacement for a single-store custom
   app; the choice is permanent)
-- install it on the store and copy the **Admin API access token** (`shpat_…`)
+- install it on the store, then run the one-time handshake in
+  [`.github/GOLIVE.md`](../.github/GOLIVE.md) step 3 to obtain the Admin API access
+  token — a Dev Dashboard app issues OAuth credentials rather than handing you a token,
+  so `api/install.js` and `api/oauth-callback.js` exist to close that loop once and are
+  deleted straight after
 
 Two scopes, nothing else. This app never needs to see an order, a customer or a
 product, and both were confirmed sufficient by validating the create mutation and the
@@ -161,4 +165,7 @@ next to the status — it reports what Shopify had, not what is true this second
 
 - `api/reward.js` — mints codes. Tier table, code derivation, lookup-then-create.
 - `api/redemptions.js` — reads usage counts for the tracking sheet.
+- `api/install.js`, `api/oauth-callback.js` — **temporary.** They run the OAuth
+  handshake once to obtain the Admin token, then get deleted. If they are still here
+  after setup, setup is not finished.
 - `vercel.json`, `package.json` — no build, Node 18+ for global `fetch`.

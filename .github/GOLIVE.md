@@ -1,98 +1,131 @@
 # Go live: rewards + tracking sheet
 
-Everything in the portal is built and tested. Three steps remain, and all three need
-credentials that only you can supply — a Shopify Admin token, a Vercel login, and a
-Google account. Do them in this order; each one is checkable before you move on.
+Everything in the portal is built and tested. Four steps remain, and they all need
+credentials that only you can supply — a Shopify app, a Vercel login, and a Google
+account. Do them in this order; each one is checkable before you move on.
 
-Total time: about 20 minutes.
+Total time: about 25 minutes.
 
-Until step 2 is done the reward panel renders nothing — deliberately. A rep who sees
+Until the last step the reward panel renders nothing — deliberately. A rep who sees
 no code files a support ticket; a rep who sees a code that fails at the till loses a
 sale and stops trusting the portal.
 
 ---
 
-## Step 1 — Shopify app + token (5–10 min)
+## Step 1 — Create the Shopify app (5 min)
 
 > **The old route is closed.** Creating a custom app from the store admin
 > (Settings → Apps and sales channels → Develop apps) stopped being possible on
 > **1 January 2026**. Existing admin-created apps still work; new ones must come from
 > the **Dev Dashboard**. If you find a guide pointing at the admin, it predates that.
+>
+> This matters for more than where you click. An admin custom app simply *handed* you
+> a permanent `shpat_` token, because it assumed you had no app server. A Dev Dashboard
+> app is an OAuth app: it gives you a client ID and secret and expects your app to
+> complete a handshake to receive a token. We have no app server on purpose — the
+> reward endpoint is a stateless function — so step 3 runs that handshake once, by
+> hand, purely to get the token.
 
-Go to the Dev Dashboard for the Grenco Science organisation:
-<https://dev.shopify.com/dashboard>
+At <https://dev.shopify.com/dashboard>, for the Grenco Science organisation:
 
 1. **Apps → Create app**. Under *Start from Dev Dashboard*, name it `Training rewards`
-   → **Create**. (Ignore the Shopify CLI option — that scaffolds a whole app project,
-   which we do not need. This endpoint is 170 lines and already written.)
-2. Add the **access scopes**, exactly two:
-   - `write_discounts` — to mint a code
-   - `read_discounts` — for the hourly redemption sync
+   → **Create**. (Ignore the Shopify CLI option — it scaffolds a whole app project. Our
+   endpoint is already written.)
+2. On the version form:
+   - **App URL**: `https://training.gpen.com`
+   - **Uncheck** *Embed app in Shopify admin* — this app has no UI, and leaving it
+     checked makes Shopify iframe that URL inside the admin.
+   - **Scopes**: `write_discounts,read_discounts` — exactly two, comma-separated.
+     Nothing else. This app never needs to see an order, a customer or a product, and
+     both were confirmed sufficient against the live API.
+   - **Check** *Use legacy install flow*, and set **Redirect URLs** to
+     `https://YOUR-PROJECT.vercel.app/api/oauth-callback` once you know the Vercel URL
+     from step 2. The "legacy" flow is the authorisation-code grant, which is what a
+     non-embedded server-side app uses; the modern managed install assumes an embedded
+     UI that can do a token exchange, and we have no UI.
+   - Leave POS, app proxy and optional scopes alone. **Release**.
+3. Set **distribution** to **Custom distribution** for `grencoscience.myshopify.com`.
+   That means one store (or one Plus organisation's stores) and no app review — the
+   supported replacement for a single-store custom app. Distribution lives at the
+   organisation level, under **App distribution**, not in the app's own Settings.
+   **This choice is permanent** — an app can never be switched to public afterwards.
 
-   Nothing else. This app never needs to see an order, a customer or a product, and
-   the schema validator confirms these two are sufficient for both operations.
-3. Set **distribution** to **Custom distribution**, targeting `grencoscience.myshopify.com`.
-   Custom distribution means one store (or one Plus organisation's stores) and no
-   Shopify review. It is the supported replacement for a single-store custom app.
-   **This choice is permanent** — an app cannot be switched to public later.
-4. **Install** it on the store via the generated install link.
-5. Copy the **Admin API access token** (`shpat_…`) from the app's credentials.
-
-Paste the token straight into Vercel in the next step. Don't put it in a doc, a Slack
-message, or the repo — it is full write access to store discounts.
+⚠️ **Do not create an "App automation token"** on the Settings page, tempting as the
+name is. That authenticates the Shopify CLI to deploy app config; it cannot read store
+data at all, and it expires in 1–6 months. The token we need comes from step 3.
 
 ---
 
-## Step 2 — Deploy the reward endpoint (10 min)
+## Step 2 — Deploy the endpoint first (10 min)
+
+The install callback has to be live *before* you install the app, so Vercel comes
+before the handshake.
 
 ```bash
-npx vercel --cwd reward-api
+cd /Users/timothycotter-patenaude/Documents/Codex/gpen-training && npx vercel --cwd reward-api
 ```
 
-Log in when prompted, accept the defaults. Then in the Vercel project,
-**Settings → Environment Variables**, add five:
+Note the URL it prints. Then set these in **Settings → Environment Variables**:
 
 | Name | Value |
 |---|---|
-| `SHOPIFY_SHOP` | `grencoscience.myshopify.com` — the admin domain, not gpen.com |
-| `SHOPIFY_ADMIN_TOKEN` | the `shpat_…` token from step 1 |
-| `CODE_SALT` | `openssl rand -hex 32` |
-| `SYNC_SECRET` | `openssl rand -hex 32` (a different one) |
+| `SHOPIFY_SHOP` | `grencoscience.myshopify.com` |
+| `SHOPIFY_API_KEY` | the app's **Client ID** |
+| `SHOPIFY_API_SECRET` | the app's **Secret** |
+| `OAUTH_STATE_SECRET` | `openssl rand -hex 32` |
+| `CODE_SALT` | `openssl rand -hex 32` — a different one |
+| `SYNC_SECRET` | `openssl rand -hex 32` — a third |
 | `ALLOWED_ORIGINS` | `https://training.gpen.com` |
 
-Redeploy so the variables take effect.
-
-`CODE_SALT` is what makes each code's six-character suffix unguessable. **Changing it
-changes every future code**, so set it once and leave it. Codes already issued keep
-working — they live in Shopify independently of this function.
-
-### Check it
+Redeploy so they take effect:
 
 ```bash
-curl -s -X POST https://YOUR-PROJECT.vercel.app/api/reward -H 'Origin: https://training.gpen.com' -H 'Content-Type: text/plain' -d '{"tier":"course","email":"you@grencoscience.com","courseSlug":"dash-ii"}'
+cd /Users/timothycotter-patenaude/Documents/Codex/gpen-training && npx vercel --prod --cwd reward-api
 ```
 
-You should get a `GPT-25-…` code back, and see it in **Shopify admin → Discounts**
-titled `Training 25% — course — dash-ii — you@grencoscience.com`.
+Now go back and set the app's **Redirect URL** to
+`https://YOUR-PROJECT.vercel.app/api/oauth-callback` and release that version.
 
-**Run it a second time.** The same code must come back with no second discount created.
-That is the check worth repeating after any change here — without it, every page view
-of a certificate would mint a new discount.
-
-### Turn it on
-
-In [`assets/js/config.js`](../assets/js/config.js):
-
-```js
-rewards: {
-  url: "https://YOUR-PROJECT.vercel.app/api/reward",
-```
-
-Commit and push. Reps get real codes from that moment.
+⚠️ `CODE_SALT` makes each code's suffix unguessable. **Changing it later changes every
+future code**, so set it once. Codes already issued keep working — they live in Shopify.
 
 ---
 
-## Step 3 — The tracking sheet (5 min)
+## Step 3 — Run the handshake once, get the token (2 min)
+
+Open this in a browser:
+
+```
+https://YOUR-PROJECT.vercel.app/api/install
+```
+
+It redirects you to Shopify, which asks you to approve **exactly** `write_discounts`
+and `read_discounts` — read that screen; it is the audit. Approve, and the callback
+prints the permanent Admin API access token.
+
+The token is *offline*: it does not expire and is not tied to your login, which is what
+a background function minting codes at 2am needs.
+
+1. Paste it into Vercel as `SHOPIFY_ADMIN_TOKEN`.
+2. Confirm the granted scopes on that page read `write_discounts,read_discounts` and
+   nothing more.
+
+### Then clean up — this part is not optional
+
+```bash
+cd /Users/timothycotter-patenaude/Documents/Codex/gpen-training && rm reward-api/api/install.js reward-api/api/oauth-callback.js && git add -A && git commit -m "Remove the one-time install routes" && git push
+```
+
+Then delete `SHOPIFY_API_KEY`, `SHOPIFY_API_SECRET` and `OAUTH_STATE_SECRET` from
+Vercel and redeploy. The reward endpoint uses none of them — only `SHOPIFY_ADMIN_TOKEN`.
+
+Leaving a live token-minting route deployed is the kind of thing that gets found later.
+It is guarded (HMAC, state, and a shop lock), but a route that exists to hand out
+credentials should not outlive its one job.
+
+---
+
+## Step 4 — The tracking sheet (5 min)
 
 Full detail in [`google-sheet/README.md`](../google-sheet/README.md). In short:
 
@@ -121,7 +154,7 @@ Delete the test row when you're done.
 
 ## Order matters, but nothing is lost if you get it wrong
 
-If step 3 lands after reps have already certified, their completions **and their
+If the sheet lands after reps have already certified, their completions **and their
 discount codes** are re-sent on their next visit. The portal tracks earned separately
 from reported for exactly this case. You will not lose the reps who trained early.
 
