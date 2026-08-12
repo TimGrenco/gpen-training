@@ -41,7 +41,7 @@ window.GPEN_I18N = {
     /* ---- home hero ---- */
     "Essentials for Every Session": "Das Wesentliche für jede Session",
     "Turn every sale into an upsell with G Pen accessories designed for flower, concentrates, and 510 cartridges.": "Machen Sie aus jedem Verkauf einen Zusatzverkauf — mit G Pen Zubehör für Blüten, Konzentrate und 510-Kartuschen.",
-    "A G Pen retail shelf: the full range of countertop POP displays, each with its price flag.": "Ein G Pen Verkaufsregal: das gesamte Sortiment an Theken-POP-Displays, jedes mit seinem Preisschild.",
+    "A G Pen retail shelf: the countertop POP displays grouped into dry herb, concentrates and 510 batteries, each with its price flag.": "Ein G Pen Verkaufsregal: die Theken-POP-Displays gruppiert nach Trockenkraut, Konzentraten und 510-Akkus, jedes mit seinem Preisschild.",
 
     /* ---- lineup ---- */
     "The better you know the lineup, the easier it is to recommend the right product for every customer.": "Je besser Sie das Sortiment kennen, desto leichter empfehlen Sie jedem Kunden das richtige Produkt.",

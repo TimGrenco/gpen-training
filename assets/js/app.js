@@ -693,7 +693,7 @@
   function heroShotHTML() {
     if (!CFG.heroImage) return "";
     return '<div class="hero-shot">' +
-      '<img src="' + esc(CFG.heroImage) + '" alt="' + tx("A G Pen retail shelf: the full range of countertop POP displays, each with its price flag.") + '" loading="eager" fetchpriority="high"/>' +
+      '<img src="' + esc(CFG.heroImage) + '" alt="' + tx("A G Pen retail shelf: the countertop POP displays grouped into dry herb, concentrates and 510 batteries, each with its price flag.") + '" loading="eager" fetchpriority="high"/>' +
     "</div>";
   }
   function heroHTML(done, total) {

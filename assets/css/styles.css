@@ -1278,8 +1278,9 @@ a.linklike.backdash { display: grid; place-items: center; min-height: 44px; widt
    .hero-shot rule would silently lose the cascade and crop the band to the text column. */
 .hero-in > .hero-shot { margin-top: clamp(18px, 3vw, 28px); max-width: none; border-radius: var(--r-md);
   overflow: hidden; background: var(--cream); box-shadow: var(--shadow); line-height: 0; }
-/* No aspect-ratio and no object-fit: the source is 1536x1024 and it renders at its own
-   ratio, so nothing in the shot is ever cropped. A rep is counting displays in it. */
+/* No aspect-ratio and no object-fit: the source is 1536x1208 and it renders at its own
+   ratio, so nothing in the shot is ever cropped. A rep is reading prices and category
+   labels off it, so a crop that clipped the bottom shelf would cost real information. */
 .hero-shot img { display: block; width: 100%; height: auto; }
 
 .hero-eyebrow { display: inline-flex; align-items: center; flex-wrap: wrap; gap: 6px;
