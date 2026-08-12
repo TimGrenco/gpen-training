@@ -17,6 +17,7 @@ window.GPEN_I18N = {
     "Machine translated and pending review. Quiz questions stay in English.": "Tradução automática, pendente de revisão. As perguntas do quiz permanecem em inglês.",
     "Skip to content": "Ir para o conteúdo",
     "Products": "Produtos",
+    "Explore the Product Lineup": "Conheça a linha de produtos",
     "About": "Sobre",
     "About G Pen": "Sobre a G Pen",
     "Shop gpen.com": "Comprar em gpen.com",
@@ -31,8 +32,6 @@ window.GPEN_I18N = {
 
     /* ---- home masthead ---- */
     "Product training": "Treinamento de produto",
-    "Continue your product training.": "Continue seu treinamento de produto.",
-    "Product training for retail staff.": "Treinamento de produto para equipes de loja.",
     "Training complete &middot; {total} of {total}": "Treinamento concluído &middot; {total} de {total}",
     "All products complete.": "Todos os produtos concluídos.",
     "Your discount code is below. Your certificate is on record.": "Seu código de desconto está abaixo. Seu certificado está registrado.",
@@ -45,7 +44,7 @@ window.GPEN_I18N = {
     "A G Pen retail shelf: the full range of countertop POP displays, each with its price flag.": "Uma prateleira de loja G Pen: toda a linha de displays POP de balcão, cada um com sua etiqueta de preço.",
 
     /* ---- lineup ---- */
-    "Each product takes about five minutes. Complete them in any order.": "Cada produto leva cerca de cinco minutos. Faça na ordem que preferir.",
+    "The better you know the lineup, the easier it is to recommend the right product for every customer.": "Quanto melhor você conhece a linha, mais fácil é recomendar o produto certo para cada cliente.",
     "Dry Herb Accessories": "Acessórios para erva seca",
     "Vaporizers and accessories for flower": "Vaporizadores e acessórios para flor",
     "510 Batteries": "Baterias 510",
@@ -54,7 +53,6 @@ window.GPEN_I18N = {
     "Tools for wax, rosin and other concentrates": "Ferramentas para wax, rosin e outros concentrados",
     "MSRP": "MSRP",
     "Certified {score}%": "Certificado {score}%",
-    "Not yet certified": "Ainda não certificado",
     "Review": "Revisar",
     "Open": "Abrir",
 

@@ -17,6 +17,7 @@ window.GPEN_I18N = {
     "Machine translated and pending review. Quiz questions stay in English.": "Maschinell übersetzt, Prüfung ausstehend. Die Quizfragen bleiben auf Englisch.",
     "Skip to content": "Zum Inhalt springen",
     "Products": "Produkte",
+    "Explore the Product Lineup": "Das Sortiment entdecken",
     "About": "Über uns",
     "About G Pen": "Über G Pen",
     "Shop gpen.com": "Auf gpen.com einkaufen",
@@ -31,8 +32,6 @@ window.GPEN_I18N = {
 
     /* ---- home masthead ---- */
     "Product training": "Produktschulung",
-    "Continue your product training.": "Setzen Sie Ihre Produktschulung fort.",
-    "Product training for retail staff.": "Produktschulung für Verkaufspersonal.",
     "Training complete &middot; {total} of {total}": "Schulung abgeschlossen &middot; {total} von {total}",
     "All products complete.": "Alle Produkte abgeschlossen.",
     "Your discount code is below. Your certificate is on record.": "Ihr Rabattcode steht unten. Ihr Zertifikat ist hinterlegt.",
@@ -45,7 +44,7 @@ window.GPEN_I18N = {
     "A G Pen retail shelf: the full range of countertop POP displays, each with its price flag.": "Ein G Pen Verkaufsregal: das gesamte Sortiment an Theken-POP-Displays, jedes mit seinem Preisschild.",
 
     /* ---- lineup ---- */
-    "Each product takes about five minutes. Complete them in any order.": "Jedes Produkt dauert etwa fünf Minuten. Die Reihenfolge ist beliebig.",
+    "The better you know the lineup, the easier it is to recommend the right product for every customer.": "Je besser Sie das Sortiment kennen, desto leichter empfehlen Sie jedem Kunden das richtige Produkt.",
     "Dry Herb Accessories": "Zubehör für trockene Kräuter",
     "Vaporizers and accessories for flower": "Vaporizer und Zubehör für Blüten",
     "510 Batteries": "510-Akkus",
@@ -54,7 +53,6 @@ window.GPEN_I18N = {
     "Tools for wax, rosin and other concentrates": "Werkzeuge für Wax, Rosin und andere Konzentrate",
     "MSRP": "MSRP",
     "Certified {score}%": "Zertifiziert {score} %",
-    "Not yet certified": "Noch nicht zertifiziert",
     "Review": "Wiederholen",
     "Open": "Öffnen",
 

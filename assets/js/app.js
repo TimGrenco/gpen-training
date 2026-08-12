@@ -748,8 +748,8 @@
       heroHTML(done, total) +
 
       '<section class="hub reveal">' +
-        '<div class="sec-h" id="courses"><h2>' + t("Products") + "</h2></div>" +
-        '<p class="catalog-lede">' + t("Each product takes about five minutes. Complete them in any order.") + "</p>" +
+        '<div class="sec-h" id="courses"><h2>' + t("Explore the Product Lineup") + "</h2></div>" +
+        '<p class="catalog-lede">' + t("The better you know the lineup, the easier it is to recommend the right product for every customer.") + "</p>" +
         lineupHTML() +
       "</section>" +
 
@@ -854,8 +854,7 @@
         '<p class="cc-diff">' + esc(c.differentiator || c.tagline) + "</p>" +
         (c.msrp ? '<span class="cc-price">' + esc(c.msrp) + " <em>" + t("MSRP") + "</em></span>" : "") +
         '<span class="cc-foot">' +
-          (done ? '<span class="cc-status on">' + ic("check") + " " + tf("Certified {score}%", { score: rec.score }) + "</span>"
-                : '<span class="cc-status">' + t("Not yet certified") + "</span>") +
+          (done ? '<span class="cc-status">' + ic("check") + " " + tf("Certified {score}%", { score: rec.score }) + "</span>" : "") +
           '<span class="cc-go">' + (done ? t("Review") : t("Open")) + " " + esc(c.name) + " " + ic("arrow") + "</span>" +
         "</span>" +
       "</span>" +

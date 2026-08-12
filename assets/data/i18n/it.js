@@ -15,6 +15,7 @@ window.GPEN_I18N = {
     "Machine translated and pending review. Quiz questions stay in English.": "Traduzione automatica in attesa di revisione. Le domande del quiz restano in inglese.",
     "Skip to content": "Vai al contenuto",
     "Products": "Prodotti",
+    "Explore the Product Lineup": "Scopra la gamma di prodotti",
     "About": "Chi siamo",
     "About G Pen": "Chi è G Pen",
     "Shop gpen.com": "Acquista su gpen.com",
@@ -29,8 +30,6 @@ window.GPEN_I18N = {
 
     /* ---- home masthead ---- */
     "Product training": "Formazione sui prodotti",
-    "Continue your product training.": "Continui la sua formazione sui prodotti.",
-    "Product training for retail staff.": "Formazione sui prodotti per il personale di vendita.",
     "Training complete &middot; {total} of {total}": "Formazione completata &middot; {total} su {total}",
     "All products complete.": "Tutti i prodotti completati.",
     "Your discount code is below. Your certificate is on record.": "Il suo codice sconto è qui sotto. Il suo certificato è registrato.",
@@ -43,7 +42,7 @@ window.GPEN_I18N = {
     "A G Pen retail shelf: the full range of countertop POP displays, each with its price flag.": "Uno scaffale di negozio G Pen: tutta la gamma di espositori POP da banco, ognuno con la sua etichetta di prezzo.",
 
     /* ---- lineup ---- */
-    "Each product takes about five minutes. Complete them in any order.": "Ogni prodotto richiede circa cinque minuti. Li completi nell'ordine che preferisce.",
+    "The better you know the lineup, the easier it is to recommend the right product for every customer.": "Quanto meglio conosce la gamma, tanto più facile è consigliare il prodotto giusto a ogni cliente.",
     "Dry Herb Accessories": "Accessori per erba secca",
     "Vaporizers and accessories for flower": "Vaporizzatori e accessori per l'infiorescenza",
     "510 Batteries": "Batterie 510",
@@ -52,7 +51,6 @@ window.GPEN_I18N = {
     "Tools for wax, rosin and other concentrates": "Strumenti per wax, rosin e altri concentrati",
     "MSRP": "MSRP",
     "Certified {score}%": "Certificato {score}%",
-    "Not yet certified": "Non ancora certificato",
     "Review": "Rivedi",
     "Open": "Apri",
 

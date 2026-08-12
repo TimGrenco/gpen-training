@@ -1138,8 +1138,10 @@ a.linklike.backdash { display: grid; place-items: center; min-height: 44px; widt
 /* Fixed ~220px cards, so the foot stacks (status over CTA) — a side-by-side row
    truncates "Open Melt Hot Knife →" at this width. */
 .cc-foot { margin-top: auto; padding-top: 14px; display: flex; flex-direction: column; align-items: flex-start; gap: 6px; }
-.cc-status { display: inline-flex; align-items: center; gap: 4px; font-size: 12px; font-weight: 800; color: var(--stone); }
-.cc-status.on { color: var(--ok); }
+/* One state, one rule. The badge used to render in both states — grey "Not yet
+   certified" or green "Certified 95%" — so it needed a base colour and an .on
+   override. Only the certified state renders now, so the green is the base. */
+.cc-status { display: inline-flex; align-items: center; gap: 4px; font-size: 12px; font-weight: 800; color: var(--ok); }
 .cc-status svg { width: 13px; height: 13px; flex: none; }
 .cc-go { display: inline-flex; align-items: center; gap: 5px; font-size: 13.5px; font-weight: 900; }
 .cc-go svg { width: 14px; height: 14px; flex: none; }
