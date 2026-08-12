@@ -242,6 +242,7 @@ window.GPEN_I18N = {
 
   courses: {
     "dash-ii": {
+      whatItIs: "Un vaporisateur pour herbe sèche, conçu pour vaporiser de la fleur de cannabis moulue.",
       packaging: {
         inBox: ["Vaporisateur G Pen Dash II", "Outil de remplissage intégré", "Manchon en silicone pour l'embout"],
         notIncluded: ["Câble de charge USB-C"],
@@ -278,6 +279,7 @@ window.GPEN_I18N = {
       },
     },
     "dash-plus": {
+      whatItIs: "Un vaporisateur pour herbe sèche, conçu pour vaporiser de la fleur de cannabis moulue.",
       packaging: {
         inBox: ["Vaporisateur Dash+", "Manchon en silicone pour l'embout", "Outil de remplissage avec porte-clés", "Câble de charge USB-C"],
         notIncluded: [],
@@ -314,6 +316,7 @@ window.GPEN_I18N = {
       },
     },
     "grinder": {
+      whatItIs: "Un grinder manuel, conçu pour broyer la fleur de cannabis avant le remplissage.",
       category: "Accessoire pour herbe sèche",
       tagline: "Grinder en aluminium de 64 mm. Sans grille à kief : rien ne reste derrière.",
       differentiator: "L'accessoire à $19.95 pour toute vente de fleur.",
@@ -344,6 +347,7 @@ window.GPEN_I18N = {
       },
     },
     "melt-hot-knife": {
+      whatItIs: "Un hot knife électrique, conçu pour prélever et charger du concentré de cannabis.",
       packaging: {
         inBox: ["G Pen Melt hot knife", "Capuchon de protection de voyage"],
         notIncluded: ["Câble de charge USB-C"],
@@ -378,6 +382,7 @@ window.GPEN_I18N = {
       },
     },
     "hydout": {
+      whatItIs: "Une batterie, conçue pour alimenter une cartouche d'huile de cannabis à filetage 510.",
       packaging: {
         inBox: ["Batterie 510 G Pen Hydout", "Capuchon magnétique d'embout"],
         notIncluded: ["Cartouche 510", "Câble de charge USB-C"],
@@ -413,6 +418,7 @@ window.GPEN_I18N = {
       },
     },
     "510-original": {
+      whatItIs: "Une batterie, conçue pour alimenter une cartouche d'huile de cannabis à filetage 510.",
       packaging: {
         inBox: ["Batterie G Pen 510 Original"],
         notIncluded: ["Chargeur USB-C", "Cartouche 510"],

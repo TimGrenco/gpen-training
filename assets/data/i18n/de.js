@@ -243,6 +243,7 @@ window.GPEN_I18N = {
 
   courses: {
     "dash-ii": {
+      whatItIs: "Ein Vaporizer für trockene Kräuter, entwickelt zum Vaporisieren gemahlener Cannabisblüten.",
       packaging: {
         inBox: ["G Pen Dash II Vaporizer", "Integriertes Ladewerkzeug", "Silikonhülle für das Mundstück"],
         notIncluded: ["USB-C-Ladekabel"],
@@ -279,6 +280,7 @@ window.GPEN_I18N = {
       },
     },
     "dash-plus": {
+      whatItIs: "Ein Vaporizer für trockene Kräuter, entwickelt zum Vaporisieren gemahlener Cannabisblüten.",
       packaging: {
         inBox: ["Dash+ Vaporizer", "Silikonhülle für das Mundstück", "Ladewerkzeug mit Schlüsselanhänger", "USB-C-Ladekabel"],
         notIncluded: [],
@@ -315,6 +317,7 @@ window.GPEN_I18N = {
       },
     },
     "grinder": {
+      whatItIs: "Ein Handgrinder, entwickelt zum Zerkleinern von Cannabisblüten vor dem Befüllen.",
       category: "Zubehör für trockene Kräuter",
       tagline: "64-mm-Grinder aus Aluminium. Ohne Kief-Sieb — nichts bleibt zurück.",
       differentiator: "Das Zusatzprodukt für $19.95 zu jedem Blütenverkauf.",
@@ -345,6 +348,7 @@ window.GPEN_I18N = {
       },
     },
     "melt-hot-knife": {
+      whatItIs: "Ein elektrisches Hot Knife, entwickelt zum Aufnehmen und Einfüllen von Cannabiskonzentrat.",
       packaging: {
         inBox: ["G Pen Melt Hot Knife", "Schutzkappe für unterwegs"],
         notIncluded: ["USB-C-Ladekabel"],
@@ -379,6 +383,7 @@ window.GPEN_I18N = {
       },
     },
     "hydout": {
+      whatItIs: "Ein Akku, entwickelt für den Betrieb einer Cannabisöl-Kartusche mit 510-Gewinde.",
       packaging: {
         inBox: ["G Pen Hydout 510-Akku", "Magnetische Mundstückabdeckung"],
         notIncluded: ["510-Kartusche", "USB-C-Ladekabel"],
@@ -414,6 +419,7 @@ window.GPEN_I18N = {
       },
     },
     "510-original": {
+      whatItIs: "Ein Akku, entwickelt für den Betrieb einer Cannabisöl-Kartusche mit 510-Gewinde.",
       packaging: {
         inBox: ["G Pen 510 Original Akku"],
         notIncluded: ["USB-C-Ladegerät", "510-Kartusche"],

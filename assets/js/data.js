@@ -75,6 +75,11 @@ window.GPEN_COURSES = [
     category: "Dry Herb Vaporizer",
     family: "dryherb",
     tagline: "Pocket-sized dry herb vaporizer with temperature control.",
+    /* What the object IS, in the plainest words available: the answer to "what
+       is this thing and what is it for", shown at the top of the course above
+       the price. Not marketing and not positioning — a rep who has never seen
+       the category should be able to read one line and be right. */
+    whatItIs: "A dry herb vaporizer, designed to vaporize ground cannabis flower.",
     differentiator: "The entry dry herb vaporizer. Simple to use.",
     minutes: 9, passPct: 80, msrp: "$49.95", accent: "#FEC870",
     cover: CDN + "Dash2_thumb_01.png?v=1782936076",
@@ -187,6 +192,11 @@ window.GPEN_COURSES = [
     category: "Dry Herb Vaporizer",
     family: "dryherb",
     tagline: "Hybrid convection + conduction in a full titanium chamber.",
+    /* What the object IS, in the plainest words available: the answer to "what
+       is this thing and what is it for", shown at the top of the course above
+       the price. Not marketing and not positioning — a rep who has never seen
+       the category should be able to read one line and be right. */
+    whatItIs: "A dry herb vaporizer, designed to vaporize ground cannabis flower.",
     differentiator: "Titanium chamber and hybrid heating. The step-up model.",
     minutes: 9, passPct: 80, msrp: "$99.95", accent: "#D75D43",
     cover: CDN + "dash__vape_thumb_5e14bcb4-a63a-4cc3-8078-e57fc572e4da.png?v=1729247649",
@@ -296,6 +306,11 @@ window.GPEN_COURSES = [
     category: "Dry Herb Accessory",
     family: "dryherb",
     tagline: "64mm aluminum grinder. No kief screen — nothing gets left behind.",
+    /* What the object IS, in the plainest words available: the answer to "what
+       is this thing and what is it for", shown at the top of the course above
+       the price. Not marketing and not positioning — a rep who has never seen
+       the category should be able to read one line and be right. */
+    whatItIs: "A hand grinder, designed to break up cannabis flower before it is packed.",
     differentiator: "The $19.95 add-on for any flower sale.",
     minutes: 5, passPct: 80, msrp: "$19.95", accent: "#5E8C61",
     /* Locally cut out, not a CDN render: every stashgrinder_* asset on the CDN and in
@@ -394,6 +409,11 @@ window.GPEN_COURSES = [
     category: "Concentrate Tool",
     family: "concentrate",
     tagline: "The smallest hot knife on the market. Loads concentrate cleanly.",
+    /* What the object IS, in the plainest words available: the answer to "what
+       is this thing and what is it for", shown at the top of the course above
+       the price. Not marketing and not positioning — a rep who has never seen
+       the category should be able to read one line and be right. */
+    whatItIs: "An electric hot knife, designed to scoop and load cannabis concentrate.",
     differentiator: "Electric hot knife. Scoops and releases without residue.",
     minutes: 7, passPct: 80, msrp: "$24.95", accent: "#E8833A",
     cover: CDN + "Melt_thumbA.png?v=1772813232",
@@ -494,6 +514,11 @@ window.GPEN_COURSES = [
     category: "510 Cartridge Battery",
     family: "510",
     tagline: "Discreet 510 battery with a hidden magnetic mouthpiece.",
+    /* What the object IS, in the plainest words available: the answer to "what
+       is this thing and what is it for", shown at the top of the course above
+       the price. Not marketing and not positioning — a rep who has never seen
+       the category should be able to read one line and be right. */
+    whatItIs: "A battery, designed to power a 510-thread cannabis oil cartridge.",
     differentiator: "510 battery with the mouthpiece hidden inside.",
     minutes: 8, passPct: 80, msrp: "$24.95", accent: "#7E8AA2",
     cover: CDN + "Hydout_vape_01.png?v=1762467078",
@@ -600,6 +625,11 @@ window.GPEN_COURSES = [
     category: "510 Cartridge Battery",
     family: "510",
     tagline: "The smallest, most affordable G Pen battery ever.",
+    /* What the object IS, in the plainest words available: the answer to "what
+       is this thing and what is it for", shown at the top of the course above
+       the price. Not marketing and not positioning — a rep who has never seen
+       the category should be able to read one line and be right. */
+    whatItIs: "A battery, designed to power a 510-thread cannabis oil cartridge.",
     differentiator: "The smallest and lowest-priced G Pen 510 battery.",
     minutes: 7, passPct: 80, msrp: "$12.95", accent: "#A9A296",
     cover: CDN + "510_on_white_01.png?v=1767045174",

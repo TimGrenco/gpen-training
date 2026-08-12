@@ -243,6 +243,7 @@ window.GPEN_I18N = {
 
   courses: {
     "dash-ii": {
+      whatItIs: "Um vaporizador de erva seca, projetado para vaporizar flor de cannabis moída.",
       packaging: {
         inBox: ["Vaporizador G Pen Dash II", "Ferramenta de carregamento integrada", "Capa de silicone para a ponteira"],
         notIncluded: ["Cabo de carregamento USB-C"],
@@ -279,6 +280,7 @@ window.GPEN_I18N = {
       },
     },
     "dash-plus": {
+      whatItIs: "Um vaporizador de erva seca, projetado para vaporizar flor de cannabis moída.",
       packaging: {
         inBox: ["Vaporizador Dash+", "Capa de silicone para a ponteira", "Ferramenta de carregamento com chaveiro", "Cabo de carregamento USB-C"],
         notIncluded: [],
@@ -315,6 +317,7 @@ window.GPEN_I18N = {
       },
     },
     "grinder": {
+      whatItIs: "Um grinder manual, projetado para quebrar a flor de cannabis antes de carregar.",
       category: "Acessório para erva seca",
       tagline: "Grinder de alumínio de 64 mm. Sem peneira de kief: nada fica para trás.",
       differentiator: "O adicional de $19.95 para qualquer venda de flor.",
@@ -345,6 +348,7 @@ window.GPEN_I18N = {
       },
     },
     "melt-hot-knife": {
+      whatItIs: "Um hot knife elétrico, projetado para recolher e carregar concentrado de cannabis.",
       packaging: {
         inBox: ["G Pen Melt hot knife", "Tampa protetora de viagem"],
         notIncluded: ["Cabo de carregamento USB-C"],
@@ -379,6 +383,7 @@ window.GPEN_I18N = {
       },
     },
     "hydout": {
+      whatItIs: "Uma bateria, projetada para alimentar um cartucho de óleo de cannabis com rosca 510.",
       packaging: {
         inBox: ["Bateria 510 G Pen Hydout", "Tampa magnética da ponteira"],
         notIncluded: ["Cartucho 510", "Cabo de carregamento USB-C"],
@@ -414,6 +419,7 @@ window.GPEN_I18N = {
       },
     },
     "510-original": {
+      whatItIs: "Uma bateria, projetada para alimentar um cartucho de óleo de cannabis com rosca 510.",
       packaging: {
         inBox: ["Bateria G Pen 510 Original"],
         notIncluded: ["Carregador USB-C", "Cartucho 510"],

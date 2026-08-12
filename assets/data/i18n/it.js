@@ -241,6 +241,7 @@ window.GPEN_I18N = {
 
   courses: {
     "dash-ii": {
+      whatItIs: "Un vaporizzatore per erba secca, progettato per vaporizzare infiorescenza di cannabis macinata.",
       packaging: {
         inBox: ["Vaporizzatore G Pen Dash II", "Strumento di caricamento integrato", "Guaina in silicone per il bocchino"],
         notIncluded: ["Cavo di ricarica USB-C"],
@@ -277,6 +278,7 @@ window.GPEN_I18N = {
       },
     },
     "dash-plus": {
+      whatItIs: "Un vaporizzatore per erba secca, progettato per vaporizzare infiorescenza di cannabis macinata.",
       packaging: {
         inBox: ["Vaporizzatore Dash+", "Guaina in silicone per il bocchino", "Strumento di caricamento con portachiavi", "Cavo di ricarica USB-C"],
         notIncluded: [],
@@ -313,6 +315,7 @@ window.GPEN_I18N = {
       },
     },
     "grinder": {
+      whatItIs: "Un grinder manuale, progettato per sminuzzare l'infiorescenza di cannabis prima di caricarla.",
       category: "Accessorio per erba secca",
       tagline: "Grinder in alluminio da 64 mm. Senza filtro per il kief: non resta niente indietro.",
       differentiator: "L'accessorio da $19.95 per ogni vendita di infiorescenza.",
@@ -343,6 +346,7 @@ window.GPEN_I18N = {
       },
     },
     "melt-hot-knife": {
+      whatItIs: "Un hot knife elettrico, progettato per prelevare e caricare concentrato di cannabis.",
       packaging: {
         inBox: ["G Pen Melt hot knife", "Cappuccio protettivo da viaggio"],
         notIncluded: ["Cavo di ricarica USB-C"],
@@ -377,6 +381,7 @@ window.GPEN_I18N = {
       },
     },
     "hydout": {
+      whatItIs: "Una batteria, progettata per alimentare una cartuccia di olio di cannabis con filettatura 510.",
       packaging: {
         inBox: ["Batteria 510 G Pen Hydout", "Coperchio magnetico del bocchino"],
         notIncluded: ["Cartuccia 510", "Cavo di ricarica USB-C"],
@@ -412,6 +417,7 @@ window.GPEN_I18N = {
       },
     },
     "510-original": {
+      whatItIs: "Una batteria, progettata per alimentare una cartuccia di olio di cannabis con filettatura 510.",
       packaging: {
         inBox: ["Batteria G Pen 510 Original"],
         notIncluded: ["Caricatore USB-C", "Cartuccia 510"],

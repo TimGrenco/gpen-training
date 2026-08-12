@@ -1025,8 +1025,18 @@
           '<div class="cx-hero-body">' +
             '<span class="ch-eyebrow">' + ic("cap") + " " + t("Product training") + (passed ? ' · <b class="ch-done">' + ic("check") + " " + t("Complete") + "</b>" : "") + "</span>" +
             "<h1>" + esc(c.name) + "</h1>" +
-            '<span class="cx-cat">' + esc(c.category) + " · " + esc(c.msrp) + " " + t("MSRP") + "</span>" +
-            "<p>" + esc(c.tagline) + "</p>" +
+            /* Name, then WHAT IT IS, then WHAT IT COSTS — in that order, at the top of
+               the page. The price used to be the tail of a 13px grey chip reading
+               "Dry Herb Vaporizer · $49.95 MSRP", which is the least legible place on
+               the page for the one number a rep is asked for at a counter. It is now
+               the largest thing in the hero after the product name. The plain-language
+               line above it exists for the same reason: a rep who has never sold the
+               category should not have to infer what the object is from a tagline. */
+            (c.whatItIs ? '<p class="cx-what">' + dt(c.slug, "whatItIs", esc(c.whatItIs)) + "</p>" : "") +
+            '<div class="cx-pricerow">' +
+              (c.msrp ? '<span class="cx-price">' + esc(c.msrp) + '</span><span class="cx-price-l">' + t("MSRP") + "</span>" : "") +
+              '<span class="cx-cat">' + esc(c.category) + "</span>" +
+            "</div>" +
             '<div class="ch-meta">' + tf("{q} questions · {pct}% to pass · about {min} minutes", { q: c.quiz.length, pct: c.passPct, min: c.minutes }) + "</div>" +
           "</div>" +
         "</div>" +

@@ -258,6 +258,7 @@ window.GPEN_I18N = {
      names, prices, photos and videos are refused by the merge in app.js. */
   courses: {
     "dash-ii": {
+      whatItIs: "Un vaporizador de hierba seca, diseñado para vaporizar flor de cannabis molida.",
       packaging: {
         inBox: ["Vaporizador G Pen Dash II", "Herramienta de carga integrada", "Funda de silicona para la boquilla"],
         notIncluded: ["Cable de carga USB-C"],
@@ -294,6 +295,7 @@ window.GPEN_I18N = {
       },
     },
     "dash-plus": {
+      whatItIs: "Un vaporizador de hierba seca, diseñado para vaporizar flor de cannabis molida.",
       packaging: {
         inBox: ["Vaporizador Dash+", "Funda de silicona para la boquilla", "Herramienta de carga con llavero", "Cable de carga USB-C"],
         notIncluded: [],
@@ -330,6 +332,7 @@ window.GPEN_I18N = {
       },
     },
     "grinder": {
+      whatItIs: "Un grinder manual, diseñado para desmenuzar la flor de cannabis antes de cargarla.",
       category: "Accesorio para hierba seca",
       tagline: "Grinder de aluminio de 64 mm. Sin filtro de kief: no se queda nada atrás.",
       differentiator: "El complemento de $19.95 para cualquier venta de flor.",
@@ -360,6 +363,7 @@ window.GPEN_I18N = {
       },
     },
     "melt-hot-knife": {
+      whatItIs: "Un hot knife eléctrico, diseñado para recoger y cargar concentrado de cannabis.",
       packaging: {
         inBox: ["G Pen Melt hot knife", "Tapa protectora de viaje"],
         notIncluded: ["Cable de carga USB-C"],
@@ -394,6 +398,7 @@ window.GPEN_I18N = {
       },
     },
     "hydout": {
+      whatItIs: "Una batería, diseñada para alimentar un cartucho de aceite de cannabis con rosca 510.",
       packaging: {
         inBox: ["Batería 510 G Pen Hydout", "Tapa magnética de la boquilla"],
         notIncluded: ["Cartucho 510", "Cable de carga USB-C"],
@@ -429,6 +434,7 @@ window.GPEN_I18N = {
       },
     },
     "510-original": {
+      whatItIs: "Una batería, diseñada para alimentar un cartucho de aceite de cannabis con rosca 510.",
       packaging: {
         inBox: ["Batería G Pen 510 Original"],
         notIncluded: ["Cargador USB-C", "Cartucho 510"],
