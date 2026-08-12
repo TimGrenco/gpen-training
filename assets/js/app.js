@@ -773,7 +773,7 @@
   function rewardsBlock(done) {
     return '<section class="loop reveal">' +
       '<div class="loop-head">' +
-        "<h2>" + t("Discount codes") + "</h2>" +
+        "<h2>" + t("Earn Discount Codes") + "</h2>" +
         '<p class="loop-sub">' + t("Each completed product raises your discount at gpen.com. Codes are for completing training only.") + "</p>" +
       "</div>" +
       rewardsSection(done) +

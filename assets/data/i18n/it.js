@@ -57,7 +57,7 @@ window.GPEN_I18N = {
     "Open": "Apri",
 
     /* ---- reward ladder ---- */
-    "Discount codes": "Codici sconto",
+    "Earn Discount Codes": "Ottieni codici sconto",
     "Each completed product raises your discount at gpen.com. Codes are for completing training only.": "Ogni prodotto completato aumenta il suo sconto su gpen.com. I codici premiano soltanto il completamento della formazione.",
     "What you unlock": "Cosa sblocca",
     "Rewards are for completing training. They are not tied to sales, orders, or product recommendations.": "I premi riguardano il completamento della formazione. Non sono legati a vendite, ordini o raccomandazioni di prodotto.",
