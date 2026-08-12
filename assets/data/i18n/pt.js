@@ -41,7 +41,7 @@ window.GPEN_I18N = {
 
     /* ---- home hero ---- */
     "Essentials for Every Session": "O essencial para cada sessão",
-    "G Pen now offers accessories for every customer, all new products are under $50 MSRP": "A G Pen agora oferece acessórios para cada cliente; todos os produtos novos custam menos de $50 MSRP",
+    "Turn every sale into an upsell with G Pen accessories designed for flower, concentrates, and 510 cartridges.": "Transforme cada venda em uma venda adicional com os acessórios G Pen feitos para flor, concentrados e cartuchos 510.",
     "A G Pen retail shelf: the full range of countertop POP displays, each with its price flag.": "Uma prateleira de loja G Pen: toda a linha de displays POP de balcão, cada um com sua etiqueta de preço.",
 
     /* ---- lineup ---- */

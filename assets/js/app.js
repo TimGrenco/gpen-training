@@ -702,7 +702,7 @@
       '<div class="hero-in">' +
         '<span class="hero-eyebrow">' + ic("cap") + " " + esc(CFG.programName || tx("Product training")) + "</span>" +
         '<h1 class="hero-h1">' + t("Essentials for Every Session") + "</h1>" +
-        '<p class="hero-lede">' + t("G Pen now offers accessories for every customer, all new products are under $50 MSRP") + "</p>" +
+        '<p class="hero-lede">' + t("Turn every sale into an upsell with G Pen accessories designed for flower, concentrates, and 510 cartridges.") + "</p>" +
         heroShotHTML() +
       "</div>" +
     "</section>";
