@@ -1059,11 +1059,12 @@
         }).join("") + "</div>"
         : "") +
 
-        // 5. The quiz.
-        secHead(++n, passed ? t("Your certificate") : t("Quiz")) +
-        '<div id="quiz-zone"></div>' +
-
-        // Reference material, collapsed. Out of the path, one tap away.
+        // Reference material, collapsed. Deliberately BEFORE the quiz, not after: it
+        //    is the last chance to look something up, and a rep who has just been
+        //    told they missed four questions should find the specifications above the
+        //    retake button rather than below a certificate they did not earn. It stays
+        //    unnumbered — the numbers are the path through the training, and this is
+        //    the shelf beside it.
         '<div class="refblock">' +
           '<h2 class="ref-h">' + t("Product reference") + "</h2>" +
           ref(t("Photos"), galleryHTML(c)) +
@@ -1072,6 +1073,12 @@
           ref(t("How to clean it"), (c.howToClean && c.howToClean.length) ? stepListHTML(c.howToClean, c.slug, "howToClean") : "") +
           ref(t("Common customer questions"), (c.faq && c.faq.length) ? faqHTML(c.faq, c.slug) : "") +
         "</div>" +
+
+        // 5. The quiz, last on the page. Everything above it is what a rep needs to
+        //    pass it, so nothing should follow it — including, on a pass, the
+        //    certificate and the discount code that render into #quiz-zone.
+        secHead(++n, passed ? t("Your certificate") : t("Quiz")) +
+        '<div id="quiz-zone"></div>' +
       "</section>" +
       footer();
 

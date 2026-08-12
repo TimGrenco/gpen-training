@@ -862,7 +862,11 @@ a.linklike.backdash { display: grid; place-items: center; min-height: 44px; widt
    properties throughout: the five locales are all LTR, but this stylesheet has
    no logical properties anywhere else, and adding them while writing new rules
    is free where retrofitting later is not. */
-.refblock { margin-top: clamp(28px,4vw,44px); border-top: 1px solid var(--line); padding-top: clamp(20px,3vw,28px); }
+/* Rules both sides now: the reference sits BETWEEN the video section and the quiz,
+   so a single top border read as "everything below is reference" and swallowed the
+   quiz into it. Two rules make it a bounded aside between two numbered steps. */
+.refblock { margin: clamp(28px,4vw,44px) 0; border-top: 1px solid var(--line);
+  border-bottom: 1px solid var(--line); padding: clamp(20px,3vw,28px) 0; }
 .ref-h { font-size: var(--eyebrow-size); font-weight: var(--eyebrow-weight); letter-spacing: var(--eyebrow-tracking);
   text-transform: uppercase; color: var(--stone); margin-bottom: 10px; }
 .ref-item { border: 1px solid var(--line); border-radius: var(--r-sm); background: #fff; margin-bottom: 8px; }
