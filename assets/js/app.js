@@ -774,7 +774,7 @@
     return '<section class="loop reveal">' +
       '<div class="loop-head">' +
         "<h2>" + t("Earn Discount Codes") + "</h2>" +
-        '<p class="loop-sub">' + t("Each completed product raises your discount at gpen.com. Codes are for completing training only.") + "</p>" +
+        '<p class="loop-sub">' + t("Each completed product raises your discount at gpen.com.") + "</p>" +
       "</div>" +
       rewardsSection(done) +
     "</section>";
@@ -935,7 +935,7 @@
         (isNext && done > 0) ? need(rung.at) : "",
         got ? t("Unlocked") : (isNext ? t("Next up") : t("Locked")));
     }).join("");
-    return '<div class="sec-h"><h2>' + t("What you unlock") + "</h2><span>" + head + "</span></div>" +
+    return '<p class="rw-status-line">' + head + "</p>" +
       '<p class="rw-terms-head">' + t("Rewards are for completing training. They are not tied to sales, orders, or product recommendations.") + "</p>" +
       '<div class="rewards">' + rungs + "</div>" +
       grandCard(done >= total, done, total);

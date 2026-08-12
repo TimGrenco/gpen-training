@@ -739,7 +739,10 @@ a.linklike.backdash { display: grid; place-items: center; min-height: 44px; widt
 /* =============================== REWARDS TRACKER ====================== */
 /* Rewards are earned by finishing training, never by selling — stated plainly
    because supplier incentives tied to sales are restricted in several states. */
-.rw-terms-head { margin: -6px 0 14px; font-size: 12.5px; line-height: 1.5; color: var(--stone); max-width: 64ch; }
+/* margin-top was -6px to tuck this under the old "What you unlock" .sec-h block.
+   That heading is gone and this now follows .rw-status-line, so the pull-up had it
+   sitting on the status line. Normal spacing. */
+.rw-terms-head { margin: 6px 0 16px; font-size: 12.5px; line-height: 1.5; color: var(--stone); max-width: 64ch; }
 /* Per-code terms, on the card itself — expiry/stacking/single-use is the first
    question a dispensary partner asks in a demo. */
 .rw-terms { margin: 10px 0 0; font-size: 11px; line-height: 1.45; color: var(--stone); opacity: .9; }
@@ -1310,8 +1313,15 @@ a.linklike.backdash { display: grid; place-items: center; min-height: 44px; widt
    after the catalog rather than competing with it.
    ====================================================================== */
 .loop { max-width: var(--maxw); margin: 0 auto; padding: var(--sec-y) var(--gutter); }
-.loop-head { text-align: center; margin-bottom: clamp(22px,3vw,32px); }
-.loop-head h2 { font-size: var(--h2); font-weight: 900; letter-spacing: -.02em; }
-.loop-sub { margin: 8px 0 0; color: var(--stone); font-size: 15px; }
-/* The reward ladder gets breathing room below the loop headline. */
-.loop .sec-h { margin-top: 32px; }
+/* Third and last of the home page's section headings, on the same hero scale as the
+   other two so all three read at one volume. Left-aligned like them too: it was
+   centred, which made it the only block on the page with a different axis. */
+.loop-head { margin-bottom: clamp(18px,2.4vw,24px); }
+.loop-head h2 { font-size: var(--h1-hero); font-weight: 900; letter-spacing: -.025em; line-height: 1.06; }
+.loop-sub { margin: 12px 0 0; max-width: 46ch; color: var(--ink-2);
+  font-size: var(--lede); font-weight: 700; line-height: 1.45; }
+/* The dynamic status — "25% off unlocked, one more course for the top discount". It
+   used to be a <span> beside a "What you unlock" heading that repeated the section
+   title; the heading is gone and the status keeps its own line, which is the part that
+   actually changes as a rep progresses. */
+.rw-status-line { margin: 18px 0 0; font-size: 15px; font-weight: 800; color: var(--ink); }
