@@ -126,11 +126,18 @@ the real handler and `Code.gs` code:
   expiry and a checked-at time;
 - a code already `Used` → never re-queried on later syncs.
 
-The batched redemption query was also validated read-only against the **live** gpen.com
-Admin API, so the GraphQL is known good against the real schema, not just the mock.
+Both Shopify operations were then run against the **live** gpen.com Admin API. The
+redemption query read-only; the creation mutation for real, with a throwaway code that
+was read back field by field and deleted. Shopify accepted every field with no errors
+and stored them as intended: 25% off, whole order, one use, once per customer, no
+stacking with other discounts, and `asyncUsageCount` present — the field the hourly
+sync reads. So the GraphQL, the input shape and the required scopes are all confirmed
+against the real store, not just the mock.
 
-What is *not* yet proven against the live store is the discount-creation mutation,
-because that writes a real discount. The `curl` in step 2 is that proof.
+That test also caught one thing: a discount whose `startsAt` has not yet passed comes
+back `SCHEDULED`, and a scheduled code is refused at checkout. The endpoint now
+backdates `startsAt` by a minute so a code is unambiguously live the instant the rep
+reads it off the screen.
 
 ---
 

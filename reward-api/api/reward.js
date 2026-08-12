@@ -139,11 +139,19 @@ module.exports = async function handler(req, res) {
 
     const now = new Date();
     const ends = new Date(now.getTime() + VALID_DAYS * 86400000);
+    /* Backdated a minute, not stamped at "now". A discount whose startsAt has not yet
+       passed comes back SCHEDULED rather than ACTIVE, and a SCHEDULED code is refused
+       at checkout — which is the exact failure this whole design exists to avoid, since
+       the rep is looking at the code on screen the same second it is created. Sitting a
+       minute behind removes any dependence on Shopify's clock agreeing with ours to the
+       millisecond. Confirmed against the live store: startsAt a minute ahead really does
+       report SCHEDULED. It costs a minute of a 90-day life. */
+    const starts = new Date(now.getTime() - 60000);
     const created = await shopify(CREATE, {
       input: {
         title: `Training ${pct}% — ${tier}${courseSlug ? " — " + courseSlug : ""} — ${email}`,
         code,
-        startsAt: now.toISOString(),
+        startsAt: starts.toISOString(),
         endsAt: ends.toISOString(),
         usageLimit: 1,                 // the discount holds one code, so this is per person
         appliesOncePerCustomer: true,
