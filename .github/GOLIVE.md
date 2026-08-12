@@ -44,11 +44,16 @@ At <https://dev.shopify.com/dashboard>, for the Grenco Science organisation:
      non-embedded server-side app uses; the modern managed install assumes an embedded
      UI that can do a token exchange, and we have no UI.
    - Leave POS, app proxy and optional scopes alone. **Release**.
-3. Set **distribution** to **Custom distribution** for `grencoscience.myshopify.com`.
-   That means one store (or one Plus organisation's stores) and no app review — the
-   supported replacement for a single-store custom app. Distribution lives at the
-   organisation level, under **App distribution**, not in the app's own Settings.
-   **This choice is permanent** — an app can never be switched to public afterwards.
+3. There is **no distribution step**. Shopify's docs describe choosing one under
+   *App distribution* in the Partner Dashboard; the Dev Dashboard has no such page.
+   The app's **Overview** simply has an **Installs** card with an *Install app* button,
+   and that is the whole mechanism.
+
+   **Do not press that button.** It runs Shopify's own install flow, which sends its
+   own `state` parameter — and our callback verifies a `state` that `/api/install`
+   generates, so it would refuse the result. Correctly: the check is doing its job.
+   Step 3 uses `/api/install` instead, which is the same handshake with a `state` we
+   can verify.
 
 ⚠️ **Do not create an "App automation token"** on the Settings page, tempting as the
 name is. That authenticates the Shopify CLI to deploy app config; it cannot read store
@@ -93,7 +98,8 @@ future code**, so set it once. Codes already issued keep working — they live i
 
 ## Step 3 — Run the handshake once, get the token (2 min)
 
-Open this in a browser:
+Open this in a browser — **not** the *Install app* button in the Dev Dashboard, for
+the reason in step 1:
 
 ```
 https://YOUR-PROJECT.vercel.app/api/install
