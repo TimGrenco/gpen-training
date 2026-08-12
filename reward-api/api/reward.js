@@ -66,7 +66,7 @@ function codeFor({ tier, email, courseSlug }) {
 }
 
 async function shopify(query, variables) {
-  const shop = process.env.SHOPIFY_SHOP;             // e.g. gpen.myshopify.com
+  const shop = process.env.SHOPIFY_SHOP;             // grencoscience.myshopify.com
   const token = process.env.SHOPIFY_ADMIN_TOKEN;
   if (!shop || !token) throw new Error("SHOPIFY_SHOP or SHOPIFY_ADMIN_TOKEN is not set");
   const res = await fetch(`https://${shop}/admin/api/${API_VERSION}/graphql.json`, {

@@ -62,7 +62,7 @@ In the Vercel project, **Settings → Environment Variables**:
 
 | Name | Value |
 |---|---|
-| `SHOPIFY_SHOP` | `gpen.myshopify.com` (the admin domain, not gpen.com) |
+| `SHOPIFY_SHOP` | `grencoscience.myshopify.com` (the admin domain, not gpen.com) |
 | `SHOPIFY_ADMIN_TOKEN` | the `shpat_…` token from step 1 |
 | `CODE_SALT` | any long random string — `openssl rand -hex 32` |
 | `ALLOWED_ORIGINS` | `https://training.gpen.com` |

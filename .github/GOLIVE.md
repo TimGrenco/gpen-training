@@ -41,7 +41,7 @@ Log in when prompted, accept the defaults. Then in the Vercel project,
 
 | Name | Value |
 |---|---|
-| `SHOPIFY_SHOP` | `gpen.myshopify.com` — the admin domain, not gpen.com |
+| `SHOPIFY_SHOP` | `grencoscience.myshopify.com` — the admin domain, not gpen.com |
 | `SHOPIFY_ADMIN_TOKEN` | the `shpat_…` token from step 1 |
 | `CODE_SALT` | `openssl rand -hex 32` |
 | `SYNC_SECRET` | `openssl rand -hex 32` (a different one) |
