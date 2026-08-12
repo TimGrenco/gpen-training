@@ -696,32 +696,14 @@
       '<img src="' + esc(CFG.heroImage) + '" alt="' + tx("A G Pen retail shelf: the full range of countertop POP displays, each with its price flag.") + '" loading="eager" fetchpriority="high"/>' +
     "</div>";
   }
-  /* The title sits ON the photograph, in the band of empty wall above the top shelf.
-     That band was measured, not eyeballed: a contrast map of the image puts the only
-     quiet region at 0-12% of its height between 12% and 88% of its width, and #111 ink
-     against the darkest pixel in that window is 4.3:1 — past the 3:1 WCAG needs for
-     large text. A faint light scrim over the top sixth guarantees it stays legible if
-     the photograph is ever swapped for one with a busier wall, and fades out before it
-     reaches the display cards.
-
-     Below 760px the band is only ~40px tall, which is smaller than the title, so the
-     overlay is a desktop-and-tablet treatment only: the same DOM reflows to copy above
-     the photo on a phone. The title precedes the image in the DOM either way, so the
-     reading order is title then picture regardless of where it is painted. */
   function heroHTML(done, total) {
     if (done >= total) return heroDoneHTML(total);
     return '<section class="hero hero-prog reveal">' +
       '<div class="hero-in">' +
-        '<div class="hero-stage">' +
-          // No eyebrow here. It read "G PEN UNIVERSITY" directly under a sticky header
-          // whose wordmark says "G PEN UNIVERSITY" — the same words twice, 40px apart —
-          // and dropping it gives the title the room it needs to clear the top shelf.
-          '<div class="hero-copy">' +
-            '<h1 class="hero-h1">' + t("Product Training Portal") + "</h1>" +
-          "</div>" +
-          heroShotHTML() +
-        "</div>" +
+        '<span class="hero-eyebrow">' + ic("cap") + " " + esc(CFG.programName || tx("Product training")) + "</span>" +
+        '<h1 class="hero-h1">' + t("Essentials for Every Session") + "</h1>" +
         '<p class="hero-lede">' + t("G Pen now offers accessories for every customer, all new products are under $50 MSRP") + "</p>" +
+        heroShotHTML() +
       "</div>" +
     "</section>";
   }
@@ -791,7 +773,7 @@
   function rewardsBlock(done) {
     return '<section class="loop reveal">' +
       '<div class="loop-head">' +
-        "<h2>" + t("Earn Discount Codes") + "</h2>" +
+        "<h2>" + t("Discount codes") + "</h2>" +
         '<p class="loop-sub">' + t("Each completed product raises your discount at gpen.com. Codes are for completing training only.") + "</p>" +
       "</div>" +
       rewardsSection(done) +

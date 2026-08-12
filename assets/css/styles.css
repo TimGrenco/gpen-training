@@ -1248,36 +1248,14 @@ a.linklike.backdash { display: grid; place-items: center; min-height: 44px; widt
    read as a layout mistake. */
 .hero-in { max-width: var(--maxw); margin: 0 auto; padding: 0 var(--gutter); }
 .hero-in > * { max-width: var(--readw); }
-/* THE HOME HERO. The title is painted on the photograph, in the band of empty wall
-   above the top shelf; the supporting line sits under the photo where there is room
-   for two lines of prose. The photo takes the full --maxw band while the lede stays
-   capped at a readable measure. */
-.hero-stage { position: relative; }
-.hero-lede { margin: 14px 0 0; max-width: 46ch; color: var(--ink-2);
+/* The headline pair and the shelf photo below it. --readw caps the text so the H1
+   and lede keep a readable measure, but the photo takes the full --maxw band: it is
+   the point of the section and cropping it to the text column would waste it. */
+.hero-lede { margin: 12px 0 0; max-width: 46ch; color: var(--ink-2);
   font-size: clamp(15.5px, 2.3vw, 20px); font-weight: 700; line-height: 1.45; }
 /* `.hero-in > .hero-shot`, not `.hero-shot`: `.hero-in > *` further down this file caps
    every child at --readw at the SAME specificity, and it comes later, so a bare
    .hero-shot rule would silently lose the cascade and crop the band to the text column. */
-/* The overlay is a >=760px treatment. Below that the quiet band on the photo is only
-   about 40px tall — shorter than the title itself — so the same markup reflows to copy
-   above the picture, with no absolute positioning and no scrim at all. */
-@media (min-width: 760px) {
-  /* The whole copy block has to finish above 14% of the image height, which is where
-     the display cards begin — measured, not guessed. That is the budget the padding and
-     the type size are set against, so the title never sits on a product. */
-  .hero-copy { position: absolute; z-index: 2; left: 0; right: 0; top: 0;
-    padding: clamp(10px, 1.6vw, 20px) clamp(28px, 6vw, 84px) 0; }
-  .hero-copy .hero-h1 { margin: 0; line-height: 1.05;
-    font-size: clamp(26px, 3.4vw, 44px); }
-  /* Insurance, not decoration: the measured worst-case pixel in the text band gives
-     4.3:1 against #111, which passes, but a swapped photograph might not. The wash is
-     the page's own paper colour so it is invisible on this image, and it is fully
-     transparent by 15% — the display cards start at 14% — so the products never dim.
-     pointer-events:none keeps it off the photo's own click target. */
-  .hero-stage::before { content: ""; position: absolute; z-index: 1; inset: 0 0 auto; height: 16%;
-    border-radius: var(--r-md) var(--r-md) 0 0; pointer-events: none;
-    background: linear-gradient(to bottom, rgba(250,249,245,.88), rgba(250,249,245,.55) 60%, rgba(250,249,245,0)); }
-}
 .hero-in > .hero-shot { margin-top: clamp(18px, 3vw, 28px); max-width: none; border-radius: var(--r-md);
   overflow: hidden; background: var(--cream); box-shadow: var(--shadow); line-height: 0; }
 /* No aspect-ratio and no object-fit: the source is 1536x1024 and it renders at its own
