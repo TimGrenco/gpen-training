@@ -22,3 +22,9 @@ Allow: /404.html
 Disallow: /assets/data/
 Disallow: /tools/
 Disallow: /version.json
+# The reward endpoint and the tracking-sheet script. Their source holds no secrets —
+# the Shopify token and the sync secret are environment variables in Vercel and script
+# properties in Apps Script, never in these files — but the deployment notes describe
+# how rewards are issued, and that is not something to hand a search engine.
+Disallow: /reward-api/
+Disallow: /google-sheet/

@@ -45,7 +45,15 @@
      the real queue — while the banner promised "no entries are recorded". */
   function sendReport(payload) {
     if (DRAW_PREVIEW) return false;
-    return !!(window.reportCompletion && window.reportCompletion(payload));
+    /* Stamp the 21+ / authorized-staff attestation onto EVERY event rather than onto
+       the course call alone. It is a signup field, so it belongs to the person, not to
+       one milestone, and the sheet is the only durable record of who agreed and when —
+       until now it lived solely in the rep's own localStorage. Stamped here because
+       this is the single choke point; adding it per call site would mean four places
+       to keep in step, and the tier events would silently lack it. */
+    var e = getEnroll() || {};
+    return !!(window.reportCompletion && window.reportCompletion(Object.assign(
+      { attest21: !!e.attest21, attestedAt: e.attestedAt || "" }, payload)));
   }
   /* The free-device prize needs FOUR things to render, and two of them are
      deliberate human gates: `live` (counsel has signed off) and `rulesUrl` (the
@@ -1657,7 +1665,10 @@
     // is looking at the console.
     new Promise(function (res) { res(window.issueRewardCode(type, ctx)); }).then(function (r) {
       if (!r || !r.code) {
-        if (window.console) console.warn("[gpen-training] no reward code returned for tier '" + type + "' — check TRAINING_CONFIG.discount");
+        // Names rewards.url, not the long-gone TRAINING_CONFIG.discount: an empty
+        // endpoint is the actual cause here, and pointing at a key that no longer
+        // exists sends whoever is debugging to look for something that isn't there.
+        if (window.console) console.warn("[gpen-training] no reward code returned for tier '" + type + "' — check TRAINING_CONFIG.rewards.url and the reward endpoint's logs.");
         return;
       }
       box.innerHTML = '<div class="reward">' +
@@ -2024,6 +2035,13 @@
     // Backfill: anyone who earned a tier before it reported (or before a webhook
     // existed) gets recorded on their next visit. Both calls are idempotent.
     if (getEnroll()) { reportCourses(); maybeReportTier(); reportMaster(); }
+    // Same backfill for codes already minted. It is separate from the three above
+    // because a code lives in the reward cache, not in state: it is issued by Shopify
+    // after the pass is recorded, so the pass and the code have independent send
+    // histories. Without this the sheet can hold a completion whose Discount code
+    // column is permanently blank, and a blank code can never be checked for
+    // redemption — which is the whole reason the sheet exists.
+    if (!DRAW_PREVIEW && typeof window.reportPendingCodes === "function") window.reportPendingCodes();
     // A half-armed prize config should never be silent in either direction.
     (function () {
       var s = CFG.sweepstakes || {};

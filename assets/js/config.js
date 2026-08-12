@@ -214,6 +214,37 @@ function writeRewardCache(map) {
   try { localStorage.setItem(REWARD_CACHE_KEY, JSON.stringify(map)); } catch (e) {}
 }
 
+/* One place that shapes the code_issued event, used by both the first send and the
+   replay, so the two can never drift into reporting different fields. */
+function reportCode_(type, entry) {
+  if (typeof window.reportCompletion !== "function") return false;
+  var c = entry.ctx || {};
+  return !!window.reportCompletion({
+    type: "code_issued", tier: type, code: entry.code,
+    email: c.email || "", name: c.name || "", store: c.store || "",
+    courseSlug: c.courseSlug || "", certId: c.certId || "",
+  });
+}
+
+/* Replay every cached code the sheet has not been told about. Called from boot().
+   Cheap and idempotent: the receiver upserts on certId, so a code that arrives twice
+   updates one row rather than adding one. Entries cached before this field existed
+   have no ctx and cannot be replayed — they are stamped as sent so they do not retry
+   forever on a load that can never succeed. */
+window.reportPendingCodes = function () {
+  var map = readRewardCache(), changed = false;
+  Object.keys(map).forEach(function (k) {
+    var entry = map[k];
+    if (!entry || !entry.code || entry.reported) return;
+    if (!entry.ctx) { entry.reported = "n/a"; changed = true; return; }
+    if (reportCode_(entry.type || String(k).split("|")[0], entry)) {
+      entry.reported = new Date().toISOString();
+      changed = true;
+    }
+  });
+  if (changed) writeRewardCache(map);
+};
+
 window.issueRewardCode = function (type, ctx) {
   var CFG = window.TRAINING_CONFIG || {};
   var rw = CFG.rewards || {};
@@ -271,6 +302,22 @@ window.issueRewardCode = function (type, ctx) {
         return null;
       }
       var out = { type: type, code: data.code, label: data.label || "", note: data.note || "", terms: data.terms || "" };
+      /* Tell the sheet which code went to whom, as its own event. The course pass is
+         reported the moment it happens; the code exists a second or two later, after a
+         round trip to Shopify, so it cannot ride along on that row. The receiver
+         matches on certId (falling back to email + course) and fills the Code column,
+         which is what the hourly redemption sync then reads.
+
+         EARNED vs REPORTED, the same split app.js uses for every other event. If
+         rewards.url is live before reporting.url — the likely order, since the codes
+         are the part reps notice — then these sends go nowhere, and unlike a course
+         pass there is no state flag to replay from. So the cache carries the identity
+         the resend needs and a `reported` stamp; reportPendingCodes() below replays
+         anything unstamped on the next load. A code missing from the sheet is a row
+         whose redemption status can never be filled in. */
+      out.ctx = { email: email, name: (ctx && ctx.name) || "", store: (ctx && ctx.store) || "",
+                  courseSlug: (ctx && ctx.courseSlug) || "", certId: (ctx && ctx.certId) || "" };
+      out.reported = reportCode_(type, out) ? new Date().toISOString() : "";
       var map = readRewardCache(); map[cacheKey] = out; writeRewardCache(map);
       return out;
     })

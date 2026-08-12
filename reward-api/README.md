@@ -66,6 +66,7 @@ In the Vercel project, **Settings → Environment Variables**:
 | `SHOPIFY_ADMIN_TOKEN` | the `shpat_…` token from step 1 |
 | `CODE_SALT` | any long random string — `openssl rand -hex 32` |
 | `ALLOWED_ORIGINS` | `https://training.gpen.com` |
+| `SYNC_SECRET` | another long random string — only needed for the tracking sheet |
 
 `CODE_SALT` is what makes the six-character suffix unguessable. **Changing it changes
 every future code**, so set it once and leave it. Codes already issued keep working —
@@ -125,7 +126,35 @@ invisible and unlimited.
 
 ---
 
+---
+
+## The second route: `/api/redemptions`
+
+`api/redemptions.js` answers one question — has this code been used on gpen.com yet?
+It is read-only (`read_discounts`), takes up to 100 codes at a time, and returns a
+usage count per code.
+
+It exists for the [tracking sheet](../google-sheet/README.md), which runs it hourly.
+The sheet calls this rather than Shopify directly so the Admin token stays in exactly
+one place instead of also living in a spreadsheet the whole team can open. Since the
+caller is a script and has no browser origin to check, it is gated on the
+`SYNC_SECRET` header instead.
+
+```bash
+curl -s -X POST https://your-project.vercel.app/api/redemptions \
+  -H 'Content-Type: application/json' \
+  -H 'x-sync-secret: YOUR_SYNC_SECRET' \
+  -d '{"codes":["GPT-25-K3M7QX"]}'
+```
+
+Shopify updates redemption counts asynchronously, so a code used in the last few
+minutes can still read as unused. That is why the sheet stamps a "checked at" time
+next to the status — it reports what Shopify had, not what is true this second.
+
+---
+
 ## Files
 
-- `api/reward.js` — the whole function. Tier table, code derivation, lookup-then-create.
+- `api/reward.js` — mints codes. Tier table, code derivation, lookup-then-create.
+- `api/redemptions.js` — reads usage counts for the tracking sheet.
 - `vercel.json`, `package.json` — no build, Node 18+ for global `fetch`.
