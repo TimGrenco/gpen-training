@@ -29,6 +29,10 @@ window.TRAINING_CONFIG = {
   brand: "G Pen",
   programName: "G Pen University",
   shopUrl: "https://www.gpen.com",
+  /* The home-page hero photograph: the POP-display program merchandised on a real
+     shelf. Swap the file or point this at a new one to change it — set it to ""
+     and the hero renders headline-only rather than breaking. */
+  heroImage: "assets/img/hero-pop-shelf.jpg",
   // Where "Email my certification" / support requests go.
   contactEmail: "pr@grencoscience.com",
 

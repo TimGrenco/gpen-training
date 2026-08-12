@@ -679,16 +679,31 @@
      full phone screen down the page. What is left names the page and gets out of
      the way. Per-product status still shows on each card, and the reward ladder
      still states the tiers, each in exactly one place now. */
+  /* The shelf shot. It is a photograph of the whole POP-display program merchandised
+     on a real shelf, which is the one image that answers "what will my G Pen section
+     look like" before a rep reads a single word.
+
+     It sits BELOW the headline rather than behind it. Every other hero on this site
+     overlays text on a lifestyle photo, and that works because those photos have a
+     subject on one side and empty space on the other. This one is products edge to
+     edge: any scrim or gradient over it dims the exact thing a rep is here to look
+     at, and the price flags on the displays are small enough that a gradient would
+     take them out entirely. Headline states the pitch, photo proves it, and both stay
+     fully legible. */
+  function heroShotHTML() {
+    if (!CFG.heroImage) return "";
+    return '<div class="hero-shot">' +
+      '<img src="' + esc(CFG.heroImage) + '" alt="' + tx("A G Pen retail shelf: the full range of countertop POP displays, each with its price flag.") + '" loading="eager" fetchpriority="high"/>' +
+    "</div>";
+  }
   function heroHTML(done, total) {
     if (done >= total) return heroDoneHTML(total);
-    var s = getState();
-    var started = done > 0 || COURSES.some(function (c) { return s.courses[c.slug]; });
     return '<section class="hero hero-prog reveal">' +
       '<div class="hero-in">' +
         '<span class="hero-eyebrow">' + ic("cap") + " " + esc(CFG.programName || tx("Product training")) + "</span>" +
-        '<h1 class="hero-h1">' + (started
-            ? t("Continue your product training.")
-            : t("Product training for retail staff.")) + "</h1>" +
+        '<h1 class="hero-h1">' + t("Essentials for Every Session") + "</h1>" +
+        '<p class="hero-lede">' + t("G Pen now offers accessories for every customer, all new products are under $50 MSRP") + "</p>" +
+        heroShotHTML() +
       "</div>" +
     "</section>";
   }
@@ -704,6 +719,7 @@
         '<div class="hero-actions">' +
           '<a class="btn xl ghost" href="#/certified">' + t("View certificate") + " " + ic("arrow") + "</a>" +
         "</div>" +
+        heroShotHTML() +
       "</div>" +
     "</section>";
   }

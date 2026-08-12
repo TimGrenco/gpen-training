@@ -38,6 +38,11 @@ window.GPEN_I18N = {
     "Copy code": "Copier le code",
     "View certificate": "Voir le certificat",
 
+    /* ---- home hero ---- */
+    "Essentials for Every Session": "L'essentiel pour chaque session",
+    "G Pen now offers accessories for every customer, all new products are under $50 MSRP": "G Pen propose désormais des accessoires pour chaque client ; tous les nouveaux produits sont à moins de $50 MSRP",
+    "A G Pen retail shelf: the full range of countertop POP displays, each with its price flag.": "Une étagère de magasin G Pen : toute la gamme de présentoirs POP de comptoir, chacun avec son étiquette de prix.",
+
     /* ---- lineup ---- */
     "Each product takes about five minutes. Complete them in any order.": "Chaque produit prend environ cinq minutes. Faites-les dans l'ordre que vous voulez.",
     "Dry Herb Accessories": "Accessoires pour herbe sèche",
