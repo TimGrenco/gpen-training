@@ -1047,9 +1047,10 @@
         // floor — before any feature, before any script.
         packagingHTML(c) +
 
-        // 1. The three facts to hold in your head.
+        // 1. The facts to hold in your head. Three on most products; the layout takes
+        //    any number, so a product that needs six is a data edit, not a code one.
         (c.howToSell && c.howToSell.keyFacts && c.howToSell.keyFacts.length
-          ? secHead(++n, t("Three key points")) + floorFactsHTML(c) : "") +
+          ? secHead(++n, t("Key points")) + floorFactsHTML(c) : "") +
 
         // 2. What the product IS, in the words the storefront uses, plus the feature
         //    list. This was buried in the collapsed reference under "Full
@@ -1083,6 +1084,12 @@
         }).join("") + "</div>"
         : "") +
 
+        // 5. The photos, expanded and directly under the videos. They were a collapsed
+        //    row inside the reference block, which meant the default state of a product
+        //    page showed a rep no picture of the product they are about to be tested on.
+        (c.gallery && c.gallery.length
+          ? secHead(++n, t("Photos")) + galleryHTML(c) : "") +
+
         // Reference material, collapsed. Deliberately BEFORE the quiz, not after: it
         //    is the last chance to look something up, and a rep who has just been
         //    told they missed four questions should find the specifications above the
@@ -1091,14 +1098,14 @@
         //    the shelf beside it.
         '<div class="refblock">' +
           '<h2 class="ref-h">' + t("Product reference") + "</h2>" +
-          ref(t("Photos"), galleryHTML(c)) +
           ref(t("Full specifications"), (c.specs && c.specs.length) ? specTableHTML(c.specs, c.slug) : "") +
           ref(t("How to use it"), (c.howToUse && c.howToUse.length) ? stepListHTML(c.howToUse, c.slug, "howToUse") : "") +
           ref(t("How to clean it"), (c.howToClean && c.howToClean.length) ? stepListHTML(c.howToClean, c.slug, "howToClean") : "") +
           ref(t("Common customer questions"), (c.faq && c.faq.length) ? faqHTML(c.faq, c.slug) : "") +
         "</div>" +
 
-        // 5. The quiz, last on the page. Everything above it is what a rep needs to
+
+        // 6. The quiz, last on the page. Everything above it is what a rep needs to
         //    pass it, so nothing should follow it — including, on a pass, the
         //    certificate and the discount code that render into #quiz-zone.
         secHead(++n, passed ? t("Your certificate") : t("Quiz")) +
@@ -1107,7 +1114,7 @@
       footer();
 
     bindVideos();
-    bindPackaging();
+    bindZoom();
     renderQuizIntro(c);
     revealOnScroll();
   }
@@ -1116,13 +1123,15 @@
   /* The sales battlecard. A rep should be able to scan it in seconds and read
      the "say this" lines out loud verbatim. Fixed block order so muscle memory
      builds: trigger → 3 facts → talk track → which-one close → objections → AOV. */
-  /* The three facts a rep should be able to say without looking. Same keyFacts
-     the battlecard reuses as chips further down — the repetition is the point:
-     this block is the advance organizer, the chips are the recall check. */
+  /* The facts a rep should be able to say without looking. Any number of them: three
+     is the norm, but a product that needs five or six gets five or six by editing
+     keyFacts in data.js and nothing else. The count rides along as a class so the grid
+     can avoid an orphan on the last row — four items read as 2x2, not as 3+1. */
   function floorFactsHTML(c) {
     var facts = (c.howToSell && c.howToSell.keyFacts) || [];
     if (!facts.length) return "";
-    return '<div class="floorfacts">' + facts.map(function (fact, i) {
+    // ff-c<N>, not ff-n<N>: .ff-n is already the number badge inside each card.
+    return '<div class="floorfacts ff-c' + facts.length + '">' + facts.map(function (fact, i) {
       return '<div class="ff-card"><span class="ff-n" aria-hidden="true">' + (i + 1) + "</span><p>" + esc(fact) + "</p></div>";
     }).join("") + "</div>";
   }
@@ -1256,17 +1265,32 @@
     m.addEventListener("click", function (ev) { if (ev.target === m || ev.target.closest(".modal-x")) close(); });
     document.addEventListener("keydown", onEsc);
   }
-  function bindPackaging() {
-    $$(".pk-shot").forEach(function (b) {
+  // Both zoomable surfaces — packaging cards and the photo grid — share one binder.
+  function bindZoom() {
+    $$(".pk-shot, .ga-shot").forEach(function (b) {
       b.addEventListener("click", function () { openImage(b.getAttribute("data-img"), b.getAttribute("data-caption")); });
     });
   }
 
+  /* Every photo is a button that opens the full-size image, and every photo shows the
+     WHOLE product: this grid used to be object-fit:cover inside a 4/3 box (16/9 for
+     the first, which spanned the row), so a tall product shot — which is most of
+     them — had its top and bottom cut off. A rep looking at a cropped photo of a
+     device they have never held cannot tell what it looks like, which is the only
+     reason the photos are here. contain in a square box instead, and the featured
+     first tile is gone: every shot is equal and every shot is complete. */
   function galleryHTML(c) {
     if (!c.gallery || !c.gallery.length) return "";
     return '<div class="gallery">' + c.gallery.map(function (g) {
-      return '<figure class="ga-item"><img src="' + esc(sized(g.url, 320)) + '" alt="' + esc(g.caption || c.name) + '" loading="lazy"/>' +
-        (g.caption ? '<figcaption>' + esc(g.caption) + "</figcaption>" : "") + "</figure>";
+      var cap = g.caption || c.name;
+      return '<figure class="ga-item">' +
+        '<button class="ga-shot" data-img="' + esc(sized(g.url, 1000)) + '" data-caption="' + esc(cap) + '" aria-label="' +
+          tfx("View {label} full size", { label: cap }) + '">' +
+          '<img src="' + esc(sized(g.url, 320)) + '" alt="' + esc(cap) + '" loading="lazy"/>' +
+          '<span class="ga-zoom" aria-hidden="true">' + ic("search") + "</span>" +
+        "</button>" +
+        (g.caption ? '<figcaption>' + dt(c.slug, "gallery", esc(g.caption)) + "</figcaption>" : "") +
+      "</figure>";
     }).join("") + "</div>";
   }
   function specTableHTML(specs, slug) {

@@ -83,7 +83,7 @@ window.GPEN_I18N = {
     "All products": "Tous les produits",
     "Complete": "Terminé",
     "{q} questions · {pct}% to pass · about {min} minutes": "{q} questions · {pct} % pour réussir · environ {min} minutes",
-    "Three key points": "Trois points clés",
+    "Key points": "Points clés",
     "About this product": "À propos de ce produit",
     "At the counter": "Au comptoir",
     "Videos": "Vidéos",
