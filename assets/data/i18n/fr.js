@@ -182,16 +182,14 @@ window.GPEN_I18N = {
     "Back to all products": "Retour à tous les produits",
 
     /* ---- reward card ---- */
+    "One code per product you certify on. Each one is on its own product page.": "Un code par produit pour lequel vous êtes certifié. Chacun se trouve sur la page de son produit.",
     /* Tier labels, notes and terms — authored in config.js, shown on the reward card. */
     "25% off your next order at gpen.com": "25 % de réduction sur votre prochaine commande sur gpen.com",
     "30% off your next order at gpen.com": "30 % de réduction sur votre prochaine commande sur gpen.com",
     "35% off your entire order at gpen.com": "35 % de réduction sur toute votre commande sur gpen.com",
     "40% off your entire order at gpen.com": "40 % de réduction sur toute votre commande sur gpen.com",
     "Enter this code at checkout on gpen.com. It applies to the whole order.": "Saisissez ce code au moment du paiement sur gpen.com. Il s'applique à toute la commande.",
-    "Two products certified. Your discount goes up with each product you complete.": "Deux produits certifiés. Votre réduction augmente à chaque produit terminé.",
-    "Four products certified. Complete the remaining products to reach the highest tier.": "Quatre produits certifiés. Terminez les produits restants pour atteindre le palier le plus élevé.",
-    "Every product in the lineup is certified. This is the highest tier in the program.": "Tous les produits de la gamme sont certifiés. C'est le palier le plus élevé du programme.",
-    "One use per person. Not combinable with other offers. Use your highest unlocked code.": "Une utilisation par personne. Non cumulable avec d'autres offres. Utilisez votre code débloqué le plus élevé.",
+    "One use per person. Not combinable with other offers. Expires 90 days after it is issued.": "Une utilisation par personne. Non cumulable avec d'autres offres. Expire 90 jours après son émission.",
     "Top discount unlocked. Full lineup certified.": "Réduction maximale débloquée. Gamme complète certifiée.",
     "Reward unlocked": "Récompense débloquée",
     "New tier unlocked": "Nouveau palier débloqué",

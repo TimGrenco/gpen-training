@@ -1,0 +1,6 @@
+{
+  "name": "gpen-training-reward-api",
+  "private": true,
+  "description": "Mints one Shopify discount code per person per course for training.gpen.com",
+  "engines": { "node": ">=18" }
+}

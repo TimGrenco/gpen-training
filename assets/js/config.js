@@ -75,41 +75,36 @@ window.TRAINING_CONFIG = {
       thresholds live in the LADDER table near the top of app.js — add or move a rung
       there and the ladder cards, the pre-quiz CTAs and the code actually issued all
       follow.) */
-  discount: {
-    // Unlocked after passing ANY single course quiz. 25% off.
-    course: {
-      code: "GPENPRO25",
-      label: "25% off your next order at gpen.com",
-      note: "Enter this code at checkout on gpen.com. It applies to the whole order.",
-      terms: "One use per person. Not combinable with other offers. Use your highest unlocked code.",
+  /* >>> REWARDS — the tier table and where codes come from <<<
+
+     THE FOUR STATIC CODES THAT USED TO LIVE HERE DID NOT EXIST IN SHOPIFY.
+     GPENPRO25, GPENHOLO30, GPENELITE35 and CERTIFIEDG40 were checked against the
+     live gpen.com store: none of them is a discount. Every rep who certified was
+     handed a code that fails at the till. They are gone, and the percentages below
+     are the only thing this file still asserts.
+
+     `pct` is display only — the endpoint keeps its own copy of the tier table and
+     mints from that, so a tampered browser cannot mint itself 90% off.
+
+     Set rewards.url to the deployed endpoint (see reward-api/README.md). While it is
+     empty the reward panel renders nothing at all, on purpose. */
+  rewards: {
+    url: "",
+    // One terms line for every tier, shown wherever a code is. Single-use is enforced
+    // by the endpoint (usageLimit 1 on a discount created for one person), so this
+    // sentence describes what the store will actually do.
+    terms: "One use per person. Not combinable with other offers. Expires 90 days after it is issued.",
+    // The endpoint echoes this back with every code; it is here so the locale
+    // validator can see it as a required string, since app.js runs it through t().
+    note: "Enter this code at checkout on gpen.com. It applies to the whole order.",
+    // Shown on the card next to the code. The percentage in each of these comes from
+    // LADDER in app.js, which is the single source of truth for what a tier is worth.
+    tiers: {
+      course: { pct: 25, label: "25% off your next order at gpen.com" },
+      trio:   { pct: 30, label: "30% off your next order at gpen.com" },
+      master: { pct: 35, label: "35% off your entire order at gpen.com" },
+      secret: { pct: 40, label: "40% off your entire order at gpen.com" },
     },
-    // Unlocked at 2 certified products. 30% off.
-    trio: {
-      code: "GPENHOLO30",
-      label: "30% off your next order at gpen.com",
-      note: "Two products certified. Your discount goes up with each product you complete.",
-      terms: "One use per person. Not combinable with other offers. Use your highest unlocked code.",
-    },
-    // Unlocked at 4 certified products. 35% off.
-    master: {
-      code: "GPENELITE35",
-      label: "35% off your entire order at gpen.com",
-      note: "Four products certified. Complete the remaining products to reach the highest tier.",
-      terms: "One use per person. Not combinable with other offers. Use your highest unlocked code.",
-    },
-    // Unlocked once EVERY course is complete — the whole lineup. 40% off.
-    // (The free-device prize is presented separately in the finish-line panel,
-    // which needs sweepstakes.live AND sweepstakes.rulesUrl AND a reporting
-    // webhook — a webhook alone does NOT start it. See the sweepstakes block.)
-    secret: {
-      code: "CERTIFIEDG40",
-      label: "40% off your entire order at gpen.com",
-      note: "Every product in the lineup is certified. This is the highest tier in the program.",
-      terms: "One use per person. Not combinable with other offers. Use your highest unlocked code.",
-    },
-    // OPTIONAL: give a specific product its own course code. Keyed by course slug.
-    // e.g. perCourse: { "dash-ii": { code: "DASH2PRO", label: "...", note: "..." } }
-    perCourse: {},
   },
 
   /* >>> FREE-DEVICE PRIZE — every Nth full-lineup certification wins <<<
@@ -186,22 +181,103 @@ window.TRAINING_CONFIG = {
               .then(function (r) { return r.json(); });
    The rest of the app already awaits this, so no other change is needed.
    --------------------------------------------------------------------------- */
+/* -----------------------------------------------------------------------------
+   REWARD ISSUANCE — one code, one person, minted in Shopify.
+
+   Returns a PROMISE of { type, code, label, note, terms } — every caller already
+   awaits it, so this can go to the network.
+
+   WHY A SERVER IS INVOLVED. Creating a Shopify discount needs an Admin API token,
+   and a token in this file would be a token published on the internet. So the
+   browser calls a small endpoint that holds the token and does the create. Set
+   rewards.url in the config above; the endpoint lives in reward-api/ in this repo.
+
+   ONE CODE PER PERSON PER TIER, AND ONLY ONE. Two things guarantee it:
+     - This function caches what the endpoint returned, keyed by email + tier, so a
+       reload, a Back button or a second visit to the certificate shows the SAME code
+       and never asks for another. Without this, every page view of #/certified would
+       mint a fresh discount in the store.
+     - The endpoint itself derives the code deterministically from email + tier and
+       looks it up before creating, so even a cache miss returns the same code rather
+       than a duplicate.
+
+   WHEN IT FAILS IT SHOWS NOTHING. A rep seeing no code is a support ticket; a rep
+   seeing a code that fails at the till is a lost sale and a broken promise. Callers
+   already render nothing when `code` is empty.
+   --------------------------------------------------------------------------- */
+var REWARD_CACHE_KEY = "gpt.rewards";
+
+function readRewardCache() {
+  try { return JSON.parse(localStorage.getItem(REWARD_CACHE_KEY) || "{}"); } catch (e) { return {}; }
+}
+function writeRewardCache(map) {
+  try { localStorage.setItem(REWARD_CACHE_KEY, JSON.stringify(map)); } catch (e) {}
+}
+
 window.issueRewardCode = function (type, ctx) {
-  var d = (window.TRAINING_CONFIG && window.TRAINING_CONFIG.discount) || {};
-  // Missing tier = loud in the console, never a silent empty reward box.
-  function tier(key, obj) {
-    if (!obj || !obj.code) {
-      if (window.console) console.warn("[gpen-training] issueRewardCode: no code configured for tier '" + key + "' — check TRAINING_CONFIG.discount." + key);
+  var CFG = window.TRAINING_CONFIG || {};
+  var rw = CFG.rewards || {};
+  var email = String((ctx && ctx.email) || "").trim().toLowerCase();
+  // The per-course tier is unique per person PER COURSE, so the slug is part of its
+  // identity — pass the Dash II and you get a different code than for the Hydout. The
+  // milestone tiers (2, 4 and all products) are once per person, so they key on the
+  // tier alone. The endpoint derives its code from these same parts.
+  var slug = (type === "course" && ctx && ctx.courseSlug) ? String(ctx.courseSlug) : "";
+  var cacheKey = type + "|" + email + (slug ? "|" + slug : "");
+
+  // Already minted for this person and tier — hand back the identical code.
+  var cached = readRewardCache()[cacheKey];
+  if (cached && cached.code) return Promise.resolve(cached);
+
+  if (!rw.url) {
+    if (window.console) {
+      console.warn("[gpen-training] rewards.url is empty, so no discount code can be issued. " +
+        "Deploy reward-api/ and set TRAINING_CONFIG.rewards.url. Until then the reward panel renders nothing, " +
+        "which is deliberate: handing a rep a code that does not exist in Shopify is worse than handing them none.");
     }
-    return Object.assign({ type: key }, obj || {});
+    return Promise.resolve(null);
   }
-  if (type === "secret") return tier("secret", d.secret);
-  if (type === "master") return tier("master", d.master);
-  if (type === "trio") return tier("trio", d.trio);
-  // `|| {}` so deleting the obviously-empty perCourse object can't throw on every pass.
-  var pc = d.perCourse || {};
-  var perCourse = (ctx && ctx.courseSlug && pc[ctx.courseSlug]) || d.course;
-  return tier("course", perCourse);
+  if (!email) {
+    if (window.console) console.warn("[gpen-training] issueRewardCode called without an email; a per-person code cannot be minted.");
+    return Promise.resolve(null);
+  }
+  // A per-course code with no course is not a thing the store can issue, and a caller
+  // asking for one has a bug. Refuse it here rather than mint something meaningless:
+  // the endpoint rejects it too, so this only turns a confusing 400 into a clear
+  // console line naming the caller's mistake.
+  if (type === "course" && !slug) {
+    if (window.console) console.warn("[gpen-training] issueRewardCode('course') needs ctx.courseSlug — the 25% reward is one code per product.");
+    return Promise.resolve(null);
+  }
+
+  return fetch(rw.url, {
+    method: "POST",
+    // text/plain keeps this a CORS "simple request" — no preflight, which is what
+    // lets a Google Apps Script endpoint work as a drop-in alternative to Vercel.
+    headers: { "Content-Type": "text/plain;charset=utf-8" },
+    body: JSON.stringify({
+      tier: type,
+      email: email,
+      name: (ctx && ctx.name) || "",
+      store: (ctx && ctx.store) || "",
+      certId: (ctx && ctx.certId) || "",
+      courseSlug: (ctx && ctx.courseSlug) || "",
+    }),
+  })
+    .then(function (r) { return r.ok ? r.json() : null; })
+    .then(function (data) {
+      if (!data || !data.code) {
+        if (window.console) console.warn("[gpen-training] the reward endpoint returned no code for tier '" + type + "'", data);
+        return null;
+      }
+      var out = { type: type, code: data.code, label: data.label || "", note: data.note || "", terms: data.terms || "" };
+      var map = readRewardCache(); map[cacheKey] = out; writeRewardCache(map);
+      return out;
+    })
+    .catch(function (err) {
+      if (window.console) console.warn("[gpen-training] the reward endpoint could not be reached; no code issued.", err);
+      return null;
+    });
 };
 
 /* -----------------------------------------------------------------------------

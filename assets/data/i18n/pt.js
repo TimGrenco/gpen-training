@@ -183,16 +183,14 @@ window.GPEN_I18N = {
     "Back to all products": "Voltar para todos os produtos",
 
     /* ---- reward card ---- */
+    "One code per product you certify on. Each one is on its own product page.": "Um código para cada produto em que você se certificar. Cada um está na página do seu produto.",
     /* Tier labels, notes and terms — authored in config.js, shown on the reward card. */
     "25% off your next order at gpen.com": "25% de desconto no seu próximo pedido em gpen.com",
     "30% off your next order at gpen.com": "30% de desconto no seu próximo pedido em gpen.com",
     "35% off your entire order at gpen.com": "35% de desconto em todo o seu pedido em gpen.com",
     "40% off your entire order at gpen.com": "40% de desconto em todo o seu pedido em gpen.com",
     "Enter this code at checkout on gpen.com. It applies to the whole order.": "Digite este código no checkout em gpen.com. Vale para o pedido inteiro.",
-    "Two products certified. Your discount goes up with each product you complete.": "Dois produtos certificados. Seu desconto aumenta a cada produto que você conclui.",
-    "Four products certified. Complete the remaining products to reach the highest tier.": "Quatro produtos certificados. Conclua os produtos restantes para chegar ao nível máximo.",
-    "Every product in the lineup is certified. This is the highest tier in the program.": "Todos os produtos da linha estão certificados. Este é o nível máximo do programa.",
-    "One use per person. Not combinable with other offers. Use your highest unlocked code.": "Um uso por pessoa. Não cumulativo com outras ofertas. Use o código mais alto que você desbloqueou.",
+    "One use per person. Not combinable with other offers. Expires 90 days after it is issued.": "Um uso por pessoa. Não cumulativo com outras ofertas. Expira 90 dias após a emissão.",
     "Top discount unlocked. Full lineup certified.": "Desconto máximo desbloqueado. Linha completa certificada.",
     "Reward unlocked": "Recompensa desbloqueada",
     "New tier unlocked": "Novo nível desbloqueado",

@@ -772,6 +772,10 @@ a.linklike.backdash { display: grid; place-items: center; min-height: 44px; widt
 .rw-code em svg { width: 13px; height: 13px; }
 /* Both of these were 20-21px tall — under the 24px WCAG 2.5.8 floor, on the one
    card a rep taps the moment they finish a quiz. */
+/* The 25% rung's stand-in for a code button: its codes are per product, so it says
+   where they are instead of showing one of them. */
+.rw-percourse { margin: 14px 0 0; font-size: 13.5px; font-weight: 700; line-height: 1.45; color: var(--ink-2); }
+.rw-card.on .rw-percourse { color: #cfcec6; }
 .rw-shop { display: inline-flex; align-items: center; min-height: 44px; gap: 6px; font-weight: 800; font-size: 14px; color: var(--gold-bright); }
 .rw-shop svg { width: 15px; height: 15px; }
 .rw-cert { display: flex; align-items: center; min-height: 44px; margin-top: 4px; font-size: 13px; color: #c9c8c1; text-decoration: underline; }

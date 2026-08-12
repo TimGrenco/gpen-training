@@ -195,16 +195,14 @@ window.GPEN_I18N = {
     "Back to all products": "Volver a todos los productos",
 
     /* ---- reward card ---- */
+    "One code per product you certify on. Each one is on its own product page.": "Un código por cada producto en el que se certifique. Cada uno está en su propia página de producto.",
     /* Tier labels, notes and terms — authored in config.js, shown on the reward card. */
     "25% off your next order at gpen.com": "25% de descuento en su próximo pedido en gpen.com",
     "30% off your next order at gpen.com": "30% de descuento en su próximo pedido en gpen.com",
     "35% off your entire order at gpen.com": "35% de descuento en todo su pedido en gpen.com",
     "40% off your entire order at gpen.com": "40% de descuento en todo su pedido en gpen.com",
     "Enter this code at checkout on gpen.com. It applies to the whole order.": "Introduzca este código al pagar en gpen.com. Se aplica a todo el pedido.",
-    "Two products certified. Your discount goes up with each product you complete.": "Dos productos certificados. Su descuento aumenta con cada producto que completa.",
-    "Four products certified. Complete the remaining products to reach the highest tier.": "Cuatro productos certificados. Complete los productos restantes para alcanzar el nivel máximo.",
-    "Every product in the lineup is certified. This is the highest tier in the program.": "Todos los productos de la gama están certificados. Este es el nivel máximo del programa.",
-    "One use per person. Not combinable with other offers. Use your highest unlocked code.": "Un uso por persona. No combinable con otras ofertas. Utilice su código desbloqueado más alto.",
+    "One use per person. Not combinable with other offers. Expires 90 days after it is issued.": "Un uso por persona. No combinable con otras ofertas. Caduca 90 días después de su emisión.",
     "Top discount unlocked. Full lineup certified.": "Descuento máximo desbloqueado. Gama completa certificada.",
     "Reward unlocked": "Recompensa desbloqueada",
     "New tier unlocked": "Nuevo nivel desbloqueado",

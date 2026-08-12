@@ -46,10 +46,12 @@ COURSES_FOR_KEYS.forEach((c) => { if (c.howToSell && c.howToSell.upsellFrom) key
 global.window = {};
 require(path.join(ROOT, "assets/js/config.js"));
 const CFG = window.TRAINING_CONFIG || {};
-Object.values(CFG.discount || {}).forEach((d) => {
-  if (!d || typeof d !== "object") return;
-  ["label", "note", "terms"].forEach((k) => { if (d[k]) keys.add(d[k]); });
-});
+// The reward endpoint echoes label/note/terms back to the browser and app.js runs
+// each through t(), so they are required strings even though no literal appears in
+// app.js. config.rewards holds the canonical copy for exactly this reason.
+const RW = CFG.rewards || {};
+["terms", "note"].forEach((k) => { if (RW[k]) keys.add(RW[k]); });
+Object.values(RW.tiers || {}).forEach((tr) => { if (tr && tr.label) keys.add(tr.label); });
 if (CFG.footerNote) keys.add(CFG.footerNote);
 
 const toks = (s) => (String(s).match(/\{[a-zA-Z]+\}/g) || []).sort().join(",");

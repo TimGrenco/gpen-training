@@ -183,16 +183,14 @@ window.GPEN_I18N = {
     "Back to all products": "Zurück zu allen Produkten",
 
     /* ---- reward card ---- */
+    "One code per product you certify on. Each one is on its own product page.": "Ein Code pro Produkt, für das Sie zertifiziert sind. Jeder steht auf der Seite des jeweiligen Produkts.",
     /* Tier labels, notes and terms — authored in config.js, shown on the reward card. */
     "25% off your next order at gpen.com": "25 % Rabatt auf Ihre nächste Bestellung auf gpen.com",
     "30% off your next order at gpen.com": "30 % Rabatt auf Ihre nächste Bestellung auf gpen.com",
     "35% off your entire order at gpen.com": "35 % Rabatt auf Ihre gesamte Bestellung auf gpen.com",
     "40% off your entire order at gpen.com": "40 % Rabatt auf Ihre gesamte Bestellung auf gpen.com",
     "Enter this code at checkout on gpen.com. It applies to the whole order.": "Geben Sie diesen Code beim Bezahlen auf gpen.com ein. Er gilt für die gesamte Bestellung.",
-    "Two products certified. Your discount goes up with each product you complete.": "Zwei Produkte zertifiziert. Ihr Rabatt steigt mit jedem abgeschlossenen Produkt.",
-    "Four products certified. Complete the remaining products to reach the highest tier.": "Vier Produkte zertifiziert. Schließen Sie die restlichen Produkte ab, um die höchste Stufe zu erreichen.",
-    "Every product in the lineup is certified. This is the highest tier in the program.": "Jedes Produkt des Sortiments ist zertifiziert. Das ist die höchste Stufe des Programms.",
-    "One use per person. Not combinable with other offers. Use your highest unlocked code.": "Eine Verwendung pro Person. Nicht mit anderen Angeboten kombinierbar. Verwenden Sie Ihren höchsten freigeschalteten Code.",
+    "One use per person. Not combinable with other offers. Expires 90 days after it is issued.": "Eine Verwendung pro Person. Nicht mit anderen Angeboten kombinierbar. Läuft 90 Tage nach Ausgabe ab.",
     "Top discount unlocked. Full lineup certified.": "Höchster Rabatt freigeschaltet. Gesamtes Sortiment zertifiziert.",
     "Reward unlocked": "Belohnung freigeschaltet",
     "New tier unlocked": "Neue Stufe freigeschaltet",

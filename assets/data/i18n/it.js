@@ -181,16 +181,14 @@ window.GPEN_I18N = {
     "Back to all products": "Torna a tutti i prodotti",
 
     /* ---- reward card ---- */
+    "One code per product you certify on. Each one is on its own product page.": "Un codice per ogni prodotto su cui si certifica. Ognuno si trova sulla pagina del proprio prodotto.",
     /* Tier labels, notes and terms — authored in config.js, shown on the reward card. */
     "25% off your next order at gpen.com": "25% di sconto sul suo prossimo ordine su gpen.com",
     "30% off your next order at gpen.com": "30% di sconto sul suo prossimo ordine su gpen.com",
     "35% off your entire order at gpen.com": "35% di sconto su tutto il suo ordine su gpen.com",
     "40% off your entire order at gpen.com": "40% di sconto su tutto il suo ordine su gpen.com",
     "Enter this code at checkout on gpen.com. It applies to the whole order.": "Inserisca questo codice al momento del pagamento su gpen.com. Vale per tutto l'ordine.",
-    "Two products certified. Your discount goes up with each product you complete.": "Due prodotti certificati. Il suo sconto aumenta con ogni prodotto che completa.",
-    "Four products certified. Complete the remaining products to reach the highest tier.": "Quattro prodotti certificati. Completi i prodotti rimanenti per raggiungere il livello massimo.",
-    "Every product in the lineup is certified. This is the highest tier in the program.": "Tutti i prodotti della gamma sono certificati. Questo è il livello massimo del programma.",
-    "One use per person. Not combinable with other offers. Use your highest unlocked code.": "Un solo utilizzo per persona. Non cumulabile con altre offerte. Utilizzi il codice più alto che ha sbloccato.",
+    "One use per person. Not combinable with other offers. Expires 90 days after it is issued.": "Un solo utilizzo per persona. Non cumulabile con altre offerte. Scade 90 giorni dopo l'emissione.",
     "Top discount unlocked. Full lineup certified.": "Sconto massimo sbloccato. Gamma completa certificata.",
     "Reward unlocked": "Premio sbloccato",
     "New tier unlocked": "Nuovo livello sbloccato",

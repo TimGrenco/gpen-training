@@ -957,17 +957,17 @@
       '<div class="rw-big">' + (draw ? t("FREE G PEN") + " <em>+ " + topPct() + "%</em>" : topPct() + "% OFF") + "</div>" +
       '<div class="rw-sub">' + tf("Certify all {total}", { total: total }) + " &mdash; " + (draw ? prizeCopy().rule + " " + tf("{pct}% off is yours either way.", { pct: topPct() }) : t("your best code on gpen.com, plus the master certificate.")) + "</div>" +
       (unlocked
-        ? '<button class="rw-code" data-rwcode="secret"><span class="rw-code-v">••••••</span><em>' + ic("tag") + " " + t("Tap to copy") + "</em></button>" +
+        ? '<button class="rw-code" data-rwcode="secret" hidden><span class="rw-code-v">••••••</span><em>' + ic("tag") + " " + t("Tap to copy") + "</em></button>" +
           '<a class="rw-cert" href="#/certified">' + t("View master certificate") + " &rarr;</a>" +
           // grandCard bypasses rewardCard, so it needs its own terms line.
-          rwTermsHTML("secret")
+          rwTermsHTML()
         : (isNext ? '<div class="rw-lock">' + ic("spark") + " " + (d === 1 ? t("1 more course to unlock") : tf("{n} more courses to unlock", { n: d })) + "</div>" : "")) +
     "</div>";
   }
   // "Whether it expires / stacks / is single-use" is the first thing a dispensary
   // partner asks — answer it wherever a code is shown, not just in the config.
-  function rwTermsHTML(type) {
-    var terms = ((CFG.discount || {})[type] || {}).terms;
+  function rwTermsHTML() {
+    var terms = (CFG.rewards || {}).terms;
     return terms ? '<p class="rw-terms">' + t(terms) + "</p>" : "";
   }
   /* Renders the CLIMBING rungs only. Its one caller maps LADDER.slice(0, -1), which
@@ -982,9 +982,21 @@
       '<div class="rw-big">' + big + "</div>" +
       '<div class="rw-sub">' + sub + "</div>" +
       (unlocked
-        ? '<button class="rw-code" data-rwcode="' + type + '"><span class="rw-code-v">••••••</span><em>' + ic("tag") + " " + t("Tap to copy") + "</em></button>" +
+        // The 25% rung is per PRODUCT, so there is no single code for this card to
+        // hold: a rep who has certified on three products has three different 25%
+        // codes, one on each product page. Showing one of them here would be a lie
+        // about the other two, and minting a code for "the course tier" with no course
+        // attached is not a thing the store can issue. So this rung points at where
+        // the codes live; every other rung is once per person and does hold one.
+        ? (type === "course"
+            ? '<p class="rw-percourse">' + t("One code per product you certify on. Each one is on its own product page.") + "</p>"
+            // hidden until a code actually arrives — see fillRewards(). Rendering it
+            // visible showed a dead button full of dots whenever the endpoint was
+            // unset or unreachable, which is the "empty box promising a discount"
+            // this whole path is written to avoid.
+            : '<button class="rw-code" data-rwcode="' + type + '" hidden><span class="rw-code-v">••••••</span><em>' + ic("tag") + " " + t("Tap to copy") + "</em></button>") +
           '<a class="rw-shop" href="' + esc(CFG.shopUrl) + '" target="_blank" rel="noopener">' + t("Shop gpen.com") + " " + ic("arrow") + "</a>" +
-          rwTermsHTML(type)
+          rwTermsHTML()
         // No hint on a rung they are not climbing yet — the lock icon, the dimmed
         // .off treatment and the "Locked" status already carry it. An empty rw-lock
         // would render as a stray bullet icon with no text.
@@ -1001,10 +1013,13 @@
     $$("[data-rwcode]").forEach(function (btn) {
       var type = btn.getAttribute("data-rwcode");
       Promise.resolve(window.issueRewardCode(type, { name: e.name, email: e.email, store: e.store })).then(function (r) {
+        // No code, no button. The rung keeps its percentage and its "Unlocked" status,
+        // which are true, and simply does not offer something to copy.
         if (!r || !r.code) return;
         var v = btn.querySelector(".rw-code-v"); if (v) v.textContent = r.code;
         if (r.label) btn.setAttribute("title", r.label);
         btn.addEventListener("click", function () { copyCode(r.code); });
+        btn.hidden = false;
       });
     });
   }
@@ -1884,7 +1899,7 @@
       var body = "I have completed the full G Pen Product Specialist training.\n\nName: " + e.name + "\nStore: " + (e.store || "") + "\nEmail: " + (e.email || "") + "\nDate: " + date + "\nCertificate ID: " + cid;
       window.location.href = "mailto:" + CFG.contactEmail + "?subject=" + encodeURIComponent("G Pen Product Specialist — full lineup certified") + "&body=" + encodeURIComponent(body);
     });
-    // The full-lineup code is the 40% (CERTIFIEDG40), not the 4-course 35% — reconcile it here.
+    // The full-lineup tier is the 40%, not the 4-course 35% — reconcile it here.
     revealReward("secret", { name: e.name, email: e.email, store: e.store, certId: cid }, $("#mreward"));
     var swc = $(".sw-copy");
     if (swc) swc.addEventListener("click", function () {
@@ -2022,21 +2037,30 @@
     // discount the code does not give. Say so loudly at boot rather than let a rep
     // find out at checkout.
     (function () {
-      var codes = CFG.discount || {};
+      var tiers = (CFG.rewards || {}).tiers || {};
       LADDER.forEach(function (rung) {
-        var cfgTier = codes[rung.key];
-        if (!cfgTier) return;
-        // Both the code (GPENPRO25) and the label ("25% off ...") carry the number.
-        var inCode = String(cfgTier.code || "").match(/(\d{2})\s*$/);
+        var cfgTier = tiers[rung.key];
+        if (!cfgTier) {
+          console.warn("[gpen-training] rewards.tiers." + rung.key + " is missing, so the " + rung.pct +
+            "% rung has no label to show beside its code.");
+          return;
+        }
+        if (Number(cfgTier.pct) !== rung.pct) {
+          console.warn("[gpen-training] reward mismatch: LADDER says " + rung.pct + "% at " + rung.at +
+            " course(s) but rewards.tiers." + rung.key + ".pct says " + cfgTier.pct +
+            "%. The page will promise one number; check the endpoint's own tier table too, since that is " +
+            "what actually mints.");
+        }
         var inLabel = String(cfgTier.label || "").match(/(\d{2})\s*%/);
-        [["code", inCode], ["label", inLabel]].forEach(function (pair) {
-          if (pair[1] && Number(pair[1][1]) !== rung.pct) {
-            console.warn("[gpen-training] reward mismatch: LADDER says " + rung.pct + "% at " +
-              rung.at + " course(s), but discount." + rung.key + "." + pair[0] + " says " +
-              pair[1][1] + "% (" + (t.code || t.label) + "). The site will promise one number and issue another.");
-          }
-        });
+        if (inLabel && Number(inLabel[1]) !== rung.pct) {
+          console.warn("[gpen-training] rewards.tiers." + rung.key + ".label says " + inLabel[1] +
+            "% but the rung is " + rung.pct + "%.");
+        }
       });
+      if (!(CFG.rewards || {}).url) {
+        console.warn("[gpen-training] rewards.url is empty: no discount code can be issued to anyone. " +
+          "Deploy reward-api/ and set it. See reward-api/README.md.");
+      }
     }());
     // The form collects name, email, store and a 21+ attestation and says they
     // may be sent to G Pen. Shipping that with no privacy statement is the first
