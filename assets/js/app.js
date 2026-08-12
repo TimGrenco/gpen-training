@@ -1170,7 +1170,7 @@
     }).join("");
     // What the summary promises, counted from what is actually in there.
     var extras = (h.scenarios || []).length + (h.objections || []).length + (h.whichClose ? 1 : 0);
-    var more = (sces || objs || h.whichClose || h.aov)
+    var more = (sces || objs || h.whichClose)
       ? '<details class="sell-more">' +
           "<summary>" + ic("caret") +
             "<span>" + tf("More scripts and objections ({n})", { n: extras }) + "</span>" +
@@ -1179,13 +1179,20 @@
             (sces ? '<div class="sell-scns"><h4>' + t("Counter scenarios") + "</h4>" + sces + "</div>" : "") +
             (h.whichClose ? '<div class="sell-close"><em>' + t("The either/or close") + "</em>&ldquo;" + esc(h.whichClose) + "&rdquo;</div>" : "") +
             (objs ? '<div class="sell-objs"><h4>' + t("When they hesitate") + "</h4>" + objs + "</div>" : "") +
-            (h.aov ? '<p class="sell-aov">' + ic("tag") + "<span>" + esc(h.aov) + "</span></p>" : "") +
           "</div>" +
         "</details>"
       : "";
     return '<div class="sell2" style="--accent:' + (c.accent || "var(--gold-bright)") + '">' +
+      // The upsell overview OPENS the section. It is the one paragraph that says what
+      // this product is worth to a basket and why it attaches, so it belongs before
+      // the specifics rather than buried at the end of a disclosure — a rep reads the
+      // shape of the opportunity, then the words to use on it.
+      (h.aov ? '<p class="sell-aov lead">' + ic("tag") + "<span>" + esc(h.aov) + "</span></p>" : "") +
       '<div class="sell-pair">' +
-        '<div class="sell-cue">' + ic("tag") + tf("Customer is buying <b>{what}</b>", { what: esc(tx(h.upsellFrom || "").toUpperCase()) }) + "</div>" +
+        // No icon here. The tag icon now belongs to the overview directly above, and
+        // two of them stacked read as a repeated element rather than as two ideas.
+        // "Customer is buying" is its own label; it does not need a glyph.
+        '<div class="sell-cue">' + tf("Customer is buying <b>{what}</b>", { what: esc(tx(h.upsellFrom || "").toUpperCase()) }) + "</div>" +
         "<p>" + esc(h.vital) + "</p>" +
         (sibs ? '<div class="sell-sibs"><span>' + t("Pair with") + "</span>" + sibs + "</div>" : "") +
       "</div>" +

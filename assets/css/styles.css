@@ -317,7 +317,6 @@ h1, h2, h3, h4 { margin: 0; line-height: 1.08; letter-spacing: -.02em; }
 .sell-pair { background: linear-gradient(160deg, #fff, #fbf6ea); border: 1px solid var(--line); border-left: 5px solid var(--accent, var(--gold-bright)); border-radius: var(--r-md); padding: 16px 18px; box-shadow: var(--shadow); }
 .sell-cue { display: flex; align-items: center; gap: 8px; flex-wrap: wrap; font-size: 13px; font-weight: 800; text-transform: uppercase; letter-spacing: .04em; color: var(--ink); }
 .sell-cue b { color: var(--gold); }
-.sell-cue svg { width: 15px; height: 15px; color: var(--gold); }
 .sell-pair p { margin: 8px 0 0; font-size: 15px; line-height: 1.55; color: var(--ink-2); }
 .sell-sibs { display: flex; align-items: center; flex-wrap: wrap; gap: 8px; margin-top: 12px; }
 .sell-sibs span { font-size: 12px; font-weight: 800; text-transform: uppercase; letter-spacing: .05em; color: var(--stone); }
@@ -352,6 +351,11 @@ h1, h2, h3, h4 { margin: 0; line-height: 1.08; letter-spacing: -.02em; }
 /* AOV micro-note. */
 .sell-aov { display: flex; gap: 9px; align-items: flex-start; margin: 0; padding: 13px 16px; border-radius: var(--r-sm); background: rgba(254,200,112,.14); border: 1px solid rgba(200,149,47,.28); font-size: 13.5px; line-height: 1.5; color: #6a5220; }
 .sell-aov svg { width: 15px; height: 15px; flex: none; color: var(--gold); margin-top: 2px; }
+/* As the opening statement of the section it carries a little more weight than it
+   did as a footnote: same treatment, one step up in size, and spaced away from the
+   trigger card that follows it so it reads as a preamble rather than a caption. */
+.sell-aov.lead { font-size: 14.5px; padding: 15px 17px; margin-bottom: 12px; }
+.sell-aov.lead svg { width: 16px; height: 16px; }
 
 /* "The trap" — the one mistake that loses the sale (sits under the pair block). */
 .sell-trap { display: flex; gap: 9px; align-items: flex-start; margin: 0; padding: 11px 15px; border-radius: var(--r-sm); background: #fcefec; border: 1px solid #f0d3cc; font-size: 13.5px; line-height: 1.5; color: #7a2e22; }
