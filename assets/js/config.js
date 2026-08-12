@@ -89,7 +89,11 @@ window.TRAINING_CONFIG = {
      Set rewards.url to the deployed endpoint (see reward-api/README.md). While it is
      empty the reward panel renders nothing at all, on purpose. */
   rewards: {
-    url: "",
+    /* Live. Verified against the real store: a code minted here appears in Shopify
+       admin as ACTIVE, 25% off the whole order, usage limit 1, once per customer, no
+       stacking — and asking twice returns the same code rather than creating a second
+       discount. Deployed from reward-api/; see .github/GOLIVE.md. */
+    url: "https://gpen-training-rewards.vercel.app/api/reward",
     // One terms line for every tier, shown wherever a code is. Single-use is enforced
     // by the endpoint (usageLimit 1 on a discount created for one person), so this
     // sentence describes what the store will actually do.
