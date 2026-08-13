@@ -106,6 +106,8 @@ window.GPEN_I18N = {
     "Customer is buying <b>{what}</b>": "Il cliente sta acquistando <b>{what}</b>",
     "Pair with": "Da abbinare a",
     "Say this": "Dica così",
+    "Never a health claim.": "Mai affermazioni sulla salute.",
+    "If a customer raises coughing, harshness, lungs, or any other health topic, do not diagnose it and do not say the product fixes it. Redirect to flavor and experience, or refer them to their doctor.": "Se un cliente parla di tosse, irritazione, polmoni o qualsiasi altro tema di salute, non fare diagnosi e non dire che il prodotto lo risolve. Riporta il discorso su gusto ed esperienza, oppure rimandalo al suo medico.",
     "Common mistake:": "Errore frequente:",
     "More scripts and objections ({n})": "Altre frasi e obiezioni ({n})",
     "Counter scenarios": "Situazioni al banco",

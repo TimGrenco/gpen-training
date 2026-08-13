@@ -332,7 +332,7 @@
     var s = getState(), e = getEnroll() || {}, changed = false;
     // Stamp the certificate once — this is what the cert page displays.
     if (!s.master) {
-      var date = niceDate(), cid = certId((e.name || "") + "|G Pen Certified Specialist|" + date);
+      var date = niceDate(), cid = certId(certSeed(e.email, e.name, "G Pen Certified Specialist"));
       s.master = { certId: cid, date: date, name: e.name };
       changed = true;
       logEvent("master", { certId: cid }, s);
@@ -1086,7 +1086,15 @@
     var e = getEnroll() || {};
     $$("[data-rwcode]").forEach(function (btn) {
       var type = btn.getAttribute("data-rwcode");
-      Promise.resolve(window.issueRewardCode(type, { name: e.name, email: e.email, store: e.store })).then(function (r) {
+      /* Carry the full-lineup certificate id when we have one. Without it a `secret`
+         code posted from this surface keyed on "secret|email|" and created an orphan
+         row, while the master row that records the milestone showed no code and could
+         never be redemption-tracked. */
+      var mst = (getState() || {}).master || {};
+      Promise.resolve(window.issueRewardCode(type, {
+        name: e.name, email: e.email, store: e.store,
+        certId: type === "secret" ? (mst.certId || "") : "",
+      })).then(function (r) {
         // No code, no button. The rung keeps its percentage and its "Unlocked" status,
         // which are true, and simply does not offer something to copy.
         if (!r || !r.code) return;
@@ -1304,7 +1312,20 @@
         (sibs ? '<div class="sell-sibs"><span>' + t("Pair with") + "</span>" + sibs + "</div>" : "") +
       "</div>" +
       (h.talkTrack && h.talkTrack.say ? '<blockquote class="sell-say"><em>' + t("Say this") + "</em>&ldquo;" + esc(h.talkTrack.say) + "&rdquo;</blockquote>" : "") +
-      (h.trap ? '<p class="sell-trap">' + ic("spark") + "<span><b>" + t("Common mistake:") + "</b> " + esc(h.trap) + "</span></p>" : "") +
+      (h.trap ? '<p class="sell-trap">' + ic("spark") + "<span><b>" + t("Common mistake:") + "</b> " + dt(c.slug, "howToSell", esc(h.trap)) + "</span></p>" : "") +
+      /* UNCONDITIONAL, on every product. This rule used to live inside the per-product
+         `trap` string — and only the Dash II's actually carried it. On the other five
+         courses the one instruction that stops a rep making a health claim appeared
+         nowhere on the page; it existed solely inside a quiz explanation the rep sees
+         once, if at all, after answering. A compliance rule that ships on one product in
+         six is not a compliance rule.
+
+         Rendered here rather than appended to five more `trap` strings because that
+         would be five strings in six languages, each free to drift, and the next product
+         added would start out missing it again. */
+      '<p class="sell-health"><span><b>' + t("Never a health claim.") + "</b> " +
+        t("If a customer raises coughing, harshness, lungs, or any other health topic, do not diagnose it and do not say the product fixes it. Redirect to flavor and experience, or refer them to their doctor.") +
+      "</span></p>" +
       more +
     "</div>";
   }
@@ -1704,14 +1725,31 @@
     // and no code, with the page frozen on the last explainer. quizFail never touches
     // enrollment, so failing worked and passing was the thing that broke.
     var e = getEnroll() || {};
-    var date = niceDate(), cid = certId((e.name || "") + "|" + c.name + "|" + date);
+    var date = niceDate(), cid = certId(certSeed(e.email, e.name, c.name));
     var s = getState();
     var prev = s.courses[c.slug];
     var firstTime = !(prev && prev.passed);
     // Keep the higher score AND its certificate — a lower retake never downgrades
     // a rep who already certified (the certified screen invites retakes).
+    /* A retake keeps the ORIGINAL certificate identity and its reported stamp. The old
+       code built a fresh rec on every improvement, which dropped `reported` and — because
+       the seed contained the date — minted a different certId on any later day. The sheet
+       then saw a second course event under an unknown key and created a DUPLICATE row,
+       whose Discount code stayed blank forever (the code event still carried the old id),
+       so it could never be redemption-synced. Only the score moves. */
     var improved = !prev || !prev.passed || pct > (prev.score || 0);
-    var rec = improved ? { passed: true, score: pct, certId: cid, date: date, name: e.name || "" } : prev;
+    var rec;
+    if (!prev || !prev.passed) {
+      rec = { passed: true, score: pct, certId: cid, date: date, name: e.name || "" };
+    } else {
+      rec = prev;
+      if (improved) {
+        rec.score = pct;
+        // Re-report the improved score against the SAME certification, so the row's
+        // Score is updated rather than a new row appearing beside it.
+        delete rec.reported;
+      }
+    }
     s.courses[c.slug] = rec;
     setState(s);
     // Courses first, so a late webhook receives them ahead of the tier rows they justify.
@@ -1746,7 +1784,10 @@
     showCertificate(c, e.name, rec.date, rec.score, rec.certId, $("#cert-zone"));
     // State is already saved above, so completedCount() includes this pass —
     // mint the tier they now hold (5/5 must issue 40%, not the 25% first rung).
-    revealReward(earnedTierKey(), { courseSlug: c.slug, name: e.name, email: e.email, store: e.store, certId: cid }, $("#reward-zone"));
+    // rec.certId, not cid: on a non-improved retake `rec` keeps the ORIGINAL id while
+    // cid is freshly computed, so the code event landed under an id no row carried and
+    // created an orphan — a code with no course, score or date beside it.
+    revealReward(earnedTierKey(), { courseSlug: c.slug, name: e.name, email: e.email, store: e.store, certId: rec.certId }, $("#reward-zone"));
     zone.scrollIntoView({ behavior: "smooth", block: "start" });
     // Scrolling is not a cue a screen reader receives. quizPass/quizFail replace
     // the whole zone with the verdict, score, certificate and reward code, so move
@@ -1815,11 +1856,34 @@
   }
 
   /* ---- CERTIFICATE ------------------------------------------------------- */
+  /* The certificate ID is the sheet's upsert key, so a collision is a lost record —
+     two rows merge and the second rep's completion, score and code are all silently
+     discarded, because upsert_ only fills empty cells.
+
+     Two things were wrong with the old seed, `name|course|niceDate()`:
+
+     1. EMAIL WAS ABSENT. Email is the identity everywhere else in the system. Two
+        "Mike Smith"s at different stores certifying on the same product on the same day
+        produced the same ID, and the second one vanished from the sheet while his real,
+        redeemable Shopify code sat in the store with no row tracking it.
+     2. THE DATE WAS THE LOCALIZED DISPLAY STRING. niceDate() renders through the
+        BROWSER's locale, so the same person on the same day got a different ID from a
+        de-DE browser than an en-US one — and the ID is what correlates the pass, the
+        code and the row.
+
+     Now: lowercased email + a stable ISO day + the course, and the full hash rather
+     than a 6-char truncation that threw away a base36 digit. Existing certificates keep
+     their stored IDs; only new passes use this. */
   function certId(seed) {
     var h = 2166136261 >>> 0;
     for (var i = 0; i < seed.length; i++) { h ^= seed.charCodeAt(i); h = Math.imul(h, 16777619) >>> 0; }
-    var b = h.toString(36).toUpperCase(); while (b.length < 6) b = "0" + b;
-    return "GP-" + b.slice(0, 3) + "-" + b.slice(3, 6);
+    var b = h.toString(36).toUpperCase(); while (b.length < 7) b = "0" + b;
+    return "GP-" + b.slice(0, 3) + "-" + b.slice(3);
+  }
+  // Stable across locales and time zones, unlike the human-readable niceDate().
+  function isoDay() { var d = new Date(); return d.getFullYear() + "-" + ("0" + (d.getMonth() + 1)).slice(-2) + "-" + ("0" + d.getDate()).slice(-2); }
+  function certSeed(email, name, thing) {
+    return String(email || "").trim().toLowerCase() + "|" + String(name || "") + "|" + thing + "|" + isoDay();
   }
   function sealHTML(pct, label) {
     return '<div class="cert-seal" aria-hidden="true"><svg viewBox="0 0 132 132">' +

@@ -166,7 +166,17 @@ function rowKey_(ev) {
      Its own name would give `code_issued|email|` while the milestone row it belongs
      to is `trio|email|`, and the 30% and 35% codes would each sit on an orphan row
      with no name, store or date beside them — exactly the rows nobody could act on. */
-  var kind = (ev.type === "code_issued") ? String(ev.tier || "") : String(ev.type || "");
+  /* LADDER's tier keys and the milestone event types do not all use the same word:
+     the 4-course rung is keyed "master" by LADDER but reported as "elite". Without this
+     map the 35% code keyed on "master|email|" while its milestone row was
+     "elite|email|", so the code sat alone on a row with no name, store or date — the
+     exact "rows nobody could act on" this function exists to prevent. Mapped here
+     rather than renamed in LADDER because the key is also the tier name the deployed
+     reward endpoint mints against, and codes already issued use it. */
+  var TIER_TO_EVENT = { master: "elite" };
+  var kind = (ev.type === "code_issued")
+    ? String(TIER_TO_EVENT[ev.tier] || ev.tier || "")
+    : String(ev.type || "");
   return [kind, String(ev.email || "").toLowerCase(), String(ev.courseSlug || "")].join("|");
 }
 

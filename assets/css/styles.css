@@ -1373,3 +1373,12 @@ a.linklike.backdash { display: grid; place-items: center; min-height: 44px; widt
 .field input { border-color: #8f8d84; }
 .field input:focus-visible { outline: 3px solid var(--ink); outline-offset: 2px; }
 .choice:focus-visible, .btn:focus-visible, .langsel-btn:focus-visible { outline: 3px solid var(--ink); outline-offset: 2px; }
+
+
+/* The compliance line on every "At the counter" section. Deliberately quieter than
+   .sell-trap — the trap is product advice a rep should act on, this is a standing rule
+   that must be present and readable without shouting on all six pages. */
+.sell-health { display: flex; gap: 10px; margin: 12px 0 0; padding: 12px 14px;
+  border: 1px dashed var(--line); border-radius: var(--r-sm);
+  background: #fbfbf9; color: var(--ink-2); font-size: 14px; line-height: 1.5; }
+.sell-health b { color: var(--ink); }
