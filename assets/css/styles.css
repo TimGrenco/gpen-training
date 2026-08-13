@@ -15,8 +15,8 @@
   --gold: #956f23;          /* gold for TEXT on white — verified 4.59:1 */
   --gold-bright: #FEC870;   /* brand gold for fills/accents */
   --ember: #D75D43;
-  --ok: #2f8f5b;
-  --bad: #cf4634;
+  --ok: #1f7347;
+  --bad: #b8362a;
   --shadow: 0 2px 8px rgba(17,17,17,.05), 0 12px 34px rgba(17,17,17,.07);
   --shadow-lg: 0 20px 60px rgba(17,17,17,.16);
   --font: 'Archivo', system-ui, -apple-system, 'Segoe UI', sans-serif;
@@ -384,14 +384,25 @@ h1, h2, h3, h4 { margin: 0; line-height: 1.08; letter-spacing: -.02em; }
 .quiz-q { font-size: clamp(19px, 3.6vw, 24px); font-weight: 800; letter-spacing: -.02em; margin: 8px 0 18px; }
 .quiz-choices { display: grid; gap: 10px; }
 .choice { display: flex; align-items: center; gap: 12px; width: 100%; text-align: left; background: #fff; border: 2px solid var(--line); border-radius: var(--r-sm); padding: 14px 16px; font: inherit; font-size: 15.5px; font-weight: 600; cursor: pointer; transition: border-color .14s, background .14s, transform .1s; }
-.choice:hover:not(:disabled) { border-color: var(--ink); }
-.choice:active:not(:disabled) { transform: scale(.99); }
+/* :disabled -> [aria-disabled] throughout. choose() no longer sets the disabled
+   property, because doing so blurred the button the rep had just pressed and dropped
+   keyboard focus to <body> on every single answer. */
+.choice:hover:not([aria-disabled]) { border-color: var(--ink); }
+.choice:active:not([aria-disabled]) { transform: scale(.99); }
+.choice[aria-disabled] { cursor: default; }
+/* The verdict chip. Right/wrong used to be border colour plus two near-identical
+   off-white fills — indistinguishable to a red-green colour-blind rep, who was left
+   with no signal at all once the aria-label did the work for screen readers only. */
+.ch-verdict { margin-left: auto; flex: none; font-size: 11.5px; font-weight: 900;
+  letter-spacing: .04em; text-transform: uppercase; padding: 3px 8px; border-radius: 999px; }
+.choice.correct .ch-verdict { background: var(--ok); color: #fff; }
+.choice.wrong .ch-verdict { background: var(--bad); color: #fff; }
 .ch-key { flex: none; width: 28px; height: 28px; display: grid; place-items: center; background: var(--cream); border: 1px solid var(--line); border-radius: 8px; font-weight: 900; font-size: 13px; }
 .choice.correct { border-color: var(--ok); background: #f0f7f1; }
 .choice.correct .ch-key { background: var(--ok); color: #fff; border-color: var(--ok); }
 .choice.wrong { border-color: var(--bad); background: #fbf0ee; }
 .choice.wrong .ch-key { background: var(--bad); color: #fff; border-color: var(--bad); }
-.choice:disabled { cursor: default; }
+
 .quiz-why { margin-top: 16px; padding: 14px 16px; border-radius: var(--r-sm); font-size: 14.5px; }
 .quiz-why.ok { background: #f0f7f1; }
 .quiz-why.no { background: #fbf0ee; }
@@ -404,7 +415,10 @@ h1, h2, h3, h4 { margin: 0; line-height: 1.08; letter-spacing: -.02em; }
 
 .result { background: #fff; border: 1px solid var(--line); border-radius: var(--radius); padding: 28px 24px; text-align: center; box-shadow: var(--shadow); }
 .result-score { font-size: 54px; font-weight: 900; letter-spacing: -.04em; line-height: 1; }
-.result-score span { display: block; font-size: 15px; color: var(--stone); font-weight: 700; margin-top: 2px; }
+/* letter-spacing: normal — the parent's -.04em is tracking for a 54px numeral and
+   is inherited by this 15px caption, where it crushes the word spaces so tightly
+   that "11 of 11 correct" reads as "11of11correct". */
+.result-score span { display: block; font-size: 15px; color: var(--stone); font-weight: 700; margin-top: 2px; letter-spacing: normal; }
 .result h3 { font-size: 24px; margin: 12px 0 6px; display: inline-flex; align-items: center; gap: 6px; }
 .result h3 svg { width: 22px; height: 22px; color: var(--ok); }
 .result p { color: var(--stone); margin: 0 auto 18px; max-width: 420px; }
@@ -1330,3 +1344,32 @@ a.linklike.backdash { display: grid; place-items: center; min-height: 44px; widt
    title; the heading is gone and the status keeps its own line, which is the part that
    actually changes as a rep progresses. */
 .rw-status-line { margin: 18px 0 0; font-size: 15px; font-weight: 800; color: var(--ink); }
+
+
+/* ---- reduced motion -------------------------------------------------------
+   Four scoped blocks already existed (reveal, cert, vapor, score-pop) but they
+   missed the two things that fire most: html{scroll-behavior:smooth}, which drives
+   every jump in the app, and the hover/modal transitions. A rep with vestibular
+   sensitivity took thirteen smooth scrolls per course from the quiz alone. */
+@media (prefers-reduced-motion: reduce) {
+  html { scroll-behavior: auto; }
+  *, *::before, *::after {
+    animation-duration: .01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: .01ms !important;
+  }
+}
+
+
+/* ---- inline field errors --------------------------------------------------
+   Persistent, next to the field, and referenced by aria-describedby. The toast
+   remains for sighted users mid-page, but it is no longer the only channel: it
+   self-destructed after 2.6s and was frequently never announced at all. */
+.field-err { display: block; margin-top: 6px; color: var(--bad);
+  font-size: 13px; font-weight: 700; line-height: 1.35; }
+.field input[aria-invalid="true"] { border-color: var(--bad); }
+/* 1.25:1 borders were the only thing marking where to type, and :focus removed the
+   outline entirely. Both are the control's whole affordance at 3:1 minimum. */
+.field input { border-color: #8f8d84; }
+.field input:focus-visible { outline: 3px solid var(--ink); outline-offset: 2px; }
+.choice:focus-visible, .btn:focus-visible, .langsel-btn:focus-visible { outline: 3px solid var(--ink); outline-offset: 2px; }

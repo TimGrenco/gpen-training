@@ -247,10 +247,15 @@ window.reportPendingCodes = function () {
     var entry = map[k];
     if (!entry || !entry.code || entry.reported) return;
     if (!entry.ctx) { entry.reported = "n/a"; changed = true; return; }
-    if (reportCode_(entry.type || String(k).split("|")[0], entry)) {
-      entry.reported = new Date().toISOString();
-      changed = true;
-    }
+    // Stamp on delivery, re-reading the cache inside the callback: several codes
+    // replay together and each write must not clobber the others.
+    (function (key, ent) {
+      Promise.resolve(reportCode_(ent.type || String(key).split("|")[0], ent)).then(function (ok) {
+        if (!ok) return;
+        var m2 = readRewardCache();
+        if (m2[key]) { m2[key].reported = new Date().toISOString(); writeRewardCache(m2); }
+      });
+    }(k, entry));
   });
   if (changed) writeRewardCache(map);
 };
@@ -306,7 +311,20 @@ window.issueRewardCode = function (type, ctx) {
     return Promise.resolve(null);
   }
 
+  /* A bare fetch() with no timeout was the single worst failure on store wifi: it can
+     hang indefinitely, and the caller renders the code only on success, so the reward
+     area stayed silently empty forever. The rep had just been promised a discount code
+     by name, passed the quiz, and got nothing — with no spinner, no error, and no hint
+     that reloading would retry. 12 seconds is well past a normal round trip and well
+     inside the patience of someone standing at a counter. */
+  var ctl = null, timer = null;
+  try {
+    ctl = new AbortController();
+    timer = setTimeout(function () { try { ctl.abort(); } catch (e) {} }, 12000);
+  } catch (e) { ctl = null; }
+
   return fetch(rw.url, {
+    signal: ctl ? ctl.signal : undefined,
     method: "POST",
     // text/plain keeps this a CORS "simple request" — no preflight, which is what
     // lets a Google Apps Script endpoint work as a drop-in alternative to Vercel.
@@ -320,7 +338,7 @@ window.issueRewardCode = function (type, ctx) {
       courseSlug: (ctx && ctx.courseSlug) || "",
     }),
   })
-    .then(function (r) { return r.ok ? r.json() : null; })
+    .then(function (r) { if (timer) clearTimeout(timer); return r.ok ? r.json() : null; })
     .then(function (data) {
       if (!data || !data.code) {
         if (window.console) console.warn("[gpen-training] the reward endpoint returned no code for tier '" + type + "'", data);
@@ -342,11 +360,22 @@ window.issueRewardCode = function (type, ctx) {
          whose redemption status can never be filled in. */
       out.ctx = { email: email, name: (ctx && ctx.name) || "", store: (ctx && ctx.store) || "",
                   courseSlug: (ctx && ctx.courseSlug) || "", certId: (ctx && ctx.certId) || "" };
-      out.reported = reportCode_(type, out) ? new Date().toISOString() : "";
+      /* Cache the code immediately — the rep needs it on screen now — but stamp
+         `reported` only once the POST lands. Same dispatch-vs-delivery bug as the
+         course events: an optimistic stamp made a failed send permanent, because
+         reportPendingCodes() skips anything already stamped. Unstamped means it
+         replays on the next load, so a failure costs a retry, not the record. */
+      out.reported = "";
       var map = readRewardCache(); map[cacheKey] = out; writeRewardCache(map);
+      Promise.resolve(reportCode_(type, out)).then(function (ok) {
+        if (!ok) return;
+        var m2 = readRewardCache();
+        if (m2[cacheKey]) { m2[cacheKey].reported = new Date().toISOString(); writeRewardCache(m2); }
+      });
       return out;
     })
     .catch(function (err) {
+      if (timer) clearTimeout(timer);
       if (window.console) console.warn("[gpen-training] the reward endpoint could not be reached; no code issued.", err);
       return null;
     });
@@ -368,14 +397,26 @@ window.issueRewardCode = function (type, ctx) {
 window.reportCompletion = function (event) {
   var cfg = (window.TRAINING_CONFIG && window.TRAINING_CONFIG.reporting) || {};
   if (!cfg.url) return false; // reporting disabled — nothing sent, so not reported
+  /* RETURNS A PROMISE OF DELIVERY, not a synchronous "we tried".
+
+     This used to fire the fetch, discard the promise, and `return true`. fetch only
+     throws synchronously on bad arguments — a dead network REJECTS the promise — so the
+     old code reported success for a POST that never left the device. The caller then
+     stamped the event as reported and every later boot() skipped it. A rep in a back
+     room on flaky LTE lost that completion permanently, which is the exact failure the
+     earned-vs-reported split exists to prevent, defeated by the return value.
+
+     mode:"no-cors" still resolves on network success and rejects on network failure, so
+     delivery is observable even though the response body is not. */
   try {
-    fetch(cfg.url, {
+    return fetch(cfg.url, {
       method: "POST",
       mode: "no-cors",
       keepalive: true,
       headers: { "Content-Type": "text/plain;charset=utf-8" },
       body: JSON.stringify(Object.assign({ sentAt: new Date().toISOString() }, event)),
-    });
-    return true;
-  } catch (e) { return false; /* best-effort; progress is also stored on-device */ }
+    }).then(function () { return true; }, function () { return false; });
+  } catch (e) {
+    return false; /* best-effort; progress is also stored on-device */
+  }
 };

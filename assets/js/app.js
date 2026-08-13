@@ -43,7 +43,14 @@
      "master" event still fired in preview, and master is the event the winner
      counter actually reads, so a reviewer screenshotting the flow could advance
      the real queue — while the banner promised "no entries are recorded". */
-  function sendReport(payload) {
+  /* Takes a `commit` callback and runs it ONLY once the POST actually lands. The
+     callback re-reads state rather than closing over it, because delivery resolves a
+     tick or more later and the caller's `s` object is stale by then — several of these
+     fire together during boot()'s backfill.
+
+     Returns nothing useful on purpose: there is no synchronous answer to "did this
+     arrive", and pretending otherwise is what lost records before. */
+  function sendReport(payload, commit) {
     if (DRAW_PREVIEW) return false;
     /* Stamp the 21+ / authorized-staff attestation onto EVERY event rather than onto
        the course call alone. It is a signup field, so it belongs to the person, not to
@@ -52,8 +59,17 @@
        this is the single choke point; adding it per call site would mean four places
        to keep in step, and the tier events would silently lack it. */
     var e = getEnroll() || {};
-    return !!(window.reportCompletion && window.reportCompletion(Object.assign(
-      { attest21: !!e.attest21, attestedAt: e.attestedAt || "" }, payload)));
+    if (typeof window.reportCompletion !== "function") return false;
+    var out = window.reportCompletion(Object.assign(
+      { attest21: !!e.attest21, attestedAt: e.attestedAt || "" }, payload));
+    if (out === false) return false;              // reporting not configured
+    Promise.resolve(out).then(function (ok) { if (ok && commit) commit(); });
+    return true;                                  // dispatched, not yet delivered
+  }
+  /* Stamp a top-level state key on delivery. Re-reads and re-writes state so it cannot
+     clobber a concurrent write from another event landing at the same moment. */
+  function stampOnDelivery(key) {
+    return function () { var s2 = getState(); s2[key] = new Date().toISOString(); setState(s2); };
   }
   /* The free-device prize needs FOUR things to render, and two of them are
      deliberate human gates: `live` (counsel has signed off) and `rulesUrl` (the
@@ -301,10 +317,9 @@
     REPORT_TIERS.forEach(function (tier) {
       if (done < tier.at) return;
       if (!s[tier.flag]) { s[tier.flag] = { at: new Date().toISOString() }; changed = true; logEvent(tier.flag, {}, s); }
-      if (!s[tier.flag + "Reported"] &&
-          sendReport({ type: tier.type, name: e.name, email: e.email, store: e.store, product: tier.label, score: 100, certId: "", date: niceDate() })) {
-        s[tier.flag + "Reported"] = new Date().toISOString();
-        changed = true;
+      if (!s[tier.flag + "Reported"]) {
+        sendReport({ type: tier.type, name: e.name, email: e.email, store: e.store, product: tier.label, score: 100, certId: "", date: niceDate() },
+          stampOnDelivery(tier.flag + "Reported"));
       }
     });
     if (changed) setState(s);
@@ -326,16 +341,16 @@
     // Reporting is tracked separately from the stamp, and retried until it lands,
     // so certifications earned before the webhook existed are not lost. Reuses the
     // STORED certId/date so a late resend logs the certificate the rep is holding.
-    if (!s.masterReported &&
-        sendReport({ type: "master", name: e.name, email: e.email, store: e.store, product: "Full Lineup", score: 100, certId: m.certId, date: m.date })) {
-      s.masterReported = new Date().toISOString(); changed = true;
+    if (!s.masterReported) {
+      sendReport({ type: "master", name: e.name, email: e.email, store: e.store, product: "Full Lineup", score: 100, certId: m.certId, date: m.date },
+        stampOnDelivery("masterReported"));
     }
     // Full-lineup certification = one entry in the free-device prize. Never fires
     // in preview (no pool to enter), and stays pending so the rep is entered for
     // real the first time they load the page after the prize actually goes live.
-    if (!s.masterEntryReported && drawLive() &&
-        sendReport({ type: "sweepstakes_entry", name: e.name, email: e.email, store: e.store, product: "Free device prize", score: 100, certId: m.certId, date: m.date })) {
-      s.masterEntryReported = new Date().toISOString(); changed = true;
+    if (!s.masterEntryReported && drawLive()) {
+      sendReport({ type: "sweepstakes_entry", name: e.name, email: e.email, store: e.store, product: "Free device prize", score: 100, certId: m.certId, date: m.date },
+        stampOnDelivery("masterEntryReported"));
     }
     if (changed) setState(s);
     return m;
@@ -346,16 +361,21 @@
      lost forever, and a later backfill would resurrect a rep's trio/elite/master
      rows with no course history behind them. Idempotent; safe to call anywhere. */
   function reportCourses() {
-    var s = getState(), e = getEnroll() || {}, changed = false;
+    var s = getState(), e = getEnroll() || {};
     COURSES.forEach(function (c) {
       var r = s.courses[c.slug];
       if (!r || !r.passed || r.reported) return;
-      if (sendReport({ type: "course", name: r.name || e.name, email: e.email, store: e.store,
-            product: "G Pen " + c.name, courseSlug: c.slug, score: r.score, certId: r.certId, date: r.date })) {
-        r.reported = new Date().toISOString(); changed = true;
-      }
+      // No `changed` bookkeeping here any more: the stamp is written by the delivery
+      // callback, which re-reads state itself. Writing it here would be the old bug.
+      sendReport({ type: "course", name: r.name || e.name, email: e.email, store: e.store,
+            product: "G Pen " + c.name, courseSlug: c.slug, score: r.score, certId: r.certId, date: r.date },
+        (function (slug) {
+          return function () {
+            var s2 = getState();
+            if (s2.courses[slug]) { s2.courses[slug].reported = new Date().toISOString(); setState(s2); }
+          };
+        }(c.slug)));
     });
-    if (changed) setState(s);
   }
 
   /* ---- icons (inline SVG) ------------------------------------------------ */
@@ -803,6 +823,12 @@
     "</section>";
   }
 
+  /* Vestibular safety: choose() fires a smooth scroll on EVERY answer, so a rep with
+     motion sensitivity got thirteen forced glides per course. CSS reduced-motion blocks
+     cannot reach scrollIntoView's behavior argument, so it has to be asked in JS. */
+  function prefersReducedMotion() {
+    try { return window.matchMedia("(prefers-reduced-motion: reduce)").matches; } catch (e) { return false; }
+  }
   function scrollToId(id) { var el = document.getElementById(id); if (el) el.scrollIntoView({ behavior: "smooth", block: "start" }); }
   function lifestyleImgs() {
     if (window.GPEN_LIFESTYLE && window.GPEN_LIFESTYLE.length) return window.GPEN_LIFESTYLE.slice();
@@ -922,9 +948,34 @@
       "</footer>";
   }
 
+  /* `required` + a persistent error node, because the only error channel used to be a
+     2.6-second toast. Three things were wrong with that: the toast is created and
+     populated in one task (a live region registered with content already in it is
+     routinely not announced), re-submitting the same error mutates nothing so it stays
+     silent on every retry, and the .focus() on the next line pre-empts the announcement
+     anyway. A blind rep pressed "Start the quiz", heard nothing, and could not begin the
+     training. The message also vanished after 2.6s, so a sighted rep who looked away
+     came back to a form that simply appeared not to work. */
   function field(id, label, type, val, ph, ac) {
     return '<label class="field"><span>' + label + "</span>" +
-      '<input id="f-' + id + '" type="' + type + '" value="' + esc(val || "") + '" placeholder="' + esc(ph) + '" autocomplete="' + ac + '" /></label>';
+      '<input id="f-' + id + '" type="' + type + '" value="' + esc(val || "") + '" placeholder="' + esc(ph) +
+        '" autocomplete="' + ac + '" required aria-describedby="e-' + id + '" />' +
+      '<span class="field-err" id="e-' + id + '" hidden></span></label>';
+  }
+  /* Shows the message where the problem is and keeps it there. Returns false so callers
+     read as `if (!fieldError(...)) return;`. */
+  function fieldError(id, msg) {
+    var input = $("#f-" + id), err = $("#e-" + id);
+    if (err) { err.textContent = msg; err.hidden = false; }
+    if (input) { input.setAttribute("aria-invalid", "true"); input.focus(); }
+    toast(msg);   // keep the toast for sighted users mid-page
+    return false;
+  }
+  function clearFieldErrors() {
+    $$(".field-err").forEach(function (e) { e.textContent = ""; e.hidden = true; });
+    $$(".field input").forEach(function (i) { i.removeAttribute("aria-invalid"); });
+    var at = $("#f-attest"); if (at) at.removeAttribute("aria-invalid");
+    var ae = $("#e-attest"); if (ae) { ae.textContent = ""; ae.hidden = true; }
   }
 
   /* The reward ladder, shown as an "earn it" tracker on the home hub. Rungs come
@@ -1449,7 +1500,7 @@
              affirming about themselves, and a machine-translated version of it is
              not the statement counsel reviewed. It stays in English until a
              qualified translation is signed off per market. */
-          '<label class="attest"><input type="checkbox" id="f-attest" />' +
+          '<span class="field-err" id="e-attest" hidden></span><label class="attest"><input type="checkbox" id="f-attest" aria-describedby="e-attest" />' +
             '<span lang="en">I confirm I am 21 or older and currently work as authorized retail staff at a licensed dispensary or smoke shop.</span></label>' +
           '<button class="btn xl full" id="start-quiz">' + t("Start the quiz") + " " + ic("arrow") + "</button>" +
           /* ONE unconditional disclosure, deliberately not branched on whether a
@@ -1467,10 +1518,20 @@
       "</div>";
     $("#start-quiz").addEventListener("click", function () {
       var name = $("#f-name").value.trim(), email = $("#f-email").value.trim(), store = $("#f-store").value.trim();
-      if (!name) { toast(tx("Enter your name for the certificate.")); $("#f-name").focus(); return; }
-      if (!email || email.indexOf("@") < 0) { toast(tx("Enter a valid email address.")); $("#f-email").focus(); return; }
-      if (!store) { toast(tx("Enter your store name.")); $("#f-store").focus(); return; }
-      if (!$("#f-attest").checked) { toast(tx("Confirm you are 21 or older and authorized retail staff.")); $("#f-attest").focus(); return; }
+      clearFieldErrors();
+      if (!name) { fieldError("name", tx("Enter your name for the certificate.")); return; }
+      // Was `indexOf("@") < 0`, which accepted "a@". That string became the reward
+      // cache key, the Shopify code's seed, and the address a prize winner is notified
+      // at — a certificate nobody can ever be sent.
+      if (!/^[^@\s]+@[^@\s]+\.[^@\s]+$/.test(email)) { fieldError("email", tx("Enter a valid email address.")); return; }
+      if (!store) { fieldError("store", tx("Enter your store name.")); return; }
+      if (!$("#f-attest").checked) {
+        var ae = $("#e-attest"), at = $("#f-attest");
+        if (ae) { ae.textContent = tx("Confirm you are 21 or older and authorized retail staff."); ae.hidden = false; }
+        if (at) { at.setAttribute("aria-invalid", "true"); at.focus(); }
+        toast(tx("Confirm you are 21 or older and authorized retail staff."));
+        return;
+      }
       var prev = getEnroll();
       /* Shared counter tablet: a second rep would otherwise inherit the first
          rep's passed courses and mint certificates on top of them. The form
@@ -1520,7 +1581,11 @@
         '<div class="quiz-choices">' + shuffle(q.choices.map(function (_, ci) { return ci; })).map(function (ci, pos) {
           return '<button class="choice" data-ci="' + ci + '"><span class="ch-key">' + String.fromCharCode(65 + pos) + "</span><span>" + en(esc(q.choices[ci])) + "</span></button>";
         }).join("") + "</div>" +
-        '<div class="quiz-why" hidden></div>' +
+        // role/aria-live are declared HERE, not added alongside the content in
+        // choose(). A live region that gains its role in the same task as its text is
+        // the canonical "nothing is announced" bug in NVDA and JAWS — the region has to
+        // already exist for the mutation to be observed.
+        '<div class="quiz-why" role="status" aria-live="polite" hidden></div>' +
         '<button class="btn xl next" id="q-next" hidden></button>' +
       "</div>";
       $$(".choice", zone).forEach(function (b) { b.addEventListener("click", function () { choose(parseInt(b.getAttribute("data-ci"), 10), q); }); });
@@ -1535,19 +1600,31 @@
       answers[i] = ci;
       var correct = ci === q.answer;
       if (correct) correctSoFar += 1;
+      /* aria-disabled, NOT disabled. Setting .disabled on the button the rep just
+         activated blurs it, dropping focus to <body> — so a keyboard user was thrown to
+         the top of the document on every answer and had to tab past the skip link, the
+         nav, the language picker and every gallery button to reach "Next question",
+         thirteen times per course. The `answers[i] != null` guard above already makes
+         re-answering impossible, so `disabled` was only ever cosmetic.
+
+         The verdict is also a VISIBLE chip now, not just an aria-label. Colour alone
+         carried it before: .correct and .wrong differ by border plus two near-identical
+         off-white fills, which a red-green colour-blind rep cannot tell apart. An
+         aria-label fixes the screen reader and leaves them with nothing.
+
+         Appending a span rather than overwriting aria-label also preserves the
+         lang="en" wrapper that en() puts around the choice text — aria-label cannot
+         carry lang, so overwriting it made a Spanish screen reader read English
+         answers with Spanish phonetics. */
       $$(".choice", zone).forEach(function (b) {
         var bci = parseInt(b.getAttribute("data-ci"), 10);
-        b.disabled = true;
-        // Right/wrong was carried by colour alone. Label it for anyone who can't
-        // use colour, and for screen readers reading back the options.
-        if (bci === q.answer) { b.classList.add("correct"); b.setAttribute("aria-label", b.textContent.trim() + " — " + tx("correct answer")); }
-        else if (bci === ci) { b.classList.add("wrong"); b.setAttribute("aria-label", b.textContent.trim() + " — " + tx("your answer, incorrect")); }
+        b.setAttribute("aria-disabled", "true");
+        if (bci === q.answer) { b.classList.add("correct"); b.insertAdjacentHTML("beforeend", '<span class="ch-verdict">' + t("Correct answer") + "</span>"); }
+        else if (bci === ci) { b.classList.add("wrong"); b.insertAdjacentHTML("beforeend", '<span class="ch-verdict">' + t("Your answer") + "</span>"); }
       });
       var why = $(".quiz-why", zone); why.hidden = false;
-      why.className = "quiz-why " + (correct ? "ok" : "no");
-      // announced. role=status makes the explainer speak, and the fixed word in
-      why.setAttribute("role", "status");
-      why.setAttribute("aria-live", "polite");
+      // className would wipe the role/aria-live set in step(); only the tone changes.
+      why.classList.add(correct ? "ok" : "no");
       // Verdict then reason. The verdict is a fixed word, never a randomised line, so
       // a screen reader hears the same thing every time.
       why.innerHTML =
@@ -1559,7 +1636,10 @@
       // below the fold on a phone. block:"end" (plus scroll-margin-bottom) lands
       // the Next button fully on screen with the explainer above it — "nearest"
       // left the button clipped by a few pixels at the viewport edge.
-      n.scrollIntoView({ behavior: "smooth", block: "end" });
+      n.scrollIntoView({ behavior: prefersReducedMotion() ? "instant" : "smooth", block: "end" });
+      // Focus follows the flow. Without this the rep is at <body> and has to tab the
+      // whole page to continue; with it, answering and advancing is one key each.
+      n.focus();
       n.onclick = function () { i++; if (i < c.quiz.length) step(); else finish(); };
     }
     function finish() {
@@ -1681,8 +1761,31 @@
     // the rest of the pass screen. Quiet on screen, loud in the console — a rep
     // who just passed should never see an error, but whoever edits config.js
     // is looking at the console.
+    /* Say something while it is in flight, and say something if it never arrives.
+       Previously this rendered ONLY on success, so a rep on flaky store wifi watched an
+       empty gap where a code had just been promised by name — no spinner, no error, no
+       way to know a reload would retry. Reserving the space also stops the late-arriving
+       card from shoving the missed-question review down the page mid-read. */
+    var pending = (window.TRAINING_CONFIG.rewards || {}).url;
+    if (pending && box) {
+      box.innerHTML = '<div class="reward reward-pending" role="status" aria-live="polite">' +
+        '<div class="reward-ic">' + ic("tag") + "</div>" +
+        '<div class="reward-eyebrow">' + t("Issuing your code…") + "</div></div>";
+    }
     new Promise(function (res) { res(window.issueRewardCode(type, ctx)); }).then(function (r) {
       if (!r || !r.code) {
+        /* A rep who sees nothing files a support ticket they should not have to file.
+           Tell them the certificate is safe — it is, it is already in state — and give
+           them the one action that actually retries. */
+        if (pending && box) {
+          box.innerHTML = '<div class="reward reward-failed" role="status">' +
+            '<div class="reward-ic">' + ic("tag") + "</div>" +
+            '<div class="reward-eyebrow">' + t("Your code didn't come through") + "</div>" +
+            "<p>" + t("Your certificate is saved. Reload this page to try again — nothing is lost.") + "</p>" +
+            '<button class="btn ghost" id="rw-retry">' + ic("refresh") + " " + t("Try again") + "</button></div>";
+          var rt = $("#rw-retry", box);
+          if (rt) rt.addEventListener("click", function () { location.reload(); });
+        }
         // Names rewards.url, not the long-gone TRAINING_CONFIG.discount: an empty
         // endpoint is the actual cause here, and pointing at a key that no longer
         // exists sends whoever is debugging to look for something that isn't there.

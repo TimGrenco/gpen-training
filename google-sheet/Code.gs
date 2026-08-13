@@ -102,6 +102,25 @@ function headerMap_(sh) {
 function doPost(e) {
   var raw = (e && e.postData && e.postData.contents) || "";
   var err = "";
+  /* SERIALIZED. Apps Script serves simultaneous requests concurrently, and upsert_()
+     picks a new row with getLastRow() + 1. boot()'s backfill fires every pending event
+     in the same tick — for a rep with four courses that is four course events, two tier
+     events and several code events, all arriving within milliseconds. Each handler read
+     the same getLastRow() and wrote to the same row; last writer won and the rest were
+     silently overwritten. The backfill, whose entire job is to guarantee nothing is
+     lost, was the most likely place to lose rows — and invisibly, because the portal
+     posts no-cors and never sees a response.
+
+     30s is generous: each handler is a few range reads and writes. A caller that cannot
+     get the lock in that time is told so, and the portal will replay it, because the
+     event stays unstamped until delivery is confirmed. */
+  var lock = LockService.getScriptLock();
+  try {
+    lock.waitLock(30000);
+  } catch (lockErr) {
+    logRaw_(raw, "could not acquire lock: " + lockErr);
+    return ok_({ ok: false, error: "busy" });
+  }
   try {
     var gate = prop_("POST_TOKEN");
     if (gate && (!e.parameter || e.parameter.token !== gate)) {
@@ -113,6 +132,9 @@ function doPost(e) {
     }
   } catch (ex) {
     err = String(ex);
+  }
+  finally {
+    try { lock.releaseLock(); } catch (ignore) {}
   }
   // Logged exactly once, whatever happened — including a rejection, so a wrong
   // token shows up as a visible row rather than as silence.
