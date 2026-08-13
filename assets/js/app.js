@@ -163,7 +163,18 @@
      only because the collectible layer wanted card-flavoured naming. */
   function coursePassed(slug) { var r = getState().courses[slug]; return !!(r && r.passed); }
   function completedCount() { var s = getState(); return COURSES.filter(function (c) { return s.courses[c.slug] && s.courses[c.slug].passed; }).length; }
-  function isMasterEarned() { var s = getState(); return coreSlugs().every(function (sl) { return s.courses[sl] && s.courses[sl].passed; }); }
+  /* The `!slugs.length` guard is load-bearing, not defensive padding. [].every() is
+     VACUOUSLY TRUE, so if data.js fails to load — a 404, a truncated response on LTE, a
+     syntax error in a deploy — COURSES is [] and this returned true for everyone. boot()
+     would then stamp a full-lineup completion, post a false "master" row to the sheet,
+     and mint a real 40% Shopify discount, for every enrolled rep who loaded during the
+     outage. The stamp persists after recovery. An empty lineup means we know nothing,
+     which is the opposite of everything being complete. */
+  function isMasterEarned() {
+    var s = getState(), slugs = coreSlugs();
+    if (!slugs.length) return false;
+    return slugs.every(function (sl) { return s.courses[sl] && s.courses[sl].passed; });
+  }
 
   /* ---- THE REWARD LADDER — one source of truth ---------------------------
      Certified-course count → discount tier. `key` is the config.discount key
@@ -176,7 +187,10 @@
     { at: 1, pct: 25, key: "course" },
     { at: 2, pct: 30, key: "trio" },
     { at: 4, pct: 35, key: "master" },
-    { at: COURSES.length, pct: 40, key: "secret" },   // the whole lineup
+    // `|| Infinity` for the same reason isMasterEarned() guards: with COURSES empty this
+    // rung becomes at:0, and tierAt(0) would hand a rep who has passed nothing the top
+    // 40% tier. Unreachable is the correct behaviour when the lineup is unknown.
+    { at: COURSES.length || Infinity, pct: 40, key: "secret" },   // the whole lineup
   ];
   // Highest tier earned at `done` certified courses — null before the first pass.
   function tierAt(done) {
@@ -666,6 +680,9 @@
           (cn ? ": " + cn + " course certificate" + (cn === 1 ? "" : "s") : "") +
           ".\n\nThis cannot be undone. Continue?")) {
         localStorage.removeItem(K_STATE); localStorage.removeItem(K_ENROLL);
+        // The codes go too. The confirm says this erases their training; a reward cache
+        // that outlives the reset hands the next person live, single-use codes.
+        if (typeof window.clearRewardCache === "function") window.clearRewardCache();
         toast(tx("Progress cleared."));
         go("#/");
       }
@@ -769,8 +786,6 @@
 
     fillRewards();
     fillHeroCode();
-    $$("[data-goto]").forEach(function (el) { el.addEventListener("click", function () { go("#/course/" + el.getAttribute("data-goto")); }); });
-    $$("[data-scroll]").forEach(function (el) { el.addEventListener("click", function () { scrollToId(el.getAttribute("data-scroll")); }); });
     revealOnScroll();
   }
 
@@ -1474,6 +1489,9 @@
             tfx("Continuing as {name} will clear the progress saved on this device{lost}. This cannot be undone.", { name: name, lost: lost ? ", " + tfx("including {lost}", { lost: lost }) : "" }) + "\n\n" +
             tfx("Continue as {name}?", { name: name }))) return;
         localStorage.removeItem(K_STATE);
+        // Same reason as the reset path: otherwise the incoming rep can read — and
+        // spend — the outgoing rep's single-use codes straight from the cache.
+        if (typeof window.clearRewardCache === "function") window.clearRewardCache();
       }
       setEnroll({ name: name, email: email, store: store, attest21: true, attestedAt: new Date().toISOString(), ts: (!handover && prev && prev.ts) || new Date().toISOString() });
       if (!prev || handover) logEvent("enroll", { name: name, email: email, store: store });
@@ -1679,7 +1697,7 @@
         '<button class="code" id="code-copy" title="' + tx("Copy code") + '"><span>' + esc(r.code) + "</span><em>" + t("Tap to copy") + "</em></button>" +
         "<p>" + (r.note ? t(r.note) : "") + "</p>" +
         '<a class="btn xl" href="' + esc(CFG.shopUrl) + '" target="_blank" rel="noopener">' + t("Shop gpen.com") + " " + ic("arrow") + "</a>" +
-        '<p class="reward-terms">' + (r.terms ? esc(r.terms) + " " : "") + t("Earned by completing training. Not tied to sales, orders, or product recommendations.") + "</p>" +
+        '<p class="reward-terms">' + (r.terms ? t(r.terms) + " " : "") + t("Earned by completing training. Not tied to sales, orders, or product recommendations.") + "</p>" +
       "</div>";
       // Was an inline re-implementation of copyText() that had already drifted from it:
       // it skipped sfx.play("copy") and toasted "Code copied!" instead of naming the
@@ -1780,7 +1798,6 @@
       '<div class="cert-actions">' +
         '<button class="btn" id="cert-print">' + ic("print") + " " + t("Print certificate") + "</button>" +
         '<button class="btn ghost" id="cert-dl">' + ic("dl") + " " + t("Download image") + "</button>" +
-        '<button class="btn gold" id="cert-ig">' + ic("share") + " " + t("Save story image") + "</button>" +
         '<button class="btn ghost" id="cert-mail">' + ic("mail") + " " + t("Email it") + "</button>" +
       "</div>";
     $("#cert-print").addEventListener("click", printCert);
@@ -1901,7 +1918,6 @@
       '<div class="cert-actions">' +
         '<button class="btn" id="cert-print">' + ic("print") + " " + t("Print certificate") + "</button>" +
         '<button class="btn ghost" id="cert-dl">' + ic("dl") + " " + t("Download image") + "</button>" +
-        '<button class="btn gold" id="cert-ig">' + ic("share") + " " + t("Save story image") + "</button>" +
         '<button class="btn ghost" id="cert-mail">' + ic("mail") + " " + t("Email it") + "</button>" +
       "</div>";
     $("#cert-print").addEventListener("click", printCert);
@@ -2026,6 +2042,23 @@
   }
   function boot() {
     app = $("#app"); // re-resolve in case the script loaded before #app parsed
+    /* index.html injects config/data/locale/app as four independent <script> tags, so
+       app.js can boot perfectly well with data.js missing. Everything downstream — the
+       ladder, the completion count, the reporting backfill, the reward minting — is
+       meaningless without the lineup, and several paths read "nothing known" as
+       "everything done". Stop here, say so, and touch neither state nor Shopify. */
+    if (!COURSES.length) {
+      if (window.console) console.error("[gpen-training] GPEN_COURSES is empty or missing — data.js did not load. Refusing to boot: progress, reporting and reward issuance are all suppressed.");
+      if (app) {
+        app.innerHTML = '<div class="boot boot-fail" role="alert">' +
+          "<p><strong>" + tx("This page didn't load completely.") + "</strong></p>" +
+          "<p>" + tx("Check your connection and reload. Your progress and certificates are safe.") + "</p>" +
+          '<button class="btn" id="boot-retry">' + tx("Reload") + "</button></div>";
+        var rb = $("#boot-retry");
+        if (rb) rb.addEventListener("click", function () { location.reload(); });
+      }
+      return;
+    }
     // Before the first render, and before any reporting reads a course name.
     applyCourseI18n();
     applyAboutI18n();

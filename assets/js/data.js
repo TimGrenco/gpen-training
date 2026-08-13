@@ -294,7 +294,7 @@ window.GPEN_COURSES = [
     ],
   },
 
-  /* -------------------------------------------------------- MELT HOT KNIFE */
+  /* ------------------------------------------------------- 3-PIECE GRINDER */
   {
     /* Added from the official one-sheet (20260617_GPEN_Grinder_Onesheet) plus the
        product photography in the asset portal. NOTE: this product is not on
@@ -403,6 +403,7 @@ window.GPEN_COURSES = [
       { q: "A customer asks what the patented part actually is. What is accurate?", choices: ["The magnetic lid closure", "The micro-rounded tooth design", "The 6063 aluminum alloy", "The 64mm form factor"], answer: 1, why: "Patent No. 11690480 covers the micro-rounded teeth — the gentle-separation design. It is printed right on the rim, so a curious customer can read it themselves." },
     ],
   },
+  /* -------------------------------------------------------- MELT HOT KNIFE */
   {
     slug: "melt-hot-knife",
     name: "Melt Hot Knife",

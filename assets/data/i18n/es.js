@@ -39,6 +39,9 @@ window.GPEN_I18N = {
     "Program and press:": "Programa y prensa:",
     "for authorized G Pen retail partners.": "para socios minoristas autorizados de G Pen.",
     "Reset my progress and start over": "Borrar mi progreso y empezar de nuevo",
+    "This page didn't load completely.": "Esta página no se cargó por completo.",
+    "Check your connection and reload. Your progress and certificates are safe.": "Comprueba tu conexión y vuelve a cargar. Tu progreso y tus certificados están a salvo.",
+    "Reload": "Volver a cargar",
     "Progress cleared.": "Progreso borrado.",
     "Close": "Cerrar",
 
@@ -219,7 +222,6 @@ window.GPEN_I18N = {
     "Certificate ID": "ID del certificado",
     "Print certificate": "Imprimir certificado",
     "Download image": "Descargar imagen",
-    "Save story image": "Guardar imagen para stories",
     "Email it": "Enviar por correo",
     "Full lineup certified": "Gama completa certificada",
     "Full Lineup Certified": "Gama completa certificada",

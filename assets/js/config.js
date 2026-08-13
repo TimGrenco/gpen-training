@@ -255,6 +255,21 @@ window.reportPendingCodes = function () {
   if (changed) writeRewardCache(map);
 };
 
+/* Wipe every cached code. Exported because app.js owns the two places a device changes
+   hands — "Reset my progress" and the certify-form handover — but config.js owns the
+   key, and a second copy of "gpt.rewards" in app.js would drift the first time either
+   moved.
+
+   This is not tidiness. The cache holds each code AND the ctx that produced it (email,
+   name, store, certId), and every code surface — the done-hero, the ladder cards, an
+   already-passed course page — resolves straight from it with no identity check. So the
+   next person to pick up a shared counter tablet was shown the previous rep's live,
+   single-use Shopify codes with a "Tap to copy" button. One tap burns a reward someone
+   else earned. Both confirms also promised the data was erased, which it was not. */
+window.clearRewardCache = function () {
+  try { localStorage.removeItem(REWARD_CACHE_KEY); } catch (e) {}
+};
+
 window.issueRewardCode = function (type, ctx) {
   var CFG = window.TRAINING_CONFIG || {};
   var rw = CFG.rewards || {};

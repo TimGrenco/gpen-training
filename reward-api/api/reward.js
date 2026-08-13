@@ -109,7 +109,18 @@ module.exports = async function handler(req, res) {
   res.setHeader("Access-Control-Allow-Headers", "Content-Type");
   if (req.method === "OPTIONS") return res.status(204).end();
   if (req.method !== "POST") return res.status(405).json({ error: "POST only" });
-  if (origin && !ALLOWED_ORIGINS.includes(origin)) {
+  /* Origin must be PRESENT and allowed. This was `if (origin && ...)`, which skipped
+     the check whenever the header was absent — and absent is the default for curl, a
+     script, or a bot. The allowlist only ever constrained real browsers, which are the
+     one caller class that was never the threat, while the README claimed the endpoint
+     was origin-checked.
+
+     Be clear about what this does and does not buy: an Origin header is trivially
+     spoofed with one curl flag, so this stops drive-by and automated abuse, not a
+     determined attacker. The real exposure — that `tier` is caller-chosen with no
+     server-verifiable proof of completion — is architectural and is written up in
+     .github/GOLIVE.md. */
+  if (!ALLOWED_ORIGINS.includes(origin)) {
     return res.status(403).json({ error: "origin not allowed" });
   }
 
@@ -123,6 +134,15 @@ module.exports = async function handler(req, res) {
   const email = String(body.email || "").trim().toLowerCase();
   const courseSlug = String(body.courseSlug || "");
 
+  /* Fail closed on a missing salt. `createHmac("sha256", process.env.CODE_SALT || "")`
+     below would silently key the HMAC with the empty string, making every code a
+     deterministic public function of tier+email+slug — and the derivation is readable
+     in this file. An unconfigured deploy would hand out guessable codes rather than
+     failing, which is the same fail-open shape already fixed in redemptions.js. */
+  if (!process.env.CODE_SALT) {
+    console.error("CODE_SALT is not set; refusing to mint guessable codes");
+    return res.status(500).json({ error: "CODE_SALT is not configured on the server" });
+  }
   if (!TIERS[tier]) return res.status(400).json({ error: "unknown tier" });
   if (!/^[^@\s]+@[^@\s]+\.[^@\s]+$/.test(email)) return res.status(400).json({ error: "invalid email" });
   // The per-course tier is unique per course, so it needs one.
@@ -168,8 +188,10 @@ module.exports = async function handler(req, res) {
       if (errs.some((e) => String(e.code) === "TAKEN" || /already exists|taken/i.test(e.message || ""))) {
         return res.status(200).json(payload);
       }
+      // Logged, not returned: raw Shopify userErrors describe store internals and the
+      // caller can do nothing with them.
       console.error("discountCodeBasicCreate userErrors", errs);
-      return res.status(502).json({ error: "shopify rejected the discount", details: errs });
+      return res.status(502).json({ error: "shopify rejected the discount" });
     }
     return res.status(200).json(payload);
   } catch (err) {
