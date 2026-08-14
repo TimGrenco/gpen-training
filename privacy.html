@@ -1,0 +1,239 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="robots" content="noindex, nofollow" />
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+  <title>Privacy Notice · G Pen Training</title>
+  <link rel="icon" href="/assets/img/gpen-g-black.png" />
+
+  <!-- ===================================================================
+       NOT YET CLEARED FOR PUBLICATION. Two things before this goes live:
+
+       1. FILL THE PLACEHOLDERS. Every one is marked with a yellow
+          highlight on the rendered page so it cannot be published by
+          accident. Search this file for "todo" to find them:
+            - the legal entity name (is it "Grenco Science, LLC"?)
+            - the registered postal address
+            - the privacy contact address (pr@grencoscience.com is the
+              site's general contact; a dedicated privacy@ mailbox is
+              better if one exists)
+            - whether an EU/UK representative is appointed (the portal is
+              published in five European languages, so European reps will
+              use it)
+
+       2. HAVE COUNSEL READ IT. I am not a lawyer. The factual sections —
+          what is collected, who receives it, how long it is kept — were
+          written from the actual code and are accurate as of the date
+          below. The legal characterisations (lawful basis, the specific
+          rights named, the transfer language) are the parts that need a
+          professional eye, and the retention answer in particular is a
+          business decision nobody has made yet: today the tracking sheet
+          keeps rows until somebody deletes them by hand.
+
+       Verified against: assets/js/app.js (localStorage keys, the
+       certification form), assets/js/config.js (reporting + rewards
+       endpoints), google-sheet/Code.gs (COLUMNS, the stored fields),
+       reward-api/api/reward.js (what the endpoint receives, the Shopify
+       discount title), reward-api/lib/ratelimit.js (IP counters),
+       index.html (the Google Fonts request).
+       =================================================================== -->
+
+  <style>
+    :root { color-scheme: light; }
+    * { box-sizing: border-box; }
+    html, body { margin: 0; background: #faf9f5; }
+    body { color: #111; font-family: Archivo, system-ui, -apple-system, "Segoe UI", sans-serif;
+      -webkit-font-smoothing: antialiased; line-height: 1.62; padding: 40px 24px 72px; }
+    .wrap { max-width: 44rem; margin: 0 auto; }
+    .brand { display: flex; align-items: center; gap: 10px; margin-bottom: 30px; }
+    .brand img { width: 34px; height: 34px; object-fit: contain; }
+    .eyebrow { font-size: 12px; font-weight: 800; letter-spacing: .1em; text-transform: uppercase; color: #956f23; }
+    h1 { font-size: clamp(28px, 6vw, 40px); font-weight: 900; letter-spacing: -.02em; line-height: 1.1; margin: 6px 0 8px; }
+    h2 { font-size: 19px; font-weight: 800; letter-spacing: -.01em; margin: 36px 0 10px; }
+    h3 { font-size: 15px; font-weight: 800; margin: 22px 0 6px; }
+    p, li { color: #46463f; font-size: 15.5px; }
+    p { margin: 0 0 14px; }
+    ul { margin: 0 0 14px; padding-left: 20px; }
+    li { margin-bottom: 7px; }
+    .lede { font-size: 17px; color: #2a2a26; }
+    .updated { font-size: 13px; color: #6e6e66; margin-bottom: 6px; }
+    a { color: #956f23; }
+    .box { background: #fff; border: 1px solid #e7e4da; border-radius: 14px; padding: 18px 20px; margin: 0 0 18px; }
+    .box p:last-child, .box ul:last-child { margin-bottom: 0; }
+    table { width: 100%; border-collapse: collapse; margin: 0 0 18px; font-size: 14.5px; display: block; overflow-x: auto; }
+    th, td { text-align: left; padding: 10px 12px; border-bottom: 1px solid #e7e4da; vertical-align: top; }
+    th { font-weight: 800; color: #111; white-space: nowrap; }
+    td { color: #46463f; }
+    .todo { background: #ffe98a; color: #4a3c00; font-weight: 800; padding: 1px 7px; border-radius: 5px;
+      box-shadow: inset 0 0 0 1px #d9bf3f; }
+    .foot { margin-top: 44px; padding-top: 22px; border-top: 1px solid #e7e4da; font-size: 13px; color: #6e6e66; }
+    .foot a { color: #956f23; }
+  </style>
+</head>
+<body>
+  <div class="wrap">
+    <div class="brand">
+      <img src="/assets/img/gpen-g-black.png" alt="" />
+      <span class="eyebrow">G Pen Training</span>
+    </div>
+
+    <h1>Privacy Notice</h1>
+    <p class="updated">Last updated 14 August 2026</p>
+    <p class="lede">This notice covers <strong>training.gpen.com</strong>, the product training
+      portal for authorised G Pen retail partners. It explains what we collect when you
+      certify on a product, who receives it, and how to get it removed.</p>
+
+    <div class="box">
+      <p><strong>The short version.</strong> To put your name on a certificate and issue you a
+        discount code, we need your name, your work email and the store you work at. That
+        information goes to G Pen and is stored in a training record. We do not use
+        advertising trackers, we do not use cookies, and we do not sell or share your
+        information with anyone for their own marketing.</p>
+    </div>
+
+    <h2>Who is responsible</h2>
+    <p>This portal is operated by <span class="todo">[LEGAL ENTITY NAME]</span> ("G Pen", "we"),
+      <span class="todo">[REGISTERED POSTAL ADDRESS]</span>. For anything in this notice, contact
+      <a href="mailto:pr@grencoscience.com">pr@grencoscience.com</a>
+      <span class="todo">[confirm: dedicated privacy mailbox?]</span>.</p>
+
+    <h2>Who this is for</h2>
+    <p>This portal is for people aged 21 or over who work for an authorised G Pen retail
+      partner. It is hardware and product education only — no cannabis, nicotine or e-liquid
+      products are sold or shipped through this site. It is not directed at children, and we
+      do not knowingly collect information from anyone under 21. Before starting a quiz you
+      confirm you are 21 or older and authorised by your store; we record that confirmation
+      and when you made it, because it is the basis on which the training was given to you.</p>
+
+    <h2>What we collect</h2>
+
+    <h3>Information you give us</h3>
+    <p>One form, shown before your first quiz:</p>
+    <ul>
+      <li><strong>Your name</strong> — printed on your certificate.</li>
+      <li><strong>Your email address</strong> — identifies you across courses, and ties each
+        discount code to you so it cannot be passed around.</li>
+      <li><strong>Your store</strong> — so the completion is credited to your shop.</li>
+      <li><strong>Your 21+ and authorisation confirmation</strong>, and the time you gave it.</li>
+    </ul>
+
+    <h3>Information created as you train</h3>
+    <ul>
+      <li>Which courses you completed, your quiz score, and the date you passed.</li>
+      <li>A certificate ID for each certification.</li>
+      <li>The discount codes issued to you, and whether each has been redeemed on gpen.com.</li>
+    </ul>
+
+    <h3>Information stored on your own device</h3>
+    <p>Your progress lives in your browser's local storage — not in cookies. That includes your
+      enrolment details, your completed courses and certificates, your language choice, any
+      discount codes already issued to you, and any quiz you are partway through. It stays on
+      that device until you clear it. <strong>"Reset my progress" in the site footer erases all
+      of it</strong>, including the saved codes.</p>
+
+    <h3>Technical information</h3>
+    <p>When a discount code is issued, our code-issuing service briefly counts requests by IP
+      address to stop the codes being harvested in bulk. Those counters hold the IP address for
+      roughly 48 hours and are not linked to your training record. Our hosting providers also
+      keep standard server logs.</p>
+
+    <h2>Why we use it, and on what basis</h2>
+    <table>
+      <tr><th>Purpose</th><th>Information used</th><th>Basis</th></tr>
+      <tr><td>Issue your certificate</td><td>Name, course, score, date</td><td>To provide the training you asked for</td></tr>
+      <tr><td>Credit the completion to your store</td><td>Name, email, store</td><td>Our legitimate interest in running a partner training programme</td></tr>
+      <tr><td>Issue and track your discount code</td><td>Email, course, certificate ID</td><td>To provide the reward you earned</td></tr>
+      <tr><td>Confirm eligibility</td><td>21+ confirmation and its timestamp</td><td>Our legal and compliance obligations</td></tr>
+      <tr><td>Prevent bulk abuse of the codes</td><td>IP address, for ~48 hours</td><td>Our legitimate interest in security</td></tr>
+    </table>
+    <p>Rewards are earned by completing training. They are not tied to sales, orders, or which
+      products you recommend, and we do not track your sales through this portal.</p>
+
+    <h2>Who receives it</h2>
+    <p>We use a small number of service providers. They process this information on our
+      instructions and are not permitted to use it for their own purposes.</p>
+    <table>
+      <tr><th>Provider</th><th>What it receives</th></tr>
+      <tr><td>Google (Sheets, Apps Script)</td><td>Your training record: name, email, store, 21+ confirmation, course, score, date, certificate ID, discount code and its redemption status</td></tr>
+      <tr><td>Vercel</td><td>Hosts the service that issues discount codes; receives your email, name, store, course and certificate ID</td></tr>
+      <tr><td>Shopify</td><td>Creates and stores your discount code. The code's internal label in the gpen.com store includes your email address, so the code can be traced back to you if it is misused</td></tr>
+      <tr><td>Upstash</td><td>Short-lived request counters keyed on IP address (~48 hours)</td></tr>
+      <tr><td>GitHub (Pages)</td><td>Hosts this site and keeps standard server logs</td></tr>
+      <tr><td>Google Fonts</td><td>The page loads a typeface from Google, which reveals your IP address and browser to Google as part of that request</td></tr>
+    </table>
+    <p>Your training record is visible to G Pen staff who run the training programme, and
+      completion information may be shared with your own store's management — that is the point
+      of recording the store name.</p>
+    <p>We may also disclose information where we are legally required to, or to establish or
+      defend legal claims.</p>
+
+    <h2>What we do not do</h2>
+    <ul>
+      <li>We do not sell your personal information, and we do not share it for cross-context
+        behavioural advertising.</li>
+      <li>We do not use advertising or analytics trackers on this site. There is no Google
+        Analytics, no advertising pixel and no third-party tracking script.</li>
+      <li>We do not use cookies.</li>
+      <li>We do not add you to a marketing list from this form.</li>
+    </ul>
+
+    <h2>Where it is processed</h2>
+    <p>Our service providers are based in the United States, so your information is processed
+      there. If you are in the UK, the EEA or Switzerland, that is a transfer outside your
+      region, made under the appropriate safeguards those providers offer.
+      <span class="todo">[counsel: confirm transfer mechanism, and whether an EU/UK
+      representative must be named here]</span></p>
+
+    <h2>How long we keep it</h2>
+    <ul>
+      <li><strong>Your training record</strong> is kept for as long as the training programme
+        runs, so that a certification you hold can be verified. <span class="todo">[set a
+        retention period — e.g. delete records N years after the last completion]</span></li>
+      <li><strong>Discount codes</strong> expire 90 days after they are issued. The record of
+        the code stays in the gpen.com store afterwards as part of its normal discount history.</li>
+      <li><strong>IP-based counters</strong> expire automatically after about 48 hours.</li>
+      <li><strong>Anything stored on your device</strong> stays until you reset your progress or
+        clear your browser data.</li>
+    </ul>
+
+    <h2>Your rights</h2>
+    <p>You can ask us to:</p>
+    <ul>
+      <li>tell you what we hold about you, and give you a copy;</li>
+      <li>correct anything wrong — a misspelled name on a certificate, the wrong store;</li>
+      <li>delete your training record;</li>
+      <li>stop using your information, or object to a particular use.</li>
+    </ul>
+    <p>Email <a href="mailto:pr@grencoscience.com">pr@grencoscience.com</a> and say what you want
+      done. We will need enough detail to find your record — normally the email address you
+      trained with. We will respond within the time your local law allows.</p>
+    <p>Deleting your training record also gives up the certifications recorded in it. Any
+      discount code already issued to you will still work until it expires, because the code
+      exists in the store independently of your training record; tell us if you want those
+      cancelled as well.</p>
+    <p>If you are in the UK or EEA you may complain to your data protection authority. If you
+      are in California you have rights of access, correction, deletion and portability, and the
+      right not to be discriminated against for using them — note that we do not sell or share
+      personal information as those terms are defined there.</p>
+
+    <h2>Security</h2>
+    <p>Access to the training record is limited to the staff who run the programme. The
+      credentials that issue discount codes are held only on the server and are never sent to
+      your browser. No system is perfectly secure, but we do not collect payment details,
+      government identifiers or any special category information through this portal.</p>
+
+    <h2>Changes</h2>
+    <p>If we change this notice we will update the date at the top. If a change materially
+      affects how we use information already collected, we will make that clear rather than
+      relying on the date alone.</p>
+
+    <div class="foot">
+      <p><a href="/">← Back to G Pen Training</a> · Questions:
+        <a href="mailto:pr@grencoscience.com">pr@grencoscience.com</a></p>
+      <p>For authorised G Pen retail partners, 21+ — training and hardware education only.
+        No cannabis, nicotine or e-liquid products are sold or shipped through this site.</p>
+    </div>
+  </div>
+</body>
+</html>

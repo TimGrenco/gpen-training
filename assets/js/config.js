@@ -46,7 +46,14 @@ window.TRAINING_CONFIG = {
      leave "" and no privacy link is rendered; set it and it appears in the footer
      and under the certification form (where name / email / store are collected). */
   footerNote: "for authorized G Pen retail partners, 21+ — training and hardware education only. No cannabis, nicotine or e-liquid products are sold or shipped through this site.",
-  privacyUrl: "",
+  /* Served from this repo at /privacy.html. It is written from the actual data flows —
+     the sheet's real columns, what the reward endpoint receives, the Shopify discount
+     title carrying the email, the 48h IP counters, the Google Fonts request — rather
+     than from a template. It still carries highlighted placeholders (legal entity,
+     postal address) and has NOT been through counsel. Setting this makes the Privacy
+     link appear in the footer on every page, so treat publishing the page and filling
+     those placeholders as the same task. */
+  privacyUrl: "/privacy.html",
 
   /* >>> "TALK TO OUR TEAM" CONTACT BAND <<<
      The customer-service block at the very bottom of every page. Edit the
