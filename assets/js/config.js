@@ -32,7 +32,12 @@ window.TRAINING_CONFIG = {
   /* The home-page hero photograph: the POP-display program merchandised on a real
      shelf. Swap the file or point this at a new one to change it — set it to ""
      and the hero renders headline-only rather than breaking. */
-  heroImage: "assets/img/hero-lineup-shelf.jpg",
+  /* Points at the -1536 encode, which is also the largest <source> in the srcset.
+     There used to be a separate hero-lineup-shelf.jpg here: same photo, same
+     1536x1208, a second 238KB encode of it, and it shipped in every deploy purely to
+     be the <picture> fallback that no modern browser ever requests. One file does
+     both jobs. */
+  heroImage: "assets/img/hero-lineup-shelf-1536.jpg",
   // Where "Email my certification" / support requests go.
   contactEmail: "pr@grencoscience.com",
 

@@ -672,7 +672,9 @@
       // so the wordmark can yield before it truncates to "G PEN UNIVER…".
       '<header class="hdr' + (e ? " has-user" : "") + '">' +
       '<a class="hdr-brand" href="#/">' +
-        '<img src="assets/img/gpen-g-black.png" class="hdr-logo" alt="G Pen"/>' +
+        /* alt="" — decorative. The link it sits in already reads "G Pen Training", so
+           a named logo made screen readers announce "G Pen G Pen Training, link". */
+        '<img src="assets/img/gpen-g-black.png" class="hdr-logo" alt=""/>' +
         '<span class="hdr-name">G Pen <em>Training</em></span>' +
       "</a>" +
       // Courses / Binder / About lived only in the footer, below a nine-section
@@ -1464,8 +1466,17 @@
     if (!c.gallery || !c.gallery.length) return "";
     return '<div class="gallery">' + c.gallery.map(function (g) {
       var cap = g.caption || c.name;
+      /* 550 -> width=1100, which is exactly .imgmodal .modal-in's max-width
+         (styles.css:1499, min(1100px, 92vw)) — the widest the zoom view can ever
+         actually display. It used to ask for 1000 -> width=2000, and because the
+         Shopify source is only ~1448px the CDN silently ignored a transform it could
+         not satisfy and returned the untouched 65KB JPEG. Measured on a real gallery
+         URL: no width and width=2000 both give 65,049 bytes of JPEG, while width=1100
+         gives 41,434 bytes of WebP. Worth knowing if this is ever retuned upward —
+         width=1440 returns 68,170 bytes, LARGER than the original, so asking for more
+         is not a free win. */
       return '<figure class="ga-item">' +
-        '<button class="ga-shot" data-img="' + esc(sized(g.url, 1000)) + '" data-caption="' + esc(cap) + '" aria-label="' +
+        '<button class="ga-shot" data-img="' + esc(sized(g.url, 550)) + '" data-caption="' + esc(cap) + '" aria-label="' +
           tfx("View {label} full size", { label: cap }) + '">' +
           /* 640px was being fetched for a tile that is ~174px on a phone and ~253px on
              desktop — note the grid goes from 2 columns to 3 at 680px, so the desktop
@@ -2026,7 +2037,7 @@
     box.innerHTML =
       '<div class="cert" id="cert-card">' +
         '<div class="cert-inner">' +
-          '<div class="cert-logo"><img src="assets/img/gpen-g-black.png" alt="G Pen"/></div>' +
+          '<div class="cert-logo"><img src="assets/img/gpen-g-black.png" alt=""/></div>' +  // decorative: the certificate body already says "G Pen"
           '<div class="cert-eyebrow">' + esc(CFG.programName) + " · " + t("Product Specialist Program") + "</div>" +
           '<h3 class="cert-award">' + t("Certificate of Completion") + "</h3>" +
           '<div class="cert-presented">' + t("This certifies that") + "</div>" +
@@ -2146,7 +2157,7 @@
     var box = $("#mcert"), product = "Full Lineup";
     box.innerHTML =
       '<div class="cert master" id="cert-card"><div class="cert-inner">' +
-        '<div class="cert-logo"><img src="assets/img/gpen-g-black.png" alt="G Pen"/></div>' +
+        '<div class="cert-logo"><img src="assets/img/gpen-g-black.png" alt=""/></div>' +  // decorative: the certificate body already says "G Pen"
         '<div class="cert-eyebrow">' + esc(CFG.programName) + "</div>" +
         '<h3 class="cert-award">' + t("Full Lineup Certified") + "</h3>" +
         '<div class="cert-presented">' + t("This certifies that") + "</div>" +
@@ -2190,7 +2201,7 @@
       '<section class="about reveal">' +
         '<a class="back" href="#/">' + ic("back") + " " + t("Products") + "</a>" +
         '<div class="about-hero">' +
-          '<img class="about-g" src="assets/img/gpen-g-white.png" alt="G Pen"/>' +
+          '<img class="about-g" src="assets/img/gpen-g-white.png" alt=""/>' +  // decorative watermark behind the About hero
           '<span class="ch-eyebrow">' + ic("cap") + " " + t("About the brand") + "</span>" +
           // Derived, not hardcoded: this h1 said "15 years" while the stat tile
           // directly below it said "14+" — a contradiction on one screen. Both
