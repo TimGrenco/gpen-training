@@ -2189,6 +2189,22 @@
   }
   // Canvas → PNG download (light print-style certificate).
   var CERT_LOGO = new Image(); CERT_LOGO.src = "assets/img/gpen-g-black.png";
+  /* Greedy word wrap for the canvas certificate, centred on cx and growing UPWARD from
+     the baseline so a two-line block sits where the original two hardcoded lines sat.
+     Canvas has no text wrapping of its own, which is why the export carried two
+     pre-split English sentences and could not take a translation. */
+  function wrapText(ctx, text, cx, baseline, maxW, lineH) {
+    var words = String(text).split(/\s+/), lines = [], cur = "";
+    words.forEach(function (w) {
+      var next = cur ? cur + " " + w : w;
+      if (cur && ctx.measureText(next).width > maxW) { lines.push(cur); cur = w; }
+      else cur = next;
+    });
+    if (cur) lines.push(cur);
+    var startY = baseline - (lines.length - 1) * lineH;
+    lines.forEach(function (ln, i) { ctx.fillText(ln, cx, startY + i * lineH); });
+    return lines.length;
+  }
   function downloadCertificate(product, nm, date, pct, cid, seal) {
     var W = 1650, H = 1170, c = document.createElement("canvas"); c.width = W; c.height = H;
     var x = c.getContext("2d");
@@ -2204,19 +2220,65 @@
     }
     ls("4px"); x.fillStyle = GOLD; x.font = "700 22px Archivo, Arial, sans-serif";
     x.fillText("G PEN · PRODUCT SPECIALIST PROGRAM", cx, 322); ls("0px");
-    x.fillStyle = INK; x.font = "800 46px Archivo, Arial, sans-serif"; x.fillText("Certificate of Completion", cx, 388);
-    x.fillStyle = MUTE; x.font = "400 24px Archivo, Arial, sans-serif"; x.fillText("This certifies that", cx, 462);
-    x.fillStyle = INK; x.font = "800 78px Archivo, Arial, sans-serif"; x.fillText(nm, cx, 552);
+    /* The exported PNG had ONE hardcoded layout, but two callers. The master
+       certificate passed pct 0 and the product "G Pen Product Specialist", so a rep who
+       finished all six downloaded a certificate titled "Certificate of Completion" that
+       said they had "expert product knowledge of the G Pen Product Specialist" — naming
+       a product that does not exist. On screen the same certificate correctly reads
+       "Full Lineup Certified". `master` keys off the seal legend the caller already
+       passes, which was accepted and then never used at all. */
+    var master = seal === "FULL LINEUP";
+    x.fillStyle = INK; x.font = "800 46px Archivo, Arial, sans-serif";
+    x.fillText(master ? tx("Full Lineup Certified") : tx("Certificate of Completion"), cx, 388);
+    x.fillStyle = MUTE; x.font = "400 24px Archivo, Arial, sans-serif"; x.fillText(tx("This certifies that"), cx, 462);
+    /* Shrink-to-fit. This was a bare fillText at a fixed 78px, so a long name simply
+       ran off both edges and straight through the borders: "Bartholomew
+       Fitzgerald-Montgomery Wellingsworth III Jr Esq" measures 2381px inside a 1522px
+       frame, losing ~430px at each end. Nothing upstream constrains it either — the
+       form only rejects an empty name. The HTML certificate wraps and was always fine,
+       so the download was the only broken surface. Step down to a floor, then ellipsis
+       rather than overflow, because a clipped name that LOOKS deliberate is better than
+       one bleeding through the border. */
+    var NAME_MAX = W - 128 - 80;          // inside the gold frame, with breathing room
+    var fs = 78;
+    x.font = "800 " + fs + "px Archivo, Arial, sans-serif";
+    while (fs > 34 && x.measureText(nm).width > NAME_MAX) {
+      fs -= 2; x.font = "800 " + fs + "px Archivo, Arial, sans-serif";
+    }
+    var shown = nm;
+    if (x.measureText(shown).width > NAME_MAX) {
+      while (shown.length > 1 && x.measureText(shown + "…").width > NAME_MAX) shown = shown.slice(0, -1);
+      shown += "…";
+    }
+    x.fillStyle = INK; x.fillText(shown, cx, 552);
     x.fillStyle = GOLD; x.fillRect(cx - 150, 582, 300, 3);
+    /* Reuses the SAME translation keys as the on-screen certificate rather than
+       introducing canvas-only copy, so the two surfaces cannot drift and no locale has
+       to translate the sentence twice. It also fixes the export being hardcoded English
+       in every language — a German rep saw a German certificate and downloaded an
+       English one. The keys are single sentences, so they are wrapped to the frame by
+       measurement: a fixed two-line split would overflow in German, which is roughly a
+       third longer here. */
     x.fillStyle = MUTE; x.font = "400 23px Archivo, Arial, sans-serif";
-    x.fillText("has successfully completed the Product Specialist training", cx, 648);
-    x.fillText("and demonstrated expert product knowledge of the", cx, 682);
-    x.fillStyle = INK; x.font = "800 46px Archivo, Arial, sans-serif"; x.fillText(product, cx, 748);
+    var body = master
+      ? tx("has completed every Product Specialist course and is recognized as a")
+      : tx("has completed the Product Specialist training and demonstrated expert product knowledge of the");
+    wrapText(x, body, cx, 648, W - 128 - 120, 34);
+    x.fillStyle = INK; x.font = "800 46px Archivo, Arial, sans-serif";
+    x.fillText(master ? tx("Fully Trained G Pen Product Specialist") : product, cx, 748);
     var scy = 872, r = 70;
     x.strokeStyle = GOLD; x.lineWidth = 3; x.beginPath(); x.arc(cx, scy, r, 0, 7); x.stroke();
     x.lineWidth = 1.5; x.beginPath(); x.arc(cx, scy, r - 10, 0, 7); x.stroke();
-    x.fillStyle = GOLD; x.font = "700 26px Archivo, Arial, sans-serif"; x.fillText("★", cx, scy - 16);
-    x.fillStyle = INK; x.font = "800 34px Archivo, Arial, sans-serif"; x.fillText(pct ? pct + "%" : "★", cx, scy + 12);
+    /* The star is unconditional, so the `pct ? pct+"%" : "★"` below used to draw a
+       SECOND star on top of it whenever pct was 0 — which is exactly what the master
+       certificate passes. Two overlapping stars, one gold and one black, offset by
+       28px. This is the same fault the comment on sealHTML records fixing on the
+       on-screen seal; the canvas copy was never fixed with it. Now the seal shows a
+       star OR a score, never both. */
+    x.fillStyle = GOLD; x.font = "700 26px Archivo, Arial, sans-serif";
+    if (pct) x.fillText("★", cx, scy - 16);
+    x.fillStyle = INK; x.font = "800 34px Archivo, Arial, sans-serif";
+    x.fillText(pct ? pct + "%" : "★", cx, pct ? scy + 12 : scy + 4);
     ls("2px"); x.fillStyle = GOLD; x.font = "700 12px Archivo, Arial, sans-serif"; x.fillText("G PEN", cx, scy + 38); ls("0px");
     var fy = 1035, cols = [[date, "DATE ISSUED"], ["Grenco Science", "AUTHORIZED BY"], [cid || "", "CERTIFICATE ID"]], xs = [cx - 400, cx, cx + 400];
     cols.forEach(function (col, i) {
