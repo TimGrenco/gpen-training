@@ -79,17 +79,20 @@ async function check(req) {
   try {
     const day = today();
     const ip = clientIp(req);
-    const [ipCount, allCount] = await Promise.all([
-      bump("rw:ip:" + day + ":" + ip),
-      bump("rw:all:" + day),
-    ]);
-    if (allCount > GLOBAL_PER_DAY) {
-      console.error("[reward] GLOBAL daily cap hit (" + allCount + "/" + GLOBAL_PER_DAY + ") — refusing. If this is legitimate traffic, raise GLOBAL_PER_DAY.");
-      return { ok: false, reason: "global", retryAfter: 3600 };
-    }
+    /* Per-IP first, and only bump the GLOBAL counter if that passes. Bumping both up
+       front meant a caller already refused by the per-IP cap kept driving the global
+       counter toward its ceiling — so one abusive address could lock out the entire
+       retail network for the rest of the UTC day despite being individually capped at
+       40. Refused requests should not spend everyone else's budget. */
+    const ipCount = await bump("rw:ip:" + day + ":" + ip);
     if (ipCount > PER_IP_PER_DAY) {
       console.warn("[reward] per-IP daily cap hit for " + ip + " (" + ipCount + "/" + PER_IP_PER_DAY + ")");
       return { ok: false, reason: "ip", retryAfter: 3600 };
+    }
+    const allCount = await bump("rw:all:" + day);
+    if (allCount > GLOBAL_PER_DAY) {
+      console.error("[reward] GLOBAL daily cap hit (" + allCount + "/" + GLOBAL_PER_DAY + ") — refusing. If this is legitimate traffic, raise GLOBAL_PER_DAY.");
+      return { ok: false, reason: "global", retryAfter: 3600 };
     }
     return { ok: true };
   } catch (err) {

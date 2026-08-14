@@ -229,7 +229,15 @@ function writeRewardCache(map) {
 function reportCode_(type, entry) {
   if (typeof window.reportCompletion !== "function") return false;
   var c = entry.ctx || {};
-  return !!window.reportCompletion({
+  /* NO `!!`. reportCompletion returns a PROMISE of delivery now, and !!Promise is
+     unconditionally true — so this stamped every code_issued event as delivered the
+     instant it was dispatched, which is exactly the bug the rest of that change set out
+     to remove. Both callers already do Promise.resolve(...).then(ok => ...), so
+     returning the promise itself is all that was needed. A code event lost on store
+     wifi now stays unstamped and is replayed by reportPendingCodes() on the next load,
+     instead of leaving the sheet's Discount code column permanently blank for that rep
+     — and therefore never redemption-trackable. */
+  return window.reportCompletion({
     type: "code_issued", tier: type, code: entry.code,
     email: c.email || "", name: c.name || "", store: c.store || "",
     courseSlug: c.courseSlug || "", certId: c.certId || "",
@@ -408,14 +416,37 @@ window.reportCompletion = function (event) {
 
      mode:"no-cors" still resolves on network success and rejects on network failure, so
      delivery is observable even though the response body is not. */
+  /* READS THE RESPONSE. This used mode:"no-cors", which was a mistake I only caught by
+     probing it: an opaque response resolves on ANY HTTP reply, so a 404, a 500, or the
+     Apps Script lock returning {ok:false,"busy"} all counted as delivered. The event was
+     then stamped and never retried — the exact data loss the earned-vs-reported split
+     exists to prevent, defeated one layer lower down than the last fix reached.
+
+     Two specific losses this closes. The Apps Script serialises doPost under a lock and
+     answers HTTP 200 {ok:false,error:"busy"} when the wait expires — boot()'s backfill
+     can fire ~19 events in one tick, so that is reachable on an ordinary busy morning.
+     And creating a NEW Apps Script deployment (rather than editing the existing one)
+     mints a new /exec URL; the old one starts serving an error page, and every
+     completion would have been silently destroyed with nothing anywhere showing it.
+
+     text/plain keeps this a CORS simple request, so there is no preflight, and the
+     deployed Apps Script does return a readable body — verified in the browser
+     (response type "cors", body {"ok":true}). If a future endpoint does not send CORS
+     headers the fetch rejects, which reads as NOT delivered and retries on the next
+     load: the safe direction, and harmless because the sheet upserts on certId. */
   try {
     return fetch(cfg.url, {
       method: "POST",
-      mode: "no-cors",
       keepalive: true,
       headers: { "Content-Type": "text/plain;charset=utf-8" },
       body: JSON.stringify(Object.assign({ sentAt: new Date().toISOString() }, event)),
-    }).then(function () { return true; }, function () { return false; });
+    }).then(function (r) {
+      if (!r.ok) return false;                    // 4xx/5xx is not delivery
+      return r.text().then(function (t) {
+        try { return JSON.parse(t).ok === true; } // {ok:false,"busy"} must retry
+        catch (e) { return false; }               // an HTML error page is not delivery
+      }, function () { return false; });
+    }, function () { return false; });            // network failure, or no CORS headers
   } catch (e) {
     return false; /* best-effort; progress is also stored on-device */
   }

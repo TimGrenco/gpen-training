@@ -93,11 +93,17 @@ function headerMap_(sh) {
 
 /* ---- incoming events ----------------------------------------------------- */
 /*
-  The portal posts with mode:"no-cors" and Content-Type text/plain, so the body is
-  a JSON string in e.postData.contents. Nothing here may throw: a failed doPost is
-  invisible to the rep (no-cors discards the response), so an exception would lose
-  the event silently. Everything lands in the Raw log first, then is parsed — so
-  even a payload this script does not understand is recoverable by hand.
+  The portal posts Content-Type text/plain, so the body is a JSON string in
+  e.postData.contents, and text/plain keeps it a CORS simple request with no preflight.
+
+  THE RESPONSE IS READ. The portal used to post mode:"no-cors" and treat any reply as
+  success — so a 404, a 500, or the {ok:false,"busy"} below all counted as delivered and
+  the event was stamped and never retried. It now parses this body and only stamps on
+  ok:true, which is what makes the "busy" path below an honest retry rather than a
+  silent loss. Keep returning JSON with an `ok` boolean.
+
+  Nothing here may throw uncaught: everything lands in the Raw log first and is parsed
+  after, so a payload this script does not understand is still recoverable by hand.
 */
 function doPost(e) {
   var raw = (e && e.postData && e.postData.contents) || "";
@@ -112,8 +118,10 @@ function doPost(e) {
      posts no-cors and never sees a response.
 
      30s is generous: each handler is a few range reads and writes. A caller that cannot
-     get the lock in that time is told so, and the portal will replay it, because the
-     event stays unstamped until delivery is confirmed. */
+     get the lock in that time is told so via {ok:false,"busy"}, and the portal replays
+     it on the next load because it stamps only on ok:true. That claim was FALSE when
+     this lock was written — the client posted no-cors and could not see this body, so a
+     lock timeout was silently indistinguishable from success. The client now reads it. */
   var lock = LockService.getScriptLock();
   try {
     lock.waitLock(30000);
@@ -227,9 +235,15 @@ function writeCompletion_(ev) {
     "Event": ev.type || "",
     "Product": ev.product || "",
     "Course": ev.courseSlug || "",
-    "Score": (ev.score === 0 || ev.score) ? ev.score : "",
     "Passed on": ev.date || "",
-  }, {});
+  }, {
+    /* Score is in `set`, not `fill`. An improved retake re-reports the SAME certId so
+       the row updates rather than duplicating — but `fill` only writes empty cells, so
+       a rep who retook from 78% to 95% kept 78% in the sheet forever and the re-report
+       did nothing but bump Last event. Score is the one field a retake exists to
+       change, so it is the one field that must overwrite. */
+    "Score": (ev.score === 0 || ev.score) ? ev.score : "",
+  });
 }
 
 /* The code arrives as its own event, after the pass. It matches the row the pass

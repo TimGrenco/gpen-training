@@ -152,6 +152,17 @@
 
   /* ---- persistence ------------------------------------------------------- */
   var K_ENROLL = "gpt.enrollment", K_STATE = "gpt.state";
+  /* A real round-trip, not a feature check: Safari exposes localStorage and throws on
+     write, and a full quota also only fails at write time. */
+  function storageWorks() {
+    try {
+      var k = "gpt.probe";
+      localStorage.setItem(k, "1");
+      var ok = localStorage.getItem(k) === "1";
+      localStorage.removeItem(k);
+      return ok;
+    } catch (e) { return false; }
+  }
   function getEnroll() { try { return JSON.parse(localStorage.getItem(K_ENROLL) || "null"); } catch (e) { return null; } }
   function setEnroll(v) { try { localStorage.setItem(K_ENROLL, JSON.stringify(v)); } catch (e) {} }
   function getState() {
@@ -746,9 +757,9 @@
          — a rep mid-tap on a course card. height:auto in the CSS still governs the
          rendered size, so the ratio is honoured and nothing is cropped. */
       '<picture>' +
-        '<source type="image/webp" sizes="(max-width: 1120px) 100vw, 1040px" srcset="' +
+        '<source type="image/webp" sizes="(max-width: 899px) 100vw, 48vw" srcset="' +
           'assets/img/hero-lineup-shelf-780.webp 780w, assets/img/hero-lineup-shelf-1100.webp 1100w, assets/img/hero-lineup-shelf-1536.webp 1536w" />' +
-        '<source type="image/jpeg" sizes="(max-width: 1120px) 100vw, 1040px" srcset="' +
+        '<source type="image/jpeg" sizes="(max-width: 899px) 100vw, 48vw" srcset="' +
           'assets/img/hero-lineup-shelf-780.jpg 780w, assets/img/hero-lineup-shelf-1100.jpg 1100w, assets/img/hero-lineup-shelf-1536.jpg 1536w" />' +
         '<img src="' + esc(CFG.heroImage) + '" width="1536" height="1208" alt="' + tx("A G Pen retail shelf: the countertop POP displays grouped into dry herb, concentrates and 510 batteries, each with its price flag.") + '" loading="eager" fetchpriority="high"/>' +
       "</picture>" +
@@ -772,7 +783,7 @@
       '<div class="hero-in">' +
         '<span class="hero-eyebrow">' + ic("award") + " " + tf("Training complete &middot; {total} of {total}", { total: total }) + "</span>" +
         '<h1 class="hero-h1">' + t("All products complete.") + "</h1>" +
-        '<p class="hero-sub">' + t("Your discount code is below. Your certificate is on record.") + "</p>" +
+        '<p class="hero-sub" id="hero-sub">' + t("Your certificate is on record.") + "</p>" +
         '<button class="code hero-code" id="hero-code" hidden><span>••••••</span><em>' + ic("tag") + " " + t("Copy code") + "</em></button>" +
         '<div class="hero-actions">' +
           '<a class="btn xl ghost" href="#/certified">' + t("View certificate") + " " + ic("arrow") + "</a>" +
@@ -791,9 +802,20 @@
     var e = getEnroll() || {};
     Promise.resolve(window.issueRewardCode("secret", { name: e.name, email: e.email, store: e.store }))
       .then(function (r) {
-        if (!r || !r.code) return;
+        var sub = $("#hero-sub");
+        if (!r || !r.code) {
+          /* Say what happened. The prose used to read "Your discount code is below."
+             unconditionally while the button only unhid on success — so a rep at the
+             single biggest moment in the app, "All products complete.", got a sentence
+             pointing at empty space with no error and no retry. The course page already
+             handled this honestly; the hero did not. */
+          if (sub) sub.innerHTML = t("Your certificate is on record.") + " " +
+            t("Your code didn't come through — reload this page to try again.");
+          return;
+        }
         $("span", btn).textContent = r.code;
         btn.hidden = false;
+        if (sub) sub.textContent = tx("Your discount code is below. Your certificate is on record.");
         btn.addEventListener("click", function () { copyCode(r.code); });
       }, function (err) { if (window.console) console.warn("[gpen-training] hero code could not be issued", err); });
   }
@@ -2254,6 +2276,22 @@
     // once. Both calls no-op unless the tier is newly reached and unrecorded.
     // Backfill: anyone who earned a tier before it reported (or before a webhook
     // existed) gets recorded on their next visit. Both calls are idempotent.
+    /* Probe storage before anything relies on it. Every read and write is guarded, so
+       a browser with storage blocked — Safari's "Block All Cookies", an MDM-locked
+       kiosk, a partitioned webview, or a full quota — runs the ENTIRE flow successfully:
+       form accepted, quiz played, pass screen, certificate rendered, a real single-use
+       Shopify code minted. Then the rep taps back to the lineup and the site says they
+       have certified nothing, six times in a row. Silent, total, and the form's own fine
+       print ("Progress and certificates save to this browser") is false there.
+       Better to say so up front than to take nine minutes of their shift first. */
+    if (!storageWorks()) {
+      var warn = document.createElement("div");
+      warn.className = "mtnotice storage-warn";
+      warn.setAttribute("role", "alert");
+      warn.innerHTML = ic("globe") + "<span><b>" + tx("Your browser is blocking storage.") + "</b> " +
+        tx("You can read the training, but progress and certificates will not be saved. Turn off private browsing or allow site data, then reload.") + "</span>";
+      if (app && app.parentNode) app.parentNode.insertBefore(warn, app);
+    }
     if (getEnroll()) { reportCourses(); maybeReportTier(); reportMaster(); }
     // Same backfill for codes already minted. It is separate from the three above
     // because a code lives in the reward cache, not in state: it is issued by Shopify
