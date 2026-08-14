@@ -166,14 +166,31 @@
   var K_ATTEMPT = "gpt.attempt";
   /* A real round-trip, not a feature check: Safari exposes localStorage and throws on
      write, and a full quota also only fails at write time. */
+  /* The probe writes a REALISTIC payload, not one byte. It used to write "1", which on
+     a saturated origin still succeeds while every real write throws — so the probe
+     passed, the warning banner never rendered, and a rep took a whole quiz, saw 100%,
+     saw a certificate and was issued a real discount code while nothing was saved. Back
+     on the course page it offered to certify them again. That is verbatim the failure
+     the banner exists to prevent, including the "full quota" case its own comment
+     names. Measured on a filled origin: a 1-byte write returned true while 20 bytes
+     already failed.
+
+     ~2KB is the right order of magnitude — a state object with six courses, their
+     scores, certificate IDs and the event log runs to a few kilobytes, so this fails
+     when a real save would fail. Written and removed in the same try, so a browser that
+     throws on write (Safari in private mode) still lands in the catch. */
   function storageWorks() {
+    var k = "gpt.probe";
     try {
-      var k = "gpt.probe";
-      localStorage.setItem(k, "1");
-      var ok = localStorage.getItem(k) === "1";
+      var payload = new Array(2048).join("x");   // ~2KB, the scale of a real save
+      localStorage.setItem(k, payload);
+      var ok = localStorage.getItem(k) === payload;
       localStorage.removeItem(k);
       return ok;
-    } catch (e) { return false; }
+    } catch (e) {
+      try { localStorage.removeItem(k); } catch (e2) {}   // never leave the probe behind
+      return false;
+    }
   }
   function getEnroll() { try { return JSON.parse(localStorage.getItem(K_ENROLL) || "null"); } catch (e) { return null; } }
   function setEnroll(v) { try { localStorage.setItem(K_ENROLL, JSON.stringify(v)); } catch (e) {} }
@@ -195,10 +212,22 @@
       var a = JSON.parse(localStorage.getItem(K_ATTEMPT) || "null");
       if (!a || !c || a.slug !== c.slug) return null;
       if (!Array.isArray(a.order) || a.order.length !== c.quiz.length) return null;
-      if (!Array.isArray(a.answers) || typeof a.i !== "number") return null;
+      // Integer, not merely "number": i = 2.5 passed a typeof check, rendered
+      // "Continue from question 3.5", and threw reading c.quiz[undefined].q on click.
+      if (!Array.isArray(a.answers) || typeof a.i !== "number" || a.i % 1 !== 0) return null;
       if (a.i < 0 || a.i >= c.quiz.length) return null;         // finished or corrupt
+      // More answers than questions means the array is not this attempt's.
+      if (a.answers.length > a.order.length) return null;
+      /* order must be a PERMUTATION, not just a list of valid indices. A hand-edited
+         [0,0,0,...] was accepted and resumed into the same question eleven times —
+         whose own explainer hands over the answer — certifying at 100% and minting a
+         real code. Requires devtools, but a validator that exists to reject nonsense
+         should reject this. */
+      var seen = {};
       for (var k = 0; k < a.order.length; k++) {
-        if (typeof a.order[k] !== "number" || !c.quiz[a.order[k]]) return null;
+        var qi = a.order[k];
+        if (typeof qi !== "number" || qi % 1 !== 0 || !c.quiz[qi] || seen[qi]) return null;
+        seen[qi] = 1;
       }
       return a;
     } catch (e) { return null; }
@@ -1630,7 +1659,14 @@
      explanation cannot tell whether it remembered their answers or lost them. */
   function showResume(c, att) {
     var zone = $("#quiz-zone");
-    var answered = att.i, total = c.quiz.length;
+    /* Count the banked answers, not att.i. choose() saves before i advances, so a rep
+       who answered a question and stopped on its explainer was told "You answered 0 of
+       12" with one answer already recorded — and then offered "Continue from question
+       1" for a question that was in fact done. Counting non-null entries reports what
+       is actually stored, and matches where runQuiz will resume them. */
+    var answered = 0;
+    for (var k = 0; k < att.answers.length; k++) if (att.answers[k] != null) answered++;
+    var total = c.quiz.length;
     zone.innerHTML =
       '<div class="certify">' +
         '<div class="certify-badge">' + ic("refresh") + "</div>" +
@@ -1755,6 +1791,21 @@
     var i = (resume && resume.i) || 0;
     var answers = (resume && resume.answers) || [];
     var zone = $("#quiz-zone");
+    /* SKIP PAST ANSWERS ALREADY BANKED. choose() records answers[i] and saves BEFORE i
+       advances, because the answer must survive the explainer screen — that is the half
+       of the quiz where a rep is reading, and where the phone locks or a customer walks
+       up. So a saved attempt routinely has answers[i] set at the current i.
+
+       Restoring that verbatim re-rendered the question as unanswered while its answer
+       was already recorded, and choose()'s `if (answers[i] != null) return` guard then
+       swallowed every click: no verdict, no explainer, no Next. The quiz was dead, with
+       no restart control on that screen, and it triggered on the exact scenario this
+       feature exists for. Worse than the data loss it replaced.
+
+       Advancing is the correct resolution rather than clearing the answer: the rep DID
+       answer that question and it counts. They lose only the explainer they had already
+       been shown. */
+    while (i < c.quiz.length && answers[i] != null) i++;
     /* Derived, never stored. correctSoFar used to be its own counter incremented in
        choose(); persisting it too would give the attempt two sources of truth for the
        same fact, and a resume that disagreed with the answers would show one score
@@ -1766,6 +1817,9 @@
     function saveAttempt() {
       setAttempt({ slug: c.slug, order: order, i: i, answers: answers, ts: new Date().toISOString() });
     }
+    // Every question already banked — the rep answered the LAST one and never tapped
+    // "See my results". Score it rather than stepping to a question that isn't there.
+    if (i >= c.quiz.length) return finish();
     saveAttempt();
     step(true);
     zone.scrollIntoView({ behavior: "smooth", block: "start" });
