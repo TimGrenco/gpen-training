@@ -1994,10 +1994,18 @@
           box.innerHTML = '<div class="reward reward-failed" role="status">' +
             '<div class="reward-ic">' + ic("tag") + "</div>" +
             '<div class="reward-eyebrow">' + t("Your code didn't come through") + "</div>" +
-            "<p>" + t("Your certificate is saved. Reload this page to try again — nothing is lost.") + "</p>" +
-            '<button class="btn ghost" id="rw-retry">' + ic("refresh") + " " + t("Try again") + "</button></div>";
+            "<p>" + t("Your certificate is saved — nothing is lost. Try again, or contact us if it keeps failing.") + "</p>" +
+            '<button class="btn ghost" id="rw-retry">' + ic("refresh") + " " + t("Try again") + "</button>" +
+            '<p class="reward-terms"><a href="mailto:' + esc(CFG.contactEmail) + '">' + esc(CFG.contactEmail) + "</a></p></div>";
           var rt = $("#rw-retry", box);
-          if (rt) rt.addEventListener("click", function () { location.reload(); });
+          /* Retry IN PLACE. This used to call location.reload(), which threw the rep to
+             the top of a ~6,800px course page while the reward panel sits ~6,200px
+             down — so the retry's outcome, success or failure, was six screens away
+             with nothing to tell them it had happened. The card also said "Reload this
+             page to try again" NEXT TO a Try again button, which are the same action
+             described two different ways. Re-entering revealReward re-runs the whole
+             pending -> success/failure cycle inside this same box. */
+          if (rt) rt.addEventListener("click", function () { revealReward(type, ctx, box); });
         }
         // Names rewards.url, not the long-gone TRAINING_CONFIG.discount: an empty
         // endpoint is the actual cause here, and pointing at a key that no longer

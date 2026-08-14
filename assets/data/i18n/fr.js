@@ -170,7 +170,7 @@ window.GPEN_I18N = {
     "<b>{n}</b> correct": "<b>{n}</b> correctes",
     "Issuing your code…": "Émission de votre code…",
     "Your code didn't come through": "Votre code n'est pas arrivé",
-    "Your certificate is saved. Reload this page to try again — nothing is lost.": "Votre certificat est enregistré. Rechargez cette page pour réessayer : rien n'est perdu.",
+    "Your certificate is saved — nothing is lost. Try again, or contact us if it keeps failing.": "Votre certificat est enregistré, rien n'est perdu. Réessayez ou écrivez-nous si le problème persiste.",
     "Try again": "Réessayer",
     "Your certificate is on record.": "Votre certificat est enregistré.",
     "Your code didn't come through — reload this page to try again.": "Votre code n'est pas arrivé : rechargez cette page pour réessayer.",
