@@ -1505,3 +1505,9 @@ a.linklike.backdash { display: grid; place-items: center; min-height: 44px; widt
   .faq-q:hover { background: var(--paper); }
   .modal-x:hover { background: rgba(255,255,255,.28); }
 }
+
+/* An <img> whose source failed to load (see bindImageFallback in app.js). The box is
+   already reserved by aspect-ratio or a fixed width, so hiding the image leaves a
+   clean, styled, correctly-sized well instead of a broken-image glyph with stranded
+   alt text. visibility, not display, so the reserved box keeps its size. */
+.img-failed { visibility: hidden; }

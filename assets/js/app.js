@@ -2443,9 +2443,35 @@
     bindReset();
     bindSkipLink();
     bindLangSel();
+    bindImageFallback();
     window.addEventListener("hashchange", route);
     route();
   }
+  /* Fifty-six of the fifty-seven product images are on hosts we do not control —
+     cdn.shopify.com, assets.gpen.com, i.ytimg.com — and there was no error handling on
+     any <img> in the site. The layout survives a failure (every image well has a
+     reserved box, via aspect-ratio or a fixed width), so nothing collapses, but the rep
+     gets the browser's default: a broken-image glyph with the alt text stranded beside
+     it, inside an otherwise nicely styled card. That reads as "this site is broken"
+     rather than "one photo did not load".
+
+     Hiding the failed <img> leaves the reserved, styled box empty, which looks
+     deliberate. visibility rather than display so the box keeps its size.
+
+     Registered once on the document in CAPTURE phase: `error` from an <img> does not
+     bubble, so a listener on document only sees it going down. That also means it
+     survives route() replacing #app wholesale, which per-element onerror attributes
+     would not. */
+  function bindImageFallback() {
+    document.addEventListener("error", function (ev) {
+      var el = ev.target;
+      if (!el || el.tagName !== "IMG" || el.getAttribute("data-failed")) return;
+      el.setAttribute("data-failed", "1");   // guard: a re-render could fire twice
+      el.classList.add("img-failed");
+      if (window.console) console.warn("[gpen-training] image failed to load: " + (el.currentSrc || el.src));
+    }, true);
+  }
+
   if (document.readyState === "loading") document.addEventListener("DOMContentLoaded", boot, { once: true });
   else boot();
 })();
