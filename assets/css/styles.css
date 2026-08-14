@@ -85,11 +85,11 @@ h1, h2, h3, h4 { margin: 0; line-height: 1.08; letter-spacing: -.02em; }
 .btn:hover { transform: translateY(-1px); box-shadow: 0 8px 22px rgba(17,17,17,.18); }
 .btn:active { transform: translateY(0); }
 .btn.xl { font-size: 16px; padding: 15px 26px; }
-.btn.sm { font-size: 13px; padding: 8px 14px; }
+
 .btn.full { width: 100%; }
 .btn.ghost { --bg: transparent; --fg: var(--ink); border-color: var(--line); background: #fff; }
 .btn.ghost:hover { border-color: var(--ink); }
-.btn.gold { --bg: var(--gold-bright); --fg: #1a1509; border-color: var(--gold-bright); }
+
 .btn .ic { display: inline-flex; }
 /* Each icon declares its own fill ("none" for stroke icons, "currentColor" for
    solid ones). Setting fill here would override that attribute and flood the
@@ -231,7 +231,7 @@ h1, h2, h3, h4 { margin: 0; line-height: 1.08; letter-spacing: -.02em; }
 .foot a { text-decoration: underline; }
 
 /* =============================== ENROLL ================================== */
-.form { display: grid; gap: 16px; }
+
 .field { display: grid; gap: 6px; }
 .field span { font-weight: 700; font-size: 13.5px; }
 .field input {
@@ -266,7 +266,7 @@ h1, h2, h3, h4 { margin: 0; line-height: 1.08; letter-spacing: -.02em; }
 .sec-h.big .sec-n { width: 30px; height: 30px; flex: none; display: grid; place-items: center; background: var(--gold-bright); color: #1a1509; border-radius: 50%; font-weight: 900; font-size: 15px; }
 .sec-h.big h2 { font-size: var(--h2); }
 
-.reset { display: block; margin: 34px auto 0; font-size: 13px; }
+
 
 /* =============================== COURSE ================================= */
 .course { max-width: var(--readw); margin: 0 auto; padding: var(--sec-y) var(--gutter) var(--sec-y-end); }
@@ -375,8 +375,8 @@ h1, h2, h3, h4 { margin: 0; line-height: 1.08; letter-spacing: -.02em; }
 .scn-say { font-size: 14.5px; line-height: 1.5; font-weight: 600; color: #17402a; }
 
 /* quiz */
-.already { display: inline-flex; align-items: center; gap: 6px; background: #f0f7f1; color: var(--ok); font-weight: 700; font-size: 13.5px; padding: 8px 14px; border-radius: 999px; margin-bottom: 16px; }
-.already svg { width: 15px; height: 15px; }
+
+
 .quiz { background: #fff; border: 1px solid var(--line); border-radius: var(--radius); padding: 24px; box-shadow: var(--shadow); }
 .quiz-bar { height: 8px; background: var(--line); border-radius: 999px; overflow: hidden; margin-bottom: 16px; }
 .quiz-bar-fill { height: 100%; background: var(--gold-bright); border-radius: 999px; transition: width .35s ease; }
@@ -406,9 +406,9 @@ h1, h2, h3, h4 { margin: 0; line-height: 1.08; letter-spacing: -.02em; }
 .quiz-why { margin-top: 16px; padding: 14px 16px; border-radius: var(--r-sm); font-size: 14.5px; }
 .quiz-why.ok { background: #f0f7f1; }
 .quiz-why.no { background: #fbf0ee; }
-.quiz-why strong { display: inline-flex; align-items: center; gap: 5px; }
+
 /* scoped to the icon wrapper so it can't shrink Prof. O.G.'s SVG */
-.quiz-why .ic svg { width: 15px; height: 15px; }
+
 /* scroll-margin-bottom keeps the Next button off the very edge when choose()
    scrolls it into view with block:"end". */
 .next { margin-top: 18px; width: 100%; scroll-margin-bottom: 18px; }
@@ -425,7 +425,7 @@ h1, h2, h3, h4 { margin: 0; line-height: 1.08; letter-spacing: -.02em; }
 .result.pass .result-score { color: var(--ok); }
 .result.fail .result-score { color: var(--bad); }
 .backdash { margin-top: 20px; width: 100%; }
-.result p b { color: var(--ink); }
+
 /* Next-up hand-off after a pass — the journey always has a forward edge. */
 .nextup-cta { margin-top: 20px; width: 100%; }
 /* grid, not block, so the 44px min-height centres the label instead of leaving it
@@ -714,7 +714,7 @@ a.linklike.backdash { display: grid; place-items: center; min-height: 44px; widt
 /* The FAQ is native <details> now, so the browser owns show/hide. The old
    max-height:0 + visibility pair (and the .open class that drove it) are gone:
    .faq-a is simply the open content. */
-.faq-a { }
+
 .faq-a p { margin: 0; padding: 0 18px 16px; font-size: 14.5px; color: var(--stone); line-height: 1.55; }
 
 /* =============================== ABOUT ================================= */
@@ -770,7 +770,7 @@ a.linklike.backdash { display: grid; place-items: center; min-height: 44px; widt
 /* Per-code terms, on the card itself — expiry/stacking/single-use is the first
    question a dispensary partner asks in a demo. */
 .rw-terms { margin: 10px 0 0; font-size: 11px; line-height: 1.45; color: var(--stone); opacity: .9; }
-.rw-card.grand .rw-terms, .rw-card.secret .rw-terms { color: #8f8e88; }
+.rw-card.grand .rw-terms { color: #8f8e88; }
 .rewards { display: grid; grid-template-columns: 1fr; gap: 12px; margin-bottom: 8px; }
 /* Flex column so the three rungs, which stretch to equal height in the grid, push
    their action to the bottom instead of leaving a tail of blank card. The moment a rep
@@ -812,21 +812,21 @@ a.linklike.backdash { display: grid; place-items: center; min-height: 44px; widt
 
 /* =============================== FEATURED / BADGES ==================== */
 
-.sec-h.sub { margin: 24px 0 12px; }
-.sec-h.sub h2 { font-size: 16px; }
-.sec-h.sub span { font-size: 12px; color: var(--stone); font-weight: 700; }
+
+
+
 
 /* =============================== INTERACTIVE ========================== */
 
 .cert { animation: cert-reveal .7s cubic-bezier(.2,.8,.2,1) both; }
 @keyframes cert-reveal { from { opacity: 0; transform: translateY(18px) scale(.96); } to { opacity: 1; transform: none; } }
 @media (prefers-reduced-motion: reduce) { .cert{ animation: none; } }
-.rw-card.secret.off { border-style: dashed; border-color: var(--gold); background: linear-gradient(160deg, #fff, #f8f3e6); }
+
 .rw-card.secret.off .rw-ic { background: rgba(254,200,112,.2); color: var(--gold); }
 .rw-card.secret.off .rw-status { color: var(--gold); }
 .rw-card.secret.off .rw-lock { background: rgba(254,200,112,.14); color: var(--gold); }
-.rw-card.secret.on { background: linear-gradient(160deg, #1d1608, #0e0e0e); }
-.rw-sub em { font-style: italic; }
+
+
 
 /* =============================== RESPONSIVE ============================= */
 @media (min-width: 680px) {
@@ -939,16 +939,12 @@ a.linklike.backdash { display: grid; place-items: center; min-height: 44px; widt
 
 /* Five pips, not "2/5". A glance shows how far along you are and how much is
    left; a fraction makes you do arithmetic. */
-.pips { display: inline-flex; align-items: center; gap: 3px; }
-.pip {
-  width: 7px; height: 7px; border-radius: 50%; flex: none;
-  background: #ecebe4; border: 1px solid #dbdad2;
-  transition: background .35s ease, border-color .35s ease, transform .35s cubic-bezier(.2,1.7,.4,1);
-}
-.pip.on { background: var(--gold-bright); border-color: var(--gold); transform: scale(1.2); }
+
+
+
 
 /* ---- the binder page ---------------------------------------------------- */
-.binder { max-width: var(--maxw); margin: 0 auto; padding: var(--sec-y) var(--gutter) 20px; display: grid; gap: 4px; }
+
 
 /* Header yielding order, tightest first: the user's store line hides, then the
    name shrinks and ellipsizes, then the wordmark ellipsizes, then the wordmark is
@@ -984,19 +980,9 @@ a.linklike.backdash { display: grid; place-items: center; min-height: 44px; widt
 /* the reveal starts hidden behind the pack, then flips in */
 
 /* ==================== AMBIENT VAPOR ===================================== */
-.vapor { position: absolute; inset: 0; overflow: hidden; pointer-events: none; }
-.vap {
-  position: absolute; bottom: -60px; border-radius: 50%;
-  background: radial-gradient(circle, rgba(255,255,255,.32), rgba(255,255,255,0) 68%);
-  filter: blur(8px); opacity: 0;
-  animation: vap-rise linear infinite;
-}
-@keyframes vap-rise {
-  0% { transform: translateY(0) scale(.6); opacity: 0; }
-  18% { opacity: .7; }
-  78% { opacity: .4; }
-  100% { transform: translateY(-400px) scale(1.75); opacity: 0; }
-}
+
+
+
 @media (prefers-reduced-motion: reduce) { .vapor { display: none; } }
 
 /* ============== PRODUCT REFERENCE (collapsed, below the learning path) =====
@@ -1036,26 +1022,17 @@ a.linklike.backdash { display: grid; place-items: center; min-height: 44px; widt
 .quiz-score { margin-left: auto; display: inline-flex; align-items: center; gap: 5px; font-weight: 800; color: var(--gold); font-variant-numeric: tabular-nums; }
 .quiz-score svg { width: 14px; height: 14px; }
 .quiz-score b { font-size: 15px; }
-#qscore.pop { animation: score-pop .34s cubic-bezier(.2,1.6,.4,1); display: inline-block; }
-@keyframes score-pop { 0% { transform: scale(1); color: var(--ok); } 45% { transform: scale(1.5); color: var(--ok); } 100% { transform: scale(1); } }
+
+
 
 @media (prefers-reduced-motion: reduce) {
   #qscore.pop{ animation: none; }
 }
-.pocket {
-  position: relative; display: flex; border-radius: 15px; padding: 9px;
-  perspective: 1400px; /* so the card's holo tilt keeps its depth */
-  background: linear-gradient(150deg, rgba(255,255,255,.5), rgba(255,255,255,.14));
-  box-shadow: inset 0 1px 0 rgba(255,255,255,.95), inset 0 0 0 1px rgba(0,0,0,.07), inset 0 -12px 22px rgba(0,0,0,.05);
-}
+
 /* the glossy plastic sheen over the sleeve */
-.pocket::after {
-  content: ""; position: absolute; inset: 0; border-radius: 15px; pointer-events: none; z-index: 4;
-  background: linear-gradient(128deg, rgba(255,255,255,.55) 0%, rgba(255,255,255,.06) 20%, transparent 42%, transparent 80%, rgba(255,255,255,.28) 100%);
-  opacity: .55; mix-blend-mode: overlay;
-}
+
 /* a filled sleeve hugs its card a touch tighter + warms with a gold rim */
-.pocket.filled { box-shadow: inset 0 1px 0 rgba(255,255,255,.95), inset 0 0 0 1px rgba(200,149,47,.28), inset 0 -12px 22px rgba(0,0,0,.05); }
+
 
 @media (max-width: 560px) {
   .pocket { padding: 7px; border-radius: 13px; }
@@ -1332,7 +1309,7 @@ a.linklike.backdash { display: grid; place-items: center; min-height: 44px; widt
 .hero-eyebrow svg { width: 14px; height: 14px; flex: none; color: var(--gold); }
 .hero-h1 { margin-top: 10px; font-size: var(--h1-hero); font-weight: 900; letter-spacing: -.025em; line-height: 1.06; }
 .hero-sub { margin: 10px 0 0; color: var(--ink-2); font-size: clamp(14.5px,2vw,17px); line-height: 1.5; }
-.hero-sub b { color: var(--ink); font-weight: 900; }
+
 
 /* ---- certified ---- */
 .hero-code { margin-top: 18px; }
@@ -1371,7 +1348,7 @@ a.linklike.backdash { display: grid; place-items: center; min-height: 44px; widt
    used to be a <span> beside a "What you unlock" heading that repeated the section
    title; the heading is gone and the status keeps its own line, which is the part that
    actually changes as a rep progresses. */
-.rw-status-line { margin: 18px 0 0; font-size: 15px; font-weight: 800; color: var(--ink); }
+
 
 
 /* ---- reduced motion -------------------------------------------------------
