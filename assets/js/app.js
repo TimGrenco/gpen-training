@@ -236,8 +236,12 @@
     if (held && next && held.pct === next.pct) return null;
     return next ? next.pct : null;
   }
-  // The tier key to mint for someone who has just certified their Nth course.
-  function earnedTierKey() { var tier = tierAt(completedCount()); return tier ? tier.key : "course"; }
+  /* earnedTierKey() lived here — "the tier key to mint for someone who has just
+     certified their Nth course" — and returned the highest rung HELD. That is the
+     wrong question: a product page issues that product's code, and the milestone rungs
+     issue themselves on the ladder via fillRewards(). Both callers now pass "course"
+     explicitly, so this had no remaining use. See showCertifiedState for the full
+     reasoning and the four sources that agree on 6 + 3 = 9 codes. */
   // The best percentage on offer. COPY must call this rather than typing a number:
   // the issuance logic already reads LADDER, so a hardcoded "40% off" in a headline
   // is a promise that silently goes wrong the day someone retunes the top rung.
@@ -1543,8 +1547,19 @@
       "</div>" +
       '<div id="cert-zone"></div><div id="reward-zone" class="reward-wrap"></div>';
     showCertificate(c, rec.name || e.name || "", rec.date, rec.score, rec.certId, $("#cert-zone"));
-    // Mint the tier they actually hold, not the first rung (see LADDER).
-    revealReward(earnedTierKey(), { courseSlug: c.slug, name: rec.name || e.name, email: e.email, store: e.store, certId: rec.certId }, $("#reward-zone"));
+    /* THIS product's own 25% code — always the "course" tier, never the highest tier
+       held. A product page shows the code for the product it is about.
+
+       This used to pass earnedTierKey(), the best rung the rep holds. Because
+       codeFor() deliberately drops courseSlug for milestone tiers (reward.js:64), a
+       rep who had certified on everything opened all six product pages and saw the
+       SAME 40% code on each — and the per-product 25% codes for products 2..6 were
+       never minted at all. Four places describe the intended structure and all four
+       agree on nine codes: the reward README's table, ratelimit.js:32 ("six per-course
+       and three milestones"), codeFor()'s course-only slug branch, and the ladder card
+       copy. The milestone codes are minted separately by fillRewards() on the ladder,
+       so issuing "course" here is what completes 6 + 3. */
+    revealReward("course", { courseSlug: c.slug, name: rec.name || e.name, email: e.email, store: e.store, certId: rec.certId }, $("#reward-zone"));
     $("#retake").addEventListener("click", function () { showCertifyForm(c); $("#quiz-zone").scrollIntoView({ behavior: "smooth", block: "start" }); });
   }
   function showCertifyForm(c) {
@@ -1831,12 +1846,17 @@
                        '<a class="linklike backdash" href="#/">' + t("Back to all products") + "</a>"
               : '<a class="btn ghost xl backdash" href="#/">' + t("Back to all products") + " " + ic("arrow") + "</a>");
     showCertificate(c, e.name, rec.date, rec.score, rec.certId, $("#cert-zone"));
-    // State is already saved above, so completedCount() includes this pass —
-    // mint the tier they now hold (5/5 must issue 40%, not the 25% first rung).
-    // rec.certId, not cid: on a non-improved retake `rec` keeps the ORIGINAL id while
-    // cid is freshly computed, so the code event landed under an id no row carried and
-    // created an orphan — a code with no course, score or date beside it.
-    revealReward(earnedTierKey(), { courseSlug: c.slug, name: e.name, email: e.email, store: e.store, certId: rec.certId }, $("#reward-zone"));
+    /* The 25% code for the product just certified. See showCertifiedState for why this
+       is "course" and not the highest rung held: passing your 4th product earns you
+       that product's code, and the 35% milestone is issued on the ladder by
+       fillRewards(). Minting the top tier here instead skipped the per-product code
+       entirely and, at passes 3 and 5 where no rung is crossed, re-showed a milestone
+       code the rep already had under the banner "New tier unlocked" — measured: at 3
+       certified it requested "trio", the 30% held since course 2.
+       rec.certId, not cid: on a non-improved retake `rec` keeps the ORIGINAL id while
+       cid is freshly computed, so the code event landed under an id no row carried and
+       created an orphan — a code with no course, score or date beside it. */
+    revealReward("course", { courseSlug: c.slug, name: e.name, email: e.email, store: e.store, certId: rec.certId }, $("#reward-zone"));
     zone.scrollIntoView({ behavior: "smooth", block: "start" });
     // Scrolling is not a cue a screen reader receives. quizPass/quizFail replace
     // the whole zone with the verdict, score, certificate and reward code, so move
@@ -1884,8 +1904,13 @@
       }
       box.innerHTML = '<div class="reward">' +
         '<div class="reward-ic">' + ic("tag") + "</div>" +
-        // Name the rung so climbing a tier reads as an event, not a repeat.
-        '<div class="reward-eyebrow">' + (type === "secret" ? t("Top discount unlocked. Full lineup certified.") : (type === "course" ? t("Reward unlocked") : t("New tier unlocked"))) + "</div>" +
+        /* Only two callers reach here now — "course" from a product page and "secret"
+           from the full-lineup certificate. The third branch said "New tier unlocked"
+           for trio/master, and was where the false celebration came from: passing your
+           3rd or 5th product crosses no rung, but the old earnedTierKey() still asked
+           for the milestone tier and this line announced it as new. The milestone codes
+           are handed out by fillRewards() on the ladder, which never calls this. */
+        '<div class="reward-eyebrow">' + (type === "secret" ? t("Top discount unlocked. Full lineup certified.") : t("Reward unlocked")) + "</div>" +
         "<h3>" + t(r.label) + "</h3>" +
         '<button class="code" id="code-copy" title="' + tx("Copy code") + '"><span>' + esc(r.code) + "</span><em>" + t("Tap to copy") + "</em></button>" +
         "<p>" + (r.note ? t(r.note) : "") + "</p>" +

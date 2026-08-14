@@ -207,7 +207,6 @@ window.GPEN_I18N = {
     "One use per person. Not combinable with other offers. Expires 90 days after it is issued.": "Eine Verwendung pro Person. Nicht mit anderen Angeboten kombinierbar. Läuft 90 Tage nach Ausgabe ab.",
     "Top discount unlocked. Full lineup certified.": "Höchster Rabatt freigeschaltet. Gesamtes Sortiment zertifiziert.",
     "Reward unlocked": "Belohnung freigeschaltet",
-    "New tier unlocked": "Neue Stufe freigeschaltet",
     "Earned by completing training. Not tied to sales, orders, or product recommendations.": "Erworben durch den Abschluss der Schulung. Nicht an Verkäufe, Aufträge oder Produktempfehlungen gebunden.",
 
     /* ---- certificate ---- */
