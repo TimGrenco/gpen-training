@@ -62,7 +62,12 @@ body {
 img { max-width: 100%; display: block; }
 a { color: inherit; text-decoration: none; }
 h1, h2, h3, h4 { margin: 0; line-height: 1.08; letter-spacing: -.02em; }
-.gold { color: var(--gold); }
+/* :not(.btn) because `.btn` sets color at the same specificity further down this
+   file and therefore always won — as written this rule has never applied to
+   anything, since the only elements carrying `gold` are `class="btn gold"`.
+   Scoped rather than deleted so `class="gold"` does what it reads like it
+   should on plain text. */
+:not(.btn).gold { color: var(--gold); }
 .noscroll { overflow: hidden; }
 /* The UA's [hidden] { display: none } is the WEAKEST possible display rule, so any
    author `display:` on the same element beats it and the element stays on screen.
@@ -227,7 +232,6 @@ h1, h2, h3, h4 { margin: 0; line-height: 1.08; letter-spacing: -.02em; }
 .foot { max-width: var(--maxw); margin: 0 auto; border-top: 1px solid var(--line); text-align: center; color: var(--stone); font-size: 13px;
   padding: 34px max(clamp(16px,4vw,40px), env(safe-area-inset-right, 0px)) calc(46px + env(safe-area-inset-bottom, 0px)) max(clamp(16px,4vw,40px), env(safe-area-inset-left, 0px)); }
 .foot-g { width: 34px; height: 34px; object-fit: contain; margin: 0 auto 12px; opacity: .8; }
-.foot-g.dark { display: none; }
 .foot a { text-decoration: underline; }
 
 /* =============================== ENROLL ================================== */
@@ -340,7 +344,7 @@ h1, h2, h3, h4 { margin: 0; line-height: 1.08; letter-spacing: -.02em; }
 .sell-close em { color: var(--gold); }
 
 /* Objection cards — trigger (red) → response (green). */
-.sell-objs h4 { font-size: 13px; font-weight: 900; text-transform: uppercase; letter-spacing: .05em; color: var(--stone); margin: 4px 0 10px; }
+.sell-objs h3 { font-size: 13px; font-weight: 900; text-transform: uppercase; letter-spacing: .05em; color: var(--stone); margin: 4px 0 10px; }
 .obj-card { border: 1px solid var(--line); border-radius: var(--r-md); overflow: hidden; margin-bottom: 10px; box-shadow: var(--shadow); }
 .obj-card:last-child { margin-bottom: 0; }
 .obj-says, .obj-say, .obj-why { display: flex; gap: 10px; padding: 12px 15px; font-size: 14.5px; line-height: 1.5; }
@@ -367,7 +371,7 @@ h1, h2, h3, h4 { margin: 0; line-height: 1.08; letter-spacing: -.02em; }
 .sell-trap svg { width: 14px; height: 14px; flex: none; color: var(--bad); margin-top: 2px; }
 
 /* "On the floor" — real register scenarios: what you SEE → what you say. */
-.sell-scns h4 { font-size: 13px; font-weight: 900; text-transform: uppercase; letter-spacing: .05em; color: var(--stone); margin: 4px 0 10px; }
+.sell-scns h3 { font-size: 13px; font-weight: 900; text-transform: uppercase; letter-spacing: .05em; color: var(--stone); margin: 4px 0 10px; }
 .scn { display: grid; gap: 5px; padding: 12px 15px; border: 1px solid var(--line); border-left: 4px solid var(--ok); border-radius: var(--r-sm); background: #f0f8f2; margin-bottom: 10px; }
 .scn:last-child { margin-bottom: 0; }
 .scn em { font-style: normal; font-size: 10.5px; font-weight: 900; text-transform: uppercase; letter-spacing: .06em; color: var(--gold); }
@@ -434,8 +438,8 @@ a.linklike.backdash { display: grid; place-items: center; min-height: 44px; widt
 
 /* Post-quiz "worth another look" — the missed questions + why, on pass and fail. */
 .qreview { margin-top: 20px; border: 1px solid var(--line); border-radius: var(--radius); background: #fff; overflow: hidden; box-shadow: var(--shadow); }
-.qreview h4 { display: flex; align-items: center; gap: 8px; font-size: 13px; font-weight: 900; text-transform: uppercase; letter-spacing: .05em; color: var(--stone); padding: 14px 16px; border-bottom: 1px solid var(--line); margin: 0; }
-.qreview h4 svg { width: 16px; height: 16px; color: var(--gold); }
+.qreview h3 { display: flex; align-items: center; gap: 8px; font-size: 13px; font-weight: 900; text-transform: uppercase; letter-spacing: .05em; color: var(--stone); padding: 14px 16px; border-bottom: 1px solid var(--line); margin: 0; }
+.qreview h3 svg { width: 16px; height: 16px; color: var(--gold); }
 .qr-item { padding: 14px 16px; border-bottom: 1px solid var(--line); }
 .qr-item:last-child { border-bottom: 0; }
 .qr-q { font-size: 14.5px; font-weight: 800; color: var(--ink); line-height: 1.4; }
@@ -522,10 +526,11 @@ a.linklike.backdash { display: grid; place-items: center; min-height: 44px; widt
 .modal-t { color: #fff; font-weight: 700; text-align: center; margin-top: 12px; }
 
 /* =============================== TOAST / CONFETTI ======================= */
-/* Cleared above .sticky-cta (bottom 18px + ~44px tall). At the old 26px the toast,
+/* .sticky-cta was removed and only this comment still referenced it, so the toast
+   no longer clears 76px of nothing. Historic note: at the old 26px the toast,
    which outranks it at z-index 120 vs 60, covered all but 8px of the primary CTA —
    and copying a code is exactly when both are on screen at once. */
-#toast { position: fixed; left: 50%; bottom: calc(76px + env(safe-area-inset-bottom, 0px)); transform: translateX(-50%) translateY(20px); z-index: 120; background: var(--ink); color: #fff; font-weight: 700; font-size: 14px; padding: 12px 20px; border-radius: 999px; box-shadow: var(--shadow-lg); opacity: 0; pointer-events: none; transition: opacity .25s, transform .25s; }
+#toast { position: fixed; left: 50%; bottom: calc(20px + env(safe-area-inset-bottom, 0px)); transform: translateX(-50%) translateY(20px); z-index: 120; background: var(--ink); color: #fff; font-weight: 700; font-size: 14px; padding: 12px 20px; border-radius: 999px; box-shadow: var(--shadow-lg); opacity: 0; pointer-events: none; transition: opacity .25s, transform .25s; }
 #toast.show { opacity: 1; transform: translateX(-50%) translateY(0); }
 
 /* =============================== RICH COURSE ============================ */
@@ -611,7 +616,7 @@ a.linklike.backdash { display: grid; place-items: center; min-height: 44px; widt
 .pk-zoom svg { width: 16px; height: 16px; }
 .pk-shot:hover .pk-zoom, .pk-shot:focus-visible .pk-zoom { background: var(--ink); }
 .pk-body { padding: 16px 18px 18px; }
-.pk-body h4 { margin: 0 0 10px; font-size: 15px; font-weight: 900; }
+.pk-body h3 { margin: 0 0 10px; font-size: 15px; font-weight: 900; }
 .pk-body p { margin: 0; font-size: 14px; line-height: 1.5; color: var(--ink-2); }
 /* One list, two states. The not-included rows are the ones that cause a customer to
    come back, so they read as a warning rather than as more of the same list. */

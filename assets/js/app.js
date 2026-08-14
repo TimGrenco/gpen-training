@@ -253,7 +253,7 @@
       "</div>";
     }).filter(Boolean);
     if (!rows.length) return "";
-    return '<div class="qreview"><h4>' + ic("cap") + " " + tf("Worth another look &middot; {n} missed", { n: rows.length }) + "</h4>" + rows.join("") + "</div>";
+    return '<div class="qreview"><h3>' + ic("cap") + " " + tf("Worth another look &middot; {n} missed", { n: rows.length }) + "</h3>" + rows.join("") + "</div>";
   }
 
 
@@ -938,7 +938,7 @@
     // re-do the training (also lets a shared/kiosk device hand off to the next rep).
     var hasProgress = !!getEnroll() || (getState().courses && Object.keys(getState().courses).length > 0);
     return "</main>" + supportBand() +
-      '<footer class="foot"><img src="assets/img/gpen-g-black.png" class="foot-g light" alt=""/><img src="assets/img/gpen-g-white.png" class="foot-g dark" alt=""/>' +
+      '<footer class="foot"><img src="assets/img/gpen-g-black.png" class="foot-g light" alt=""/>' +
       '<div class="foot-nav"><a href="#/">' + t("Products") + '</a><a href="#/about">' + t("About G Pen") + '</a><a href="' + esc(CFG.shopUrl) + '" target="_blank" rel="noopener">' + t("Shop gpen.com") + "</a></div>" +
       (hasProgress ? '<button class="foot-reset" id="reset" type="button">' + ic("refresh") + " " + t("Reset my progress and start over") + "</button>" : "") +
       "<p>" + esc(CFG.programName) + " · " + tx(CFG.footerNote || "for authorized G Pen retail partners.") +
@@ -1291,9 +1291,9 @@
             "<span>" + tf("More scripts and objections ({n})", { n: extras }) + "</span>" +
           "</summary>" +
           '<div class="sell-more-body">' +
-            (sces ? '<div class="sell-scns"><h4>' + t("Counter scenarios") + "</h4>" + sces + "</div>" : "") +
+            (sces ? '<div class="sell-scns"><h3>' + t("Counter scenarios") + "</h3>" + sces + "</div>" : "") +
             (h.whichClose ? '<div class="sell-close"><em>' + t("The either/or close") + "</em>&ldquo;" + esc(h.whichClose) + "&rdquo;</div>" : "") +
-            (objs ? '<div class="sell-objs"><h4>' + t("When they hesitate") + "</h4>" + objs + "</div>" : "") +
+            (objs ? '<div class="sell-objs"><h3>' + t("When they hesitate") + "</h3>" + objs + "</div>" : "") +
           "</div>" +
         "</details>"
       : "";
@@ -1342,6 +1342,10 @@
      A product with no `packaging` block renders nothing at all. That is the Grinder
      today; when its images are added to the asset portal, the only change needed is
      the data block in data.js. */
+  /* Packaging images are NOT routed through sized(), and that is correct: sized() only
+     rewrites cdn.shopify.com URLs, while these come from assets.gpen.com, which ignores
+     a width parameter. Measured: 20KB each, already smaller than most of the page. An
+     audit flagged them as "bypassing the resizer" — they do, and it costs nothing. */
   function packagingHTML(c) {
     var p = c.packaging;
     if (!p || (!p.box && !p.pop)) return "";
@@ -1352,7 +1356,7 @@
           '<img src="' + esc(img) + '" alt="' + esc(label) + '" loading="lazy"/>' +
           '<span class="pk-zoom" aria-hidden="true">' + ic("search") + "</span>" +
         "</button>" +
-        '<div class="pk-body"><h4>' + label + "</h4>" + body + "</div>" +
+        '<div class="pk-body"><h3>' + label + "</h3>" + body + "</div>" +
       "</div>";
     }
     // Included and not-included are one list with two states, not two lists: a rep
@@ -2206,6 +2210,14 @@
     else if (parts[0] === "certified") { renderCertified(); pageKey = ""; }
     else if (parts[0] === "about") { renderAbout(); pageKey = "about"; }
     else renderHome(); // "/", "/dashboard", "/enroll" and anything else → the hub
+    /* Move focus into the newly rendered page. route() replaces #app wholesale, which
+       destroys the link that was just activated, so focus fell back to <body> on every
+       navigation and a keyboard user restarted from the top of the document each time —
+       and nothing announced that the page had changed at all. #main already carries
+       tabindex="-1" for the skip link, so it is the correct target. preventScroll
+       because route() has already scrolled to the top and a second scroll fights it. */
+    var mainEl = document.getElementById("main");
+    if (mainEl) { try { mainEl.focus({ preventScroll: true }); } catch (e) { mainEl.focus(); } }
   }
   function boot() {
     app = $("#app"); // re-resolve in case the script loaded before #app parsed
