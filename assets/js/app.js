@@ -761,11 +761,19 @@
          SHIFT: without width/height the browser cannot reserve the box, so the photo
          arriving ~1.3s late pushed the entire lineup, ladder and footer down by ~281px
          — a rep mid-tap on a course card. height:auto in the CSS still governs the
-         rendered size, so the ratio is honoured and nothing is cropped. */
+         rendered size, so the ratio is honoured and nothing is cropped.
+         SIZES is a fixed 520px above 900px, not a vw fraction. The desktop hero column
+         is capped by a max-width container, so the box does not scale with the
+         viewport: measured 506 CSS px at a 1280 viewport and 504 at 1920 — i.e. 39.6vw
+         and 26.2vw for the same ~505px box. The old "48vw" therefore over-declared at
+         every desktop width and got worse as the screen grew (at 1920 it claimed 922
+         CSS px, so the browser fetched the 1536 WebP at 131KB for a box needing 1008
+         device px). 520px covers the measured box at DPR2 with a little slack and
+         selects the 1100 candidate at 77KB. */
       '<picture>' +
-        '<source type="image/webp" sizes="(max-width: 899px) 100vw, 48vw" srcset="' +
+        '<source type="image/webp" sizes="(max-width: 899px) 100vw, 520px" srcset="' +
           'assets/img/hero-lineup-shelf-780.webp 780w, assets/img/hero-lineup-shelf-1100.webp 1100w, assets/img/hero-lineup-shelf-1536.webp 1536w" />' +
-        '<source type="image/jpeg" sizes="(max-width: 899px) 100vw, 48vw" srcset="' +
+        '<source type="image/jpeg" sizes="(max-width: 899px) 100vw, 520px" srcset="' +
           'assets/img/hero-lineup-shelf-780.jpg 780w, assets/img/hero-lineup-shelf-1100.jpg 1100w, assets/img/hero-lineup-shelf-1536.jpg 1536w" />' +
         '<img src="' + esc(CFG.heroImage) + '" width="1536" height="1208" alt="' + tx("A G Pen retail shelf: the countertop POP displays grouped into dry herb, concentrates and 510 batteries, each with its price flag.") + '" loading="eager" fetchpriority="high"/>' +
       "</picture>" +
@@ -921,12 +929,19 @@
          padding); above that it is a grid track around 232px. A single sized(cover, 244)
          request meant a phone downloaded 488px for an 86px slot — measured across the
          five CDN covers, ~109KB wasted on every phone home load.
-         sized() no-ops on the grinder's local PNG, so its srcset collapses to one
-         candidate and the browser simply uses it. */
-      '<span class="cc-media"><img src="' + esc(sized(c.cover, 244)) + '"' +
-        ' srcset="' + esc(sized(c.cover, 120)) + ' 240w, ' + esc(sized(c.cover, 244)) + ' 488w"' +
-        ' sizes="(max-width: 460px) 86px, 232px"' +
-        ' alt="' + esc(c.name) + '" loading="lazy"/></span>' +
+         sized() no-ops on non-Shopify hosts, and the grinder's cover is a local PNG.
+         That produced srcset="grinder-cover.png 240w, grinder-cover.png 488w" — the
+         same URL declared as two different widths, which is a claim the file cannot
+         honour. Emit srcset only when the candidates actually differ; one honest src
+         beats two identical ones. */
+      (function () {
+        var small = sized(c.cover, 120), large = sized(c.cover, 244);
+        return '<span class="cc-media"><img src="' + esc(large) + '"' +
+          (small === large ? "" :
+            ' srcset="' + esc(small) + ' 240w, ' + esc(large) + ' 488w"' +
+            ' sizes="(max-width: 460px) 86px, 232px"') +
+          ' alt="' + esc(c.name) + '" loading="lazy"/></span>';
+      })() +
       '<span class="cc-body">' +
         "<h3>" + esc(c.name) + "</h3>" +
         '<span class="cc-cat">' + esc(c.category) + "</span>" +
