@@ -1152,7 +1152,7 @@
      browsers. bindFaq() and its custom aria bookkeeping are gone with it.
      ====================================================================== */
   function renderCourse(slug) {
-    var c = courseBySlug(slug); if (!c) return go("#/");
+    var c = courseBySlug(slug); if (!c) return goReplace("#/"); // unreachable: route() pre-validates the slug. Kept as insurance, and non-pushing so it can never reintroduce the Back trap.
     var s = getState(), rec = s.courses[c.slug], passed = !!(rec && rec.passed);
     setTitleDoc(c.name);
 
@@ -2091,7 +2091,7 @@
 
   /* ---- CERTIFIED (master) ------------------------------------------------ */
   function renderCertified() {
-    if (!isMasterEarned()) return go("#/");
+    if (!isMasterEarned()) return goReplace("#/"); // likewise unreachable via route(); never push from a guard.
     var e = getEnroll() || { name: "", store: "", email: "" };
     // Display only — reportMaster() stamps + reports (idempotent) and quizPass
     // already called it, so arriving here late never double-reports.
@@ -2215,6 +2215,29 @@
 
   /* ---- router ------------------------------------------------------------ */
   function go(hash) { if (location.hash === hash) route(); else location.hash = hash; }
+  /* A GUARD redirect is not a navigation, and must REPLACE the current history entry
+     instead of pushing one. go() assigns location.hash, which pushes — so bouncing a
+     rep off a URL that was never valid left history reading
+     [.., #/about, #/course/typo, #/]. Pressing Back returned to #/course/typo, which
+     redirected forward to #/ again: an inescapable loop. Measured before the fix —
+     two Back presses both landed on #/ and never reached #/about.
+
+     That is not a hypothetical. Stale links out of an old email, a mistyped QR code,
+     or a bookmark to a course that was later renamed all land here, and a rep who
+     cannot press Back out of the site assumes the site is broken.
+
+     replaceState fires neither hashchange nor popstate, so route() is called
+     explicitly. location.replace() is the fallback and also replaces rather than
+     pushes; it does fire hashchange, hence the early return. */
+  function goReplace(hash) {
+    if (location.hash === hash) { route(); return; }
+    if (history.replaceState) {
+      history.replaceState(null, "", location.pathname + location.search + hash);
+      route();
+    } else {
+      location.replace(hash);
+    }
+  }
   /* Modals live on <body>, not inside #app, so a re-render does not remove them.
      Any overlay still standing when the route changes has outlived its page —
      leaving it would strand the rep behind a full-viewport backdrop with scroll
@@ -2242,10 +2265,19 @@
     clearStrayOverlays();
     window.scrollTo(0, 0);
     setTitleDoc(CFG.programName);
-    var pageKey = "home";
-    if (parts[0] === "course" && parts[1]) { renderCourse(parts[1]); pageKey = "course:" + parts[1]; }
-    else if (parts[0] === "certified") { renderCertified(); pageKey = ""; }
-    else if (parts[0] === "about") { renderAbout(); pageKey = "about"; }
+    /* Resolve guard redirects HERE, before anything renders, rather than inside the
+       renderers. Two reasons: the hash is normalised before the header reads it (see
+       navSection), and the renderers no longer call back into route() mid-render.
+       Both cases are a URL that was never a valid destination for this rep, so both
+       replace the history entry — see goReplace for what pushing here did to Back. */
+    if ((parts[0] === "course" && parts[1] && !courseBySlug(parts[1])) ||
+        (parts[0] === "certified" && !isMasterEarned())) {
+      goReplace("#/");
+      return;
+    }
+    if (parts[0] === "course" && parts[1]) renderCourse(parts[1]);
+    else if (parts[0] === "certified") renderCertified();
+    else if (parts[0] === "about") renderAbout();
     else renderHome(); // "/", "/dashboard", "/enroll" and anything else → the hub
     /* Move focus into the newly rendered page. route() replaces #app wholesale, which
        destroys the link that was just activated, so focus fell back to <body> on every
