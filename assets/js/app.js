@@ -1094,7 +1094,14 @@
         // attached is not a thing the store can issue. So this rung points at where
         // the codes live; every other rung is once per person and does hold one.
         ? (type === "course"
-            ? '<p class="rw-percourse">' + t("One code per product you certify on. Each one is on its own product page.") + "</p>"
+            /* "Each one is on its own product page" said where to FIND the code, but
+               reads as what it is LIMITED to — so a rep concludes their Dash II code
+               only works on a Dash II. It does not: the discount is created with
+               items:{all:true} and context:{all:"ALL"} (reward.js:188), so any of these
+               codes takes its percentage off the whole order. Under-using a reward
+               because the copy implied a restriction that isn't there is a silent loss,
+               and it generates "my code doesn't work on the grinder" tickets. */
+            ? '<p class="rw-percourse">' + t("One code per product you certify on. Find each on that product's page — every code works on your whole order.") + "</p>"
             // hidden until a code actually arrives — see fillRewards(). Rendering it
             // visible showed a dead button full of dots whenever the endpoint was
             // unset or unreachable, which is the "empty box promising a discount"

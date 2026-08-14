@@ -196,7 +196,7 @@ window.GPEN_I18N = {
     "Back to all products": "Retour à tous les produits",
 
     /* ---- reward card ---- */
-    "One code per product you certify on. Each one is on its own product page.": "Un code par produit pour lequel vous êtes certifié. Chacun se trouve sur la page de son produit.",
+    "One code per product you certify on. Find each on that product's page — every code works on your whole order.": "Un code par produit pour lequel vous êtes certifié. Vous le trouverez sur la page du produit — chaque code s'applique à toute votre commande.",
     /* Tier labels, notes and terms — authored in config.js, shown on the reward card. */
     "25% off your next order at gpen.com": "25 % de réduction sur votre prochaine commande sur gpen.com",
     "30% off your next order at gpen.com": "30 % de réduction sur votre prochaine commande sur gpen.com",
