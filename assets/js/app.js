@@ -152,6 +152,18 @@
 
   /* ---- persistence ------------------------------------------------------- */
   var K_ENROLL = "gpt.enrollment", K_STATE = "gpt.state";
+  /* An IN-FLIGHT quiz attempt. Nothing about a half-finished quiz used to be saved
+     anywhere: order, position and answers lived only in runQuiz's closure, so any
+     navigation threw them away silently. The sticky header sits two thumb-widths from
+     the answers for the whole quiz, so one mis-tap on "Products" — or a customer
+     walking up, or the phone locking — cost a rep nine minutes with no warning and no
+     explanation. Reproduced: answer two questions, tap About, come back, and the quiz
+     zone is back to the sign-up gate.
+
+     `order` is stored alongside the answers because it IS the attempt: answers[] is
+     indexed by step position, and scoring maps through order. Resuming with a fresh
+     shuffle would silently re-key every answer already given. */
+  var K_ATTEMPT = "gpt.attempt";
   /* A real round-trip, not a feature check: Safari exposes localStorage and throws on
      write, and a full quota also only fails at write time. */
   function storageWorks() {
@@ -172,6 +184,27 @@
     return s;
   }
   function setState(s) { try { localStorage.setItem(K_STATE, JSON.stringify(s)); } catch (e) {} }
+  /* In-flight attempt. getAttempt validates against the CURRENT course rather than
+     trusting what was stored: an attempt saved before the quiz was edited (a question
+     added, removed or reordered) would otherwise resume at a position that no longer
+     means what it meant, and score against the wrong items. A stale attempt is
+     discarded, not repaired — restarting a quiz is a small cost, certifying someone on
+     mis-scored answers is not. */
+  function getAttempt(c) {
+    try {
+      var a = JSON.parse(localStorage.getItem(K_ATTEMPT) || "null");
+      if (!a || !c || a.slug !== c.slug) return null;
+      if (!Array.isArray(a.order) || a.order.length !== c.quiz.length) return null;
+      if (!Array.isArray(a.answers) || typeof a.i !== "number") return null;
+      if (a.i < 0 || a.i >= c.quiz.length) return null;         // finished or corrupt
+      for (var k = 0; k < a.order.length; k++) {
+        if (typeof a.order[k] !== "number" || !c.quiz[a.order[k]]) return null;
+      }
+      return a;
+    } catch (e) { return null; }
+  }
+  function setAttempt(a) { try { localStorage.setItem(K_ATTEMPT, JSON.stringify(a)); } catch (e) {} }
+  function clearAttempt() { try { localStorage.removeItem(K_ATTEMPT); } catch (e) {} }
   /* Structured event log — a future Sheet/Airtable webhook can POST these.
      Pass `st` when the caller is already holding a state object it will setState()
      itself. Without that, this function's own read-modify-write got clobbered:
@@ -715,6 +748,7 @@
           (cn ? ": " + cn + " course certificate" + (cn === 1 ? "" : "s") : "") +
           ".\n\nThis cannot be undone. Continue?")) {
         localStorage.removeItem(K_STATE); localStorage.removeItem(K_ENROLL);
+        clearAttempt();   // an in-flight quiz belongs to the rep being cleared
         // The codes go too. The confirm says this erases their training; a reward cache
         // that outlives the reset hands the next person live, single-use codes.
         if (typeof window.clearRewardCache === "function") window.clearRewardCache();
@@ -1561,7 +1595,30 @@
   function renderQuizIntro(c) {
     var rec = getState().courses[c.slug];
     if (rec && rec.passed) return showCertifiedState(c, rec);
+    var att = getAttempt(c);
+    if (att && getEnroll()) return showResume(c, att);
     showCertifyForm(c);
+  }
+  /* Offered instead of the sign-up gate when an unfinished attempt exists for this
+     course. Requires an enrollment too: without one there is nobody to certify, so the
+     form has to come first regardless.
+
+     Both paths are explicit. Resuming silently would be worse than losing the work —
+     a rep who put the phone down mid-quiz and came back to question 7 with no
+     explanation cannot tell whether it remembered their answers or lost them. */
+  function showResume(c, att) {
+    var zone = $("#quiz-zone");
+    var answered = att.i, total = c.quiz.length;
+    zone.innerHTML =
+      '<div class="certify">' +
+        '<div class="certify-badge">' + ic("refresh") + "</div>" +
+        "<h3>" + t("Pick up where you left off") + "</h3>" +
+        "<p>" + tf("You answered {n} of {total} questions. Your answers are saved on this device.", { n: answered, total: total }) + "</p>" +
+        '<button class="btn xl full" id="q-resume">' + tf("Continue from question {i}", { i: answered + 1 }) + " " + ic("arrow") + "</button>" +
+        '<button class="btn ghost full" id="q-restart">' + t("Start the quiz over") + "</button>" +
+      "</div>";
+    $("#q-resume").addEventListener("click", function () { runQuiz(c, att); });
+    $("#q-restart").addEventListener("click", function () { clearAttempt(); showCertifyForm(c); });
   }
   function showCertifiedState(c, rec) {
     var zone = $("#quiz-zone"), e = getEnroll() || {};
@@ -1661,6 +1718,7 @@
             tfx("Continuing as {name} will clear the progress saved on this device{lost}. This cannot be undone.", { name: name, lost: lost ? ", " + tfx("including {lost}", { lost: lost }) : "" }) + "\n\n" +
             tfx("Continue as {name}?", { name: name }))) return;
         localStorage.removeItem(K_STATE);
+        clearAttempt();   // ...including a quiz the outgoing rep was midway through
         // Same reason as the reset path: otherwise the incoming rep can read — and
         // spend — the outgoing rep's single-use codes straight from the cache.
         if (typeof window.clearRewardCache === "function") window.clearRewardCache();
@@ -1670,9 +1728,23 @@
       runQuiz(c);
     });
   }
-  function runQuiz(c) {
-    var order = shuffle(c.quiz.map(function (_, i) { return i; }));
-    var i = 0, answers = [], correctSoFar = 0, zone = $("#quiz-zone");
+  function runQuiz(c, resume) {
+    var order = (resume && resume.order) || shuffle(c.quiz.map(function (_, i) { return i; }));
+    var i = (resume && resume.i) || 0;
+    var answers = (resume && resume.answers) || [];
+    var zone = $("#quiz-zone");
+    /* Derived, never stored. correctSoFar used to be its own counter incremented in
+       choose(); persisting it too would give the attempt two sources of truth for the
+       same fact, and a resume that disagreed with the answers would show one score
+       during the quiz and a different one on the results screen. */
+    var correctSoFar = 0;
+    order.forEach(function (qi, pos) { if (pos < i && answers[pos] === c.quiz[qi].answer) correctSoFar++; });
+    /* Persist after every answer and every advance, so the attempt on disk is never
+       more than one tap behind the screen. */
+    function saveAttempt() {
+      setAttempt({ slug: c.slug, order: order, i: i, answers: answers, ts: new Date().toISOString() });
+    }
+    saveAttempt();
     step(true);
     zone.scrollIntoView({ behavior: "smooth", block: "start" });
 
@@ -1709,6 +1781,7 @@
     function choose(ci, q) {
       if (answers[i] != null) return;
       answers[i] = ci;
+      saveAttempt();          // the answer is banked before anything else can go wrong
       var correct = ci === q.answer;
       if (correct) correctSoFar += 1;
       /* aria-disabled, NOT disabled. Setting .disabled on the button the rep just
@@ -1751,9 +1824,13 @@
       // Focus follows the flow. Without this the rep is at <body> and has to tab the
       // whole page to continue; with it, answering and advancing is one key each.
       n.focus();
-      n.onclick = function () { i++; if (i < c.quiz.length) step(); else finish(); };
+      n.onclick = function () { i++; saveAttempt(); if (i < c.quiz.length) step(); else finish(); };
     }
     function finish() {
+      // The attempt is over: pass or fail, both render their own screen and neither
+      // should be resumable. Cleared before scoring so an exception below cannot leave
+      // a completed attempt on disk offering to resume at the last question forever.
+      clearAttempt();
       // answers[] is indexed by STEP position; order[pos] is the question shown
       // there, so map through `order` (not data order) to score.
       var correct = 0; order.forEach(function (qi, pos) { if (answers[pos] === c.quiz[qi].answer) correct++; });
