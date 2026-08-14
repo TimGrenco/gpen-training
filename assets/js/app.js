@@ -968,7 +968,14 @@
       "<p>" + esc(CFG.programName) + " · " + tx(CFG.footerNote || "for authorized G Pen retail partners.") +
         " " + t("Program and press:") + " <a href=\"mailto:" + esc(CFG.contactEmail) + "\">" + esc(CFG.contactEmail) + "</a>" +
         (CFG.privacyUrl ? ' · <a href="' + esc(CFG.privacyUrl) + '" target="_blank" rel="noopener">' + t("Privacy") + "</a>" : "") + "</p>" +
-      '<p class="foot-motto">A Grenco Science joint · est. 2012 · <em>In Vapore Veritas</em></p>' +
+      /* Was "A Grenco Science joint · est. 2012 · In Vapore Veritas". Two puns in the
+         one line that sits on every page in every language: "joint", and Latin riffing
+         on in vino veritas. A drug joke and an alcohol joke in the persistent footer of
+         a compliance-sensitive portal that licensed dispensary staff are required to
+         complete. It was also a raw string, never passed through t(), so the Latin
+         rendered untranslated on all six locales. The founding year is a real brand
+         fact and worth keeping; the jokes are not. */
+      '<p class="foot-motto">Grenco Science · ' + tx("est. 2012") + "</p>" +
       "</footer>";
   }
 

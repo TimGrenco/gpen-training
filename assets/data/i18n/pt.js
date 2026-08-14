@@ -16,6 +16,7 @@ window.GPEN_I18N = {
     /* ---- notice + chrome ---- */
     "Machine translated and pending review. Quiz questions stay in English.": "Tradução automática, pendente de revisão. As perguntas do quiz permanecem em inglês.",
     "Skip to content": "Ir para o conteúdo",
+    "est. 2012": "desde 2012",
     "Products": "Produtos",
     "Explore the Product Lineup": "Conheça a linha de produtos",
     "About": "Sobre",
