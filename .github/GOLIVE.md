@@ -198,6 +198,38 @@ reads it off the screen.
 
 ---
 
+## Before you hand the link to anyone — the security preflight
+
+A review of the reward and reporting path found five holes; four are fixed in the code
+and one is a setting only you can change. Do this one first.
+
+- [ ] **Link Upstash.** Vercel → Storage → Create Database → Upstash for Redis → link it
+      to the reward project, then redeploy. **Until this exists there is no ceiling at
+      all**: `lib/ratelimit.js` returns "unlimited" when the KV variables are missing and
+      only logs a warning, so nothing fails and nothing alerts. With it linked the
+      exposure is bounded at 500 codes/day; without it, it is not bounded. Confirm which
+      state you are in by grepping the function logs for `rate limiting is NOT active`.
+- [ ] **Check `CODE_SALT` is genuinely random** — `openssl rand -hex 32`, not a memorable
+      string. With two or three known (email, code) pairs a short salt can be recovered
+      offline, and that would make every future code predictable.
+- [ ] **Set `ALLOWED_ORIGINS`** explicitly to `https://training.gpen.com`. localhost is no
+      longer in the default, but an unset variable should not be how you find that out.
+
+Fixed in code, listed so you know it was done: Google Sheets formula injection (a name
+beginning `=` was a live formula in a sheet holding staff emails and live codes),
+unvalidated `courseSlug`, a free denial-of-service on the daily cap, and a spoofable
+client-IP header.
+
+**Understand the limit of all this.** The quiz is graded in the browser and the reward
+tier is chosen by the caller, so the endpoint cannot verify that any training happened —
+someone who reads the portal's own JavaScript can request a code directly. The mitigations
+that remain are real but they are containment, not prevention: every code is single-use,
+expires in 90 days, is titled in Shopify with the email it was issued to, and is
+individually revocable. Closing it properly means grading the quiz server-side, which is
+a rebuild rather than a setting. Worth deciding deliberately rather than discovering.
+
+---
+
 ## Still open, separately
 
 - **`privacyUrl` is empty.** The certification form tells reps their name, email and

@@ -1554,3 +1554,25 @@ a.linklike.backdash { display: grid; place-items: center; min-height: 44px; widt
   text-decoration: none; }
 .ch-jump:hover { text-decoration: underline; }
 .ch-jump svg { width: 15px; height: 15px; }
+
+/* ---- SHORT LANDSCAPE: a propped-up phone -------------------------------------
+   At 812x375 the quiz card measures ~501px against a 375px viewport minus a 60px
+   sticky header, so a rep could never see the question and its four answers at the
+   same time — aligned to the top they got the question, choice A and half of B; scrolled
+   to the choices, the question was gone. Answering a comprehension question you cannot
+   re-read while you answer it is the whole problem.
+
+   Compacting the card recovers roughly 150px, which is enough to fit a question plus
+   four choices. Only under 460px of height AND landscape, so no phone in normal portrait
+   use is affected — and the tap targets stay at 44px, because a cramped screen is
+   exactly where a missed tap costs the most. */
+@media (max-height: 460px) and (orientation: landscape) {
+  .quiz { padding: 14px 16px; }
+  .quiz-q { font-size: 16px; margin: 6px 0 10px; }
+  .quiz-choices { gap: 6px; }
+  .choice { padding: 9px 14px; font-size: 14px; min-height: 44px; }
+  .quiz-count { margin-bottom: 6px; }
+  .quiz-why { padding: 10px 12px; font-size: 13px; }
+  .quiz-bar { margin-bottom: 8px; }
+  .btn.xl.next { padding: 11px 20px; font-size: 15px; min-height: 44px; }
+}

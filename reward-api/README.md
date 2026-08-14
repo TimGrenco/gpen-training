@@ -113,7 +113,7 @@ change — without it, every page view of a certificate would mint a new discoun
 
 ---
 
-## How it cannot be abused
+## What actually protects this, and what does not
 
 - **The percentages live here, not in the request.** The portal sends a tier name; this
   function looks the percentage up in its own table. A tampered browser cannot ask for
@@ -151,6 +151,12 @@ invisible and unlimited.
 Why those two and not a per-email cap: the code is a keyed hash of tier + email +
 course, so one email can only ever yield nine codes — six per-course and three
 milestones — and asking again returns the same one. Determinism already caps per-email.
+
+**That holds only because `courseSlug` is validated against the six real slugs.** It
+used to be any non-empty string, and since it feeds the code seed, one address could
+mint unlimited distinct 25% codes just by varying it — 1,000 arbitrary slugs produced
+1,000 distinct codes. If that allowlist is ever removed, this section is wrong and a
+per-email counter becomes necessary.
 The exposure is volume across *many* emails, which is what these two limits target.
 
 It **fails open**, unlike `CODE_SALT` and `SYNC_SECRET`, which fail closed. Those guard

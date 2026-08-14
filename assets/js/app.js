@@ -214,10 +214,13 @@
      unusable, never on a slug mismatch: an attempt for a DIFFERENT course is perfectly
      valid and belongs to that course. */
   function getAttempt(c) {
-    function bad() { clearAttempt(); return bad(); }
+    // Deletes the unusable value, then reports "no attempt". NOT `return bad()` — a
+    // scripted edit rewrote this line's own return into a self-call, which recursed
+    // until the stack blew and took the whole course page down with it.
+    function bad() { clearAttempt(); return null; }
     try {
       var raw = localStorage.getItem(K_ATTEMPT);
-      if (!raw) return bad();
+      if (!raw) return null;   // nothing stored is not corruption; nothing to delete
       var a = null;
       try { a = JSON.parse(raw); } catch (e) { return bad(); }
       if (!a || typeof a !== "object" || !a.slug) return bad();
