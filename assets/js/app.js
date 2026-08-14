@@ -1711,7 +1711,14 @@
         '<div class="certify-badge">' + ic("refresh") + "</div>" +
         "<h3>" + t("Pick up where you left off") + "</h3>" +
         "<p>" + tf("You answered {n} of {total} questions. Your answers are saved on this device.", { n: answered, total: total }) + "</p>" +
-        '<button class="btn xl full" id="q-resume">' + tf("Continue from question {i}", { i: answered + 1 }) + " " + ic("arrow") + "</button>" +
+        /* Every question is already banked when the rep answered the last one and left
+           before tapping "See my results". Offering "Continue from question 12" on an
+           11-question quiz names a question that does not exist. The click was always
+           handled correctly — runQuiz skips past banked answers, finds nothing left and
+           scores — so this is the label catching up with what the button already does. */
+        '<button class="btn xl full" id="q-resume">' +
+          (answered >= total ? t("See my results") : tf("Continue from question {i}", { i: answered + 1 })) +
+          " " + ic("arrow") + "</button>" +
         '<button class="btn ghost full" id="q-restart">' + t("Start the quiz over") + "</button>" +
       "</div>";
     $("#q-resume").addEventListener("click", function () { runQuiz(c, att); });   // runQuiz -> step() focuses
