@@ -130,7 +130,6 @@
     return n + (s[(v - 20) % 10] || s[v] || s[0]);
   }
   function coreSlugs() { return CFG.coreCourses && CFG.coreCourses.length ? CFG.coreCourses : COURSES.map(function (c) { return c.slug; }); }
-  function todayKey() { var d = new Date(); return d.getFullYear() + "-" + (d.getMonth() + 1) + "-" + d.getDate(); }
   function niceDate() { return new Date().toLocaleDateString(undefined, { year: "numeric", month: "long", day: "numeric" }); }
   // Grenco Science launched at the 2012 Cypress Hill Smoke Out. Every "years in
   // the business" figure derives from this so none of them can drift apart or
@@ -235,7 +234,6 @@
     return LADDER.reduce(function (best, x) { return x.pct > best ? x.pct : best; }, 0);
   }
 
-  function pick(arr) { return arr && arr.length ? arr[Math.floor(Math.random() * arr.length)] : ""; }
   // Fisher–Yates — used to shuffle quiz question + choice order per attempt so a
   // retake isn't byte-identical (reps learn the material, not answer positions).
   function shuffle(arr) { var a = arr.slice(); for (var j = a.length - 1; j > 0; j--) { var k = Math.floor(Math.random() * (j + 1)); var tmp = a[j]; a[j] = a[k]; a[k] = tmp; } return a; }
@@ -843,26 +841,6 @@
      cannot reach scrollIntoView's behavior argument, so it has to be asked in JS. */
   function prefersReducedMotion() {
     try { return window.matchMedia("(prefers-reduced-motion: reduce)").matches; } catch (e) { return false; }
-  }
-  function lifestyleImgs() {
-    if (window.GPEN_LIFESTYLE && window.GPEN_LIFESTYLE.length) return window.GPEN_LIFESTYLE.slice();
-    var out = [];
-    COURSES.forEach(function (c) { if (c.heroImg) out.push(c.heroImg); if (c.gallery && c.gallery[0]) out.push(c.gallery[0].url); });
-    return out;
-  }
-  // A lifestyle shot of a specific product (matched by folder in the CDN path).
-  function productLifeImg(slug, exclude) {
-    // Slug -> asset-portal folder. A slug missing from this map used to fall through
-    // to "any other product's photo", so the Grinder course illustrated itself with a
-    // vaporizer. Returning "" instead makes lifestyleCinema render nothing, which is
-    // the only honest outcome: no photo beats the wrong product's photo.
-    var folder = ({
-      "dash-ii": "dash-ii/", "dash-plus": "dash-plus/", "grinder": "slim-3-piece-grinder/",
-      "melt-hot-knife": "melt/", "hydout": "hydout/", "510-original": "510-original/",
-    })[slug] || "";
-    if (!folder) return "";
-    var all = window.GPEN_LIFESTYLE || [];
-    return all.filter(function (u) { return u.indexOf(folder) >= 0 && u !== exclude; })[0] || "";
   }
   /* The three steps, stated plainly and up front. This is the first thing a
      budtender should read — it answers "what is this and how does it work". */
