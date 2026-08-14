@@ -118,13 +118,23 @@ change — without it, every page view of a certificate would mint a new discoun
 - **The percentages live here, not in the request.** The portal sends a tier name; this
   function looks the percentage up in its own table. A tampered browser cannot ask for
   90% off.
-- **Origin is checked.** Only `ALLOWED_ORIGINS` may call it.
+- **Origin is checked** — and it must be PRESENT, not merely allowed if supplied. The
+  first version read `if (origin && ...)`, so a request omitting the header skipped the
+  check entirely, which is the default for curl and every script. Be clear about what
+  this buys, though: an Origin header is one extra curl flag. It stops drive-by and
+  automated abuse, not a determined caller.
 - **The code is a keyed hash of tier + email + course**, so nobody can derive someone
   else's code, and the same person asking twice gets the same one rather than a second
   discount.
 - **One use, one person, 90 days.**
 
-What this does *not* do is stop someone who is not a retail employee from taking the
+**What this does NOT do**, stated plainly because the section heading above overclaims
+if left alone: the tier is chosen by the caller and the quiz is graded in the browser,
+so the endpoint cannot verify that any training happened. Someone who reads the portal's
+JavaScript can request a tier directly. Rate limiting makes that impractical at volume;
+only server-side scoring closes it entirely.
+
+Nor does it stop someone who is not a retail employee from taking the
 training and getting a 25% code — the portal is deliberately open, with no password, so
 reps never have to ask what it is. What it does stop is the old failure mode: one
 shared code, screenshotted once, used forever by anyone. Each code is now tied to one
@@ -133,6 +143,39 @@ email it was issued to — so abuse is visible and revocable per code instead of
 invisible and unlimited.
 
 ---
+
+## Rate limiting
+
+`lib/ratelimit.js` caps **40 mints per IP per day** and **500 globally per day**.
+
+Why those two and not a per-email cap: the code is a keyed hash of tier + email +
+course, so one email can only ever yield nine codes — six per-course and three
+milestones — and asking again returns the same one. Determinism already caps per-email.
+The exposure is volume across *many* emails, which is what these two limits target.
+
+It **fails open**, unlike `CODE_SALT` and `SYNC_SECRET`, which fail closed. Those guard
+correctness and secrecy; this guards volume. If the counter store is unreachable,
+refusing would stop every rep collecting a code they earned — turning a third-party blip
+into an outage of the whole point of the portal. It logs loudly and allows.
+
+### Turning it on (3 clicks, free tier)
+
+Vercel → **Storage** → **Create Database** → **Upstash for Redis** → link it to
+`gpen-training-rewards`. That injects `KV_REST_API_URL` and `KV_REST_API_TOKEN`
+automatically; nothing to copy. Redeploy.
+
+Until you do, the endpoint mints without a ceiling and logs a warning on every call —
+grep the function logs for `rate limiting is NOT active` to confirm which state you are
+in.
+
+### What it does and does not buy
+
+It makes **bulk** abuse impractical. It does not stop one determined person obtaining
+one code: the tier is still chosen by the caller, and the quiz is graded in the browser,
+so the server cannot verify that any training happened. Closing that needs server-side
+scoring — a rebuild, not a setting. The mitigations that remain are the ones already in
+place: every code is single-use, expires in 90 days, and is titled in Shopify with the
+email it was issued to, so abuse is visible and revocable per code.
 
 ---
 

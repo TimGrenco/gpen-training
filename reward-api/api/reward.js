@@ -25,6 +25,7 @@
    much. A tampered browser cannot ask for 90% off.
    ========================================================================== */
 const crypto = require("crypto");
+const ratelimit = require("../lib/ratelimit");
 
 const API_VERSION = "2026-07";
 
@@ -147,6 +148,15 @@ module.exports = async function handler(req, res) {
   if (!/^[^@\s]+@[^@\s]+\.[^@\s]+$/.test(email)) return res.status(400).json({ error: "invalid email" });
   // The per-course tier is unique per course, so it needs one.
   if (tier === "course" && !courseSlug) return res.status(400).json({ error: "courseSlug required for the course tier" });
+
+  /* Checked after validation (a malformed request should not spend a caller's budget)
+     and before Shopify (a refusal should cost no API calls and create nothing). The
+     limiter fails open by design — see lib/ratelimit.js. */
+  const rl = await ratelimit.check(req);
+  if (!rl.ok) {
+    res.setHeader("Retry-After", String(rl.retryAfter || 3600));
+    return res.status(429).json({ error: "too many requests, try again later" });
+  }
 
   const { pct, label } = TIERS[tier];
   const code = codeFor({ tier, email, courseSlug });
