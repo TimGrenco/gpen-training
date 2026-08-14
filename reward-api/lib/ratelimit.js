@@ -7,6 +7,13 @@
    no second discount. So per-email limiting buys almost nothing — determinism
    already caps it.
 
+   That claim was FALSE until reward.js started validating courseSlug against the real
+   course list. The slug went into the seed unchecked, so one address could mint an
+   unlimited number of distinct 25% codes simply by varying it — 1,000 arbitrary slugs
+   produced 1,000 distinct codes. Worth recording, because the absence of a per-email
+   cap is justified by the sentence above, and that sentence is only true while the
+   allowlist in reward.js exists. If it is ever removed, this needs a per-email counter.
+
    The real exposure is VOLUME ACROSS MANY EMAILS: a script looping over throwaway
    addresses, each yielding a fresh single-use 40% code. That is what these two caps
    target — how many distinct mints one caller can drive, and how many the endpoint
@@ -57,13 +64,43 @@ async function bump(key) {
   return n;
 }
 
-/* The caller's address. Vercel sets x-forwarded-for; the FIRST entry is the client,
-   the rest are proxies, and trusting the last would let a caller pin their own value.
-   An unknown address collapses to one shared bucket rather than being waved through —
-   if we cannot tell callers apart, they should share a limit, not escape it. */
+/* Read without incrementing. Absent key -> 0. */
+async function readCount(key) {
+  const res = await fetch(URL_ + "/get/" + encodeURIComponent(key), {
+    headers: { Authorization: "Bearer " + TOKEN },
+  });
+  if (!res.ok) throw new Error("kv " + res.status);
+  const out = await res.json();
+  const n = out && out.result != null ? parseInt(out.result, 10) : 0;
+  return Number.isFinite(n) ? n : 0;
+}
+
+/* Spend a unit of GLOBAL budget. Called by reward.js only once it has established that
+   the discount does not already exist and is about to be created — so re-requests,
+   which are idempotent and mint nothing, cost nothing. Never throws: a limiter that is
+   down must not turn into an outage of the reward (see the header). */
+async function countMint() {
+  if (!URL_ || !TOKEN) return;
+  try { await bump("rw:all:" + today()); }
+  catch (err) { console.error("[reward] could not record a mint against the global cap:", err && err.message); }
+}
+
+/* The caller's address. An unknown one collapses to a single shared bucket rather than
+   being waved through — if we cannot tell callers apart, they should share a limit
+   rather than escape it. Be clear about the ceiling either way: even an unforgeable
+   address only makes 40/day-per-IP true, and a proxy pool rotates addresses for
+   pennies. This bounds casual abuse, not a determined one. */
 function clientIp(req) {
-  const xff = String(req.headers["x-forwarded-for"] || "").split(",")[0].trim();
-  return xff || String(req.headers["x-real-ip"] || "").trim() || "unknown";
+  /* Vercel sets x-vercel-forwarded-for and x-real-ip itself and a client cannot forge
+     them. x-forwarded-for is the conventional chain header and IS client-settable, so
+     preferring it meant a caller could potentially hand us a fresh address per request
+     and reset their own per-IP budget at will. Trust the platform's headers first and
+     fall back to the chain only if neither is present. */
+  const vercel = String(req.headers["x-vercel-forwarded-for"] || "").split(",")[0].trim();
+  if (vercel) return vercel;
+  const real = String(req.headers["x-real-ip"] || "").trim();
+  if (real) return real;
+  return String(req.headers["x-forwarded-for"] || "").split(",")[0].trim() || "unknown";
 }
 
 /* Returns { ok } or { ok: false, reason, retryAfter }. Never throws. */
@@ -89,8 +126,20 @@ async function check(req) {
       console.warn("[reward] per-IP daily cap hit for " + ip + " (" + ipCount + "/" + PER_IP_PER_DAY + ")");
       return { ok: false, reason: "ip", retryAfter: 3600 };
     }
-    const allCount = await bump("rw:all:" + day);
-    if (allCount > GLOBAL_PER_DAY) {
+    /* READ the global counter here; countMint() increments it, and only for a request
+       that actually creates a discount.
+
+       This used to increment on every request, before reward.js had even asked Shopify
+       whether the code already existed. So repeating ONE request — same email, same
+       tier, which is idempotent and creates nothing — 500 times exhausted the global
+       budget for the whole UTC day. Every legitimate rep then got a 429 and, because
+       the portal renders nothing when issuance fails, simply no code at all, while
+       Shopify admin showed not a single discount to explain why. A denial of service
+       that costs the attacker nothing and leaves no trace in the place you would look.
+
+       Now an idempotent re-request costs one Shopify read and no global budget. */
+    const allCount = await readCount("rw:all:" + day);
+    if (allCount >= GLOBAL_PER_DAY) {
       console.error("[reward] GLOBAL daily cap hit (" + allCount + "/" + GLOBAL_PER_DAY + ") — refusing. If this is legitimate traffic, raise GLOBAL_PER_DAY.");
       return { ok: false, reason: "global", retryAfter: 3600 };
     }
@@ -102,4 +151,4 @@ async function check(req) {
   }
 }
 
-module.exports = { check, PER_IP_PER_DAY, GLOBAL_PER_DAY };
+module.exports = { check, countMint, PER_IP_PER_DAY, GLOBAL_PER_DAY };

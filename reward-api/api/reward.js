@@ -42,9 +42,14 @@ const TERMS = "One use per person. Not combinable with other offers. Expires 90 
 const VALID_DAYS = 90;
 
 /* Only these origins may call this. A reward endpoint that answers "*" is a reward
-   endpoint any page on the internet can mint against. */
+   endpoint any page on the internet can mint against.
+
+   localhost is deliberately NOT in the default any more. It was, which meant an
+   unset ALLOWED_ORIGINS in production let a page on any developer's machine mint
+   against the live store. For local work, set ALLOWED_ORIGINS to include
+   http://localhost:4753 in the dev environment only. */
 const ALLOWED_ORIGINS = (process.env.ALLOWED_ORIGINS ||
-  "https://training.gpen.com,http://localhost:4753").split(",").map((s) => s.trim());
+  "https://training.gpen.com").split(",").map((s) => s.trim());
 
 /* Crockford base32 minus the letters that get misread aloud or in a screenshot: no
    I, L, O, U. A rep reads this code down a phone line. */
@@ -102,9 +107,12 @@ const CREATE = `
 
 module.exports = async function handler(req, res) {
   const origin = req.headers.origin || "";
+  /* Vary is set unconditionally. It used to sit inside the allowed branch, so a
+     response WITHOUT Access-Control-Allow-Origin carried no Vary either — a
+     cache-correctness bug, since the response body does depend on the Origin header. */
+  res.setHeader("Vary", "Origin");
   if (ALLOWED_ORIGINS.includes(origin)) {
     res.setHeader("Access-Control-Allow-Origin", origin);
-    res.setHeader("Vary", "Origin");
   }
   res.setHeader("Access-Control-Allow-Methods", "POST, OPTIONS");
   res.setHeader("Access-Control-Allow-Headers", "Content-Type");
@@ -148,6 +156,25 @@ module.exports = async function handler(req, res) {
   if (!/^[^@\s]+@[^@\s]+\.[^@\s]+$/.test(email)) return res.status(400).json({ error: "invalid email" });
   // The per-course tier is unique per course, so it needs one.
   if (tier === "course" && !courseSlug) return res.status(400).json({ error: "courseSlug required for the course tier" });
+  /* And it must be a REAL course. courseSlug was previously accepted as any non-empty
+     string, and it is part of the code seed for the course tier — so one email could
+     mint an unlimited number of distinct 25% codes just by varying it. Verified: 1,000
+     arbitrary slugs against one address produced 1,000 distinct codes.
+
+     That is worse than the extra codes, because it falsifies the premise the rate
+     limiter is built on. lib/ratelimit.js and the README both justify having NO
+     per-email cap on the claim that determinism already limits one address to nine
+     codes. It did not. This list is what makes that claim true.
+
+     Kept in sync with data.js by hand — six slugs that change about never. A slug added
+     there and missed here fails closed (a 400 and no code), which is the right way
+     round: a rep files a ticket instead of the endpoint minting into a typo. */
+  const COURSE_SLUGS = new Set([
+    "dash-ii", "dash-plus", "grinder", "melt-hot-knife", "hydout", "510-original",
+  ]);
+  if (tier === "course" && !COURSE_SLUGS.has(courseSlug)) {
+    return res.status(400).json({ error: "unknown course" });
+  }
 
   /* Checked after validation (a malformed request should not spend a caller's budget)
      and before Shopify (a refusal should cost no API calls and create nothing). The
@@ -166,6 +193,14 @@ module.exports = async function handler(req, res) {
     // Already minted — hand back the same code rather than creating a second discount.
     const found = await shopify(LOOKUP, { code });
     if (found && found.codeDiscountNodeByCode) return res.status(200).json(payload);
+
+    /* Spend global budget HERE, not in check(). Everything above this line is a
+       re-request for a code that already exists, which creates nothing — and charging
+       those against the daily cap let anyone exhaust it by repeating one harmless
+       request, locking every rep out with no discount in Shopify to explain it.
+       Awaited but non-throwing: a counter that cannot be written must not stop a rep
+       collecting a code they earned. */
+    await ratelimit.countMint();
 
     const now = new Date();
     const ends = new Date(now.getTime() + VALID_DAYS * 86400000);

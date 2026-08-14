@@ -22,7 +22,7 @@ const MAX_CODES = 100;
 const BATCH = 25; // aliases per GraphQL request, to stay well inside the cost limit
 
 const ALLOWED_ORIGINS = (process.env.ALLOWED_ORIGINS ||
-  "https://training.gpen.com,http://localhost:4753").split(",").map((s) => s.trim());
+  "https://training.gpen.com").split(",").map((s) => s.trim());
 
 async function shopify(query, variables) {
   const shop = process.env.SHOPIFY_SHOP;
@@ -57,9 +57,11 @@ function buildQuery(n) {
 module.exports = async function handler(req, res) {
   const origin = req.headers.origin || "";
   // Apps Script sends no Origin, so an absent one is allowed; a present one must match.
+  // Vary is unconditional — see reward.js; a response whose content depends on Origin
+  // must say so even when it declines to set Access-Control-Allow-Origin.
+  res.setHeader("Vary", "Origin");
   if (origin && ALLOWED_ORIGINS.includes(origin)) {
     res.setHeader("Access-Control-Allow-Origin", origin);
-    res.setHeader("Vary", "Origin");
   }
   res.setHeader("Access-Control-Allow-Methods", "POST, OPTIONS");
   res.setHeader("Access-Control-Allow-Headers", "Content-Type");
