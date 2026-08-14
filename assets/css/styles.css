@@ -1511,3 +1511,12 @@ a.linklike.backdash { display: grid; place-items: center; min-height: 44px; widt
    clean, styled, correctly-sized well instead of a broken-image glyph with stranded
    alt text. visibility, not display, so the reserved box keeps its size. */
 .img-failed { visibility: hidden; }
+
+/* Top-of-page jump to the quiz (see bindQuizJump). The quiz sits ~5,200px down a
+   ~6,900px course page, so a rep who already knows the product — or is coming back to
+   retake — should not have to thumb past every photo and spec to reach it. */
+.ch-jump { display: inline-flex; align-items: center; gap: 6px; margin-top: 10px;
+  min-height: 44px; font-size: 14px; font-weight: 800; color: var(--gold);
+  text-decoration: none; }
+.ch-jump:hover { text-decoration: underline; }
+.ch-jump svg { width: 15px; height: 15px; }

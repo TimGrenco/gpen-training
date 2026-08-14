@@ -1246,6 +1246,14 @@
               '<span class="cx-cat">' + esc(c.category) + "</span>" +
             "</div>" +
             '<div class="ch-meta">' + tf("{q} questions · {pct}% to pass · about {min} minutes", { q: c.quiz.length, pct: c.passPct, min: c.minutes }) + "</div>" +
+            /* A jump to the quiz, at the top. The quiz starts around y=5259 on a
+               6863px course page, and the only links above it went to lightboxes,
+               videos and other products — so a rep who already knows the product, or
+               who is coming back to retake, had to thumb past packaging, key points,
+               scripts, two videos, five photos and four spec accordions every time.
+               An in-page anchor rather than a hash route: "#quiz-zone" is not a route,
+               so the router must not see it. */
+            '<a class="ch-jump" href="#quiz-zone" id="jump-quiz">' + t("Go to the quiz") + " " + ic("arrow") + "</a>" +
           "</div>" +
         "</div>" +
 
@@ -1323,6 +1331,7 @@
 
     bindVideos();
     bindZoom();
+    bindQuizJump();
     renderQuizIntro(c);
     revealOnScroll();
   }
@@ -1501,6 +1510,19 @@
   function bindZoom() {
     $$(".pk-shot, .ga-shot").forEach(function (b) {
       b.addEventListener("click", function () { openImage(b.getAttribute("data-img"), b.getAttribute("data-caption")); });
+    });
+  }
+  /* The top-of-page jump to the quiz. preventDefault is not optional: letting the
+     anchor do its native thing sets location.hash to "#quiz-zone", the router reads
+     that as an unknown route, and the rep is thrown to the home page — the opposite of
+     what the link says. Scrolling by hand keeps the URL a route and leaves Back
+     meaning what it meant. */
+  function bindQuizJump() {
+    var j = $("#jump-quiz"), z = $("#quiz-zone");
+    if (!j || !z) return;
+    j.addEventListener("click", function (ev) {
+      ev.preventDefault();
+      z.scrollIntoView({ behavior: prefersReducedMotion() ? "instant" : "smooth", block: "start" });
     });
   }
 

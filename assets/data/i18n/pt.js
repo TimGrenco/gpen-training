@@ -16,6 +16,7 @@ window.GPEN_I18N = {
     /* ---- notice + chrome ---- */
     "Machine translated and pending review. Quiz questions stay in English.": "Tradução automática, pendente de revisão. As perguntas do quiz permanecem em inglês.",
     "Skip to content": "Ir para o conteúdo",
+    "Go to the quiz": "Ir para o teste",
     "Pick up where you left off": "Continue de onde parou",
     "You answered {n} of {total} questions. Your answers are saved on this device.": "Você respondeu {n} de {total} perguntas. Suas respostas estão salvas neste dispositivo.",
     "Continue from question {i}": "Continuar da pergunta {i}",
