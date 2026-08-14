@@ -1434,11 +1434,26 @@ a.linklike.backdash { display: grid; place-items: center; min-height: 44px; widt
    844x390 landscape phone — pushing the entire product lineup two screens down on the
    exact machine the G Pen rep demos from. Portrait phones were always fine (288x226 at
    320px), so the cap starts where the problem does. */
-@media (min-width: 768px) {
-  .hero-in > .hero-shot img { max-height: min(46vh, 460px); object-fit: cover; object-position: 50% 55%; }
+/* Two columns instead of a crop. Capping the height with object-fit:cover did shorten
+   the page, but it sliced off the DRY HERB and CONCENTRATES category pills along the
+   top — the labelling that is the entire reason this photograph was chosen over the
+   previous one. Side-by-side keeps every price flag and every category label while
+   still bringing the lineup up to the first screen, because the shot's height is now
+   governed by half the container rather than all of it. */
+@media (min-width: 900px) {
+  .hero-in {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) minmax(0, 1.05fr);
+    column-gap: clamp(28px, 4vw, 56px);
+    align-items: center;
+  }
+  .hero-in > .hero-eyebrow { grid-column: 1; grid-row: 1; align-self: end; }
+  .hero-in > .hero-h1      { grid-column: 1; grid-row: 2; }
+  .hero-in > .hero-lede    { grid-column: 1; grid-row: 3; align-self: start; }
+  .hero-in > .hero-shot    { grid-column: 2; grid-row: 1 / span 3; margin-top: 0; }
 }
 @media (max-height: 500px) and (orientation: landscape) {
-  .hero-in > .hero-shot img { max-height: 52vh; object-fit: cover; }
+  .hero-in > .hero-shot { max-width: 62vh; margin-inline: auto; }
   /* Same reason: a 400px minimum is taller than the ~330px reachable under the header. */
   .cx-hero { min-height: 0; }
   /* Two square packaging photos side by side were each larger than the whole screen. */
