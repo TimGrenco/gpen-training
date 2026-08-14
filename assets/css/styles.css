@@ -887,6 +887,40 @@ a.linklike.backdash { display: grid; place-items: center; min-height: 44px; widt
   body.printing > *:not(#print-sheet) { display: none !important; }
   body.printing #print-sheet { display: block !important; }
   .hdr, .preview-bar { display: none !important; }
+  /* ---- the PLAIN Cmd/Ctrl+P path ------------------------------------------
+     printCert() blacks out everything but the clone, so the button path was always
+     fine. But a rep who just hits Cmd+P prints the live page, and that path had never
+     been made printable. Two things were wrong with it.
+
+     First, chrome that is meaningless on paper: the action buttons printed as empty
+     rounded outlines (a "Print certificate" button on a printout), and the support
+     band and footer added a page of phone numbers and opening hours nobody asked for.
+
+     Second, and worse: Chrome and Safari default "Background graphics" to OFF, so the
+     dark panels lose their backgrounds but keep their light text. The reward card is
+     white text on a near-black gradient, which printed white on white — the headline
+     was simply GONE from the sheet — and its gold eyebrow printed at about 1.36:1.
+     Colours are forced here rather than trusting print-color-adjust, because relying
+     on the background surviving is exactly the assumption that failed. */
+  body:not(.printing) .cert-actions,
+  body:not(.printing) .cs-band,
+  body:not(.printing) .foot,
+  body:not(.printing) .quiz,
+  body:not(.printing) .foot-reset { display: none !important; }
+  body:not(.printing) .reward,
+  body:not(.printing) .rw-card {
+    background: none !important; color: #000 !important;
+    border: 1px solid #000; box-shadow: none !important;
+  }
+  body:not(.printing) .reward::before { display: none !important; }
+  body:not(.printing) .reward h3,
+  body:not(.printing) .reward p,
+  body:not(.printing) .reward-eyebrow,
+  body:not(.printing) .reward-terms,
+  body:not(.printing) .reward .code,
+  body:not(.printing) .reward-ic { color: #000 !important; background: none !important; }
+  /* Keep a certificate from being split across two sheets on the plain path. */
+  .cert, .cert.master { break-inside: avoid; page-break-inside: avoid; }
   body { background: #fff; }
   .cert { border-color: #000; box-shadow: none; margin: 0; }
   /* --gold reset too. The screen rule redefines --gold as --gold-bright on this card

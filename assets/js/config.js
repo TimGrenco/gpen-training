@@ -295,6 +295,9 @@ window.clearRewardCache = function () {
   try { localStorage.removeItem(REWARD_CACHE_KEY); } catch (e) {}
 };
 
+/* Keyed by the same cacheKey issueRewardCode derives. In memory only and deliberately
+   not persisted: an in-flight request cannot outlive the page that made it. */
+var INFLIGHT = {};
 window.issueRewardCode = function (type, ctx) {
   var CFG = window.TRAINING_CONFIG || {};
   var rw = CFG.rewards || {};
@@ -337,13 +340,22 @@ window.issueRewardCode = function (type, ctx) {
      by name, passed the quiz, and got nothing — with no spinner, no error, and no hint
      that reloading would retry. 12 seconds is well past a normal round trip and well
      inside the patience of someone standing at a counter. */
+  /* One request per tier in flight at a time. The home page renders the reward ladder
+     AND a hero code, and both ask for the top tier — so a first visit fired two
+     identical requests for the same code before either could populate the cache. The
+     endpoint is idempotent so no second discount is created, but each request is
+     counted separately by the rate limiter (40/IP/day, and a whole store shares one
+     wifi address), so the duplicate spends someone's budget for nothing.
+     Handing both callers the same promise makes the second free. */
+  if (INFLIGHT[cacheKey]) return INFLIGHT[cacheKey];
+
   var ctl = null, timer = null;
   try {
     ctl = new AbortController();
     timer = setTimeout(function () { try { ctl.abort(); } catch (e) {} }, 12000);
   } catch (e) { ctl = null; }
 
-  return fetch(rw.url, {
+  var pending = fetch(rw.url, {
     signal: ctl ? ctl.signal : undefined,
     method: "POST",
     // text/plain keeps this a CORS "simple request" — no preflight, which is what
@@ -399,6 +411,15 @@ window.issueRewardCode = function (type, ctx) {
       if (window.console) console.warn("[gpen-training] the reward endpoint could not be reached; no code issued.", err);
       return null;
     });
+
+  /* Released on settle, success or failure. Keeping a rejected promise here would make
+     one flaky request permanent: every later attempt, including the "Try again" button,
+     would be handed the same dead promise and the rep could never retry. A success
+     leaves the code in the reward cache, which is what short-circuits the next call. */
+  INFLIGHT[cacheKey] = pending;
+  pending.then(clear, clear);
+  function clear() { delete INFLIGHT[cacheKey]; }
+  return pending;
 };
 
 /* -----------------------------------------------------------------------------
