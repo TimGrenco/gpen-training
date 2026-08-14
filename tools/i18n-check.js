@@ -9,7 +9,10 @@
      stale     a string in the locale the app no longer asks for
      errors    a {placeholder} or HTML tag that changed between en and the locale,
                a price that changed, a forbidden override (quiz / product name /
-               msrp / family / media), or a keyFacts array that changed length
+               msrp / family / media), or a keyFacts array that changed length.
+               EVERY string in the courses tree is swept for this, at any depth
+               and inside arrays, and reported as slug + field path — not just
+               the three howToSell fields the targeted checks below cover.
      warnings  a value identical to its English key, or a description/highlights
                array with a different number of items than the English one
 
@@ -55,7 +58,77 @@ Object.values(RW.tiers || {}).forEach((tr) => { if (tr && tr.label) keys.add(tr.
 if (CFG.footerNote) keys.add(CFG.footerNote);
 
 const toks = (s) => (String(s).match(/\{[a-zA-Z]+\}/g) || []).sort().join(",");
-const tags = (s) => (String(s).match(/<\/?[a-z]+>/g) || []).sort().join(",");
+
+/* Tag names only, normalised. Matches attributes (<span lang="en">), uppercase
+   (<STRONG>) and self-closing (<br/>), so a translator cannot smuggle a tag past
+   the checker by writing it in a form the old bare-lowercase regex could not see. */
+const TAG_RE = /<(\/?)([A-Za-z][A-Za-z0-9]*)\b[^>]*?(\/?)>/g;
+const tagList = (s) => {
+  const out = [];
+  let m;
+  TAG_RE.lastIndex = 0;
+  while ((m = TAG_RE.exec(String(s)))) {
+    const name = m[2].toLowerCase();
+    out.push(m[1] ? "/" + name : m[3] ? name + "/" : name);
+  }
+  return out;
+};
+const tags = (s) => tagList(s).sort().join(",");
+// "<strong>a</strong>" is balanced; "<strong>a" and "</strong>a<strong>" are not.
+const tagsBalanced = (s) => {
+  const stack = [];
+  for (const t of tagList(s)) {
+    if (t.endsWith("/")) continue; // self-closing / void
+    if (t.startsWith("/")) { if (stack.pop() !== t.slice(1)) return false; }
+    else stack.push(t);
+  }
+  return stack.length === 0;
+};
+
+/* ---- number / price parity -------------------------------------------------
+   Every locale here writes numbers its own way, so a raw string compare is
+   useless: es/de/it/pt use "0,4" for 0.4 and "1.100" for 1,100, fr writes
+   "1 100" with a space. canonNum() folds all of those to one canonical value so
+   only a REAL change of quantity shows up as a difference. */
+const NUM_RE = /\d(?:[\d.,]*\d)?/g;
+const canonNum = (raw) => {
+  // ".100" / ",100" is a thousands group; a shorter tail is a decimal mark.
+  const s = raw.replace(/([.,])(\d{3})(?!\d)/g, "$2").replace(",", ".");
+  const n = parseFloat(s);
+  return Number.isNaN(n) ? raw : String(n);
+};
+/* fr's space-separated groups ("1 100 mAh") would otherwise read as two numbers.
+   Only join across a space when the joined value is one English already claims —
+   that way "1 100" folds to 1100, but "$12.95 510" never becomes 5510, and a
+   corrupted "1 200" finds no English 1200 to hide behind and stays a mismatch. */
+const nums = (s, allowed) => {
+  let str = String(s);
+  if (allowed) {
+    str = str.replace(/(\d)[\s   ](\d{3})(?!\d)/g, (m, a, b) =>
+      allowed.has(canonNum(a + b)) ? a + b : m);
+  }
+  return (str.match(NUM_RE) || []).map(canonNum);
+};
+const bag = (list) => { const m = new Map(); list.forEach((v) => m.set(v, (m.get(v) || 0) + 1)); return m; };
+// entries of `a` that `b` cannot account for
+const minus = (a, b) => {
+  const left = new Map(b);
+  const out = [];
+  a.forEach((n, v) => {
+    const take = Math.min(n, left.get(v) || 0);
+    left.set(v, (left.get(v) || 0) - take);
+    for (let i = 0; i < n - take; i++) out.push(v);
+  });
+  return out;
+};
+/* Known-good divergences, confirmed across all five bundles. Anything outside
+   these stays an error — they are deliberately narrow so a real edit cannot
+   dress itself up as one of them. */
+// de writes small counts as words ("dreiteilig" for "3-piece"), so a small
+// integer may vanish. Only a DROP is forgiven; an unexplained new number is not.
+const isSpelledOut = (v) => /^\d+$/.test(v) && +v >= 1 && +v <= 12;
+// Some taglines name the 510 format and some don't; both readings are approved.
+const isTaglineFivetenArtifact = (v, field) => v === "510" && /(^|\.)tagline$/.test(field);
 
 const EN_COURSES = {};
 COURSES_FOR_KEYS.forEach((c) => (EN_COURSES[c.slug] = c));
@@ -109,6 +182,53 @@ Object.keys(B.courses || {}).forEach((slug) => {
       if (ep !== tp) errs.push(`${slug}.howToSell.${f}: prices changed (${ep} -> ${tp})`);
     });
   }
+});
+
+/* Deep parity sweep over the whole course override tree. The targeted checks
+   above only ever looked at howToSell.vital/aov/whichClose, so prices and
+   <strong> tags in talkTrack.say, trap, keyFacts[], description[], highlights[]
+   and tagline were unguarded. This walks EVERY string at any depth, arrays
+   included, against its English counterpart and names the exact field path so a
+   failure is actionable. */
+function walkCourse(tr, en, field, slug) {
+  if (typeof tr === "string") {
+    if (typeof en !== "string") return;
+    const at = `${slug}${field}`;
+    if (toks(tr) !== toks(en)) {
+      errs.push(`${at}: placeholder mismatch\n    en: ${en}\n    ${lang}: ${tr}`);
+    }
+    if (tags(tr) !== tags(en)) {
+      errs.push(`${at}: HTML tag mismatch (${tags(en) || "none"} -> ${tags(tr) || "none"})\n    en: ${en}\n    ${lang}: ${tr}`);
+    } else if (!tagsBalanced(tr)) {
+      errs.push(`${at}: unbalanced HTML tags\n    ${lang}: ${tr}`);
+    }
+    const enCash = (en.match(/\$/g) || []).length, trCash = (tr.match(/\$/g) || []).length;
+    if (enCash !== trCash) {
+      errs.push(`${at}: currency markers changed (${enCash} -> ${trCash})\n    en: ${en}\n    ${lang}: ${tr}`);
+    }
+    const enBag = bag(nums(en));
+    const trBag = bag(nums(tr, new Set(nums(en))));
+    const dropped = minus(enBag, trBag)
+      .filter((v) => !isSpelledOut(v) && !isTaglineFivetenArtifact(v, field));
+    const added = minus(trBag, enBag)
+      .filter((v) => !isTaglineFivetenArtifact(v, field));
+    if (dropped.length || added.length) {
+      const how = [dropped.length ? `lost ${dropped.join(", ")}` : "", added.length ? `gained ${added.join(", ")}` : ""].filter(Boolean).join("; ");
+      errs.push(`${at}: numbers changed (${how})\n    en: ${en}\n    ${lang}: ${tr}`);
+    }
+    return;
+  }
+  if (Array.isArray(tr)) {
+    if (!Array.isArray(en)) return;
+    tr.forEach((v, i) => walkCourse(v, en[i], `${field}[${i}]`, slug));
+    return;
+  }
+  if (tr && typeof tr === "object" && en && typeof en === "object") {
+    Object.keys(tr).forEach((k) => walkCourse(tr[k], en[k], `${field}.${k}`, slug));
+  }
+}
+Object.keys(B.courses || {}).forEach((slug) => {
+  if (EN_COURSES[slug]) walkCourse(B.courses[slug], EN_COURSES[slug], "", slug);
 });
 
 console.log(`\n=== ${lang} ===`);

@@ -136,7 +136,7 @@ window.GPEN_I18N = {
 
     /* ---- certify form ---- */
     "certified": "certifié",
-    "You are a certified {product} Specialist": "Vous êtes spécialiste {product} certifié",
+    "You are a certified {product} Specialist": "Vous êtes Product Specialist {product} certifié",
     "Certificate earned {date}.": "Certificat obtenu le {date}.",
     "Your certificate and discount code are below. Retake the quiz at any time to improve your score.": "Votre certificat et votre code de réduction se trouvent ci-dessous. Vous pouvez repasser le quiz à tout moment pour améliorer votre score.",
     "Retake quiz": "Repasser le quiz",
@@ -279,7 +279,7 @@ window.GPEN_I18N = {
       ],
       howToSell: {
         vital: "Un vaporisateur chauffe la fleur moulue au lieu de la brûler, ce qui donne un arôme plus net de la variété. Le Dash II est la façon la moins chère d'y accéder.",
-        aov: "Chaque vente de fleur peut emporter un appareil à $49.95. C'est l'accessoire de plus grande valeur sur un achat de fleur, et il fait revenir le client pour de la fleur.",
+        aov: "Chaque vente de fleur peut entraîner la vente d'un appareil à $49.95. C'est l'accessoire de plus grande valeur sur un achat de fleur, et il fait revenir le client pour de la fleur.",
         talkTrack: { say: "Puisque vous achetez de la fleur : ceci la chauffe au lieu de la brûler. Vous obtenez plus de sessions avec la même quantité et un arôme plus net. $49.95, et ça tient dans une poche." },
         whichClose: "Deux options pour la fleur : le Dash II à $49.95, ou le Dash+ avec chambre en titane à $99.95. Lequel vous conviendrait ?",
         trap: "Ne le décrivez jamais comme quelque chose de comparable au fait de fumer. Dites qu'il chauffe la fleur et ne la brûle pas.",
@@ -330,10 +330,10 @@ window.GPEN_I18N = {
     "grinder": {
       whatItIs: "Un grinder manuel, conçu pour broyer la fleur de cannabis avant le remplissage.",
       category: "Accessoire pour herbe sèche",
-      tagline: "Grinder en aluminium de 64 mm. Sans grille à kief : rien ne reste derrière.",
+      tagline: "Grinder en aluminium de 64 mm. Sans grille à kief : rien ne se perd.",
       differentiator: "L'accessoire à $19.95 pour toute vente de fleur.",
       description: [
-        "Le G&nbsp;Pen Grinder est un grinder <strong>3 pièces de 64 mm</strong> usiné avec précision dans un <strong>aluminium anodisé 6063</strong> robuste — la même famille de matériaux de qualité aéronautique que les appareils qu'il alimente.",
+        "Le G&nbsp;Pen Grinder est un grinder <strong>3 pièces de 64 mm</strong> usiné avec précision dans un <strong>aluminium anodisé 6063</strong> robuste — la même famille de matériaux de qualité aéronautique que les appareils qu'il remplit.",
         "Ses <strong>dents micro-arrondies brevetées</strong> (brevet n° 11690480) séparent la fleur en douceur au lieu de la déchiqueter, pour une mouture plus régulière. Un <strong>couvercle magnétique puissant</strong> maintient la fermeture serrée et le contenu à sa place.",
         "Il n'y a <strong>pas de grille à kief</strong>, et c'est volontaire : tout ce que vous moulez — fleur, trichomes et kief ensemble — tombe dans le réceptacle et part dans votre bol ou votre chambre.",
       ],
@@ -348,9 +348,9 @@ window.GPEN_I18N = {
       howToSell: {
         vital: "Tout client qui achète de la fleur la broie d'une manière ou d'une autre. C'est l'article le moins cher du comptoir qui améliore ce qu'il vient d'acheter, et c'est l'accessoire qui permet de remplir un Dash de façon régulière.",
         aov: "Un accessoire mécanique à $19.95, sans rien qui casse et sans rien à recharger. Il s'ajoute à toute vente de fleur et se livre en présentoir de 10, pour rester à la caisse.",
-        talkTrack: { say: "Comment broyez-vous votre fleur ? Celui-ci fait 64 mm en aluminium usiné avec des dents brevetées, sans grille à kief, donc rien n'est séparé ni laissé derrière. $19.95, et votre vaporisateur se remplit plus régulièrement." },
+        talkTrack: { say: "Comment broyez-vous votre fleur ? Celui-ci fait 64 mm en aluminium usiné avec des dents brevetées, sans grille à kief, donc rien n'est séparé ni perdu. $19.95, et votre vaporisateur se remplit plus régulièrement." },
         whichClose: "Vous remplissez un vaporisateur ou vous roulez ? Une mouture régulière compte dans les deux cas. On ajoute le grinder à $19.95 ?",
-        trap: "Ne le vendez pas comme un récupérateur de kief : il n'a volontairement PAS de grille à kief, et un client qui attend une quatrième chambre le rapportera. Vendez-le pour l'atout qu'il représente : rien n'est séparé ni laissé derrière.",
+        trap: "Ne le vendez pas comme un récupérateur de kief : il n'a volontairement PAS de grille à kief, et un client qui attend une quatrième chambre le rapportera. Vendez-le pour l'atout qu'il représente : rien n'est séparé ni perdu.",
         keyFacts: [
           "3 pièces, 64 mm, aluminium",
           "Dents micro-arrondies brevetées",
@@ -370,7 +370,7 @@ window.GPEN_I18N = {
       description: [
         "Voici le tout nouveau G Pen Melt Hot Knife : le <strong>plus petit hot knife du marché</strong> et la façon la plus rapide et la plus propre de préparer vos concentrés. Avec seulement 3,94 × 0,5 × 0,25 pouce, le Melt est ultra-compact et disparaît dans n'importe quelle poche ou trousse de voyage.",
         "Conçu pour un prélèvement <strong>sans salissure</strong> et un dépôt régulier et maîtrisé, sa pointe en céramique à chauffe rapide est prête instantanément pour des transferts parfaits à chaque fois. Plus d'outils collants, plus de reclaim partout, plus de manipulations hasardeuses.",
-        "Avec sa charge USB-C pass-through, son corps épuré en aluminium et la silhouette caractéristique G Pen, le Melt est votre indispensable du quotidien — que vous chargiez un rig, remplissiez un Micro+ ou préparez un Hyer.",
+        "Avec sa charge USB-C pass-through, son corps épuré en aluminium et la silhouette caractéristique G Pen, le Melt est votre indispensable du quotidien — que vous chargiez un rig, remplissiez un Micro+ ou prépariez un Hyer.",
       ],
       highlights: [
         "Le plus petit hot knife du marché",

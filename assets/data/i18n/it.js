@@ -17,8 +17,8 @@ window.GPEN_I18N = {
     "Go to the quiz": "Vai al quiz",
     "Pick up where you left off": "Riprenda da dove si era fermato",
     "You answered {n} of {total} questions. Your answers are saved on this device.": "Ha risposto a {n} domande su {total}. Le sue risposte sono salvate su questo dispositivo.",
-    "Continue from question {i}": "Continua dalla domanda {i}",
-    "Start the quiz over": "Ricomincia il quiz",
+    "Continue from question {i}": "Continui dalla domanda {i}",
+    "Start the quiz over": "Ricominci il quiz",
     "est. 2012": "dal 2012",
     "Products": "Prodotti",
     "Explore the Product Lineup": "Scopra la gamma di prodotti",
@@ -30,20 +30,20 @@ window.GPEN_I18N = {
     "for authorized G Pen retail partners, 21+ — training and hardware education only. No cannabis, nicotine or e-liquid products are sold or shipped through this site.": "per i rivenditori autorizzati G Pen, maggiori di 21 anni — solo formazione e informazione sull'hardware. Attraverso questo sito non vengono venduti né spediti prodotti a base di cannabis, nicotina o e-liquid.",
     "Program and press:": "Programma e stampa:",
     "for authorized G Pen retail partners.": "per i rivenditori autorizzati G Pen.",
-    "Reset my progress and start over": "Cancella i miei progressi e ricomincia",
+    "Reset my progress and start over": "Cancelli i miei progressi e ricominci",
     "This page didn't load completely.": "Questa pagina non è stata caricata completamente.",
-    "Check your connection and reload. Your progress and certificates are safe.": "Controlla la connessione e ricarica. I tuoi progressi e i tuoi certificati sono al sicuro.",
-    "Reload": "Ricarica",
+    "Check your connection and reload. Your progress and certificates are safe.": "Controlli la connessione e ricarichi. I suoi progressi e i suoi certificati sono al sicuro.",
+    "Reload": "Ricarichi",
     "Progress cleared.": "Progressi cancellati.",
-    "Close": "Chiudi",
+    "Close": "Chiuda",
 
     /* ---- home masthead ---- */
     "Product training": "Formazione sui prodotti",
     "Training complete &middot; {total} of {total}": "Formazione completata &middot; {total} su {total}",
     "All products complete.": "Tutti i prodotti completati.",
     "Your discount code is below. Your certificate is on record.": "Il suo codice sconto è qui sotto. Il suo certificato è registrato.",
-    "Copy code": "Copia codice",
-    "View certificate": "Vedi certificato",
+    "Copy code": "Copi il codice",
+    "View certificate": "Veda il certificato",
 
     /* ---- home hero ---- */
     "Essentials for Every Session": "L'essenziale per ogni sessione",
@@ -60,11 +60,11 @@ window.GPEN_I18N = {
     "Tools for wax, rosin and other concentrates": "Strumenti per wax, rosin e altri concentrati",
     "MSRP": "MSRP",
     "Certified {score}%": "Certificato {score}%",
-    "Review": "Rivedi",
-    "Open": "Apri",
+    "Review": "Riveda",
+    "Open": "Apra",
 
     /* ---- reward ladder ---- */
-    "Earn Exclusive Discounts": "Ottieni sconti esclusivi",
+    "Earn Exclusive Discounts": "Ottenga sconti esclusivi",
     "Complete product courses and quizzes to unlock bigger discounts on gpen.com": "Completi i corsi sui prodotti e i quiz per sbloccare sconti più alti su gpen.com",
     "Rewards are for completing training. They are not tied to sales, orders, or product recommendations.": "I premi riguardano il completamento della formazione. Non sono legati a vendite, ordini o raccomandazioni di prodotto.",
     "1 more course to unlock": "Ancora 1 corso da sbloccare",
@@ -81,7 +81,7 @@ window.GPEN_I18N = {
     "{pct}% off is yours either way.": "Il {pct}% di sconto è suo in ogni caso.",
     "your best code on gpen.com, plus the master certificate.": "il suo miglior codice su gpen.com, più il certificato generale.",
     "Tap to copy": "Tocchi per copiare",
-    "View master certificate": "Vedi certificato generale",
+    "View master certificate": "Veda il certificato generale",
     "Code copied — {code}": "Codice copiato — {code}",
 
     /* ---- course page ---- */
@@ -113,7 +113,7 @@ window.GPEN_I18N = {
     "Pair with": "Da abbinare a",
     "Say this": "Dica così",
     "Never a health claim.": "Mai affermazioni sulla salute.",
-    "If a customer raises coughing, harshness, lungs, or any other health topic, do not diagnose it and do not say the product fixes it. Redirect to flavor and experience, or refer them to their doctor.": "Se un cliente parla di tosse, irritazione, polmoni o qualsiasi altro tema di salute, non fare diagnosi e non dire che il prodotto lo risolve. Riporta il discorso su gusto ed esperienza, oppure rimandalo al suo medico.",
+    "If a customer raises coughing, harshness, lungs, or any other health topic, do not diagnose it and do not say the product fixes it. Redirect to flavor and experience, or refer them to their doctor.": "Se un cliente parla di tosse, irritazione, polmoni o qualsiasi altro tema di salute, non faccia diagnosi e non dica che il prodotto lo risolve. Riporti il discorso su aroma ed esperienza, oppure lo rimandi al suo medico.",
     "Common mistake:": "Errore frequente:",
     "More scripts and objections ({n})": "Altre frasi e obiezioni ({n})",
     "Counter scenarios": "Situazioni al banco",
@@ -130,7 +130,7 @@ window.GPEN_I18N = {
     "Ships in a retail-ready POP display, {n} units per display.": "Arriva in un espositore POP pronto per il negozio, con {n} unità per espositore.",
     "Ships in a retail-ready POP display.": "Arriva in un espositore POP pronto per il negozio.",
     "not included": "non incluso",
-    "View {label} full size": "Vedi {label} a dimensione intera",
+    "View {label} full size": "Veda {label} a dimensione intera",
     "Image": "Immagine",
 
     /* ---- certify form ---- */
@@ -138,8 +138,8 @@ window.GPEN_I18N = {
     "You are a certified {product} Specialist": "È uno Specialist {product} certificato",
     "Certificate earned {date}.": "Certificato ottenuto il {date}.",
     "Your certificate and discount code are below. Retake the quiz at any time to improve your score.": "Il suo certificato e il suo codice sconto sono qui sotto. Può rifare il quiz in qualsiasi momento per migliorare il punteggio.",
-    "Retake quiz": "Rifai il quiz",
-    "Retake the quiz": "Rifai il quiz",
+    "Retake quiz": "Rifaccia il quiz",
+    "Retake the quiz": "Rifaccia il quiz",
     "Get certified": "Si certifichi",
     "Get certified and unlock {pct}% off": "Si certifichi e sblocchi il {pct}% di sconto",
     "Retake the {n}-question quiz (score {pct}%+) to refresh your score on your <strong>{product}</strong> certificate. Your discount code is unchanged.": "Rifaccia il quiz da {n} domande (con almeno il {pct}%) per aggiornare il punteggio sul suo certificato <strong>{product}</strong>. Il suo codice sconto non cambia.",
@@ -149,7 +149,7 @@ window.GPEN_I18N = {
     "Email address": "Indirizzo email",
     "Store name": "Nome del negozio",
     "Cloud 9 Smoke Shop": "Cloud 9 Smoke Shop",
-    "Start the quiz": "Inizia il quiz",
+    "Start the quiz": "Inizi il quiz",
     "Use your own phone.": "Usi il suo telefono.",
     "Progress and certificates save to this browser, so a shared tablet mixes staff together.": "Progressi e certificati vengono salvati in questo browser, quindi un tablet condiviso mescola i dati di più persone.",
     "Your name, email and store are recorded so G Pen can credit the completion to your shop, and may be sent to G Pen for that purpose.": "Nome, email e negozio vengono registrati perché G Pen possa attribuire il completamento al suo negozio, e possono essere inviati a G Pen a questo scopo.",
@@ -168,20 +168,20 @@ window.GPEN_I18N = {
     /* ---- quiz ---- */
     "Question {i} of {n}": "Domanda {i} di {n}",
     "<b>{n}</b> correct": "<b>{n}</b> corrette",
-    "Issuing your code…": "Emissione del tuo codice…",
-    "Your code didn't come through": "Il tuo codice non è arrivato",
+    "Issuing your code…": "Emissione del suo codice…",
+    "Your code didn't come through": "Il suo codice non è arrivato",
     "Your certificate is saved — nothing is lost. Try again, or contact us if it keeps failing.": "Il suo certificato è salvato, non si perde nulla. Riprovi o ci scriva se il problema persiste.",
-    "Try again": "Riprova",
+    "Try again": "Riprovi",
     "Your certificate is on record.": "Il suo certificato è registrato.",
     "Your code didn't come through — reload this page to try again.": "Il suo codice non è arrivato: ricarichi questa pagina per riprovare.",
     "Your browser is blocking storage.": "Il suo browser sta bloccando l'archiviazione.",
     "You can read the training, but progress and certificates will not be saved. Turn off private browsing or allow site data, then reload.": "Può leggere la formazione, ma i progressi e i certificati non verranno salvati. Disattivi la navigazione privata o consenta i dati del sito, poi ricarichi.",
     "Correct answer": "Risposta corretta",
-    "Your answer": "La tua risposta",
+    "Your answer": "La sua risposta",
     "Correct.": "Corretto.",
     "Incorrect.": "Errato.",
     "Next question": "Domanda successiva",
-    "See my results": "Vedi i risultati",
+    "See my results": "Veda i risultati",
     "Answer": "Risposta",
     "Worth another look &middot; {n} missed": "Da rivedere &middot; {n} errate",
 
@@ -197,7 +197,7 @@ window.GPEN_I18N = {
     "Your best score of {score}% remains on your certificate.": "Il suo miglior punteggio, {score}%, resta sul certificato.",
     "All products complete. Open your certificate and your <strong>{pct}% discount code</strong>.": "Tutti i prodotti completati. Apra il suo certificato e il suo <strong>codice sconto del {pct}%</strong>.",
     "Next product: {product}": "Prossimo prodotto: {product}",
-    "Back to all products": "Torna a tutti i prodotti",
+    "Back to all products": "Torni a tutti i prodotti",
 
     /* ---- reward card ---- */
     "One code per product you certify on. Find each on that product's page — every code works on your whole order.": "Un codice per ogni prodotto su cui si certifica. Si trova sulla pagina del prodotto: ogni codice vale sull'intero ordine.",
@@ -231,7 +231,7 @@ window.GPEN_I18N = {
     "{name}, you have completed every course in {program}. You are now a <strong>fully trained G Pen Product Specialist</strong>.": "{name}, ha completato tutti i corsi di {program}. Ora è un <strong>Product Specialist G Pen con formazione completa</strong>.",
     "We will email you if you are selected.": "Le scriveremo per email se verrà selezionato.",
     "Your <b>{pct}% off</b> code is available now, on every product in the lineup.": "Il suo codice <b>{pct}% di sconto</b> è disponibile da subito, su tutti i prodotti della gamma.",
-    "Copy your {pct}% code": "Copia il suo codice del {pct}%",
+    "Copy your {pct}% code": "Copi il suo codice del {pct}%",
 
     /* ---- support band ---- */
     "Questions about a product?": "Domande su un prodotto?",
@@ -246,9 +246,9 @@ window.GPEN_I18N = {
     "Collaborations": "Collaborazioni",
     "G Pen has partnered with leading names in music and cannabis:": "G Pen ha collaborato con grandi nomi della musica e della cannabis:",
     "A global brand": "Un marchio globale",
-    "Follow G Pen": "Segui G Pen",
-    "Back to my courses": "Torna ai miei corsi",
-    "Browse products": "Sfoglia i prodotti",
+    "Follow G Pen": "Segua G Pen",
+    "Back to my courses": "Torni ai miei corsi",
+    "Browse products": "Sfogli i prodotti",
   },
 
   courses: {
@@ -318,7 +318,7 @@ window.GPEN_I18N = {
         aov: "Presenti prima il Dash II a $49.95 e poi questo a $99.95. Mostrarli insieme raddoppia il valore del dispositivo nella stessa vendita di infiorescenza.",
         talkTrack: { say: "Se per lei conta l'aroma, è questo. Camera interamente in titanio, riscaldamento ibrido, pronto in circa 20 secondi. $99.95, e il cavo di ricarica è incluso." },
         whichClose: "Il Dash II a $49.95 o il Dash+ con camera in titanio a $99.95?",
-        trap: "Non lo venda sulle specifiche. Venda la differenza di aroma, che è ciò che il cliente può giudicare. Nessuno compra il titanio; si compra il sapore.",
+        trap: "Non lo venda sulle specifiche. Venda la differenza di aroma, che è ciò che il cliente può giudicare. Nessuno compra il titanio; si compra l'aroma.",
         keyFacts: [
           "Camera interamente in titanio, riscaldamento ibrido",
           "Si scalda in circa 20 secondi · display a colori",
@@ -364,15 +364,15 @@ window.GPEN_I18N = {
         notIncluded: ["Cavo di ricarica USB-C"],
       },
       category: "Strumento per concentrati",
-      tagline: "Il hot knife più piccolo sul mercato. Carica il concentrato in modo pulito.",
+      tagline: "L'hot knife più piccolo sul mercato. Carica il concentrato in modo pulito.",
       differentiator: "Hot knife elettrico. Preleva e rilascia senza residui.",
       description: [
-        "Ecco il nuovissimo G Pen Melt Hot Knife: il <strong>hot knife più piccolo sul mercato</strong> e il modo più rapido e pulito di preparare i suoi concentrati. Con soli 3,94 × 0,5 × 0,25 pollici, il Melt è ultracompatto e scompare in qualsiasi tasca o kit da viaggio.",
-        "Progettato per prelevare <strong>senza sporcare</strong> e depositare in modo fluido e controllato, la sua punta in ceramica a riscaldamento rapido è pronta all'istante per trasferimenti perfetti ogni volta. Niente strumenti appiccicosi, niente disastri di reclaim, niente manovre incerte.",
+        "Ecco il nuovissimo G Pen Melt Hot Knife: l'<strong>hot knife più piccolo sul mercato</strong> e il modo più rapido e pulito di preparare i suoi concentrati. Con soli 3,94 × 0,5 × 0,25 pollici, il Melt è ultracompatto e scompare in qualsiasi tasca o kit da viaggio.",
+        "Progettata per prelevare <strong>senza sporcare</strong> e depositare in modo fluido e controllato, la sua punta in ceramica a riscaldamento rapido è pronta all'istante per trasferimenti perfetti ogni volta. Niente strumenti appiccicosi, niente disastri di reclaim, niente manovre incerte.",
         "Con ricarica USB-C pass-through, un corpo elegante in alluminio e la silhouette caratteristica di G Pen, il Melt è il suo strumento di ogni giorno, sia per caricare un rig, sia per rabboccare un Micro+ o preparare un Hyer.",
       ],
       highlights: [
-        "Il hot knife più piccolo sul mercato",
+        "L'hot knife più piccolo sul mercato",
         "Punta in ceramica a riscaldamento rapido (circa 150 °C / 302 °F)",
         "Ricarica USB-C pass-through",
         "Corpo elegante in alluminio",
@@ -404,7 +404,7 @@ window.GPEN_I18N = {
       description: [
         "Il G Pen Hydout è una batteria discreta per cartucce 510: una batteria compatta e <strong>nascosta</strong> per cartucce 510 che offre prestazioni serie senza farsi notare.",
         "Questo concentrato di potenza in formato da tasca ha un <strong>coperchio magnetico che nasconde il bocchino</strong> per mantenere la cartuccia discreta e protetta dalla luce (cosa che aiuta a preservare la qualità dell'olio), una batteria da 400 mAh, voltaggio regolabile e un display LED luminoso per il pieno controllo di ogni tiro.",
-        "Compatibile con la maggior parte delle cartucce con filettatura 510 fino a 2 g, il Hydout è perfetto per sessioni uniformi e personalizzabili, dovunque si trovi.",
+        "Compatibile con la maggior parte delle cartucce con filettatura 510 fino a 2 g, l'Hydout è perfetto per sessioni uniformi e personalizzabili, dovunque si trovi.",
       ],
       highlights: [
         "Coperchio magnetico che nasconde il bocchino",
@@ -419,7 +419,7 @@ window.GPEN_I18N = {
         vital: "Fa lo stesso lavoro di qualsiasi batteria 510, ma il bocchino si ripone dentro il corpo. Così la cartuccia resta discreta e protetta dalla luce.",
         aov: "La batteria per cartucce di livello superiore. Rispetto al 510 Original da $12.95 aggiunge discrezione e cinque livelli di voltaggio, e raddoppia il valore della vendita aggiuntiva della batteria.",
         talkTrack: { say: "Per le sue cartucce: il bocchino si ripone dentro il corpo, quindi resta discreto in tasca. Cinque livelli di voltaggio per adattarsi a qualsiasi olio. $24.95, e protegge la cartuccia dalla luce." },
-        whichClose: "Il 510 Original a $12.95 o il Hydout a $24.95 con il bocchino riposto all'interno?",
+        whichClose: "Il 510 Original a $12.95 o l'Hydout a $24.95 con il bocchino riposto all'interno?",
         trap: "Non parta dalla differenza di prezzo rispetto al 510 Original. Parta dalla discrezione e dal controllo del voltaggio. Un confronto che inizia dal prezzo perde il passaggio al modello superiore.",
         keyFacts: [
           "Il bocchino si ripone dentro il corpo",
@@ -456,7 +456,7 @@ window.GPEN_I18N = {
         vital: "Una cartuccia non funziona senza batteria. Questo è il modo più economico di rendere utilizzabile la cartuccia che il cliente sta già acquistando.",
         aov: "A $12.95 è la vendita aggiuntiva più semplice del negozio, perché il bisogno è assoluto: nessun cliente dovrebbe uscire con una cartuccia e senza modo di usarla.",
         talkTrack: { say: "Quella cartuccia ha bisogno di una batteria. Ne ha una? Questa costa $12.95, si attiva a inalazione e va bene con qualsiasi cartuccia standard. Nessun pulsante." },
-        whichClose: "Il 510 Original a $12.95 o il Hydout a $24.95 con cinque livelli di voltaggio?",
+        whichClose: "Il 510 Original a $12.95 o l'Hydout a $24.95 con cinque livelli di voltaggio?",
         trap: "Non chieda se serve una batteria, perché invita a un no. Chieda se ne ha già una.",
         keyFacts: [
           "La batteria G Pen più piccola — $12.95",

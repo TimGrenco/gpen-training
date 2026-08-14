@@ -207,17 +207,28 @@
      means what it meant, and score against the wrong items. A stale attempt is
      discarded, not repaired — restarting a quiz is a small cost, certifying someone on
      mis-scored answers is not. */
+  /* `bad()` DELETES rather than merely ignoring. An unreadable or mis-shaped attempt was
+     left sitting in storage forever — every rejected value survived its own rejection —
+     so a corrupt entry silently occupied the single attempt slot and blocked the next
+     real quiz from being resumable. Note it only clears when the value is structurally
+     unusable, never on a slug mismatch: an attempt for a DIFFERENT course is perfectly
+     valid and belongs to that course. */
   function getAttempt(c) {
+    function bad() { clearAttempt(); return bad(); }
     try {
-      var a = JSON.parse(localStorage.getItem(K_ATTEMPT) || "null");
-      if (!a || !c || a.slug !== c.slug) return null;
-      if (!Array.isArray(a.order) || a.order.length !== c.quiz.length) return null;
+      var raw = localStorage.getItem(K_ATTEMPT);
+      if (!raw) return bad();
+      var a = null;
+      try { a = JSON.parse(raw); } catch (e) { return bad(); }
+      if (!a || typeof a !== "object" || !a.slug) return bad();
+      if (!c || a.slug !== c.slug) return null;   // someone else's course — leave it alone
+      if (!Array.isArray(a.order) || a.order.length !== c.quiz.length) return bad();
       // Integer, not merely "number": i = 2.5 passed a typeof check, rendered
       // "Continue from question 3.5", and threw reading c.quiz[undefined].q on click.
-      if (!Array.isArray(a.answers) || typeof a.i !== "number" || a.i % 1 !== 0) return null;
-      if (a.i < 0 || a.i >= c.quiz.length) return null;         // finished or corrupt
+      if (!Array.isArray(a.answers) || typeof a.i !== "number" || a.i % 1 !== 0) return bad();
+      if (a.i < 0 || a.i >= c.quiz.length) return bad();         // finished or corrupt
       // More answers than questions means the array is not this attempt's.
-      if (a.answers.length > a.order.length) return null;
+      if (a.answers.length > a.order.length) return bad();
       /* order must be a PERMUTATION, not just a list of valid indices. A hand-edited
          [0,0,0,...] was accepted and resumed into the same question eleven times —
          whose own explainer hands over the answer — certifying at 100% and minting a
@@ -226,14 +237,23 @@
       var seen = {};
       for (var k = 0; k < a.order.length; k++) {
         var qi = a.order[k];
-        if (typeof qi !== "number" || qi % 1 !== 0 || !c.quiz[qi] || seen[qi]) return null;
+        if (typeof qi !== "number" || qi % 1 !== 0 || !c.quiz[qi] || seen[qi]) return bad();
         seen[qi] = 1;
       }
       return a;
-    } catch (e) { return null; }
+    } catch (e) { return bad(); }
   }
   function setAttempt(a) { try { localStorage.setItem(K_ATTEMPT, JSON.stringify(a)); } catch (e) {} }
   function clearAttempt() { try { localStorage.removeItem(K_ATTEMPT); } catch (e) {} }
+  /* Clear ONLY if the stored attempt belongs to this course. An unconditional clear
+     here would throw away a perfectly good in-progress quiz on a different product just
+     because the rep opened a course they had already passed. */
+  function clearAttemptFor(c) {
+    try {
+      var a = JSON.parse(localStorage.getItem(K_ATTEMPT) || "null");
+      if (a && c && a.slug === c.slug) clearAttempt();
+    } catch (e) { clearAttempt(); }   // unparseable is junk either way
+  }
   /* Structured event log — a future Sheet/Airtable webhook can POST these.
      Pass `st` when the caller is already holding a state object it will setState()
      itself. Without that, this function's own read-modify-write got clobbered:
@@ -1645,7 +1665,15 @@
   // ask for name/email/store — just-in-time, when someone opts to get certified.
   function renderQuizIntro(c) {
     var rec = getState().courses[c.slug];
-    if (rec && rec.passed) return showCertifiedState(c, rec);
+    if (rec && rec.passed) {
+      /* Clear any attempt for a course that is already passed. A rep who starts a
+         RETAKE and walks away leaves one behind, and this branch returns before the
+         resume check ever runs — so it could never be offered, never be finished, and
+         never be cleaned up. It then occupies the single attempt slot and blocks the
+         next course's quiz from being resumable at all. */
+      clearAttemptFor(c);
+      return showCertifiedState(c, rec);
+    }
     var att = getAttempt(c);
     if (att && getEnroll()) return showResume(c, att);
     showCertifyForm(c);

@@ -16,11 +16,11 @@ window.GPEN_I18N = {
     /* ---- notice + chrome ---- */
     "Machine translated and pending review. Quiz questions stay in English.": "Tradução automática, pendente de revisão. As perguntas do quiz permanecem em inglês.",
     "Skip to content": "Ir para o conteúdo",
-    "Go to the quiz": "Ir para o teste",
+    "Go to the quiz": "Ir para o quiz",
     "Pick up where you left off": "Continue de onde parou",
     "You answered {n} of {total} questions. Your answers are saved on this device.": "Você respondeu {n} de {total} perguntas. Suas respostas estão salvas neste dispositivo.",
     "Continue from question {i}": "Continuar da pergunta {i}",
-    "Start the quiz over": "Recomeçar o teste",
+    "Start the quiz over": "Recomeçar o quiz",
     "est. 2012": "desde 2012",
     "Products": "Produtos",
     "Explore the Product Lineup": "Conheça a linha de produtos",
@@ -137,7 +137,7 @@ window.GPEN_I18N = {
 
     /* ---- certify form ---- */
     "certified": "certificado",
-    "You are a certified {product} Specialist": "Você é Specialist certificado em {product}",
+    "You are a certified {product} Specialist": "Você é um Product Specialist certificado em {product}",
     "Certificate earned {date}.": "Certificado obtido em {date}.",
     "Your certificate and discount code are below. Retake the quiz at any time to improve your score.": "Seu certificado e seu código de desconto estão abaixo. Você pode refazer o quiz a qualquer momento para melhorar sua pontuação.",
     "Retake quiz": "Refazer quiz",
@@ -334,7 +334,7 @@ window.GPEN_I18N = {
       tagline: "Grinder de alumínio de 64 mm. Sem peneira de kief: nada fica para trás.",
       differentiator: "O adicional de $19.95 para qualquer venda de flor.",
       description: [
-        "O G&nbsp;Pen Grinder é um grinder de <strong>3 peças e 64 mm</strong> usinado com precisão em <strong>alumínio anodizado 6063</strong> resistente — a mesma família de materiais de grau aeronáutico dos aparelhos que ele abastece.",
+        "O G&nbsp;Pen Grinder é um grinder de <strong>3 peças e 64 mm</strong> usinado com precisão em <strong>alumínio anodizado 6063</strong> resistente — a mesma família de materiais de grau aeronáutico dos aparelhos que ele enche.",
         "Seus <strong>dentes micro-arredondados patenteados</strong> (patente nº 11690480) separam a flor com suavidade em vez de rasgá-la, para uma moagem mais uniforme. Uma <strong>tampa magnética forte</strong> mantém o fechamento firme e o conteúdo no lugar.",
         "<strong>Não há peneira de kief</strong>, e isso é proposital: tudo o que você mói — flor, tricomas e kief juntos — cai no compartimento e vai para o seu fornilho ou câmara.",
       ],
@@ -437,11 +437,11 @@ window.GPEN_I18N = {
         notIncluded: ["Carregador USB-C", "Cartucho 510"],
       },
       category: "Bateria para cartuchos 510",
-      tagline: "A bateria 510 mais pequena e simples que fabricamos.",
-      differentiator: "A bateria 510 da G Pen mais pequena e mais barata.",
+      tagline: "A bateria 510 menor e mais simples que fabricamos.",
+      differentiator: "A bateria 510 da G Pen menor e mais barata.",
       description: [
         "De volta ao início — com melhorias.",
-        "O G Pen 510 Original fecha o ciclo: inspira-se na nossa primeira bateria, de 2012, e a repensa para hoje. É a <strong>menor bateria G Pen já feita</strong> (24 × 21,1 × 56,7 mm), ultraportátil e simples de usar, sem abrir mão do desempenho.",
+        "O G Pen 510 Original fecha o ciclo: se inspira na nossa primeira bateria, de 2012, e a repensa para hoje. É a <strong>menor bateria G Pen já feita</strong> (24 × 21,1 × 56,7 mm), ultraportátil e simples de usar, sem abrir mão do desempenho.",
         "Com <strong>ativação por inalação</strong>, o 510 Original deixa cada sessão sem complicação: basta inalar. A interface de um botão alterna três voltagens pré-definidas (3,2 / 3,6 / 3,8 V), um pré-aquecimento de 10 segundos a 1,8 V e uma tela digital. Por apenas <strong>$12.95</strong>, é também a bateria G Pen mais acessível de todos os tempos.",
       ],
       highlights: [
