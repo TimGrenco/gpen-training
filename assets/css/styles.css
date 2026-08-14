@@ -894,7 +894,19 @@ a.linklike.backdash { display: grid; place-items: center; min-height: 44px; widt
   .hdr, .preview-bar { display: none !important; }
   body { background: #fff; }
   .cert { border-color: #000; box-shadow: none; margin: 0; }
-  .cert.master { background: #fff; border-color: #000; }
+  /* --gold reset too. The screen rule redefines --gold as --gold-bright on this card
+     so its details read against #0e0e0e; unreset, that same #FEC870 prints on white at
+     ~1.36:1 — the seal, the footer rules and the name rule would all be invisible. */
+  .cert.master { background: #fff; border-color: #000; --gold: #000; }
+  /* The print block overrode eight .cert.master properties and missed the inner frame,
+     so the capstone certificate printed its gold border at ~1.36:1 — near-invisible on
+     colour and gone entirely on a mono office laser. */
+  .cert.master .cert-inner { border-color: #000; }
+  /* border, not background. A background on a pseudo-element is suppressed whenever
+     "Background graphics" is off — the DEFAULT in Chrome and Safari — so the rule under
+     the recipient's name simply vanished and the name floated over blank paper. A
+     border prints regardless. */
+  .cert-name::after { background: none; border-top: 2px solid #000; height: 0; }
   .cert.master .cert-award, .cert.master .cert-name, .cert.master .cert-product, .cert.master .cs-score { color: #000; fill: #000; }
   .cert.master .cert-logo img { filter: none; }
   .cert.master .cert-presented, .cert.master .cert-desc, .cert.master .cert-fl { color: #555; }

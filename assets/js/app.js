@@ -910,7 +910,17 @@
     // Uniform card: family (eyebrow), name, what sets it apart, MSRP, cert status.
     return '<a class="cc' + (done ? " done" : "") + '" href="#/course/' + c.slug + '" style="--accent:' + c.accent + '">' +
       '<span class="cc-accent" aria-hidden="true"></span>' +
-      '<span class="cc-media"><img src="' + esc(sized(c.cover, 244)) + '" alt="' + esc(c.name) + '" loading="lazy"/></span>' +
+      /* srcset, because one constant cannot serve both layouts. Below 460px the card
+         goes horizontal and .cc-media is a fixed 104px box (86px of image after
+         padding); above that it is a grid track around 232px. A single sized(cover, 244)
+         request meant a phone downloaded 488px for an 86px slot — measured across the
+         five CDN covers, ~109KB wasted on every phone home load.
+         sized() no-ops on the grinder's local PNG, so its srcset collapses to one
+         candidate and the browser simply uses it. */
+      '<span class="cc-media"><img src="' + esc(sized(c.cover, 244)) + '"' +
+        ' srcset="' + esc(sized(c.cover, 120)) + ' 240w, ' + esc(sized(c.cover, 244)) + ' 488w"' +
+        ' sizes="(max-width: 460px) 86px, 232px"' +
+        ' alt="' + esc(c.name) + '" loading="lazy"/></span>' +
       '<span class="cc-body">' +
         "<h3>" + esc(c.name) + "</h3>" +
         '<span class="cc-cat">' + esc(c.category) + "</span>" +
@@ -1439,7 +1449,14 @@
       return '<figure class="ga-item">' +
         '<button class="ga-shot" data-img="' + esc(sized(g.url, 1000)) + '" data-caption="' + esc(cap) + '" aria-label="' +
           tfx("View {label} full size", { label: cap }) + '">' +
-          '<img src="' + esc(sized(g.url, 320)) + '" alt="' + esc(cap) + '" loading="lazy"/>' +
+          /* 640px was being fetched for a tile that is ~174px on a phone and ~253px on
+             desktop — note the grid goes from 2 columns to 3 at 680px, so the desktop
+             tile is NARROWER, not wider. Measured on the Dash II's five photos: 100KB
+             at 640w against 39KB at 360w. */
+          '<img src="' + esc(sized(g.url, 320)) + '"' +
+            ' srcset="' + esc(sized(g.url, 180)) + ' 360w, ' + esc(sized(g.url, 320)) + ' 640w"' +
+            ' sizes="(max-width: 679px) 47vw, 253px"' +
+            ' alt="' + esc(cap) + '" loading="lazy"/>' +
           '<span class="ga-zoom" aria-hidden="true">' + ic("search") + "</span>" +
         "</button>" +
         (g.caption ? '<figcaption>' + dt(c.slug, "gallery", esc(g.caption)) + "</figcaption>" : "") +
