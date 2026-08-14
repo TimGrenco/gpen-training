@@ -657,7 +657,7 @@
       // so the wordmark can yield before it truncates to "G PEN UNIVER…".
       '<header class="hdr' + (e ? " has-user" : "") + '">' +
       '<a class="hdr-brand" href="#/">' +
-        '<img src="assets/img/gpen-g-black.png" class="hdr-logo light" alt="G Pen"/>' +
+        '<img src="assets/img/gpen-g-black.png" class="hdr-logo" alt="G Pen"/>' +
         '<span class="hdr-name">G Pen <em>Training</em></span>' +
       "</a>" +
       // Courses / Binder / About lived only in the footer, below a nine-section
@@ -940,7 +940,7 @@
     // re-do the training (also lets a shared/kiosk device hand off to the next rep).
     var hasProgress = !!getEnroll() || (getState().courses && Object.keys(getState().courses).length > 0);
     return "</main>" + supportBand() +
-      '<footer class="foot"><img src="assets/img/gpen-g-black.png" class="foot-g light" alt=""/>' +
+      '<footer class="foot"><img src="assets/img/gpen-g-black.png" class="foot-g" alt=""/>' +
       '<div class="foot-nav"><a href="#/">' + t("Products") + '</a><a href="#/about">' + t("About G Pen") + '</a><a href="' + esc(CFG.shopUrl) + '" target="_blank" rel="noopener">' + t("Shop gpen.com") + "</a></div>" +
       (hasProgress ? '<button class="foot-reset" id="reset" type="button">' + ic("refresh") + " " + t("Reset my progress and start over") + "</button>" : "") +
       "<p>" + esc(CFG.programName) + " · " + tx(CFG.footerNote || "for authorized G Pen retail partners.") +
@@ -2116,11 +2116,6 @@
     if (swc) swc.addEventListener("click", function () {
       Promise.resolve(window.issueRewardCode("secret", { name: e.name, email: e.email, store: e.store })).then(function (r) { if (r && r.code) copyCode(r.code); });
     });
-    // Celebrate the achievement, not the page view. This fired on every visit and
-    // every Back-navigation to the certificate, which cheapens it fast.
-    if (!getState().masterCelebrated) {
-      var cs = getState(); cs.masterCelebrated = new Date().toISOString(); setState(cs);
-    }
     revealOnScroll();
   }
 

@@ -42,9 +42,6 @@
      the two read as one voice; edit here and both move together. */
   --h1-hero: clamp(26px, 4.4vw, 44px);
   --lede: clamp(15.5px, 2.3vw, 20px);
-  --h3: 20px;
-  --h2-s: 22px;                     /* smaller section-header tier */
-  --h2-xs: 16px;                    /* sub-section header tier */
   /* eyebrow / kicker */
   --eyebrow-size: 12px; --eyebrow-weight: 800; --eyebrow-tracking: .1em;
 }
@@ -582,8 +579,6 @@ a.linklike.backdash { display: grid; place-items: center; min-height: 44px; widt
    words and directly above the price, so printing both was one idea twice. It still
    backs the product cards on the home page when a course has no differentiator. */
 .cx-hero-body .ch-meta { font-size: 12.5px; color: #b9b8b0; font-weight: 600; }
-.ch-done { color: #fff; display: inline-flex; align-items: center; gap: 3px; }
-.ch-done svg { width: 13px; height: 13px; }
 
 .prose p { margin: 0 0 12px; font-size: 15.5px; color: var(--ink-2); line-height: 1.6; max-width: 64ch; }
 .prose p strong { color: var(--ink); }
