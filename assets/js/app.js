@@ -738,7 +738,22 @@
   function heroShotHTML() {
     if (!CFG.heroImage) return "";
     return '<div class="hero-shot">' +
-      '<img src="' + esc(CFG.heroImage) + '" alt="' + tx("A G Pen retail shelf: the countertop POP displays grouped into dry herb, concentrates and 510 batteries, each with its price flag.") + '" loading="eager" fetchpriority="high"/>' +
+      /* srcset + width/height, both load-bearing.
+         BYTES: this is the LCP element. A 390px phone paints it at ~358 CSS px and was
+         downloading the full 1536px, 244KB original — 4.4x the pixels it can show. The
+         780px WebP is 48KB. AVIF/WebP is offered first; browsers that cannot take it
+         fall back to the JPEG srcset, and the plain src catches anything older still.
+         SHIFT: without width/height the browser cannot reserve the box, so the photo
+         arriving ~1.3s late pushed the entire lineup, ladder and footer down by ~281px
+         — a rep mid-tap on a course card. height:auto in the CSS still governs the
+         rendered size, so the ratio is honoured and nothing is cropped. */
+      '<picture>' +
+        '<source type="image/webp" sizes="(max-width: 1120px) 100vw, 1040px" srcset="' +
+          'assets/img/hero-lineup-shelf-780.webp 780w, assets/img/hero-lineup-shelf-1100.webp 1100w, assets/img/hero-lineup-shelf-1536.webp 1536w" />' +
+        '<source type="image/jpeg" sizes="(max-width: 1120px) 100vw, 1040px" srcset="' +
+          'assets/img/hero-lineup-shelf-780.jpg 780w, assets/img/hero-lineup-shelf-1100.jpg 1100w, assets/img/hero-lineup-shelf-1536.jpg 1536w" />' +
+        '<img src="' + esc(CFG.heroImage) + '" width="1536" height="1208" alt="' + tx("A G Pen retail shelf: the countertop POP displays grouped into dry herb, concentrates and 510 batteries, each with its price flag.") + '" loading="eager" fetchpriority="high"/>' +
+      "</picture>" +
     "</div>";
   }
   function heroHTML(done, total) {
@@ -829,7 +844,6 @@
   function prefersReducedMotion() {
     try { return window.matchMedia("(prefers-reduced-motion: reduce)").matches; } catch (e) { return false; }
   }
-  function scrollToId(id) { var el = document.getElementById(id); if (el) el.scrollIntoView({ behavior: "smooth", block: "start" }); }
   function lifestyleImgs() {
     if (window.GPEN_LIFESTYLE && window.GPEN_LIFESTYLE.length) return window.GPEN_LIFESTYLE.slice();
     var out = [];
@@ -1894,7 +1908,12 @@
       '<defs><path id="seal-arc-' + pct + '" d="M66 66 m-49 0 a49 49 0 1 1 98 0"/></defs>' +
       '<circle class="cs-ring" cx="66" cy="66" r="62"/><circle class="cs-ring cs-ring2" cx="66" cy="66" r="50"/>' +
       '<text class="cs-arc"><textPath href="#seal-arc-' + pct + '" startOffset="50%">CERTIFIED · ' + esc(label) + "</textPath></text>" +
-      '<text class="cs-star" x="66" y="46">★</text><text class="cs-score" x="66" y="76">' + (pct ? pct + "%" : "★") + "</text>" +
+      /* One star, not two. With pct = 0 (the full-lineup certificate) the score slot
+         also rendered "★", so the seal drew a gold star at y=46 and a white one at
+         y=76 — on the single artifact most likely to be screenshotted, it read as a
+         rendering fault. The score certificates are unaffected: they put "95%" there. */
+      (pct ? '<text class="cs-star" x="66" y="46">★</text><text class="cs-score" x="66" y="76">' + pct + "%</text>"
+           : '<text class="cs-score" x="66" y="64">★</text>') +
       '<text class="cs-sub" x="66" y="94">G PEN</text></svg></div>';
   }
   /* "Print certificate" used to spool the entire page: the old @media print rule
@@ -2023,7 +2042,6 @@
   function dl(href, name) { var a = document.createElement("a"); a.href = href; a.download = name; document.body.appendChild(a); a.click(); a.remove(); }
 
   // ---- Shareable IG story / reel image (1080×1920) --------------------------
-  var CERT_LOGO_W = new Image(); CERT_LOGO_W.crossOrigin = "anonymous"; CERT_LOGO_W.src = "assets/img/gpen-g-white.png";
 
   /* The finish-line moment. Copy comes from prizeCopy() so it always matches the
      configured mechanic; the completion is logged via the webhook, which is also

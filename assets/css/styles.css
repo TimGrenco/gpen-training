@@ -62,12 +62,6 @@ body {
 img { max-width: 100%; display: block; }
 a { color: inherit; text-decoration: none; }
 h1, h2, h3, h4 { margin: 0; line-height: 1.08; letter-spacing: -.02em; }
-/* :not(.btn) because `.btn` sets color at the same specificity further down this
-   file and therefore always won — as written this rule has never applied to
-   anything, since the only elements carrying `gold` are `class="btn gold"`.
-   Scoped rather than deleted so `class="gold"` does what it reads like it
-   should on plain text. */
-:not(.btn).gold { color: var(--gold); }
 .noscroll { overflow: hidden; }
 /* The UA's [hidden] { display: none } is the WEAKEST possible display rule, so any
    author `display:` on the same element beats it and the element stays on screen.
@@ -198,7 +192,9 @@ h1, h2, h3, h4 { margin: 0; line-height: 1.08; letter-spacing: -.02em; }
 .back { display: inline-flex; align-items: center; min-height: 44px; gap: 6px; font-weight: 700; font-size: 14px; color: var(--stone); margin-bottom: 0; }
 .back:hover { color: var(--ink); }
 .lead { color: var(--stone); font-size: 15px; margin: 0 0 16px; }
-.center-btn { display: inline-flex; margin: 26px auto 0; }
+/* width:fit-content + display:flex — `margin:auto` cannot centre an inline-level box,
+   so this has always sat flush left despite its name. */
+.center-btn { display: flex; width: fit-content; margin: 26px auto 0; }
 
 /* reveal animation */
 .reveal { opacity: 0; transform: translateY(16px); transition: opacity .6s ease, transform .6s cubic-bezier(.2,.7,.2,1); }
@@ -490,15 +486,19 @@ a.linklike.backdash { display: grid; place-items: center; min-height: 44px; widt
 .cert-eyebrow { font-size: 11px; font-weight: 800; text-transform: uppercase; letter-spacing: .18em; color: var(--gold); }
 .cert-award { font-size: clamp(22px, 5vw, 34px); font-weight: 900; margin: 8px 0 16px; }
 .cert-presented { color: var(--stone); font-size: 14px; }
-.cert-name { font-size: clamp(28px, 7vw, 46px); font-weight: 900; letter-spacing: -.02em; overflow-wrap: anywhere; margin: 6px 0; position: relative; display: inline-block; padding-bottom: 10px; }
+.cert-name { font-size: clamp(28px, 7vw, 46px); font-weight: 900; letter-spacing: -.02em; line-height: 1.06; overflow-wrap: anywhere; margin: 6px 0; position: relative; display: inline-block; padding-bottom: 10px; }
 .cert-name::after { content: ""; position: absolute; left: 50%; bottom: 0; transform: translateX(-50%); width: min(280px, 70%); height: 2px; background: var(--gold); }
 .cert-desc { color: var(--stone); font-size: 13.5px; max-width: 440px; margin: 12px auto 4px; }
-.cert-product { font-size: clamp(20px, 4.5vw, 30px); font-weight: 900; margin: 4px 0 10px; }
+.cert-product { font-size: clamp(20px, 4.5vw, 30px); font-weight: 900; line-height: 1.15; margin: 4px 0 10px; }
 .cert-seal { width: 118px; height: 118px; margin: 8px auto 14px; }
 .cert-seal svg { width: 100%; height: 100%; }
 .cs-ring { fill: none; stroke: var(--gold); stroke-width: 1.5; }
 .cs-ring2 { stroke-width: 1; }
-.cs-arc { fill: var(--gold); font-size: 9.4px; font-weight: 800; letter-spacing: 1.4px; }
+/* text-anchor:middle — every sibling (.cs-star/.cs-score/.cs-sub) sets it; without
+   it the legend starts at the 50% offset and runs past the end of the arc, so the
+   tail of the string is simply not drawn. Size reduced so the centred string fits
+   the ~154-unit path. */
+.cs-arc { fill: var(--gold); font-size: 7.2px; font-weight: 800; letter-spacing: .8px; text-anchor: middle; }
 .cs-star { fill: var(--gold); font-size: 20px; text-anchor: middle; }
 .cs-score { fill: var(--ink); font-size: 26px; font-weight: 900; text-anchor: middle; }
 .cs-sub { fill: var(--gold); font-size: 10px; font-weight: 800; letter-spacing: 2px; text-anchor: middle; }
@@ -507,7 +507,12 @@ a.linklike.backdash { display: grid; place-items: center; min-height: 44px; widt
 .cert-fv { font-weight: 800; font-size: 14px; }
 .cert-fv.cert-sig { font-family: 'Archivo', cursive; font-style: italic; }
 .cert-fl { font-size: 10.5px; text-transform: uppercase; letter-spacing: .1em; color: var(--stone); font-weight: 700; }
-.cert.master { background: #0e0e0e; border-color: var(--gold-bright); }
+/* Redefine --gold ON THE CARD, so every gold detail follows the background instead of
+   only the two borders that were flipped by hand. --gold's documented contract is
+   "4.59:1 on white"; on #0e0e0e it measures 4.21:1 and was being used for the eyebrow,
+   the rule under the rep's name, the three footer rules and the whole seal — six muddy
+   brown-gold details framed by two bright gold lines. --gold-bright is 12.60:1 there. */
+.cert.master { background: #0e0e0e; border-color: var(--gold-bright); --gold: var(--gold-bright); }
 .cert.master .cert-inner { border-color: var(--gold-bright); }
 .cert.master .cert-award, .cert.master .cert-name, .cert.master .cert-product, .cert.master .cs-score { color: #fff; fill: #fff; }
 .cert.master .cert-presented, .cert.master .cert-desc, .cert.master .cert-fl { color: #b9b8b0; }
@@ -767,7 +772,11 @@ a.linklike.backdash { display: grid; place-items: center; min-height: 44px; widt
 .rw-terms { margin: 10px 0 0; font-size: 11px; line-height: 1.45; color: var(--stone); opacity: .9; }
 .rw-card.grand .rw-terms, .rw-card.secret .rw-terms { color: #8f8e88; }
 .rewards { display: grid; grid-template-columns: 1fr; gap: 12px; margin-bottom: 8px; }
-.rw-card { border-radius: var(--r-md); padding: 20px; border: 1px solid var(--line); background: #fff; box-shadow: var(--shadow); }
+/* Flex column so the three rungs, which stretch to equal height in the grid, push
+   their action to the bottom instead of leaving a tail of blank card. The moment a rep
+   passes their first course, rung 1 gains a code button, shop link and terms while rung
+   3 gains nothing — leaving ~200px of white in the home page's most-looked-at row. */
+.rw-card { border-radius: var(--r-md); padding: 20px; border: 1px solid var(--line); background: #fff; box-shadow: var(--shadow); display: flex; flex-direction: column; }
 .rw-card.off { border-style: dashed; }
 .rw-card.on { background: linear-gradient(160deg, #151510, #0e0e0e); color: #fff; border-color: transparent; position: relative; overflow: hidden; }
 .rw-card.on::before { content: ""; position: absolute; inset: 0; background: radial-gradient(80% 60% at 90% -10%, rgba(254,200,112,.22), transparent 60%); }
@@ -1127,7 +1136,10 @@ a.linklike.backdash { display: grid; place-items: center; min-height: 44px; widt
   --fam: #8a8a8a; --fam-ink: #5f5f5f; --fam-tint: rgba(138,138,138,0.07); --fam-line: rgba(138,138,138,0.20);
   flex: 1 1 100%; border: 1px solid var(--line); border-radius: var(--r-lg); overflow: hidden; background: var(--paper);
 }
-@media (min-width: 1000px) { .famgroup.fam-narrow { flex: 0 1 calc(50% - 9px); } }
+/* 900, not 1000: the grid gains its fourth track at ~920px, so between 920 and 999
+   all three panels were still full-bleed and the one-item Concentrate panel rendered
+   76% empty. Pairing the two thresholds removes that cliff. */
+@media (min-width: 900px) { .famgroup.fam-narrow { flex: 0 1 calc(50% - 9px); } }
 .fam-510         { --fam: #2b2b2b; --fam-ink: #1c1c1c; --fam-tint: rgba(30,30,30,0.05);  --fam-line: rgba(30,30,30,0.15); }
 .fam-dryherb     { --fam: #1f8a4c; --fam-ink: #15703c; --fam-tint: rgba(31,138,76,0.09); --fam-line: rgba(31,138,76,0.20); }
 .fam-concentrate { --fam: #d98324; --fam-ink: #8a5000; --fam-tint: rgba(217,131,36,0.12); --fam-line: rgba(217,131,36,0.24); }
@@ -1142,7 +1154,7 @@ a.linklike.backdash { display: grid; place-items: center; min-height: 44px; widt
 
 /* Inside each panel, cards fill the available width (auto-fill keeps them
    card-sized rather than stretching a lone card across the whole panel). */
-.course-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(190px, 1fr)); gap: 16px; margin-bottom: 0; }
+.course-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(190px, 1fr)); gap: 16px; margin-bottom: 0; }
 @media (max-width: 460px) { .course-grid { grid-template-columns: 1fr; } }
 .cc {
   position: relative; display: flex; flex-direction: column; text-decoration: none; color: var(--ink);
@@ -1309,7 +1321,6 @@ a.linklike.backdash { display: grid; place-items: center; min-height: 44px; widt
 .hero-h1 { margin-top: 10px; font-size: var(--h1-hero); font-weight: 900; letter-spacing: -.025em; line-height: 1.06; }
 .hero-sub { margin: 10px 0 0; color: var(--ink-2); font-size: clamp(14.5px,2vw,17px); line-height: 1.5; }
 .hero-sub b { color: var(--ink); font-weight: 900; }
-.hero-sub b.gold { color: var(--gold); }
 
 /* ---- certified ---- */
 .hero-code { margin-top: 18px; }
@@ -1387,3 +1398,111 @@ a.linklike.backdash { display: grid; place-items: center; min-height: 44px; widt
   border: 1px dashed var(--line); border-radius: var(--r-sm);
   background: #fbfbf9; color: var(--ink-2); font-size: 14px; line-height: 1.5; }
 .sell-health b { color: var(--ink); }
+
+
+/* Push each rung's action to the bottom of its stretched card, so a locked rung and an
+   unlocked one line up instead of one trailing blank space. */
+.rw-code, .rw-lock, .rw-percourse { margin-top: auto; }
+.rw-shop, .rw-terms { flex: none; }
+/* Optical: .ff-n is a 26px circle beside a 21px line box, so top-aligned the badge
+   centre sits ~3px below the text's. Six siblings in this file already nudge for
+   exactly this (.steps-list, .obj-says em, .qr-a em, .hl-list .ic, .pk-list .ic,
+   .sell-trap svg); this was the largest delta and the only one not compensated. */
+.ff-card p { padding-top: 2px; }
+/* The lineup card is the most-seen component on the site and was the only card with a
+   bespoke hover shadow — tighter, lighter and cooler than the token its peers use. */
+.cc:hover { box-shadow: var(--shadow-lg); }
+/* The reward panel was the only 20px box in a vertical run of 16px boxes, at the
+   highest-emotion moment in the product. */
+.reward { border-radius: var(--r-md); }
+
+
+/* ============================================================================
+   Responsive corrections from the polish audit. Grouped here rather than edited
+   in place so the reasoning stays with the rule.
+   ========================================================================= */
+
+/* The verdict chip could not shrink (flex: none), so at 320-344px it needed 131px of a
+   218px row and painted over the button's border. Below 400px it wraps to its own line
+   under the answer text instead of competing with it. */
+@media (max-width: 400px) {
+  .choice { flex-wrap: wrap; }
+  .ch-verdict { margin-left: 40px; margin-top: 6px; }
+}
+
+/* THE HERO. Uncapped, it rendered 818px tall on a 1280x800 laptop and 610px on a
+   844x390 landscape phone — pushing the entire product lineup two screens down on the
+   exact machine the G Pen rep demos from. Portrait phones were always fine (288x226 at
+   320px), so the cap starts where the problem does. */
+@media (min-width: 768px) {
+  .hero-in > .hero-shot img { max-height: min(46vh, 460px); object-fit: cover; object-position: 50% 55%; }
+}
+@media (max-height: 500px) and (orientation: landscape) {
+  .hero-in > .hero-shot img { max-height: 52vh; object-fit: cover; }
+  /* Same reason: a 400px minimum is taller than the ~330px reachable under the header. */
+  .cx-hero { min-height: 0; }
+  /* Two square packaging photos side by side were each larger than the whole screen. */
+  .pk-grid { grid-template-columns: 1fr; }
+}
+
+/* Modals are position:fixed grids with no overflow, and openVideo() locks body scroll —
+   so a 16/9 frame 543px tall inside a 390px landscape viewport lost ~77px off the top
+   AND the bottom, with the title off-screen entirely and no way to reach it. */
+.modal { overflow-y: auto; }
+.modal-in { max-height: 92vh; }
+
+/* Safe areas were handled on .hdr and .foot only, so every content container underneath
+   them sat up to 25px under the notch in landscape — with correctly-inset furniture
+   above and below, which reads as a bug rather than a bezel. */
+.hub, .course, .about, .hero-in, .loop, .mtnotice {
+  padding-left: max(var(--gutter), env(safe-area-inset-left));
+  padding-right: max(var(--gutter), env(safe-area-inset-right));
+}
+
+/* The header was the only uncapped band on the page: at 1920 the brand sat 400px left
+   of the content it heads, at 2560 720px. Padding-based so no markup changes. */
+@media (min-width: 1120px) {
+  .hdr { padding-inline: max(var(--gutter), calc((100% - var(--maxw)) / 2 + var(--gutter))); }
+}
+
+/* Line measure. Nine body rules ran 89-181 characters at 1440px+. The worst was the
+   grand reward card's 11px terms line stretched across 998px. */
+.sell-say, .scn-say, .sell-pair p, .faq-a p, .hl-list li, .master-unlock .mu-txt, .sell-health { max-width: 66ch; }
+.rw-card.grand .rw-terms, .rw-card.grand .rw-sub { max-width: 52ch; }
+/* Inside one white card the description stopped 111px short of the checkmark bullets
+   directly beneath it, at the same visual weight — it read as a broken container. */
+.aboutprod .hl-list { max-width: 64ch; }
+
+/* Three key points in a two-column band left the third alone with ~50% of the row
+   blank, directly under a numbered heading. Every course has exactly three. */
+@media (min-width: 600px) and (max-width: 899px) {
+  .floorfacts:not(.ff-c4) { grid-template-columns: 1fr; }
+}
+
+/* Four of six courses have four photos, so the three-column grid left one tile beside
+   527px of empty cream. :has() is supported everywhere this ships. */
+@media (min-width: 680px) {
+  .gallery:has(> :nth-child(4):last-child) { grid-template-columns: repeat(2, 1fr); }
+}
+
+/* A 780px gradient card wrapped around a 420px form — 180px of empty cream each side,
+   at the page's only conversion moment. */
+@media (min-width: 700px) { .certify { max-width: 560px; margin-inline: auto; } }
+
+/* A 998px dashed box around a 13-character code, and 730px pills around a 15px label. */
+@media (min-width: 700px) {
+  .rw-card.grand .rw-code { width: auto; align-self: start; max-width: 340px; }
+  .next, .backdash, .nextup-cta { width: auto; min-width: 260px; }
+}
+
+/* "View full size" showed 680px at every width from 768 to 2560 — 13% of a 2560 screen,
+   and on packaging barely larger than the thumbnail that was clicked. */
+.imgmodal .modal-in { max-width: min(1100px, 92vw); }
+.imgmodal-img { max-height: 86vh; }
+
+/* Hover feedback was missing on the two things a laptop user most wants to click. */
+@media (hover: hover) {
+  .code:hover, .rw-code:hover { border-color: var(--ink); }
+  .faq-q:hover { background: var(--paper); }
+  .modal-x:hover { background: rgba(255,255,255,.28); }
+}

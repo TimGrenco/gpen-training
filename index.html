@@ -53,6 +53,11 @@
     .no-js .boot { display: none; }
     .boot img { width: 40px; height: 40px; object-fit: contain; animation: bootpulse 1.4s ease-in-out infinite; }
     .boot p { margin: 0; font-size: 13px; font-weight: 700; letter-spacing: .1em; text-transform: uppercase; color: #6e6e66; }
+    /* The loader label above is one uppercase word; the failure screen is two full
+       sentences and must not inherit it. */
+    .boot-fail p { font-size: 15px; font-weight: 400; letter-spacing: normal; text-transform: none; color: #3f3f39; line-height: 1.5; max-width: 34ch; margin: 0 auto 10px; }
+    .boot-fail p strong { font-weight: 800; color: #111; }
+    .boot-fail .btn { margin-top: 6px; }
     @keyframes bootpulse { 0%,100% { opacity: .35; } 50% { opacity: 1; } }
     @media (prefers-reduced-motion: reduce) { .boot img { animation: none; opacity: .7; } }
     .noscript { max-width: 30rem; margin: 12vh auto; padding: 0 24px; text-align: center; line-height: 1.6; }
