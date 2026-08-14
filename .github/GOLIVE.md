@@ -6,6 +6,11 @@ account. Do them in this order; each one is checkable before you move on.
 
 Total time: about 25 minutes.
 
+Once it is live, [`RUNBOOK.md`](RUNBOOK.md) covers running it: killing code issuance in
+a hurry, revoking one rep's code (deactivate — deleting it re-mints itself), triaging
+"my code doesn't work", the Apps Script redeploy trap, and what adding a seventh course
+quietly does to everyone's 40% tier.
+
 Until the last step the reward panel renders nothing — deliberately. A rep who sees
 no code files a support ticket; a rep who sees a code that fails at the till loses a
 sale and stops trusting the portal.
