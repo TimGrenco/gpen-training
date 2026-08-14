@@ -709,15 +709,23 @@
         return;
       }
       if (!ev.target.closest("#lang-select")) {   // click-away closes
+        var hadFocus = wrap.contains(document.activeElement);
         wrap.classList.remove("open");
-        var b = $("#lang-btn"); if (b) b.setAttribute("aria-expanded", "false");
+        var b = $("#lang-btn");
+        if (b) { b.setAttribute("aria-expanded", "false"); if (hadFocus) b.focus(); }
       }
     });
     document.addEventListener("keydown", function (ev) {
       if (ev.key !== "Escape") return;
       var wrap = $("#lang-select"); if (!wrap) return;
+      /* Return focus to the trigger. The menu is display:none when closed, so the
+         focused item is removed from the focus tree and focus fell to <body> — a
+         keyboard user who opened the picker and changed their mind was dumped at the
+         top of the document. Only steal focus back if it was actually inside. */
+      var hadFocus = wrap.contains(document.activeElement);
       wrap.classList.remove("open");
-      var b = $("#lang-btn"); if (b) b.setAttribute("aria-expanded", "false");
+      var b = $("#lang-btn");
+      if (b) { b.setAttribute("aria-expanded", "false"); if (hadFocus) b.focus(); }
     });
   }
 
@@ -1706,8 +1714,8 @@
         '<button class="btn xl full" id="q-resume">' + tf("Continue from question {i}", { i: answered + 1 }) + " " + ic("arrow") + "</button>" +
         '<button class="btn ghost full" id="q-restart">' + t("Start the quiz over") + "</button>" +
       "</div>";
-    $("#q-resume").addEventListener("click", function () { runQuiz(c, att); });
-    $("#q-restart").addEventListener("click", function () { clearAttempt(); showCertifyForm(c); });
+    $("#q-resume").addEventListener("click", function () { runQuiz(c, att); });   // runQuiz -> step() focuses
+    $("#q-restart").addEventListener("click", function () { clearAttempt(); showCertifyForm(c); focusQuizZone(".certify h3"); });
   }
   function showCertifiedState(c, rec) {
     var zone = $("#quiz-zone"), e = getEnroll() || {};
@@ -1732,7 +1740,11 @@
        copy. The milestone codes are minted separately by fillRewards() on the ladder,
        so issuing "course" here is what completes 6 + 3. */
     revealReward("course", { courseSlug: c.slug, name: rec.name || e.name, email: e.email, store: e.store, certId: rec.certId }, $("#reward-zone"));
-    $("#retake").addEventListener("click", function () { showCertifyForm(c); $("#quiz-zone").scrollIntoView({ behavior: "smooth", block: "start" }); });
+    $("#retake").addEventListener("click", function () {
+      showCertifyForm(c);
+      $("#quiz-zone").scrollIntoView({ behavior: prefersReducedMotion() ? "instant" : "smooth", block: "start" });
+      focusQuizZone(".certify h3");
+    });
   }
   function showCertifyForm(c) {
     var zone = $("#quiz-zone"), e = getEnroll() || {};
@@ -1757,7 +1769,7 @@
              affirming about themselves, and a machine-translated version of it is
              not the statement counsel reviewed. It stays in English until a
              qualified translation is signed off per market. */
-          '<span class="field-err" id="e-attest" hidden></span><label class="attest"><input type="checkbox" id="f-attest" aria-describedby="e-attest" />' +
+          '<span class="field-err" id="e-attest" hidden></span><label class="attest"><input type="checkbox" id="f-attest" required aria-required="true" aria-describedby="e-attest" />' +
             '<span lang="en">I confirm I am 21 or older and currently work as authorized retail staff at a licensed dispensary or smoke shop.</span></label>' +
           '<button class="btn xl full" id="start-quiz">' + t("Start the quiz") + " " + ic("arrow") + "</button>" +
           /* ONE unconditional disclosure, deliberately not branched on whether a
@@ -1853,7 +1865,7 @@
     if (i >= c.quiz.length) return finish();
     saveAttempt();
     step(true);
-    zone.scrollIntoView({ behavior: "smooth", block: "start" });
+    zone.scrollIntoView({ behavior: prefersReducedMotion() ? "instant" : "smooth", block: "start" });
 
     // `first` skips the re-scroll on question 1 (the line above already framed it).
     // Without this, answering renders the explainer + Next below the fold and the
@@ -1862,10 +1874,21 @@
     function step(first) {
       var q = c.quiz[order[i]];
       zone.innerHTML = '<div class="quiz">' +
-        '<div class="quiz-bar"><div class="quiz-bar-fill" style="width:' + Math.round((i / c.quiz.length) * 100) + '%"></div></div>' +
-        '<div class="quiz-count"><span class="qc-num">' + tf("Question {i} of {n}", { i: i + 1, n: c.quiz.length }) + "</span>" +
-          '<span class="quiz-score">' + ic("check") + " " + tf("<b>{n}</b> correct", { n: correctSoFar }) + "</span></div>" +
-        '<div class="quiz-q">' + en(esc(q.q)) + "</div>" +
+        /* role="progressbar" with real values — this was a bare div, so a screen reader
+           user got no sense of how far through they were except by counting. */
+        '<div class="quiz-bar" role="progressbar" aria-valuemin="0" aria-valuemax="' + c.quiz.length +
+          '" aria-valuenow="' + i + '" aria-label="' + tfx("Question {i} of {n}", { i: i + 1, n: c.quiz.length }) + '">' +
+          '<div class="quiz-bar-fill" style="width:' + Math.round((i / c.quiz.length) * 100) + '%"></div></div>' +
+        /* The counter and the question live in one focusable group. focusQuizZone
+           targets this, so moving to a new question announces "Question 3 of 11, 2
+           correct" AND the question text in one go. An aria-live counter would not
+           work here: step() replaces this node wholesale every time, and replacing a
+           live region is not a mutation of it, so nothing would ever be announced. */
+        '<div class="quiz-head" tabindex="-1">' +
+          '<div class="quiz-count"><span class="qc-num">' + tf("Question {i} of {n}", { i: i + 1, n: c.quiz.length }) + "</span>" +
+            '<span class="quiz-score">' + ic("check") + " " + tf("<b>{n}</b> correct", { n: correctSoFar }) + "</span></div>" +
+          '<div class="quiz-q">' + en(esc(q.q)) + "</div>" +
+        "</div>" +
         // Choices render in a shuffled order, but data-ci keeps each choice's
         // ORIGINAL index so the answer check (ci === q.answer) is unaffected.
         '<div class="quiz-choices">' + shuffle(q.choices.map(function (_, ci) { return ci; })).map(function (ci, pos) {
@@ -1884,6 +1907,8 @@
       // tall desktop page. Advancing a question should snap; only the explainer
       // reveal in choose() is worth animating.
       if (!first) zone.scrollIntoView({ behavior: "instant", block: "start" });
+      // Announce the new question and put focus where the rep is reading.
+      focusQuizZone(".quiz-head");
     }
     function choose(ci, q) {
       if (answers[i] != null) return;
@@ -1972,7 +1997,7 @@
     "</div>" +
     missedReviewHTML(c, order, answers);
     $("#retry").addEventListener("click", function () { runQuiz(c); });
-    zone.scrollIntoView({ behavior: "smooth", block: "start" });
+    zone.scrollIntoView({ behavior: prefersReducedMotion() ? "instant" : "smooth", block: "start" });
     // Scrolling is not a cue a screen reader receives. quizPass/quizFail replace
     // the whole zone with the verdict, score, certificate and reward code, so move
     // focus into it: without this the only announcement was silence.
@@ -1987,6 +2012,28 @@
   function focusResult(zone) {
     var r = zone && $(".result", zone);
     if (r && r.focus) setTimeout(function () { r.focus(); }, 0);
+  }
+  /* Every rewrite of #quiz-zone destroys whatever the rep was focused on, so focus fell
+     back to <body> — and #quiz-zone sits about 5,200px down a ~6,900px page. A keyboard
+     user was therefore thrown to the top of the document and had to tab back through
+     the header, the back link, the jump link, the packaging buttons, two videos, five
+     gallery buttons and four spec accordions to reach the next question. Ten to twelve
+     times per quiz. A screen reader user got worse: silence, with no signal the question
+     had changed at all.
+
+     The comment on choose() claims this was fixed; that fix only ever covered the
+     answer step, not step(), and not the four other functions that replace this zone.
+     Every one of them now routes through here.
+
+     setTimeout(0) because the element must be in the document before it can take focus,
+     and preventScroll because the caller has usually just scrolled deliberately. */
+  function focusQuizZone(sel) {
+    setTimeout(function () {
+      var zone = $("#quiz-zone");
+      var el = zone && $(sel, zone);
+      if (!el || !el.focus) return;
+      try { el.focus({ preventScroll: true }); } catch (e) { el.focus(); }
+    }, 0);
   }
   function quizPass(c, correct, pct, order, answers) {
     // `|| {}` matters here more than anywhere: this was the ONE call site of ~18 that
@@ -2067,7 +2114,7 @@
        cid is freshly computed, so the code event landed under an id no row carried and
        created an orphan — a code with no course, score or date beside it. */
     revealReward("course", { courseSlug: c.slug, name: e.name, email: e.email, store: e.store, certId: rec.certId }, $("#reward-zone"));
-    zone.scrollIntoView({ behavior: "smooth", block: "start" });
+    zone.scrollIntoView({ behavior: prefersReducedMotion() ? "instant" : "smooth", block: "start" });
     // Scrolling is not a cue a screen reader receives. quizPass/quizFail replace
     // the whole zone with the verdict, score, certificate and reward code, so move
     // focus into it: without this the only announcement was silence.
@@ -2120,7 +2167,13 @@
         if (window.console) console.warn("[gpen-training] no reward code returned for tier '" + type + "' — check TRAINING_CONFIG.rewards.url and the reward endpoint's logs.");
         return;
       }
-      box.innerHTML = '<div class="reward">' +
+      /* The container carries the live region, not the child. The pending state declared
+           role="status" on a div that this line then REPLACED — and replacing a live region
+           is not a mutation of it, so the code itself was never announced. A screen reader
+           user heard "Issuing your code..." and then silence at the payoff. */
+        box.setAttribute("role", "status");
+        box.setAttribute("aria-live", "polite");
+        box.innerHTML = '<div class="reward">' +
         '<div class="reward-ic">' + ic("tag") + "</div>" +
         /* Only two callers reach here now — "course" from a product page and "secret"
            from the full-lineup certificate. The third branch said "New tier unlocked"
@@ -2246,7 +2299,7 @@
         '<div class="cert-inner">' +
           '<div class="cert-logo"><img src="assets/img/gpen-g-black.png" alt=""/></div>' +  // decorative: the certificate body already says "G Pen"
           '<div class="cert-eyebrow">' + esc(CFG.programName) + " · " + t("Product Specialist Program") + "</div>" +
-          '<h3 class="cert-award">' + t("Certificate of Completion") + "</h3>" +
+          '<h2 class="cert-award">' + t("Certificate of Completion") + "</h2>" +   // was h3 under an h1 — a skipped level
           '<div class="cert-presented">' + t("This certifies that") + "</div>" +
           '<div class="cert-name">' + esc(nm) + "</div>" +
           '<div class="cert-desc">' + t("has completed the Product Specialist training and demonstrated expert product knowledge of the") + "</div>" +
@@ -2404,6 +2457,7 @@
   /* ---- CERTIFIED (master) ------------------------------------------------ */
   function renderCertified() {
     if (!isMasterEarned()) return goReplace("#/"); // likewise unreachable via route(); never push from a guard.
+    setTitleDoc(tx("Full Lineup Certified"));   // every other route names itself; this one did not
     var e = getEnroll() || { name: "", store: "", email: "" };
     // Display only — reportMaster() stamps + reports (idempotent) and quizPass
     // already called it, so arriving here late never double-reports.
@@ -2428,7 +2482,7 @@
       '<div class="cert master" id="cert-card"><div class="cert-inner">' +
         '<div class="cert-logo"><img src="assets/img/gpen-g-black.png" alt=""/></div>' +  // decorative: the certificate body already says "G Pen"
         '<div class="cert-eyebrow">' + esc(CFG.programName) + "</div>" +
-        '<h3 class="cert-award">' + t("Full Lineup Certified") + "</h3>" +
+        '<h2 class="cert-award">' + t("Full Lineup Certified") + "</h2>" +   // h2: this sits directly under the page h1
         '<div class="cert-presented">' + t("This certifies that") + "</div>" +
         '<div class="cert-name">' + esc(e.name) + "</div>" +
         '<div class="cert-desc">' + t("has completed every Product Specialist course and is recognized as a") + "</div>" +

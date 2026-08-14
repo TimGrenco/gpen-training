@@ -12,7 +12,13 @@
      2.69:1 — it failed AA for normal text at all 46 sites that set color:var(--gold),
      including the hero's "Up to 40% off" hook and every eyebrow. Same hue (40deg)
      and saturation, darker. --gold-bright stays the brand fill for pips/buttons. */
-  --gold: #956f23;          /* gold for TEXT on white — verified 4.59:1 */
+  /* Darkened from #956f23, which measured 4.59:1 and so passed AA on pure white ONLY.
+     It is used on five off-white surfaces where it did not: the cream page ground
+     (4.36), certificate paper (4.36), the mint scenario panel (4.24) and the cream
+     reward card (4.14). Same hue and saturation, darker. Now 5.20 on white, 4.93 on
+     cream and paper, 4.80 on mint, 4.69 on the card — every surface clears 4.5.
+     --gold-bright remains the fill colour and the gold-on-dark text colour. */
+  --gold: #8a6720;
   --gold-bright: #FEC870;   /* brand gold for fills/accents */
   --ember: #D75D43;
   --ok: #1f7347;
@@ -456,7 +462,7 @@ a.linklike.backdash { display: grid; place-items: center; min-height: 44px; widt
 .reward-eyebrow { font-size: var(--eyebrow-size); font-weight: var(--eyebrow-weight); text-transform: uppercase; letter-spacing: var(--eyebrow-tracking); color: var(--gold-bright); }
 /* Stated on the reward itself, not just the ladder — supplier incentives tied to
    sales are restricted for retail staff in several states. */
-.reward-terms { margin: 14px auto 0; max-width: 46ch; font-size: 11.5px; line-height: 1.5; color: #8f8e88; }
+.reward-terms { margin: 14px auto 0; max-width: 46ch; font-size: 11.5px; line-height: 1.5; color: #8f8e88; }  /* 6.1:1 on the dark card */
 .reward h3 { font-size: 22px; margin: 6px 0 16px; }
 /* The code's intrinsic width is its text + 52px of padding, which at 320px came to
    278px inside a .reward content box of 240px — and .reward is overflow:hidden, so
@@ -764,7 +770,12 @@ a.linklike.backdash { display: grid; place-items: center; min-height: 44px; widt
 .rw-terms-head { margin: 6px 0 16px; font-size: 12.5px; line-height: 1.5; color: var(--stone); max-width: 64ch; }
 /* Per-code terms, on the card itself — expiry/stacking/single-use is the first
    question a dispensary partner asks in a demo. */
-.rw-terms { margin: 10px 0 0; font-size: 11px; line-height: 1.45; color: var(--stone); opacity: .9; }
+/* No opacity. --stone at .9 over the unlocked card's near-black gradient measured
+   3.24:1 — below AA for 11px text, and it is the line carrying the reward's legal
+   terms, which is the last thing that should be hard to read. #8f8e88 is what the
+   grand card already uses and lands at 6.1:1; the two now match rather than one
+   quietly being worse. */
+.rw-terms { margin: 10px 0 0; font-size: 11px; line-height: 1.45; color: #8f8e88; }
 .rw-card.grand .rw-terms { color: #8f8e88; }
 .rewards { display: grid; grid-template-columns: 1fr; gap: 12px; margin-bottom: 8px; }
 /* Flex column so the three rungs, which stretch to equal height in the grid, push
