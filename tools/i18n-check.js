@@ -235,7 +235,15 @@ console.log(`\n=== ${lang} ===`);
 console.log(`keys required: ${keys.size}   present: ${have.length}   missing: ${missing.length}   stale: ${extra.length}`);
 if (missing.length) console.log("MISSING:\n  " + missing.join("\n  "));
 if (extra.length) console.log("STALE (no longer used by app.js):\n  " + extra.join("\n  "));
-console.log(`courses translated: ${Object.keys(B.courses || {}).length} / ${COURSES_FOR_KEYS.length}`);
+const translatedCourses = Object.keys(B.courses || {});
+console.log(`courses translated: ${translatedCourses.length} / ${COURSES_FOR_KEYS.length}`);
+/* An untranslated course is an ERROR, not a note. RUNBOOK tells whoever adds a course to
+   rely on this command to catch a bundle they forgot, and it did not: the count was
+   printed and the exit code ignored it, so a locale missing a whole course still reported
+   PASS and exited 0. Name the missing slugs, because "5 / 6" does not tell you which. */
+COURSES_FOR_KEYS.forEach((c) => {
+  if (!(B.courses || {})[c.slug]) errs.push(`course "${c.slug}" has no translation in this bundle`);
+});
 if (errs.length) { console.log("ERRORS:"); errs.forEach((e) => console.log("  ✗ " + e)); }
 if (warns.length) { console.log("WARNINGS:"); warns.forEach((w) => console.log("  ! " + w)); }
 if (!errs.length && !missing.length) console.log("PASS");

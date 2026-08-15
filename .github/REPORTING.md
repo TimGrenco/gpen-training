@@ -1,5 +1,25 @@
 # Completion reporting — see who got certified, per store
 
+> ## ⚠️ SUPERSEDED — DO NOT PASTE THE SCRIPTS IN THIS FILE
+>
+> The receiver is now [`google-sheet/Code.gs`](../google-sheet/Code.gs), set up per
+> [`google-sheet/README.md`](../google-sheet/README.md). The sample Apps Scripts below
+> predate it and would break the portal in two ways if used:
+>
+> - **They reply with plain text `"ok"`.** The client now requires a 200 whose body parses
+>   as JSON with `ok: true`. Plain text fails to parse, so the event is never marked
+>   delivered and is **replayed on every page load, forever**.
+> - **They `appendRow` raw values with no `safe_()` guard**, re-opening the Google Sheets
+>   formula-injection hole: a rep name beginning `=` becomes a live formula in a sheet
+>   holding staff emails and live discount codes.
+>
+> The claim below that the portal posts `mode: "no-cors"` and cannot read the response is
+> also no longer true — that was a bug, and it was fixed.
+>
+> Kept only for the sweepstakes-counting logic, which still needs rewriting on top of
+> Code.gs's `doPost` / `upsert_` / `safe_`.
+
+
 > **Pasting a webhook URL turns on completion reporting and nothing else.**
 > It does **not** start the free-device promotion. That is gated on BOTH
 > `config.sweepstakes.live` **and** `config.sweepstakes.rulesUrl` — `drawLive()`

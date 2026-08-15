@@ -53,7 +53,20 @@ window.TRAINING_CONFIG = {
      postal address) and has NOT been through counsel. Setting this makes the Privacy
      link appear in the footer on every page, so treat publishing the page and filling
      those placeholders as the same task. */
-  privacyUrl: "/privacy.html",
+  /* privacy.html EXISTS and is ready apart from two facts only the client has — the
+     legal entity name and the registered address — plus counsel review. Setting this
+     renders a "Privacy" link in the footer of every page and under the certification
+     form, so filling it in early published a notice that visibly reads
+     "[LEGAL ENTITY NAME]" to anyone who clicked. On a compliance document that is worse
+     than not linking one: it undermines the exact trust the page exists to build.
+
+     TO TURN IT ON: fill the two highlighted placeholders in privacy.html, have counsel
+     read it, then set this back to "/privacy.html". That is the whole change.
+
+     Until then boot() logs a warning on every load, which is the intended reminder — the
+     form does tell reps their name, email and store may be sent to G Pen, and that
+     should not go to partners with no notice behind it. */
+  privacyUrl: "",
 
   /* >>> "TALK TO OUR TEAM" CONTACT BAND <<<
      The customer-service block at the very bottom of every page. Edit the

@@ -146,7 +146,13 @@ invisible and unlimited.
 
 ## Rate limiting
 
-`lib/ratelimit.js` caps **40 mints per IP per day** and **500 globally per day**.
+`lib/ratelimit.js` caps **40 requests per IP per day**, and **500 mints per day** globally.
+
+The two halves count different things, which matters when you read the logs. The
+per-IP counter is bumped by every request that passes validation, mint or not. The
+global counter is spent only by `countMint()`, called once a discount is actually
+about to be created — so a rep reloading their certificate ten times costs ten
+against their own address and nothing against everyone else's ceiling.
 
 Why those two and not a per-email cap: the code is a keyed hash of tier + email +
 course, so one email can only ever yield nine codes — six per-course and three

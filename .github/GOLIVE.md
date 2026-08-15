@@ -1,10 +1,44 @@
 # Go live: rewards + tracking sheet
 
-Everything in the portal is built and tested. Four steps remain, and they all need
-credentials that only you can supply — a Shopify app, a Vercel login, and a Google
-account. Do them in this order; each one is checkable before you move on.
+> ## ⛔ STOP — STEPS 1–3 ARE ALREADY DONE. DO NOT RE-RUN THEM.
+>
+> This document was written for a green field. The Shopify app exists, the token was
+> issued, and the Vercel project `gpen-training-rewards` is deployed and live with all
+> its environment variables set. Working through steps 1–3 again would **break a working
+> system**:
+>
+> - **Step 3 cannot run at all.** It tells you to open `/api/install` — those one-time
+>   handshake routes were deleted once the token was issued (`reward-api/api/` now holds
+>   only `reward.js` and `redemptions.js`). You would get a 404 on the step that is
+>   supposed to produce the token and reasonably conclude everything is broken.
+> - **Step 2 would generate a fresh `CODE_SALT`.** On a live system that changes every
+>   future discount code, so a rep who reloads their certificate sees a different code
+>   from the one they wrote down. Never regenerate it — see [`RUNBOOK.md`](RUNBOOK.md).
+> - **Step 2's `npx vercel` from a fresh checkout** (one without `reward-api/.vercel/`)
+>   creates a SECOND Vercel project on a different URL, while `config.js` still points at
+>   the first. Deploys would appear to succeed and change nothing.
+>
+> **What is actually left is the checklist below and Step 4 (the tracking sheet).**
+> Steps 1–3 are kept only as the reference for rotating the token later; when you need
+> that, follow [`RUNBOOK.md`](RUNBOOK.md)'s rotation section, which restores the deleted
+> routes first.
 
-Total time: about 25 minutes.
+## What is left
+
+1. The **security preflight** further down this file (link Upstash — nothing caps code
+   issuance until you do).
+2. **Step 4 — the tracking sheet**, plus the Script Properties and `setup()` run in
+   [`google-sheet/README.md`](../google-sheet/README.md).
+3. The **open items** at the end of this file.
+
+To verify steps 1–3 really are done rather than taking my word: Vercel →
+`gpen-training-rewards` → Settings → Environments → Production should list
+`SHOPIFY_SHOP`, `SHOPIFY_ADMIN_TOKEN`, `CODE_SALT`, `ALLOWED_ORIGINS` and `SYNC_SECRET`.
+If they are all there, do not touch steps 1–3.
+
+---
+
+Total time for what remains: about 10 minutes.
 
 Once it is live, [`RUNBOOK.md`](RUNBOOK.md) covers running it: killing code issuance in
 a hurry, revoking one rep's code (deactivate — deleting it re-mints itself), triaging

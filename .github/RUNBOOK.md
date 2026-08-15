@@ -138,7 +138,18 @@ the Apps Script property, redeploy both.
 
 ## Adding or removing a course
 
-`data.js` is the lineup, but two things move with it and both are easy to miss.
+`data.js` is the lineup, but THREE things move with it and all three are easy to miss.
+
+**The reward endpoint keeps its own list of valid course slugs, and refuses anything
+else.** `COURSE_SLUGS` in `reward-api/api/reward.js` holds the six real slugs; a
+request naming any other returns `400 unknown course` and mints nothing. So if you add
+a seventh course to `data.js` and stop there, **every rep who passes it gets no code**
+and sits looking at "Your code didn't come through", indefinitely, no matter how many
+times they retry — because the failure is permanent, not transient.
+
+Add the slug to that set and redeploy the Vercel project. It fails closed on purpose
+(a rep files a ticket, rather than the endpoint minting against a typo), but only if
+someone knows what the ticket means. That someone is you, reading this.
 
 **The top reward tier is `COURSES.length`** (app.js:218). The ladder is 1 → 25%,
 2 → 30%, 4 → 35%, all → 40%. Add a seventh course and "all" silently becomes 7, so
@@ -183,7 +194,13 @@ reason — it reports what Shopify last said, not what is true this second.
 
 ## Rate limits
 
-40 codes per IP per day, 500 per day across everyone (`reward-api/lib/ratelimit.js`).
+**40 requests per IP per day**, and **500 mints per day** globally.
+
+The two halves count different things, which matters when you read the logs. The
+per-IP counter is bumped by every request that passes validation, mint or not. The
+global counter is spent only by `countMint()`, called once a discount is actually
+about to be created — so a rep reloading their certificate ten times costs ten
+against their own address and nothing against everyone else's ceiling.
 
 It **fails open** on purpose: if Upstash is unreachable the endpoint keeps minting and
 logs loudly, because a third-party blip should not stop reps collecting codes they
