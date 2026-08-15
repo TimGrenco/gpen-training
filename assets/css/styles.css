@@ -563,7 +563,10 @@ a.linklike.backdash { display: grid; place-items: center; min-height: 44px; widt
 
 .cx-hero { position: relative; border-radius: var(--r-lg); overflow: hidden; margin-bottom: 8px; box-shadow: var(--shadow); min-height: 340px; display: flex; align-items: flex-end; }
 .cx-hero-media { position: absolute; inset: 0; }
-.cx-hero-media img { width: 100%; height: 100%; object-fit: cover; }
+/* object-position pulls the crop UP. cover centres the frame, and on a ~780x400 hero
+   that cut the top of the subject's head off at every desktop width — the one thing a
+   lifestyle shot is there to show. 35% keeps the product in frame and the head intact. */
+.cx-hero-media img { width: 100%; height: 100%; object-fit: cover; object-position: 50% 35%; }
 .cx-hero::after { content: ""; position: absolute; inset: 0; background: linear-gradient(180deg, rgba(10,10,10,.15) 0%, rgba(10,10,10,.35) 45%, rgba(10,10,10,.92) 100%); }
 .cx-hero.no-life .cx-hero-media { background: linear-gradient(160deg, #1a1a1a, #0e0e0e); }
 .cx-hero.no-life .cx-hero-media img { object-fit: contain; padding: 30px; }
@@ -1576,9 +1579,14 @@ a.linklike.backdash { display: grid; place-items: center; min-height: 44px; widt
 .aboutprod .hl-list { max-width: 64ch; }
 
 /* Three key points in a two-column band left the third alone with ~50% of the row
-   blank, directly under a numbered heading. Every course has exactly three. */
+   blank, directly under a numbered heading. Every course has exactly three — so give
+   them three columns rather than collapsing to one. Collapsing fixed the orphan and
+   created a worse problem: on an iPad the three facts rendered as 707x64 full-width
+   bars, each holding five to seven words with ~500px of empty white beside it, which
+   was the cheapest-looking block on the tablet course page. At 768 the container is
+   ~688px, so three tracks land near 218px each and the short fact strings fit. */
 @media (min-width: 600px) and (max-width: 899px) {
-  .floorfacts:not(.ff-c4) { grid-template-columns: 1fr; }
+  .floorfacts:not(.ff-c4) { grid-template-columns: repeat(3, 1fr); }
 }
 
 /* Four of six courses have four photos, so the three-column grid left one tile beside
