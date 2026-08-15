@@ -226,14 +226,13 @@
     // Deletes the unusable value, then reports "no attempt". NOT `return bad()` — a
     // scripted edit rewrote this line's own return into a self-call, which recursed
     // until the stack blew and took the whole course page down with it.
-    function bad() { clearAttempt(); return null; }
+    // Drops only THIS course's entry — an unusable Dash II attempt must not take a
+    // perfectly good Dash+ one with it.
+    function bad() { clearAttemptFor(c); return null; }
     try {
-      var raw = localStorage.getItem(K_ATTEMPT);
-      if (!raw) return null;   // nothing stored is not corruption; nothing to delete
-      var a = null;
-      try { a = JSON.parse(raw); } catch (e) { return bad(); }
-      if (!a || typeof a !== "object" || !a.slug) return bad();
-      if (!c || a.slug !== c.slug) return null;   // someone else's course — leave it alone
+      if (!c) return null;
+      var a = readAttempts()[c.slug];
+      if (!a || typeof a !== "object" || a.slug !== c.slug) return null;
       if (!Array.isArray(a.order) || a.order.length !== c.quiz.length) return bad();
       // Integer, not merely "number": i = 2.5 passed a typeof check, rendered
       // "Continue from question 3.5", and threw reading c.quiz[undefined].q on click.
@@ -255,16 +254,35 @@
       return a;
     } catch (e) { return bad(); }
   }
-  function setAttempt(a) { try { localStorage.setItem(K_ATTEMPT, JSON.stringify(a)); } catch (e) {} }
+  /* ONE SLOT PER COURSE, keyed by slug. There used to be a single slot, so starting any
+     second quiz silently destroyed an unfinished first one: answer 5 of 11 on the Dash
+     II, wander to the Dash+ out of curiosity, tap "Start the quiz", and the Dash II
+     attempt was gone — that course showed the sign-up form again as though it had never
+     been started, with no warning at either end. With six products on the home page and
+     a rep working between customers, that is not an edge case.
+
+     Stored as { "<slug>": attempt, ... }. readAttempts tolerates the OLD single-attempt
+     shape (an object carrying .slug and .order) and migrates it, so anyone mid-quiz when
+     this deploys keeps their place. */
+  function readAttempts() {
+    try {
+      var raw = JSON.parse(localStorage.getItem(K_ATTEMPT) || "null");
+      if (!raw || typeof raw !== "object") return {};
+      if (raw.slug && raw.order) { var m = {}; m[raw.slug] = raw; return m; }   // pre-migration shape
+      return raw;
+    } catch (e) { return {}; }
+  }
+  function writeAttempts(m) { try { localStorage.setItem(K_ATTEMPT, JSON.stringify(m)); } catch (e) {} }
+  function setAttempt(a) { var m = readAttempts(); m[a.slug] = a; writeAttempts(m); }
+  // Clears EVERY course's attempt. Reset and rep-handover only — those wipe the person.
   function clearAttempt() { try { localStorage.removeItem(K_ATTEMPT); } catch (e) {} }
   /* Clear ONLY if the stored attempt belongs to this course. An unconditional clear
      here would throw away a perfectly good in-progress quiz on a different product just
      because the rep opened a course they had already passed. */
   function clearAttemptFor(c) {
-    try {
-      var a = JSON.parse(localStorage.getItem(K_ATTEMPT) || "null");
-      if (a && c && a.slug === c.slug) clearAttempt();
-    } catch (e) { clearAttempt(); }   // unparseable is junk either way
+    if (!c) return;
+    var m = readAttempts();
+    if (m[c.slug]) { delete m[c.slug]; writeAttempts(m); }
   }
   /* Structured event log — a future Sheet/Airtable webhook can POST these.
      Pass `st` when the caller is already holding a state object it will setState()
@@ -829,9 +847,20 @@
       // Name whose work is about to be destroyed and how much of it — on a shared
       // tablet this button is the only handoff, and there is no undo or export.
       var who = getEnroll() || {}, cn = completedCount();
-      if (confirm("This erases " + (who.name ? who.name + "'s" : "all") + " training on this device" +
-          (cn ? ": " + cn + " course certificate" + (cn === 1 ? "" : "s") : "") +
-          ".\n\nThis cannot be undone. Continue?")) {
+      /* TRANSLATED. This was raw concatenated English — including the pluralisation and
+         the possessive "'s" — while the handover confirm two hundred lines below it went
+         through tfx(). So a Spanish or German rep, reading a portal that is otherwise
+         entirely in their language, hit an English dialog at the one moment that
+         destroys their certificates with no undo. Reusing the same "{n} course
+         certificates" and "1 course certificate" keys the handover already uses, rather
+         than adding parallel ones that could drift apart. */
+      var lost = cn === 0 ? "" : (cn === 1 ? tx("1 course certificate") : tfx("{n} course certificates", { n: cn }));
+      if (confirm(
+          (who.name
+            ? tfx("This erases {name}'s training on this device.", { name: who.name })
+            : tx("This erases all training on this device."))
+          + (lost ? " " + tfx("That includes {lost}.", { lost: lost }) : "")
+          + "\n\n" + tx("This cannot be undone. Continue?"))) {
         localStorage.removeItem(K_STATE); localStorage.removeItem(K_ENROLL);
         clearAttempt();   // an in-flight quiz belongs to the rep being cleared
         // The codes go too. The confirm says this erases their training; a reward cache
@@ -1779,7 +1808,7 @@
         '<button class="btn ghost full" id="q-restart">' + t("Start the quiz over") + "</button>" +
       "</div>";
     $("#q-resume").addEventListener("click", function () { runQuiz(c, att); });   // runQuiz -> step() focuses
-    $("#q-restart").addEventListener("click", function () { clearAttempt(); showCertifyForm(c); focusQuizZone(".certify h3"); });
+    $("#q-restart").addEventListener("click", function () { clearAttemptFor(c); showCertifyForm(c); focusQuizZone(".certify h3"); });
   }
   function showCertifiedState(c, rec) {
     var zone = $("#quiz-zone"), e = getEnroll() || {};
@@ -2045,7 +2074,7 @@
          them decide. */
       var nowBy = (getEnroll() || {}).email || "";
       if (startedBy && nowBy && nowBy !== startedBy) {
-        clearAttempt();
+        clearAttemptFor(c);   // this course only; other courses may belong to either rep
         var z = $("#quiz-zone");
         z.innerHTML = '<div class="certify"><div class="certify-badge">' + ic("lock") + "</div>" +
           "<h3>" + t("This device changed hands") + "</h3>" +
@@ -2059,7 +2088,8 @@
       // The attempt is over: pass or fail, both render their own screen and neither
       // should be resumable. Cleared before scoring so an exception below cannot leave
       // a completed attempt on disk offering to resume at the last question forever.
-      clearAttempt();
+      // Only THIS course — finishing the Dash II must not discard an in-progress Dash+.
+      clearAttemptFor(c);
       // answers[] is indexed by STEP position; order[pos] is the question shown
       // there, so map through `order` (not data order) to score.
       var correct = 0; order.forEach(function (qi, pos) { if (answers[pos] === c.quiz[qi].answer) correct++; });

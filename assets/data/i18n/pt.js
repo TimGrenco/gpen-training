@@ -16,6 +16,10 @@ window.GPEN_I18N = {
     /* ---- notice + chrome ---- */
     "Machine translated and pending review. Quiz questions stay in English.": "Tradução automática, pendente de revisão. As perguntas do quiz permanecem em inglês.",
     "Skip to content": "Ir para o conteúdo",
+    "This erases {name}'s training on this device.": "Isto apaga o treinamento de {name} neste dispositivo.",
+    "This erases all training on this device.": "Isto apaga todo o treinamento neste dispositivo.",
+    "That includes {lost}.": "Isso inclui {lost}.",
+    "This cannot be undone. Continue?": "Esta ação não pode ser desfeita. Continuar?",
     "Switch to a different person": "Mudar para outra pessoa",
     "Not you?": "Não é você?",
     "This device changed hands": "Este dispositivo mudou de mãos",
