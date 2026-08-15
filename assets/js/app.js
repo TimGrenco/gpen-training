@@ -873,13 +873,43 @@
       "</picture>" +
     "</div>";
   }
+  /* The text children live in .hero-copy rather than directly in the grid. The two-column
+     rule at 900px only ever assigned grid positions to eyebrow/h1/lede/shot, so any OTHER
+     child auto-placed — and the completed state has three more. "View certificate" landed
+     in column 2 UNDER the photo, 536px from the code it belongs to, and the dashed code
+     button stretched to 480x109 because it was a grid item. Wrapping the copy means the
+     grid has exactly two children in every state and cannot mis-place anything. */
   function heroHTML(done, total) {
     if (done >= total) return heroDoneHTML(total);
+    /* An above-the-fold reason to act. The first tappable thing on this page used to be a
+       product card at y=838 on an 812px phone — one full swipe past the fold — and the
+       reward ladder that explains WHY a rep should bother sat at y=2247, below all six
+       products. So a rep handed this link saw a brochure, with the discount three screens
+       down. The line and the button state the offer and give somewhere to go.
+       Percentages come from topPct(), never typed, so retuning LADDER moves them here. */
+    var next = nextCourse(null);
     return '<section class="hero hero-prog reveal">' +
       '<div class="hero-in">' +
-        '<span class="hero-eyebrow">' + ic("cap") + " " + esc(CFG.programName || tx("Product training")) + "</span>" +
-        '<h1 class="hero-h1">' + t("Essentials for Every Session") + "</h1>" +
-        '<p class="hero-lede">' + t("Turn every sale into an upsell with G Pen accessories designed for flower, concentrates, and 510 cartridges.") + "</p>" +
+        '<div class="hero-copy">' +
+          '<span class="hero-eyebrow">' + ic("cap") + " " + esc(CFG.programName || tx("Product training")) + "</span>" +
+          '<h1 class="hero-h1">' + t("Essentials for Every Session") + "</h1>" +
+          '<p class="hero-lede">' + t("Turn every sale into an upsell with G Pen accessories designed for flower, concentrates, and 510 cartridges.") + "</p>" +
+          /* The text is wrapped in a span because .hero-offer is a flex container, and
+             flex makes every child its own item — including the <b>. Unwrapped, "40% off"
+             became a separate flex item and the sentence broke apart mid-phrase, with
+             "at gpen.com" pushed into its own column. Two children only: icon and text. */
+          '<p class="hero-offer">' + ic("tag") + "<span>" +
+            tf("{total} products &middot; about 5 minutes each &middot; earn up to <b>{pct}% off</b> at gpen.com", { total: total, pct: topPct() }) +
+          "</span></p>" +
+          (next
+            ? '<div class="hero-actions">' +
+                '<a class="btn xl" href="#/course/' + next.slug + '">' +
+                  (done > 0 ? tf("Continue with {product}", { product: esc(next.name) }) : tf("Start with {product}", { product: esc(next.name) })) +
+                  " " + ic("arrow") + "</a>" +
+                (done > 0 ? '<span class="hero-prog-note">' + tf("{done} of {total} certified", { done: done, total: total }) + "</span>" : "") +
+              "</div>"
+            : "") +
+        "</div>" +
         heroShotHTML() +
       "</div>" +
     "</section>";
@@ -889,12 +919,14 @@
   function heroDoneHTML(total) {
     return '<section class="hero hero-done reveal">' +
       '<div class="hero-in">' +
-        '<span class="hero-eyebrow">' + ic("award") + " " + tf("Training complete &middot; {total} of {total}", { total: total }) + "</span>" +
-        '<h1 class="hero-h1">' + t("All products complete.") + "</h1>" +
-        '<p class="hero-sub" id="hero-sub">' + t("Your certificate is on record.") + "</p>" +
-        '<button class="code hero-code" id="hero-code" hidden><span>••••••</span><em>' + ic("tag") + " " + t("Copy code") + "</em></button>" +
-        '<div class="hero-actions">' +
-          '<a class="btn xl ghost" href="#/certified">' + t("View certificate") + " " + ic("arrow") + "</a>" +
+        '<div class="hero-copy">' +   // see heroHTML: the grid gets two children, always
+          '<span class="hero-eyebrow">' + ic("award") + " " + tf("Training complete &middot; {total} of {total}", { total: total }) + "</span>" +
+          '<h1 class="hero-h1">' + t("All products complete.") + "</h1>" +
+          '<p class="hero-sub" id="hero-sub">' + t("Your certificate is on record.") + "</p>" +
+          '<button class="code hero-code" id="hero-code" hidden><span>••••••</span><em>' + ic("tag") + " " + t("Copy code") + "</em></button>" +
+          '<div class="hero-actions">' +
+            '<a class="btn xl ghost" href="#/certified">' + t("View certificate") + " " + ic("arrow") + "</a>" +
+          "</div>" +
         "</div>" +
         heroShotHTML() +
       "</div>" +

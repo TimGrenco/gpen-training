@@ -1485,17 +1485,53 @@ a.linklike.backdash { display: grid; place-items: center; min-height: 44px; widt
    previous one. Side-by-side keeps every price flag and every category label while
    still bringing the lineup up to the first screen, because the shot's height is now
    governed by half the container rather than all of it. */
-@media (min-width: 900px) {
+/* Two columns from 760px, not 900px. iPad portrait (768) sat below the old threshold,
+   so copy and photo STACKED and the hero ran 742px tall on a 1024px screen — the first
+   product card landed at y=1056, just past the fold, on the device most likely to be
+   sitting on a shop counter. Side by side at this width costs the copy column nothing
+   it needs (~322px) and lifts the lineup onto the first screen. */
+@media (min-width: 760px) {
+  /* TWO children, always: .hero-copy and .hero-shot. This used to place the four
+     children of the in-progress hero by hand — eyebrow, h1, lede, shot — which meant
+     any OTHER child auto-placed, and the COMPLETED hero has three more. "View
+     certificate" landed in column 2 under the photograph, 536px from the discount code
+     it belongs with, and the dashed code button stretched to 480x109 because a grid item
+     fills its track. Grouping the copy makes the column count independent of which state
+     the hero is in, so nothing can be mis-placed by adding a line to it later. */
   .hero-in {
     display: grid;
     grid-template-columns: minmax(0, 1fr) minmax(0, 1.05fr);
     column-gap: clamp(28px, 4vw, 56px);
     align-items: center;
   }
-  .hero-in > .hero-eyebrow { grid-column: 1; grid-row: 1; align-self: end; }
-  .hero-in > .hero-h1      { grid-column: 1; grid-row: 2; }
-  .hero-in > .hero-lede    { grid-column: 1; grid-row: 3; align-self: start; }
-  .hero-in > .hero-shot    { grid-column: 2; grid-row: 1 / span 3; margin-top: 0; }
+  .hero-in > .hero-shot { margin-top: 0; }
+}
+/* The copy column is a plain flow at every width — it is the grid that changes. */
+.hero-copy { display: flex; flex-direction: column; gap: 10px; align-items: flex-start; }
+.hero-copy > * { margin-top: 0; margin-bottom: 0; }
+/* Content-width, not track-width. As a grid item this stretched to the full column. */
+.hero-code { align-self: flex-start; width: auto; }
+.hero-actions { display: flex; flex-wrap: wrap; align-items: center; gap: 12px; margin-top: 4px; }
+/* The offer line: the reason a rep starts at all, previously three screens down. */
+.hero-offer { display: flex; align-items: center; gap: 8px; font-size: 14px; font-weight: 700;
+  color: var(--ink); background: #fff; border: 1px solid var(--line); border-radius: 999px;
+  padding: 9px 16px; box-shadow: var(--shadow); }
+.hero-offer svg { width: 16px; height: 16px; flex: none; color: var(--gold); }
+.hero-offer b { color: var(--gold); }
+.hero-prog-note { font-size: 13px; font-weight: 700; color: var(--stone); }
+@media (max-width: 420px) {
+  .hero-offer { font-size: 13px; padding: 8px 13px; border-radius: var(--r-md); }
+  .hero-actions .btn { width: 100%; justify-content: center; }
+}
+/* iPad portrait sat below the 900px two-column rule, so the hero ran 774px tall on a
+   1024px screen — the photo alone was 707x556 — and pushed the first product card to
+   y=998. Nothing of the lineup was visible on the device most likely to be sitting on a
+   shop counter. Capping the shot in the stacked band brings the first panel above the
+   fold without touching phones, which were always fine. */
+/* 600-759px: still stacked, so the photo is the whole hero height. 460 keeps the shot
+   generous while bringing the lineup to the fold on a 1000px-tall viewport. */
+@media (min-width: 600px) and (max-width: 759px) {
+  .hero-in > .hero-shot { max-width: 460px; margin-inline: auto; }
 }
 @media (max-height: 500px) and (orientation: landscape) {
   .hero-in > .hero-shot { max-width: 62vh; margin-inline: auto; }

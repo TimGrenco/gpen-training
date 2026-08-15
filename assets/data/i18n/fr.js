@@ -15,6 +15,10 @@ window.GPEN_I18N = {
     /* ---- notice + chrome ---- */
     "Machine translated and pending review. Quiz questions stay in English.": "Traduction automatique en attente de relecture. Les questions du quiz restent en anglais.",
     "Skip to content": "Aller au contenu",
+    "{total} products &middot; about 5 minutes each &middot; earn up to <b>{pct}% off</b> at gpen.com": "{total} produits &middot; environ 5 minutes chacun &middot; jusqu'à <b>{pct} % de remise</b> sur gpen.com",
+    "Start with {product}": "Commencer par {product}",
+    "Continue with {product}": "Continuer avec {product}",
+    "{done} of {total} certified": "{done} sur {total} certifiés",
     "Go to the quiz": "Aller au quiz",
     "Pick up where you left off": "Reprenez là où vous vous êtes arrêté",
     "You answered {n} of {total} questions. Your answers are saved on this device.": "Vous avez répondu à {n} des {total} questions. Vos réponses sont enregistrées sur cet appareil.",
