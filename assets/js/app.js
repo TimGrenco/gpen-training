@@ -2578,21 +2578,32 @@
 
 
   /* ---- reveal-on-scroll -------------------------------------------------- */
+  /* ONE observer for the life of the page, disconnected before each new render. This
+     created a fresh IntersectionObserver on every route() and never disconnected any of
+     them: measured over 300 navigations, 301 created and 0 disconnected, each still
+     holding strong references to .reveal elements that the next render had already
+     detached. DOM node count stayed flat — innerHTML replacement was not the problem —
+     but the observers were the one thing keeping the old nodes alive.
+
+     The visibilitychange listener had the same shape. `once: true` bounded it, so it was
+     not unbounded growth, but until the first visibility change each registration
+     retained its own array of detached nodes. It is bound once at boot instead, against
+     a module-level list the render refreshes. */
+  var revealIO = null, revealEls = [];
+  function revealAllPending() { revealEls.forEach(function (e) { e.classList.add("in"); }); }
   function revealOnScroll() {
-    var els = $$(".reveal");
-    var reveal = function (e) { e.classList.add("in"); };
-    var revealAll = function () { els.forEach(reveal); };
-    if (!("IntersectionObserver" in window)) { revealAll(); return; }
-    var io = new IntersectionObserver(function (ents, obs) {
-      ents.forEach(function (en) { if (en.isIntersecting) { reveal(en.target); obs.unobserve(en.target); } });
+    revealEls = $$(".reveal");
+    if (!("IntersectionObserver" in window)) { revealAllPending(); return; }
+    if (revealIO) revealIO.disconnect();   // release the previous render's nodes
+    revealIO = new IntersectionObserver(function (ents, obs) {
+      ents.forEach(function (en) { if (en.isIntersecting) { en.target.classList.add("in"); obs.unobserve(en.target); } });
     }, { threshold: 0.05, rootMargin: "0px 0px -4% 0px" });
-    els.forEach(function (e) { io.observe(e); });
+    revealEls.forEach(function (e) { revealIO.observe(e); });
     // Content must NEVER stay hidden. If the tab is hidden/inactive the observer
-    // may never fire, so reveal immediately; also reveal on the next visibility
-    // change, plus a hard failsafe timeout. Active tabs still animate on scroll.
-    if (document.hidden) revealAll();
-    document.addEventListener("visibilitychange", function () { if (!document.hidden) revealAll(); }, { once: true });
-    setTimeout(revealAll, 1600);
+    // may never fire, so reveal immediately, plus a hard failsafe timeout. Active
+    // tabs still animate on scroll. (visibilitychange is bound once, in boot.)
+    if (document.hidden) revealAllPending();
+    setTimeout(revealAllPending, 1600);
   }
   // Passing the program name itself produced "G Pen Training · G Pen Training"
   // on home and the master certificate.
@@ -2771,6 +2782,9 @@
     bindSkipLink();
     bindLangSel();
     bindImageFallback();
+    // Bound ONCE, not per render — see revealOnScroll. Not `once: true` any more,
+    // because it now has to keep working for every later render too.
+    document.addEventListener("visibilitychange", function () { if (!document.hidden) revealAllPending(); });
     window.addEventListener("hashchange", route);
     route();
   }

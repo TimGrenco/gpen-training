@@ -228,6 +228,10 @@ h1, h2, h3, h4 { margin: 0; line-height: 1.08; letter-spacing: -.02em; }
   .cs-actions { align-self: center; }
 }
 
+/* The legal/programme paragraph ran to 138 characters per line across 1040px on every
+   page — roughly double a comfortable measure, and it is the line partners actually
+   have to read. Capped below; the footer itself still spans the full width. */
+.foot p { max-width: 68ch; margin-inline: auto; }
 .foot { max-width: var(--maxw); margin: 0 auto; border-top: 1px solid var(--line); text-align: center; color: var(--stone); font-size: 13px;
   padding: 34px max(clamp(16px,4vw,40px), env(safe-area-inset-right, 0px)) calc(46px + env(safe-area-inset-bottom, 0px)) max(clamp(16px,4vw,40px), env(safe-area-inset-left, 0px)); }
 .foot-g { width: 34px; height: 34px; object-fit: contain; margin: 0 auto 12px; opacity: .8; }
@@ -741,7 +745,10 @@ a.linklike.backdash { display: grid; place-items: center; min-height: 44px; widt
 .timeline li:not(:last-child)::before { content: ""; position: absolute; left: 71px; top: 22px; bottom: -4px; width: 2px; background: var(--line); }
 .tl-year { font-weight: 900; font-size: 15px; color: var(--gold); text-align: right; padding-top: 12px; }
 .tl-dot { position: absolute; left: 66px; top: 15px; width: 12px; height: 12px; border-radius: 50%; background: var(--gold-bright); border: 2px solid var(--ink); }
-.timeline p { margin: 0; background: #fff; border: 1px solid var(--line); border-radius: var(--r-sm); padding: 12px 16px; font-size: 14.5px; box-shadow: var(--shadow); }
+/* max-width: none — .about-block p caps prose at 64ch, and these milestone entries are
+   bordered white CARDS, not prose. They stopped 249px short of their column at 1280,
+   a uniform short right edge with a quarter of the column empty beside it. */
+.timeline p { max-width: none; margin: 0; background: #fff; border: 1px solid var(--line); border-radius: var(--r-sm); padding: 12px 16px; font-size: 14.5px; box-shadow: var(--shadow); }
 .collabs { display: flex; flex-wrap: wrap; gap: 8px; }
 .collab { background: var(--ink); color: #fff; font-weight: 700; font-size: 13.5px; padding: 8px 15px; border-radius: 999px; }
 .collab:nth-child(2n) { background: var(--gold-bright); color: #1a1509; }
@@ -1181,9 +1188,18 @@ a.linklike.backdash { display: grid; place-items: center; min-height: 44px; widt
 .fam-body { padding: 20px 18px; }
 @media (max-width: 600px) { .fam-head { padding: 12px 14px; } .fam-body { padding: 16px 14px; } .fam-blurb { display: none; } }
 
-/* Inside each panel, cards fill the available width (auto-fill keeps them
-   card-sized rather than stretching a lone card across the whole panel). */
-.course-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(190px, 1fr)); gap: 16px; margin-bottom: 0; }
+/* auto-FILL, and a hard 232px ceiling on the track. The comment here has always said
+   auto-fill "keeps them card-sized rather than stretching a lone card across the whole
+   panel" — but the rule said auto-FIT, which collapses the empty tracks and does
+   exactly the stretching the comment warns about. The Concentrate panel holds one
+   product, so at 768px the Melt rendered as a 669x638 slab: three times the width and
+   twice the height of the Dash II card directly above it, with its photo at triple the
+   scale of every other photo on the page. Paired panels came out visibly unequal too
+   (471 vs 619 tall at 1920). It is the first thing a retail partner sees.
+   The 1fr max is what allowed the stretch; capping the track at 232px pins every card
+   in every panel to one size band at every width. */
+.course-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(190px, 232px));
+  gap: 16px; margin-bottom: 0; justify-content: start; }
 @media (max-width: 460px) { .course-grid { grid-template-columns: 1fr; } }
 .cc {
   position: relative; display: flex; flex-direction: column; text-decoration: none; color: var(--ink);
@@ -1511,7 +1527,13 @@ a.linklike.backdash { display: grid; place-items: center; min-height: 44px; widt
 
 /* Line measure. Nine body rules ran 89-181 characters at 1440px+. The worst was the
    grand reward card's 11px terms line stretched across 998px. */
-.sell-say, .scn-say, .sell-pair p, .faq-a p, .hl-list li, .master-unlock .mu-txt, .sell-health { max-width: 66ch; }
+/* .sell-say and .sell-health are FILLED, BORDERED boxes, not runs of text, so a 66ch cap
+   shortened the boxes themselves: at 1280 the green "say this" panel stopped 173px and
+   the dashed compliance box 251px short of the cards directly above and below them.
+   Constrain the measure with padding instead, so the box stays flush and only the text
+   is held to a readable width. */
+.scn-say, .sell-pair p, .faq-a p, .hl-list li, .master-unlock .mu-txt { max-width: 66ch; }
+.sell-say, .sell-health { max-width: none; padding-right: max(18px, calc(100% - 68ch)); }
 .rw-card.grand .rw-terms, .rw-card.grand .rw-sub { max-width: 52ch; }
 /* Inside one white card the description stopped 111px short of the checkmark bullets
    directly beneath it, at the same visual weight — it read as a broken container. */
