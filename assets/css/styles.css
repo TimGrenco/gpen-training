@@ -1524,7 +1524,12 @@ a.linklike.backdash { display: grid; place-items: center; min-height: 44px; widt
 .hero-prog-note { font-size: 13px; font-weight: 700; color: var(--stone); }
 @media (max-width: 420px) {
   .hero-offer { font-size: 13px; padding: 8px 13px; border-radius: var(--r-md); }
-  .hero-actions .btn { width: 100%; justify-content: center; }
+  /* `.hero-actions .btn { width: 100% }` used to live here and did nothing:
+     .hero-copy is a flex column with align-items:flex-start, so the row shrink-wraps
+     and 100% resolves to the button's own width — measured 215px inside a 343px column
+     at 375px. Stretch the ROW instead, which is the thing that was shrink-wrapped. */
+  .hero-actions { align-self: stretch; }
+  .hero-actions .btn { flex: 1 1 auto; justify-content: center; }
 }
 /* iPad portrait sat below the 900px two-column rule, so the hero ran 774px tall on a
    1024px screen — the photo alone was 707x556 — and pushed the first product card to

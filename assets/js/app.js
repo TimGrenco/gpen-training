@@ -534,6 +534,9 @@
     caret: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="m6 9 6 6 6-6"/></svg>',
   };
   function ic(n) { return '<span class="ic">' + (IC[n] || "") + "</span>"; }
+  // Where a rep with a problem should write. Falls back to contactEmail only if no
+  // support address is configured, so an unset support block still reaches a human.
+  function supportEmail() { return ((CFG.support || {}).email) || CFG.contactEmail || ""; }
 
   /* =========================================================================
      I18N — same language set + endonym pattern as assets.gpen.com.
@@ -1984,7 +1987,7 @@
         /* role="progressbar" with real values — this was a bare div, so a screen reader
            user got no sense of how far through they were except by counting. */
         '<div class="quiz-bar" role="progressbar" aria-valuemin="0" aria-valuemax="' + c.quiz.length +
-          '" aria-valuenow="' + i + '" aria-label="' + tfx("Question {i} of {n}", { i: i + 1, n: c.quiz.length }) + '">' +
+          '" aria-valuenow="' + (i + 1) + '" aria-label="' + tfx("Question {i} of {n}", { i: i + 1, n: c.quiz.length }) + '">' +
           '<div class="quiz-bar-fill" style="width:' + Math.round((i / c.quiz.length) * 100) + '%"></div></div>' +
         /* The counter and the question live in one focusable group. focusQuizZone
            targets this, so moving to a new question announces "Question 3 of 11, 2
@@ -2159,6 +2162,12 @@
       var zone = $("#quiz-zone");
       var el = zone && $(sel, zone);
       if (!el || !el.focus) return;
+      /* Make it focusable first. A heading has no tabindex, so focus() on it was a
+         silent no-op — and .certify h3 is the target for "Start the quiz over", "Retake
+         quiz" and the changed-hands screen. All three claimed to move focus and left it
+         on <body>, which is precisely the failure this helper exists to prevent. The
+         same one-liner already guards the modal release path. */
+      if (!el.hasAttribute("tabindex")) el.setAttribute("tabindex", "-1");
       try { el.focus({ preventScroll: true }); } catch (e) { el.focus(); }
     }, 0);
   }
@@ -2277,7 +2286,12 @@
             '<div class="reward-eyebrow">' + t("Your code didn't come through") + "</div>" +
             "<p>" + t("Your certificate is saved — nothing is lost. Try again, or contact us if it keeps failing.") + "</p>" +
             '<button class="btn ghost" id="rw-retry">' + ic("refresh") + " " + t("Try again") + "</button>" +
-            '<p class="reward-terms"><a href="mailto:' + esc(CFG.contactEmail) + '">' + esc(CFG.contactEmail) + "</a></p></div>";
+            /* SUPPORT, not press. contactEmail is pr@grencoscience.com and config.js
+               labels it "Program and press"; the support address reps should reach is
+               CFG.support.email (help@gpen.com), which the footer band already uses.
+               This card is exactly what a rep sees when issuance is flaky, so it is the
+               worst place to send them to a press inbox. */
+            '<p class="reward-terms"><a href="mailto:' + esc(supportEmail()) + '">' + esc(supportEmail()) + "</a></p></div>";
           var rt = $("#rw-retry", box);
           /* Retry IN PLACE. This used to call location.reload(), which threw the rep to
              the top of a ~6,800px course page while the reward panel sits ~6,200px
