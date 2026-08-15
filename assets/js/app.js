@@ -2328,8 +2328,19 @@
     $("#cert-dl").addEventListener("click", function () { downloadCertificate(product, nm, date, pct, cid, "PRODUCT SPECIALIST"); });
     $("#cert-mail").addEventListener("click", function () {
       var e = getEnroll() || {};
-      var body = "I completed the " + product + " Product Specialist training.\n\nName: " + nm + "\nStore: " + (e.store || "") + "\nEmail: " + (e.email || "") + "\nProduct: " + product + "\nScore: " + pct + "%\nDate: " + date + "\nCertificate ID: " + cid;
-      window.location.href = "mailto:" + CFG.contactEmail + "?subject=" + encodeURIComponent(product + " — Product Specialist Certification") + "&body=" + encodeURIComponent(body);
+      var body = "I completed the " + product + " Product Specialist training.\n\nName: " + nm + "\nStore: " + (e.store || "") + "\nProduct: " + product + "\nScore: " + pct + "%\nDate: " + date + "\nCertificate ID: " + cid;
+      /* Addressed to the REP, not to G Pen. This sent to CFG.contactEmail — a PR
+         inbox — carrying the rep's name, personal email, store, score and
+         certificate ID. Sitting between "Print certificate" and "Download
+         image", the label "Email it" plainly reads as "email me my certificate",
+         so a rep pressing it was mailing their own details to G Pen marketing
+         without ever intending to. Now it opens a message to themselves, which
+         is what the button says and what its neighbours do: it gives them a
+         record they keep. G Pen already receives the completion through the
+         tracking sheet and does not need it mailed a second time.
+         Falls back to an empty recipient if there is no enrolment email, so the
+         rep's mail client simply opens with the body ready to address. */
+      window.location.href = "mailto:" + encodeURIComponent(e.email || "") + "?subject=" + encodeURIComponent(product + " — Product Specialist Certification") + "&body=" + encodeURIComponent(body);
     });
   }
   // Canvas → PNG download (light print-style certificate).
@@ -2509,8 +2520,9 @@
     $("#cert-print").addEventListener("click", printCert);
     $("#cert-dl").addEventListener("click", function () { downloadCertificate("G Pen Product Specialist", e.name, date, 0, cid, "FULL LINEUP"); });
     $("#cert-mail").addEventListener("click", function () {
-      var body = "I have completed the full G Pen Product Specialist training.\n\nName: " + e.name + "\nStore: " + (e.store || "") + "\nEmail: " + (e.email || "") + "\nDate: " + date + "\nCertificate ID: " + cid;
-      window.location.href = "mailto:" + CFG.contactEmail + "?subject=" + encodeURIComponent("G Pen Product Specialist — full lineup certified") + "&body=" + encodeURIComponent(body);
+      var body = "I have completed the full G Pen Product Specialist training.\n\nName: " + e.name + "\nStore: " + (e.store || "") + "\nDate: " + date + "\nCertificate ID: " + cid;
+      // Same reasoning as the course certificate above: addressed to the rep.
+      window.location.href = "mailto:" + encodeURIComponent(e.email || "") + "?subject=" + encodeURIComponent("G Pen Product Specialist — full lineup certified") + "&body=" + encodeURIComponent(body);
     });
     // The full-lineup tier is the 40%, not the 4-course 35% — reconcile it here.
     revealReward("secret", { name: e.name, email: e.email, store: e.store, certId: cid }, $("#mreward"));
