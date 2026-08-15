@@ -899,7 +899,7 @@
              became a separate flex item and the sentence broke apart mid-phrase, with
              "at gpen.com" pushed into its own column. Two children only: icon and text. */
           '<p class="hero-offer">' + ic("tag") + "<span>" +
-            tf("{total} products &middot; about 5 minutes each &middot; earn up to <b>{pct}% off</b> at gpen.com", { total: total, pct: topPct() }) +
+            tf("{total} products &middot; about 8 minutes each &middot; earn up to <b>{pct}% off</b> at gpen.com", { total: total, pct: topPct() }) +
           "</span></p>" +
           (next
             ? '<div class="hero-actions">' +
