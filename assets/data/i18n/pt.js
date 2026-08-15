@@ -16,6 +16,8 @@ window.GPEN_I18N = {
     /* ---- notice + chrome ---- */
     "Machine translated and pending review. Quiz questions stay in English.": "Tradução automática, pendente de revisão. As perguntas do quiz permanecem em inglês.",
     "Skip to content": "Ir para o conteúdo",
+    "This device changed hands": "Este dispositivo mudou de mãos",
+    "This quiz was started by {who}, but {now} is signed in now. It has not been scored, so nobody is certified for someone else's answers.": "Este quiz foi iniciado por {who}, mas agora quem está conectado é {now}. Ele não foi pontuado, para que ninguém seja certificado pelas respostas de outra pessoa.",
     "{total} products &middot; about 8 minutes each &middot; earn up to <b>{pct}% off</b> at gpen.com": "{total} produtos &middot; cerca de 8 minutos cada &middot; ganhe até <b>{pct}% de desconto</b> na gpen.com",
     "Start with {product}": "Comece com {product}",
     "Continue with {product}": "Continue com {product}",

@@ -193,7 +193,16 @@
     }
   }
   function getEnroll() { try { return JSON.parse(localStorage.getItem(K_ENROLL) || "null"); } catch (e) { return null; } }
-  function setEnroll(v) { try { localStorage.setItem(K_ENROLL, JSON.stringify(v)); } catch (e) {} }
+  /* The email is lowercased and trimmed ON WRITE, once, here. Comparisons already
+     lowercased, so an ALL-CAPS retype raised no handover prompt and kept the same reward
+     cache key — but the raw string was STORED, and every event reported afterwards
+     carried "TRAIL@SHOP.COM" while the rep's earlier rows carried "trail@shop.com". One
+     person, two identities in the tracking sheet, and nothing on screen to hint at it.
+     Normalising at the boundary means every downstream consumer — the sheet, the reward
+     endpoint's code seed, the certificate id — sees one spelling. */
+  function setEnroll(v) {
+    if (v && v.email) v = Object.assign({}, v, { email: String(v.email).trim().toLowerCase() });
+    try { localStorage.setItem(K_ENROLL, JSON.stringify(v)); } catch (e) {} }
   function getState() {
     var d = { courses: {}, master: null, trio: null, log: [] };
     var s;
@@ -1852,7 +1861,13 @@
       var handover = !!prev && (!sameId(prev.name, name) || !sameId(prev.email, email));
       if (handover) {
         var n = completedCount();
-        var who = (prev.name || tx("someone else")) + (sameId(prev.name, name) && prev.email ? " (" + prev.email + ")" : "");
+        /* ALWAYS show the previous email. It used to be appended only when the NAMES
+           matched, which is backwards: the case that needs it most is the same person
+           retyping their name slightly differently ("Trail R." for "Trail Rep") on their
+           own account. They were shown "This device is signed in as Trail Rep.
+           Continuing as Trail R. will clear ... 2 course certificates" with nothing to
+           reveal it was their own, and wiped their own certificates. */
+      var who = (prev.name || tx("someone else")) + (prev.email ? " (" + prev.email + ")" : "");
         var lost = n === 0 ? "" : (n === 1 ? tx("1 course certificate") : tfx("{n} course certificates", { n: n }));
         if (!confirm(tfx("This device is signed in as {who}.", { who: who }) + "\n\n" +
             tfx("Continuing as {name} will clear the progress saved on this device{lost}. This cannot be undone.", { name: name, lost: lost ? ", " + tfx("including {lost}", { lost: lost }) : "" }) + "\n\n" +
@@ -1896,8 +1911,16 @@
     order.forEach(function (qi, pos) { if (pos < i && answers[pos] === c.quiz[qi].answer) correctSoFar++; });
     /* Persist after every answer and every advance, so the attempt on disk is never
        more than one tap behind the screen. */
+    /* `by` is the email of whoever was enrolled when this attempt began. Scoring read
+       getEnroll() at FINISH time, so if the device changed hands mid-quiz the whole
+       attempt was credited to whoever enrolled last: reproduced with two tabs — Alpha
+       answered three questions, Bravo enrolled in the other tab, Alpha finished, and the
+       certificate, the state record, the reported row and the minted 25% code all came
+       out under Bravo's name and email. Alpha's nine minutes became Bravo's
+       certification. Stamping the attempt lets finish() notice. */
+    var startedBy = (getEnroll() || {}).email || "";
     function saveAttempt() {
-      setAttempt({ slug: c.slug, order: order, i: i, answers: answers, ts: new Date().toISOString() });
+      setAttempt({ slug: c.slug, order: order, i: i, answers: answers, by: startedBy, ts: new Date().toISOString() });
     }
     // Every question already banked — the rep answered the LAST one and never tapped
     // "See my results". Score it rather than stepping to a question that isn't there.
@@ -1998,6 +2021,25 @@
       n.onclick = function () { i++; saveAttempt(); if (i < c.quiz.length) step(); else finish(); };
     }
     function finish() {
+      /* Refuse to credit this to the wrong person. If the enrolled email changed while
+         the quiz was open — a handover in another tab, or on this device between
+         sessions — the answers belong to whoever started, and the certificate would
+         otherwise be issued to whoever is enrolled now. Neither crediting the wrong rep
+         nor silently discarding the work is acceptable, so say what happened and let
+         them decide. */
+      var nowBy = (getEnroll() || {}).email || "";
+      if (startedBy && nowBy && nowBy !== startedBy) {
+        clearAttempt();
+        var z = $("#quiz-zone");
+        z.innerHTML = '<div class="certify"><div class="certify-badge">' + ic("lock") + "</div>" +
+          "<h3>" + t("This device changed hands") + "</h3>" +
+          "<p>" + tf("This quiz was started by {who}, but {now} is signed in now. It has not been scored, so nobody is certified for someone else's answers.", { who: esc(startedBy), now: esc(nowBy) }) + "</p>" +
+          '<button class="btn xl full" id="q-restart">' + t("Start the quiz over") + "</button></div>";
+        var rb = $("#q-restart", z);
+        if (rb) rb.addEventListener("click", function () { showCertifyForm(c); focusQuizZone(".certify h3"); });
+        focusQuizZone(".certify h3");
+        return;
+      }
       // The attempt is over: pass or fail, both render their own screen and neither
       // should be resumable. Cleared before scoring so an exception below cannot leave
       // a completed attempt on disk offering to resume at the last question forever.
