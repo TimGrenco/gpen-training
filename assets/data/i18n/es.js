@@ -28,7 +28,7 @@ window.GPEN_I18N = {
     /* ---- notice + chrome ---- */
     "Machine translated and pending review. Quiz questions stay in English.": "Traducción automática pendiente de revisión. Las preguntas del examen permanecen en inglés.",
     "Skip to content": "Ir al contenido",
-    "{total} products &middot; about 5 minutes each &middot; earn up to <b>{pct}% off</b> at gpen.com": "{total} productos &middot; unos 5 minutos cada uno &middot; gane hasta un <b>{pct}% de descuento</b> en gpen.com",
+    "{total} products &middot; about 8 minutes each &middot; earn up to <b>{pct}% off</b> at gpen.com": "{total} productos &middot; unos 8 minutos cada uno &middot; gane hasta un <b>{pct}% de descuento</b> en gpen.com",
     "Start with {product}": "Empiece con {product}",
     "Continue with {product}": "Continúe con {product}",
     "{done} of {total} certified": "{done} de {total} certificados",
@@ -476,13 +476,13 @@ window.GPEN_I18N = {
       howToSell: {
         vital: "Un cartucho no funciona sin batería. Esta es la forma más económica de hacer utilizable el cartucho que ya está comprando.",
         aov: "A $12.95 es la venta cruzada más sencilla de la tienda, porque la necesidad es absoluta: ningún cliente debería salir con un cartucho y sin forma de usarlo.",
-        talkTrack: { say: "Ese cartucho necesita una batería. ¿Tiene una? Esta cuesta $12.95, se activa con la inhalación y encaja en cualquier cartucho estándar. Sin botones." },
+        talkTrack: { say: "Ese cartucho necesita una batería. ¿Tiene una? Esta cuesta $12.95, se activa con la inhalación y encaja en la mayoría de los cartuchos estándar. Sin botones." },
         whichClose: "¿El 510 Original a $12.95, o el Hydout a $24.95 con cinco ajustes de voltaje?",
         trap: "No pregunte si necesitan una batería, porque eso invita a un no. Pregunte si ya tienen una.",
         keyFacts: [
           "La batería de G Pen más pequeña — $12.95",
           "Se activa con la inhalación: sin botón",
-          "Compatible con cualquier cartucho 510 estándar",
+          "Compatible con la mayoría de los cartuchos 510 estándar",
         ],
       },
     },

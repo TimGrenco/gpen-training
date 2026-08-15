@@ -16,7 +16,7 @@ window.GPEN_I18N = {
     /* ---- notice + chrome ---- */
     "Machine translated and pending review. Quiz questions stay in English.": "Maschinell übersetzt, Prüfung ausstehend. Die Quizfragen bleiben auf Englisch.",
     "Skip to content": "Zum Inhalt springen",
-    "{total} products &middot; about 5 minutes each &middot; earn up to <b>{pct}% off</b> at gpen.com": "{total} Produkte &middot; je etwa 5 Minuten &middot; bis zu <b>{pct} % Rabatt</b> auf gpen.com",
+    "{total} products &middot; about 8 minutes each &middot; earn up to <b>{pct}% off</b> at gpen.com": "{total} Produkte &middot; je etwa 8 Minuten &middot; bis zu <b>{pct} % Rabatt</b> auf gpen.com",
     "Start with {product}": "Mit {product} beginnen",
     "Continue with {product}": "Mit {product} fortfahren",
     "{done} of {total} certified": "{done} von {total} zertifiziert",
@@ -461,13 +461,13 @@ window.GPEN_I18N = {
       howToSell: {
         vital: "Eine Kartusche funktioniert ohne Akku nicht. Das ist der preiswerteste Weg, die Kartusche nutzbar zu machen, die der Kunde ohnehin kauft.",
         aov: "Für $12.95 ist das der einfachste Zusatzverkauf im Laden, weil der Bedarf absolut ist: Kein Kunde sollte mit einer Kartusche und ohne Möglichkeit zur Nutzung hinausgehen.",
-        talkTrack: { say: "Diese Kartusche braucht einen Akku. Haben Sie einen? Dieser kostet $12.95, arbeitet mit Zugautomatik und passt zu jeder Standardkartusche. Keine Tasten." },
+        talkTrack: { say: "Diese Kartusche braucht einen Akku. Haben Sie einen? Dieser kostet $12.95, arbeitet mit Zugautomatik und passt zu den meisten Standardkartuschen. Keine Tasten." },
         whichClose: "Der 510 Original für $12.95 oder der Hydout für $24.95 mit fünf Spannungsstufen?",
         trap: "Fragen Sie nicht, ob ein Akku gebraucht wird, denn das lädt zu einem Nein ein. Fragen Sie, ob schon einer vorhanden ist.",
         keyFacts: [
           "Kleinster G Pen Akku — $12.95",
           "Zugautomatik: keine Taste nötig",
-          "Passt zu jeder Standardkartusche mit 510-Gewinde",
+          "Passt zu den meisten Standardkartuschen mit 510-Gewinde",
         ],
       },
     },

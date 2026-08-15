@@ -16,7 +16,7 @@ window.GPEN_I18N = {
     /* ---- notice + chrome ---- */
     "Machine translated and pending review. Quiz questions stay in English.": "Tradução automática, pendente de revisão. As perguntas do quiz permanecem em inglês.",
     "Skip to content": "Ir para o conteúdo",
-    "{total} products &middot; about 5 minutes each &middot; earn up to <b>{pct}% off</b> at gpen.com": "{total} produtos &middot; cerca de 5 minutos cada &middot; ganhe até <b>{pct}% de desconto</b> na gpen.com",
+    "{total} products &middot; about 8 minutes each &middot; earn up to <b>{pct}% off</b> at gpen.com": "{total} produtos &middot; cerca de 8 minutos cada &middot; ganhe até <b>{pct}% de desconto</b> na gpen.com",
     "Start with {product}": "Comece com {product}",
     "Continue with {product}": "Continue com {product}",
     "{done} of {total} certified": "{done} de {total} certificados",
@@ -461,13 +461,13 @@ window.GPEN_I18N = {
       howToSell: {
         vital: "Um cartucho não funciona sem bateria. Esta é a forma mais barata de tornar utilizável o cartucho que o cliente já está comprando.",
         aov: "Por $12.95 é o adicional mais simples da loja, porque a necessidade é absoluta: nenhum cliente deveria sair com um cartucho e sem como usá-lo.",
-        talkTrack: { say: "Esse cartucho precisa de uma bateria. Você tem uma? Esta custa $12.95, é ativada por inalação e serve em qualquer cartucho padrão. Sem botões." },
+        talkTrack: { say: "Esse cartucho precisa de uma bateria. Você tem uma? Esta custa $12.95, é ativada por inalação e serve na maioria dos cartuchos padrão. Sem botões." },
         whichClose: "O 510 Original por $12.95 ou o Hydout por $24.95 com cinco níveis de voltagem?",
         trap: "Não pergunte se o cliente precisa de uma bateria, porque isso convida a um não. Pergunte se ele já tem uma.",
         keyFacts: [
           "A menor bateria G Pen — $12.95",
           "Ativação por inalação: sem botão",
-          "Serve em qualquer cartucho padrão com rosca 510",
+          "Serve na maioria dos cartuchos padrão com rosca 510",
         ],
       },
     },

@@ -14,7 +14,7 @@ window.GPEN_I18N = {
     /* ---- notice + chrome ---- */
     "Machine translated and pending review. Quiz questions stay in English.": "Traduzione automatica in attesa di revisione. Le domande del quiz restano in inglese.",
     "Skip to content": "Vai al contenuto",
-    "{total} products &middot; about 5 minutes each &middot; earn up to <b>{pct}% off</b> at gpen.com": "{total} prodotti &middot; circa 5 minuti ciascuno &middot; ottenga fino al <b>{pct}% di sconto</b> su gpen.com",
+    "{total} products &middot; about 8 minutes each &middot; earn up to <b>{pct}% off</b> at gpen.com": "{total} prodotti &middot; circa 8 minuti ciascuno &middot; ottenga fino al <b>{pct}% di sconto</b> su gpen.com",
     "Start with {product}": "Inizi con {product}",
     "Continue with {product}": "Continui con {product}",
     "{done} of {total} certified": "{done} di {total} certificati",
@@ -459,13 +459,13 @@ window.GPEN_I18N = {
       howToSell: {
         vital: "Una cartuccia non funziona senza batteria. Questo è il modo più economico di rendere utilizzabile la cartuccia che il cliente sta già acquistando.",
         aov: "A $12.95 è la vendita aggiuntiva più semplice del negozio, perché il bisogno è assoluto: nessun cliente dovrebbe uscire con una cartuccia e senza modo di usarla.",
-        talkTrack: { say: "Quella cartuccia ha bisogno di una batteria. Ne ha una? Questa costa $12.95, si attiva a inalazione e va bene con qualsiasi cartuccia standard. Nessun pulsante." },
+        talkTrack: { say: "Quella cartuccia ha bisogno di una batteria. Ne ha una? Questa costa $12.95, si attiva a inalazione e va bene con la maggior parte delle cartucce standard. Nessun pulsante." },
         whichClose: "Il 510 Original a $12.95 o l'Hydout a $24.95 con cinque livelli di voltaggio?",
         trap: "Non chieda se serve una batteria, perché invita a un no. Chieda se ne ha già una.",
         keyFacts: [
           "La batteria G Pen più piccola — $12.95",
           "Attivazione a inalazione: nessun pulsante",
-          "Compatibile con qualsiasi cartuccia standard 510",
+          "Compatibile con la maggior parte delle cartucce standard 510",
         ],
       },
     },

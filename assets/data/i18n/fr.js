@@ -15,7 +15,7 @@ window.GPEN_I18N = {
     /* ---- notice + chrome ---- */
     "Machine translated and pending review. Quiz questions stay in English.": "Traduction automatique en attente de relecture. Les questions du quiz restent en anglais.",
     "Skip to content": "Aller au contenu",
-    "{total} products &middot; about 5 minutes each &middot; earn up to <b>{pct}% off</b> at gpen.com": "{total} produits &middot; environ 5 minutes chacun &middot; jusqu'à <b>{pct} % de remise</b> sur gpen.com",
+    "{total} products &middot; about 8 minutes each &middot; earn up to <b>{pct}% off</b> at gpen.com": "{total} produits &middot; environ 8 minutes chacun &middot; jusqu'à <b>{pct} % de remise</b> sur gpen.com",
     "Start with {product}": "Commencer par {product}",
     "Continue with {product}": "Continuer avec {product}",
     "{done} of {total} certified": "{done} sur {total} certifiés",
@@ -460,7 +460,7 @@ window.GPEN_I18N = {
       howToSell: {
         vital: "Une cartouche ne fonctionne pas sans batterie. C'est la façon la moins chère de rendre utilisable la cartouche que le client achète déjà.",
         aov: "À $12.95, c'est la vente additionnelle la plus simple du magasin, parce que le besoin est absolu : aucun client ne devrait repartir avec une cartouche et aucun moyen de l'utiliser.",
-        talkTrack: { say: "Cette cartouche a besoin d'une batterie. Vous en avez une ? Celle-ci est à $12.95, s'active à l'inspiration et s'adapte à n'importe quelle cartouche standard. Aucun bouton." },
+        talkTrack: { say: "Cette cartouche a besoin d'une batterie. Vous en avez une ? Celle-ci est à $12.95, s'active à l'inspiration et s'adapte à la plupart des cartouches standard. Aucun bouton." },
         whichClose: "Le 510 Original à $12.95, ou le Hydout à $24.95 avec cinq niveaux de tension ?",
         trap: "Ne demandez pas si le client a besoin d'une batterie, cela invite à un non. Demandez s'il en a déjà une.",
         keyFacts: [
