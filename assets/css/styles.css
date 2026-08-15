@@ -1653,3 +1653,22 @@ a.linklike.backdash { display: grid; place-items: center; min-height: 44px; widt
   .quiz-bar { margin-bottom: 8px; }
   .btn.xl.next { padding: 11px 20px; font-size: 15px; min-height: 44px; }
 }
+
+/* WHOSE DEVICE IS THIS — the header identity chip. On a shared shop iPad nothing named
+   the signed-in rep, so the next person saw the previous rep's certificate and a live
+   single-use code with a copy button. Quiet enough not to compete with the nav, legible
+   enough that picking up someone else's session is obvious at a glance. */
+.hdr-who { display: inline-flex; align-items: center; gap: 7px; max-width: 46vw;
+  padding: 6px 12px 6px 9px; border: 1px solid var(--line); border-radius: 999px;
+  background: #fff; color: var(--ink); font: inherit; font-size: 13px; font-weight: 700;
+  cursor: pointer; min-height: 40px; }
+.hdr-who:hover { border-color: var(--gold); }
+.hdr-who .ic svg { width: 15px; height: 15px; color: var(--stone); }
+.hw-name { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.hw-swap { flex: none; font-weight: 800; font-size: 11.5px; color: var(--gold);
+  padding-left: 8px; border-left: 1px solid var(--line); }
+@media (max-width: 560px) {
+  /* The name is the part that identifies the session; the prompt can go. */
+  .hdr-who { max-width: 38vw; padding: 6px 10px; }
+  .hw-swap { display: none; }
+}

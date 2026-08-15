@@ -494,6 +494,8 @@
     arrow: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14M13 6l6 6-6 6"/></svg>',
     back: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M19 12H5M11 6l-6 6 6 6"/></svg>',
     lock: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><rect x="4" y="11" width="16" height="9" rx="2"/><path d="M8 11V8a4 4 0 118 0v3"/></svg>',
+    // Same 24x24 grid, 2px round stroke and no fill as every other icon here.
+    user: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="8" r="3.5"/><path d="M5 20c0-3.3 3.1-5.5 7-5.5s7 2.2 7 5.5"/></svg>',
     tag: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 12l-8 8-9-9V3h8z"/><circle cx="7.5" cy="7.5" r="1.5" fill="currentColor"/></svg>',
     print: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M6 9V2h12v7"/><rect x="4" y="9" width="16" height="8" rx="2"/><path d="M6 14h12v8H6z"/></svg>',
     dl: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3v12M7 10l5 5 5-5"/><path d="M4 21h16"/></svg>',
@@ -786,6 +788,18 @@
         nav("about", "#/about", t("About")) +
       "</nav>" +
       ((CFG.i18n && CFG.i18n.enabled) ? langSelHTML() : "") +
+      /* WHOSE DEVICE IS THIS. On a shared shop iPad, nothing on any screen said who was
+         signed in — so the next rep to pick it up saw the previous rep's certificate and
+         a "Tap to copy" button on their live single-use code, and one tap burned it. The
+         handover confirm only ever fired when someone tried to CERTIFY; reading and
+         copying were free. Naming the account on every page is what makes that visible
+         at the moment it matters, and "Not you?" is the way out that previously existed
+         only buried in the footer. */
+      (e && e.name
+        ? '<button class="hdr-who" id="hdr-who" type="button" title="' + tx("Switch to a different person") + '">' +
+            ic("user") + '<span class="hw-name">' + esc(e.name) + "</span>" +
+            '<span class="hw-swap">' + t("Not you?") + "</span></button>"
+        : "") +
       // Not a link: it pointed at #/, same as the logo and the Courses tab.
       (e ? '<span class="hdr-user"><span class="hdr-u-name">' + esc(e.name) + '</span><span class="hdr-u-store">' + esc(e.store || "") + "</span></span>" : "") +
     "</header>" +
@@ -808,7 +822,9 @@
   // listener (bound once in boot) so a rep can wipe and re-do the training anytime.
   function bindReset() {
     document.addEventListener("click", function (ev) {
-      var btn = ev.target.closest && ev.target.closest("#reset");
+      // #hdr-who is the header identity chip; it hands off to the same confirm rather
+      // than inventing a second, weaker way to clear someone else's work.
+      var btn = ev.target.closest && (ev.target.closest("#reset") || ev.target.closest("#hdr-who"));
       if (!btn) return;
       // Name whose work is about to be destroyed and how much of it — on a shared
       // tablet this button is the only handoff, and there is no undo or export.
@@ -2856,6 +2872,20 @@
     bindSkipLink();
     bindLangSel();
     bindImageFallback();
+    /* CROSS-TAB. localStorage is shared but nothing told the other tabs about it, so a
+       handover in tab 1 wiped state while tab 2 carried on rendering the previous rep's
+       certificate and their live code — with a working copy button. The wipe was
+       storage-only.
+
+       The `storage` event fires in every OTHER tab of the same origin, which is exactly
+       the gap. Re-render on any change to identity, progress or the code cache, so the
+       stale tab catches up instead of serving something that no longer exists. Guarded
+       on `key` because a storage event with a null key means the whole store was
+       cleared, which also matters. */
+    window.addEventListener("storage", function (ev) {
+      if (ev.key && ev.key !== K_ENROLL && ev.key !== K_STATE && ev.key !== "gpt.rewards" && ev.key !== K_ATTEMPT) return;
+      route();
+    });
     // Bound ONCE, not per render — see revealOnScroll. Not `once: true` any more,
     // because it now has to keep working for every later render too.
     document.addEventListener("visibilitychange", function () { if (!document.hidden) revealAllPending(); });
