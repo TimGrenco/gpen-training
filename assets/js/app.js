@@ -851,7 +851,11 @@
             '<span class="hw-swap">' + t("Not you?") + "</span></button>"
         : "") +
       // Not a link: it pointed at #/, same as the logo and the Courses tab.
-      (e ? '<span class="hdr-user"><span class="hdr-u-name">' + esc(e.name) + '</span><span class="hdr-u-store">' + esc(e.store || "") + "</span></span>" : "") +
+      /* .hdr-user (name over store) used to live here. The identity chip below supersedes
+         it — same name, plus the way out — so keeping both printed the rep's name TWICE in
+         the header at every width from 521px up, and between 521 and 620 BOTH copies
+         truncated at once. The store is not actionable and appears on the certificate and
+         in the form, so it is not worth a second header slot. */
     "</header>" +
       i18nNoticeHTML() +
     '<main id="main" tabindex="-1">';

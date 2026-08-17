@@ -184,10 +184,6 @@ h1, h2, h3, h4 { margin: 0; line-height: 1.08; letter-spacing: -.02em; }
 /* The name/store must NEVER wrap: a long one used to push the sticky header from
    63px to 100px, which also silently invalidates --hdr-h (and therefore every
    scroll-padding-top offset). Cap and ellipsize at every width, not just phones. */
-.hdr-user { display: flex; flex-direction: column; align-items: flex-end; line-height: 1.15; min-width: 0; }
-.hdr-u-name, .hdr-u-store { max-width: 22ch; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
-.hdr-u-name { font-weight: 800; font-size: 14px; }
-.hdr-u-store { font-size: 11.5px; color: var(--stone); }
 
 /* ---- shared bits ---- */
 /* min-height 44: this is the only way back off a course page on a phone, and the
@@ -886,8 +882,6 @@ a.linklike.backdash { display: grid; place-items: center; min-height: 44px; widt
 @media (max-width: 520px) {
   .spec-k { flex-basis: 45%; }
   /* header: keep the brand roomy, don't let the CTA crowd/wrap it */
-  .hdr-user { max-width: 46%; }
-  .hdr-u-name, .hdr-u-store { white-space: nowrap; overflow: hidden; text-overflow: ellipsis; max-width: 100%; }
   /* hero: give the big headline breathing room so nothing clips */
   .sec-h { flex-wrap: wrap; }
   .sec-h:not(.big) > span { flex-basis: 100%; margin-top: 2px; }
@@ -1010,26 +1004,14 @@ a.linklike.backdash { display: grid; place-items: center; min-height: 44px; widt
    only .hdr-name inside it is allowed to give. */
 .hdr-brand { flex: none; min-width: auto; }
 .hdr-name { white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
-@media (max-width: 700px) {
-  .hdr-u-store { display: none; }
-  /* max-width was a fixed 92px here — a rigid box on a child of a SHRINKABLE parent.
-     Once the header ran out of room, .hdr-user (min-width:0, align-items:flex-end)
-     shrank below 92px while the name kept its 92px and, being right-aligned, spilled
-     LEFT straight across the binder chip: measured 19px of overlap at 440px, which is
-     exactly the iPhone 16 Pro Max. Bound the name by its parent instead, and clip the
-     parent so a child can never paint outside it whatever the header does. */
-  .hdr-user { flex: 0 1 auto; overflow: hidden; }
-  .hdr-u-name { max-width: 100%; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
-}
+
 /* Was 430px. Between 431 and ~520 the header is genuinely over-subscribed — brand,
    three nav links, the sound toggle and the binder chip all outrank a name — so the
    name only got 48-57px and rendered as "Alex…", which is noise rather than
    personalization. Hiding it is already the accepted trade below 431; extend it to
    the width where it can actually be read. Above this it ellipsizes gracefully
    (123px at 600, full at 700), and the binder chip carries progress either way. */
-@media (max-width: 520px) {
-  .hdr-user { display: none; }
-}
+
 
 /* the reveal starts hidden behind the pack, then flips in */
 
@@ -1156,10 +1138,7 @@ a.linklike.backdash { display: grid; place-items: center; min-height: 44px; widt
 
 /* the mascot stage */
 /* warm glow behind him so he pops off the dark stage */
-@media (min-width: 900px) {
-  /* O.G. is first in the DOM (so he greets you first on mobile) — put the copy
-     back in column 1 on desktop. */
-}
+
 
 /* the lifestyle grid now sits under the courses and runs tighter */
 
@@ -1679,14 +1658,39 @@ a.linklike.backdash { display: grid; place-items: center; min-height: 44px; widt
    Fernanda" pushed 21px of the pill off-screen, and longer ones 23px — visible on every
    iPhone-class device for most real names. Also clip at the chip so the border can never
    escape. */
-.hdr-who { overflow: hidden; }
+/* min-width: 0 is the load-bearing part. A flex item's automatic minimum size is its
+   min-CONTENT width, and .hw-name is nowrap — so the chip's minimum was the FULL
+   untruncated name (~120px) and it overflowed the header instead of shrinking. Because
+   html/body use overflow-x: clip the excess was invisible AND unscrollable: 56px of the
+   pill was simply gone at 320px, 89px in Spanish. */
+.hdr-who { min-width: 0; overflow: hidden; }
 .hw-name { min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
 .hw-swap { flex: none; font-weight: 800; font-size: 11.5px; color: var(--gold);
   padding-left: 8px; border-left: 1px solid var(--line); }
-@media (max-width: 560px) {
-  /* The name is the part that identifies the session; the prompt can go. */
-  .hdr-who { max-width: 38vw; padding: 6px 10px; }
+/* "Not you?" is hidden below 900px, not 560px. It is flex: none and ~118px wide — and in
+   French ("Ce n'est pas vous ?") and Spanish it is wider still — so between about 521 and
+   720px it consumed the entire chip and the NAME collapsed to zero width, leaving a glyph
+   and a prompt identifying nobody. That is the opposite of the point. The old 560px
+   threshold also revealed the label at exactly the width with no room for it: clean at 560,
+   truncated to 53 of 76px at 561. The name always wins; the chip keeps its title attribute
+   and its click, so nothing is lost but the words. */
+@media (max-width: 899px) {
   .hw-swap { display: none; }
+}
+/* Below 480px the chip takes its OWN ROW. Measured at 320px: brand (26px), nav (119px) and
+   the language picker (53px) are all flex: 0 0 auto, so the chip is the only shrinkable item
+   and absorbed the entire 75px shortfall — squeezed to 64px, of which the NAME got 20. "C…"
+   does not tell a rep whose device they are holding, which is the only reason this chip
+   exists, so a chip that fits but says nothing is not a fix. A second row costs ~38px of
+   sticky header on small phones and buys a fully legible name. Kept compact for that reason,
+   and only where it is needed: from 480px up the chip sits inline with room to spare. */
+@media (max-width: 479px) {
+  .hdr { flex-wrap: wrap; row-gap: 6px; padding-bottom: 8px; }
+  .hdr-who { order: 9; flex: 1 1 100%; max-width: none; justify-content: flex-start;
+    min-height: 36px; padding: 5px 10px; }
+}
+@media (min-width: 480px) and (max-width: 560px) {
+  .hdr-who { max-width: 44vw; padding: 6px 10px; }
 }
 
 /* ---- iOS TOUCH ------------------------------------------------------------------
