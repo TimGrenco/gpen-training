@@ -578,7 +578,16 @@ window.GPEN_COURSES = [
     ],
     howToSell: {
       upsellFrom: "510 cartridge",
-      pairsWith: ["510-original"],
+      /* EMPTY ON PURPOSE. What this pairs with is the 510 cartridge the customer is
+         already buying, and a cartridge is not a G Pen product, so there is nothing in
+         the lineup to link to. This used to say ["510-original"] — the other 510
+         battery — which read as "sell them both" when a customer buys one battery or
+         the other, never two. An empty list drops the whole "Pair with" row rather
+         than rendering a misleading one; the cue directly above it already says the
+         customer is buying a 510 cartridge.
+         The two batteries are still connected where that genuinely helps: whichClose on
+         the 510 Original offers them as the either/or they actually are. */
+      pairsWith: [],
       vital: "It does the same job as any 510 battery, but the mouthpiece stores inside the body. That keeps the cartridge discreet and shielded from light.",
       aov: "The step-up cartridge battery. Against the $12.95 510 Original, this adds discretion and five voltage settings, and doubles the value of the battery attach.",
       keyFacts: ["Mouthpiece stores inside the body", "Five voltage settings plus preheat", "Discreet, and shields the cartridge — $24.95"],
@@ -688,7 +697,10 @@ window.GPEN_COURSES = [
     ],
     howToSell: {
       upsellFrom: "510 cartridge",
-      pairsWith: ["hydout"],
+      // Empty for the same reason as the Hydout: the pairing is the cartridge itself,
+      // not another G Pen product. See the note there. whichClose below still puts this
+      // and the Hydout side by side, which is the correct way to relate them.
+      pairsWith: [],
       vital: "A cartridge does not work without a battery. This is the lowest-priced way to make the cartridge they are already buying usable.",
       aov: "At $12.95 this is the simplest attach in the store, because the need is absolute: no customer should leave with a cartridge and no way to use it.",
       keyFacts: ["Smallest G Pen battery — $12.95", "Draw-activated: no button needed", "Fits most standard 510 cartridges"],
