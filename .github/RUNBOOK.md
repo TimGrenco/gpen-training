@@ -4,8 +4,11 @@
 afternoon when a rep emails saying their code is dead, or when someone needs codes to
 stop being issued in the next two minutes.
 
-Every claim below was checked against the code as it stands, and the line references
-are there so you can confirm rather than trust.
+Every claim below was checked against the code as it stands, and each one points at
+something you can **grep for** rather than a line number, so you can confirm rather than
+trust. Line numbers were tried first and every single one of them was wrong within a day
+of being written — this file is worth less than nothing if its references send you to the
+wrong place.
 
 ---
 
@@ -23,7 +26,7 @@ rewards: { url: "" },
 
 Commit and push. GitHub Pages redeploys in a minute or two.
 
-`revealReward()` reads `rewards.url` into `pending` (app.js:1852) and **every** on-screen
+`revealReward()` reads `rewards.url` into `pending` (grep `var pending = ` in `app.js`) and **every** on-screen
 branch — the "Issuing your code…" state and the "didn't come through" state — is gated
 on it. Empty means the panel never renders. Reps still take the training, still get
 certified, still land in the sheet. They simply are not offered a code, and nothing
@@ -34,7 +37,8 @@ This does not touch codes already issued. Those live in Shopify and keep working
 ### 2. Hard — the endpoint refuses
 
 In Vercel → Settings → Environment Variables, **delete `CODE_SALT`** and redeploy.
-`api/reward.js:143` fails closed and returns 500 without contacting Shopify.
+`api/reward.js` fails closed and returns 500 without contacting Shopify (grep
+`CODE_SALT is not set`).
 
 > Put back the **exact same value** when you re-enable. The salt is what derives each
 > code's suffix, so a different salt means every future code changes and a rep who
@@ -58,7 +62,7 @@ Only if something is actively being abused.
 Shopify admin → **Discounts** → search the code (they are titled
 `Training 25% — course — dash-ii — rep@store.com`) → set it to inactive / expired.
 
-Deleting looks tidier and is wrong. `api/reward.js:168` does lookup-then-create: it asks
+Deleting looks tidier and is wrong. `api/reward.js` does lookup-then-create (grep `const found = await shopify(LOOKUP`): it asks
 Shopify `codeDiscountNodeByCode` first and only creates when nothing comes back. A
 deleted discount is nothing coming back — so the next time that rep loads their
 certificate page, the endpoint mints the identical code again and the revocation quietly
@@ -151,7 +155,7 @@ Add the slug to that set and redeploy the Vercel project. It fails closed on pur
 (a rep files a ticket, rather than the endpoint minting against a typo), but only if
 someone knows what the ticket means. That someone is you, reading this.
 
-**The top reward tier is `COURSES.length`** (app.js:218). The ladder is 1 → 25%,
+**The top reward tier is `COURSES.length`** (grep `at: COURSES.length` in `app.js`). The ladder is 1 → 25%,
 2 → 30%, 4 → 35%, all → 40%. Add a seventh course and "all" silently becomes 7, so
 every rep who had finished all six loses the 40% tier and the master certificate until
 they take the new one. That may well be what you want — just know it happens the moment
