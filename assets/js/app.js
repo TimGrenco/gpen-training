@@ -3031,6 +3031,22 @@
          and the code cache are the things a stale tab must react to — and a handover or
          reset changes those too, so the case this listener exists for still fires. */
       if (ev.key && ev.key !== K_ENROLL && ev.key !== K_STATE && ev.key !== "gpt.rewards") return;
+      /* An enrolment WRITE is not an identity CHANGE. showCertifyForm calls setEnroll on every
+         "Start the quiz" and every "Retake quiz" with a fresh attestedAt, so the stored value
+         is byte-different even when the same rep is doing another course — which fired this
+         listener and evicted a live quiz in the other tab. Same user-visible damage the
+         K_ATTEMPT exclusion was added to stop ("Pick up where you left off", explainer and
+         scroll lost), reached through a different key, and the likelier sequence on a shared
+         iPad than one tab answering a question. Compare the three fields that constitute
+         identity; ignore a re-attestation. */
+      if (ev.key === K_ENROLL) {
+        var idOf = function (raw) {
+          try { var o = JSON.parse(raw || "null") || {};
+                return [o.name || "", o.email || "", o.store || ""].join("\u0000").toLowerCase(); }
+          catch (e) { return String(raw || ""); }
+        };
+        if (idOf(ev.oldValue) === idOf(ev.newValue)) return;
+      }
       route();
     });
     // Bound ONCE, not per render — see revealOnScroll. Not `once: true` any more,

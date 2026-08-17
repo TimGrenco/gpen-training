@@ -1195,7 +1195,14 @@ a.linklike.backdash { display: grid; place-items: center; min-height: 44px; widt
    the thing the 232px cap was really for. */
 .course-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(190px, 1fr));
   gap: 16px; margin-bottom: 0; justify-items: start; }
-.course-grid > .cc { max-width: 232px; width: 100%; }
+/* Scoped ABOVE 460px. Below that the card is deliberately horizontal — a fixed photo
+   thumb with the text taking the rest — and must fill the row. Capping it there left an
+   81px dead gutter beside every card at 375px, squeezed the text column to 126px so
+   "Open 3-Piece Grinder" wrapped to three lines, and made card heights non-uniform
+   (232/232/272). That was a regression I introduced while fixing the desktop tracks. */
+@media (min-width: 461px) {
+  .course-grid > .cc { max-width: 232px; width: 100%; }
+}
 @media (max-width: 460px) { .course-grid { grid-template-columns: 1fr; } }
 .cc {
   position: relative; display: flex; flex-direction: column; text-decoration: none; color: var(--ink);
@@ -1673,7 +1680,7 @@ a.linklike.backdash { display: grid; place-items: center; min-height: 44px; widt
    untruncated name (~120px) and it overflowed the header instead of shrinking. Because
    html/body use overflow-x: clip the excess was invisible AND unscrollable: 56px of the
    pill was simply gone at 320px, 89px in Spanish. */
-.hdr-who { min-width: 0; overflow: hidden; }
+.hdr-who { min-width: 0; overflow: hidden; min-height: 44px; }   /* it opens the erase-this-rep confirm */
 .hw-name { min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
 .hw-swap { flex: none; font-weight: 800; font-size: 11.5px; color: var(--gold);
   padding-left: 8px; border-left: 1px solid var(--line); }
@@ -1697,7 +1704,7 @@ a.linklike.backdash { display: grid; place-items: center; min-height: 44px; widt
 @media (max-width: 479px) {
   .hdr { flex-wrap: wrap; row-gap: 6px; padding-bottom: 8px; }
   .hdr-who { order: 9; flex: 1 1 100%; max-width: none; justify-content: flex-start;
-    min-height: 36px; padding: 5px 10px; }
+    min-height: 44px; padding: 5px 10px; }
 }
 @media (min-width: 480px) and (max-width: 560px) {
   .hdr-who { max-width: 44vw; padding: 6px 10px; }
