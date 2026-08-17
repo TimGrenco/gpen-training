@@ -5,25 +5,18 @@
    contact email, and where the "shop now" button points. (The per-course pass
    mark lives with the course content in data.js, as `passPct`.)
 
-   >>> DISCOUNT CODES — READ THIS BEFORE RAISING ANY REDEMPTION LIMIT <<<
-   These are GENERIC shared codes. This file is served publicly at
-   /assets/js/config.js, so ANYONE can read every code without opening a course,
-   passing a quiz, or working in retail at all. The quiz is NOT a gate — it never
-   was. What actually protects these is the Shopify side: a total-redemption cap,
-   one-use-per-customer, a hard expiry, and a minimum-purchase floor on the top
-   tier. Set those before you promote the program, and size the cap to expected
-   partner headcount — the cap IS the kill switch, because without it a leaked
-   40%-off sitewide code can only be stopped by a redeploy.
+   >>> THIS FILE CONTAINS NO DISCOUNT CODES. <<<
+   It used to, and the block that stood here described that world: shared codes readable
+   by anyone, protected only by Shopify-side caps, with advice to set a total-redemption
+   ceiling and a minimum-purchase floor before promoting the programme. All of that is now
+   wrong, and acting on it would do harm — a store-wide minimum-purchase floor on gpen.com
+   is not something this programme needs.
 
-   Also avoid encoding the tier in the code name: from one legitimately earned
-   GPENPRO25 anyone can guess GPENELITE35. Use non-guessable suffixes instead
-   (e.g. GPU-25-7K2MX4).
-
-   LATER (unique per-person codes via the Shopify Admin API): you do NOT need to
-   touch anything else in the app. Replace the body of `issueRewardCode()` at the
-   bottom of this file with an API call that returns { code, label, note }. That
-   single function is the ONLY place a code is minted — everything upstream just
-   calls it and displays whatever it returns.
+   Codes are minted per person, server-side, by reward-api/. Each is single-use, expires in
+   90 days, does not stack, and is titled in Shopify with the email it was issued to, so it
+   is individually revocable. To stop issuance see .github/RUNBOOK.md — it has three levers
+   and explains what a rep sees for each. `pct` below is display only; the endpoint keeps
+   its own tier table, so a tampered browser cannot mint itself 90% off.
    ========================================================================== */
 window.TRAINING_CONFIG = {
   brand: "G Pen",
@@ -38,7 +31,10 @@ window.TRAINING_CONFIG = {
      be the <picture> fallback that no modern browser ever requests. One file does
      both jobs. */
   heroImage: "assets/img/hero-lineup-shelf-1536.jpg",
-  // Where "Email my certification" / support requests go.
+  /* Programme and press only — it is the address in the footer. It is NOT where support
+     goes (that is support.email below, help@gpen.com) and NOT where a certificate email
+     goes: "Email it" now opens a message addressed to the REP, because sending it here
+     mailed their own name, email, store and score to a PR inbox they never chose. */
   contactEmail: "pr@grencoscience.com",
 
   /* >>> LEGAL / ELIGIBILITY COPY (counsel can reword without touching app.js) <<<
@@ -46,13 +42,6 @@ window.TRAINING_CONFIG = {
      leave "" and no privacy link is rendered; set it and it appears in the footer
      and under the certification form (where name / email / store are collected). */
   footerNote: "for authorized G Pen retail partners, 21+ — training and hardware education only. No cannabis, nicotine or e-liquid products are sold or shipped through this site.",
-  /* Served from this repo at /privacy.html. It is written from the actual data flows —
-     the sheet's real columns, what the reward endpoint receives, the Shopify discount
-     title carrying the email, the 48h IP counters, the Google Fonts request — rather
-     than from a template. It still carries highlighted placeholders (legal entity,
-     postal address) and has NOT been through counsel. Setting this makes the Privacy
-     link appear in the footer on every page, so treat publishing the page and filling
-     those placeholders as the same task. */
   /* privacy.html EXISTS and is ready apart from two facts only the client has — the
      legal entity name and the registered address — plus counsel review. Setting this
      renders a "Privacy" link in the footer of every page and under the certification
@@ -93,13 +82,11 @@ window.TRAINING_CONFIG = {
   // Set to a list of slugs to require only some; null = require them all.
   coreCourses: null,
 
-  /* The reward ladder climbs with the number of products you certify on:
-       1 course -> 25%   2 courses -> 30%   4 courses -> 35%   whole lineup -> 40%
-     (The tier keys below — course / trio / master / secret — are just the
-      internal names the code uses to look up each discount; the course-count
-      thresholds live in the LADDER table near the top of app.js — add or move a rung
-      there and the ladder cards, the pre-quiz CTAs and the code actually issued all
-      follow.) */
+  /* The ladder climbs with the number of products certified: 1 -> 25%, 2 -> 30%,
+     4 -> 35%, the whole lineup -> 40%. The thresholds live in LADDER near the top of
+     app.js; the keys below (course / trio / master / secret) are just the names the code
+     looks each rung up by. Move a rung there and the cards, the pre-quiz CTAs and the code
+     actually issued all follow — but the endpoint's own tier table must move with it. */
   /* >>> REWARDS — the tier table and where codes come from <<<
 
      THE FOUR STATIC CODES THAT USED TO LIVE HERE DID NOT EXIST IN SHOPIFY.
@@ -151,9 +138,13 @@ window.TRAINING_CONFIG = {
      ⚠️ THE WINNER IS DECIDED IN YOUR SHEET, NOT IN THE BROWSER. A rep's browser
      only knows about itself — it cannot know whether it is completion #3 or #300,
      and anything it did know could be faked by clearing site data. The counting
-     and selection live in the Apps Script that receives the webhook; REPORTING.md
-     has the exact script, and it reads `everyNth` / `rotation` from here so this
-     file stays the single source of truth. That is also why `live` alone does
+     and selection would live in the Apps Script that receives the webhook — but BE
+     CLEAR: that logic has never been written. google-sheet/Code.gs contains no
+     winner-counting whatsoever, and nothing anywhere reads `everyNth` or `rotation`.
+     REPORTING.md used to carry a sample script and claimed these values were read from
+     here; both were untrue, and that file has been gutted. Setting `rulesUrl` would
+     therefore publish a US prize promotion with NO counter and NO winner selection
+     behind it. The Apps Script work is a prerequisite, not a detail. That is also why `live` alone does
      nothing without `reporting.url` — with no webhook there is no counter, so
      there is no way to run the promotion at all.
 

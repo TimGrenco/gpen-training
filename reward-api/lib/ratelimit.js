@@ -35,14 +35,25 @@
 const URL_ = process.env.KV_REST_API_URL || process.env.UPSTASH_REDIS_REST_URL || "";
 const TOKEN = process.env.KV_REST_API_TOKEN || process.env.UPSTASH_REDIS_REST_TOKEN || "";
 
-/* Tuned against what a real store looks like. Six courses plus three milestones is
-   nine codes for one rep who does everything, and a shared shop iPad might serve a
-   handful of staff behind one address on one day — 40 leaves generous headroom for
-   that while making a loop over throwaway emails hit a wall almost immediately.
-   The global cap is the backstop for a distributed attempt: the whole retail network
-   certifying at once is nowhere near 500 new codes in a day. */
-const PER_IP_PER_DAY = 40;
-const GLOBAL_PER_DAY = 500;
+/* RAISED FROM 40/500, because the original numbers were set against the wrong unit and
+   would have broken the actual rollout on day one.
+
+   A rep who certifies on all six products drives NINE mint requests: six per-course codes
+   plus the trio, master and secret milestones. A whole store shares one wifi address. So
+   40 per IP was not 40 reps — it was FOUR fully-certified reps per store per UTC day,
+   after which every colleague sees "Your code didn't come through" and the Try again
+   button cannot help them, because it 429s too, until midnight UTC. A group training
+   session at one dispensary is the likely shape of this rollout, so the cap would have
+   fired the first afternoon.
+
+   200/IP is about 22 fully-certified reps from one address per day — comfortably more
+   than a shift — while still stopping a script looping over throwaway emails.
+
+   The global cap counts MINTS, not requests (countMint(), spent only when a discount is
+   actually created), so 2000 is roughly 220 fully-certified reps a day across the whole
+   retail network. That is a real backstop rather than a launch-week ceiling. */
+const PER_IP_PER_DAY = 200;
+const GLOBAL_PER_DAY = 2000;
 
 function today() {
   return new Date().toISOString().slice(0, 10); // UTC day; a boundary is harmless here
@@ -88,7 +99,7 @@ async function countMint() {
 /* The caller's address. An unknown one collapses to a single shared bucket rather than
    being waved through — if we cannot tell callers apart, they should share a limit
    rather than escape it. Be clear about the ceiling either way: even an unforgeable
-   address only makes 40/day-per-IP true, and a proxy pool rotates addresses for
+   address only makes the per-IP cap true, and a proxy pool rotates addresses for
    pennies. This bounds casual abuse, not a determined one. */
 function clientIp(req) {
   /* Vercel sets x-vercel-forwarded-for and x-real-ip itself and a client cannot forge

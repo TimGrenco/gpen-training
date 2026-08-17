@@ -2973,7 +2973,7 @@
       if (!s.rulesUrl) console.warn("[gpen-training] sweepstakes.live is true but rulesUrl is empty, so the prize promotion is NOT rendering. Host the counsel-cleared rules page and set sweepstakes.rulesUrl. Preview it meanwhile with ?preview=draw.");
       else if (!(CFG.reporting || {}).url) console.warn("[gpen-training] sweepstakes is armed but reporting.url is empty — there is no counter, so no winner can be selected. See REPORTING.md.");
     }());
-    // LADDER.pct drives every percentage the site SAYS; TRAINING_CONFIG.discount
+    // LADDER.pct drives every percentage the site SAYS; the reward endpoint's tier table
     // holds the code that percentage is actually redeemed with. Nothing links them,
     // so retuning a rung in one place and not the other makes the site promise a
     // discount the code does not give. Say so loudly at boot rather than let a rep
