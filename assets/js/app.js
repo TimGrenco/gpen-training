@@ -999,15 +999,34 @@
              flex makes every child its own item — including the <b>. Unwrapped, "40% off"
              became a separate flex item and the sentence broke apart mid-phrase, with
              "at gpen.com" pushed into its own column. Two children only: icon and text. */
+          /* States the MECHANIC, in the order a rep experiences it: read the product,
+             pass its quiz, get the code. It used to lead with scope and price
+             ("6 products · about 10 minutes each · earn up to 40% off") which told a
+             rep what the thing costs them and what they get, but never what they
+             actually do — so "certified" and "quiz" arrived as a surprise on the
+             course page. The scope facts are not lost, they moved to the note under
+             the button, where they answer "how long is this going to take" at the
+             moment someone is deciding to tap.
+             The lower "Earn Exclusive Discounts" section is deliberately NOT this
+             sentence again: this one is the process, that one is the tiers. */
           '<p class="hero-offer">' + ic("tag") + "<span>" +
-            tf("{total} products &middot; about {min} minutes each &middot; earn up to <b>{pct}% off</b> at gpen.com", { total: total, min: avgMinutes(), pct: topPct() }) +
+            tf("Learn each product, pass the quiz, get certified — then earn a code for up to <b>{pct}% off</b> at gpen.com", { pct: topPct() }) +
           "</span></p>" +
           (next
             ? '<div class="hero-actions">' +
+                /* "Start training" rather than "Start with Dash II". Naming the first
+                   product made the whole program look like one product's course, and
+                   the name is the least useful word in the sentence to someone who has
+                   not started. Returning reps still get the product name, because there
+                   the name IS the information — it says which one is next. */
                 '<a class="btn xl" href="#/course/' + next.slug + '">' +
-                  (done > 0 ? tf("Continue with {product}", { product: esc(next.name) }) : tf("Start with {product}", { product: esc(next.name) })) +
+                  (done > 0 ? tf("Continue with {product}", { product: esc(next.name) }) : t("Start training")) +
                   " " + ic("arrow") + "</a>" +
-                (done > 0 ? '<span class="hero-prog-note">' + tf("{done} of {total} certified", { done: done, total: total }) + "</span>" : "") +
+                '<span class="hero-prog-note">' +
+                  (done > 0
+                    ? tf("{done} of {total} certified", { done: done, total: total })
+                    : tf("{total} products · about {min} minutes each", { total: total, min: avgMinutes() })) +
+                "</span>" +
               "</div>"
             : "") +
         "</div>" +
