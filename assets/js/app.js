@@ -362,6 +362,17 @@
   // The best percentage on offer. COPY must call this rather than typing a number:
   // the issuance logic already reads LADDER, so a hardcoded "40% off" in a headline
   // is a promise that silently goes wrong the day someone retunes the top rung.
+  /* DERIVED, never typed. This line said "about 8 minutes each" as a literal, and was
+     wrong within hours: the per-course minutes moved twice — once when questions were
+     added, once when four were deleted — and the hero kept claiming 8 while the course
+     card directly below it read the real figure from c.minutes. Rounding up, because
+     under-promising a rep's time is the safer error. */
+  function avgMinutes() {
+    if (!COURSES.length) return 0;
+    var t = 0;
+    COURSES.forEach(function (c) { t += (c.minutes || 0); });
+    return Math.ceil(t / COURSES.length);
+  }
   function topPct() {
     return LADDER.reduce(function (best, x) { return x.pct > best ? x.pct : best; }, 0);
   }
@@ -989,7 +1000,7 @@
              became a separate flex item and the sentence broke apart mid-phrase, with
              "at gpen.com" pushed into its own column. Two children only: icon and text. */
           '<p class="hero-offer">' + ic("tag") + "<span>" +
-            tf("{total} products &middot; about 8 minutes each &middot; earn up to <b>{pct}% off</b> at gpen.com", { total: total, pct: topPct() }) +
+            tf("{total} products &middot; about {min} minutes each &middot; earn up to <b>{pct}% off</b> at gpen.com", { total: total, min: avgMinutes(), pct: topPct() }) +
           "</span></p>" +
           (next
             ? '<div class="hero-actions">' +
@@ -2040,7 +2051,7 @@
            user got no sense of how far through they were except by counting. */
         '<div class="quiz-bar" role="progressbar" aria-valuemin="0" aria-valuemax="' + c.quiz.length +
           '" aria-valuenow="' + (i + 1) + '" aria-label="' + tfx("Question {i} of {n}", { i: i + 1, n: c.quiz.length }) + '">' +
-          '<div class="quiz-bar-fill" style="width:' + Math.round((i / c.quiz.length) * 100) + '%"></div></div>' +
+          '<div class="quiz-bar-fill" style="width:' + Math.round(((i + 1) / c.quiz.length) * 100) + '%"></div></div>' +
         /* The counter and the question live in one focusable group. focusQuizZone
            targets this, so moving to a new question announces "Question 3 of 11, 2
            correct" AND the question text in one go. An aria-live counter would not

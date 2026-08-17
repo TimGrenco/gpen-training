@@ -23,7 +23,7 @@ window.GPEN_I18N = {
     "Not you?": "Ce n'est pas vous ?",
     "This device changed hands": "Cet appareil a changé de mains",
     "This quiz was started by {who}, but {now} is signed in now. It has not been scored, so nobody is certified for someone else's answers.": "Ce quiz a été commencé par {who}, mais {now} est connecté à présent. Il n'a pas été noté, afin que personne ne soit certifié pour les réponses d'une autre personne.",
-    "{total} products &middot; about 8 minutes each &middot; earn up to <b>{pct}% off</b> at gpen.com": "{total} produits &middot; environ 8 minutes chacun &middot; jusqu'à <b>{pct} % de remise</b> sur gpen.com",
+    "{total} products &middot; about {min} minutes each &middot; earn up to <b>{pct}% off</b> at gpen.com": "{total} produits &middot; environ {min} minutes chacun &middot; jusqu'à <b>{pct} % de remise</b> sur gpen.com",
     "Start with {product}": "Commencer par {product}",
     "Continue with {product}": "Continuer avec {product}",
     "{done} of {total} certified": "{done} sur {total} certifiés",

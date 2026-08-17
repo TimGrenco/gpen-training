@@ -294,7 +294,7 @@ window.GPEN_COURSES = [
        the category should be able to read one line and be right. */
     whatItIs: "A hand grinder, designed to break up cannabis flower before it is packed.",
     differentiator: "The $19.95 add-on for any flower sale.",
-    minutes: 7, passPct: 80, msrp: "$19.95", accent: "#5E8C61",
+    minutes: 9, passPct: 80, msrp: "$19.95", accent: "#5E8C61",
     /* Locally cut out, not a CDN render: every stashgrinder_* asset on the CDN and in
        the asset portal is a JPEG with a baked white background, and every other cover
        in this file is a transparent cut-out — a white square would sit inside the
@@ -507,7 +507,7 @@ window.GPEN_COURSES = [
        the category should be able to read one line and be right. */
     whatItIs: "A battery, designed to power a 510-thread cannabis oil cartridge.",
     differentiator: "510 battery with the mouthpiece hidden inside.",
-    minutes: 10, passPct: 80, msrp: "$24.95", accent: "#7E8AA2",
+    minutes: 9, passPct: 80, msrp: "$24.95", accent: "#7E8AA2",
     cover: CDN + "Hydout_vape_01.png?v=1762467078",
     heroImg: LIFE + "hydout/ad92f94cf68885a5ecb0b673ca262349a3f7c0476bf1762cbb375d2289bf39b1.jpg",
     packaging: {
