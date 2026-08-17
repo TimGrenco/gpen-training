@@ -126,7 +126,15 @@ window.GPEN_COURSES = [
     ],
     howToSell: {
       upsellFrom: "Flower",
-      pairsWith: ["dash-plus"],
+      /* pairsWith renders under "Pair with" as something to sell ALONGSIDE this, on the
+         same flower purchase — so it must not name a product the customer would buy
+         INSTEAD. This said ["dash-plus"], which put "Pair with: Dash+" on the Dash II
+         page: two dry herb vaporizers at $49.95 and $99.95, recommending each other. A
+         rep reading it literally would try to sell one customer both.
+         The grinder is the real attach on a flower sale — flower has to be broken up
+         before either vaporizer can heat it — and it is what the quiz for this course
+         already teaches ("flower on the counter -> grinder and a Dash II"). */
+      pairsWith: ["grinder"],
       // No invented fractions: "half the terpenes" was a fabricated statistic.
       vital: "A vaporizer heats ground flower instead of burning it, which gives a clearer flavor of the strain. The Dash II is the lowest-priced way into that.",
       aov: "Every flower sale can carry a $49.95 device. It is the highest-value add-on available on a flower purchase, and it brings the customer back for flower.",
@@ -238,7 +246,9 @@ window.GPEN_COURSES = [
     ],
     howToSell: {
       upsellFrom: "Flower",
-      pairsWith: ["dash-ii"],
+      // Same fix as the Dash II, in the other direction: this said ["dash-ii"], so the
+      // two vaporizers pointed at each other as companions. See the note there.
+      pairsWith: ["grinder"],
       vital: "The titanium chamber and hybrid heating give more vapor and a fuller flavor than the Dash II. This is the model for a customer buying higher-grade flower.",
       aov: "Present the Dash II at $49.95 first, then this at $99.95. Showing the two together doubles the device value on the same flower sale.",
       keyFacts: ["Full titanium chamber, hybrid heating", "Heats in about 20 seconds · color display", "$99.95 — the step up from the Dash II"],
