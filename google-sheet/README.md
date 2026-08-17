@@ -95,14 +95,36 @@ Commit and push. The next rep who certifies appears in the sheet within seconds.
 
 ## Checking it works
 
+**A POST here does not answer directly — it answers `302` and puts the real body behind a
+one-time redirect** at `script.googleusercontent.com/macros/echo`. `curl -L` does not
+survive that hop; it reports Google's "Page Not Found — unable to open the file" page and
+looks exactly like a broken deployment. It cost half an hour once. Capture the `Location`
+and fetch it:
+
 ```bash
-curl -s -X POST 'https://script.google.com/macros/s/AKfyc.../exec' -H 'Content-Type: text/plain' -d '{"type":"course","name":"Test Rep","email":"test@example.com","store":"QA","product":"G Pen Dash II","courseSlug":"dash-ii","score":100,"certId":"TEST-1","date":"Aug 12, 2026","attest21":true}'
+URL='https://script.google.com/macros/s/AKfyc.../exec'
+BODY='{"type":"course","name":"Test Rep","email":"test@example.com","store":"QA","product":"G Pen Dash II","courseSlug":"dash-ii","score":100,"certId":"TEST-1","date":"Aug 12, 2026","attest21":true}'
+LOC=$(curl -s -o /dev/null -D - -X POST "$URL" -H 'Content-Type: text/plain' -d "$BODY" | sed -n 's/^[Ll]ocation: *//p' | tr -d '\r')
+curl -s "$LOC"
 ```
 
-A row appears with `TEST-1` as its Certificate ID. Run it again: **the row updates
-rather than duplicating.** That is the check worth repeating after any change to this
-script — without it, one rep's single course becomes three rows and "who completed
-what" stops being answerable.
+Prints `{"ok":true}`. The browser has no such trouble — `fetch` follows the redirect and
+reads the body normally — so this is a quirk of checking by hand, not of the portal.
+
+**Two independent things to confirm, and the first is not enough on its own:**
+
+1. A row appears with `TEST-1` as its Certificate ID. Run it again: **the row updates
+   rather than duplicating.** Without this, one rep's single course becomes three rows and
+   "who completed what" stops being answerable.
+2. Then POST a `code_issued` event for the *same* `certId` and re-send the course event
+   after it. The discount code must still be there. Events arrive out of order in real
+   use, and a re-sent event that blanks a field which arrived later is the failure mode
+   that makes the sheet quietly wrong rather than obviously broken:
+
+```bash
+curl -s -o /dev/null -X POST "$URL" -H 'Content-Type: text/plain' \
+  -d '{"type":"code_issued","certId":"TEST-1","email":"test@example.com","code":"TEST-CODE","tier":"course","courseSlug":"dash-ii"}'
+```
 
 Then run `syncRedemptions` by hand from the editor to confirm the Vercel leg works.
 With no codes in the sheet yet it does nothing and returns quietly; with a code it

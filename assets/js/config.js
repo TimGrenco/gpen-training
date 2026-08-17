@@ -204,13 +204,21 @@ window.TRAINING_CONFIG = {
      Two-minute setup instructions are in REPORTING.md. No API keys live in
      this file — you only paste a webhook URL, so it's safe on a public site. */
   reporting: {
-    /* The tracking sheet's Apps Script web app. Live and verified: posting a course
-       event and its code_issued event returns {"ok":true} and upserts one row keyed on
-       certId. See google-sheet/README.md.
+    /* The tracking sheet's Apps Script web app. See google-sheet/README.md.
 
-       Posted fire-and-forget with mode:"no-cors", so the response is never read — which
-       is why Apps Script's redirect-to-echo dance does not matter here. */
-    url: "https://script.google.com/macros/s/AKfycbxWDedfr6SIknMT7TTt_VtyOjdos8avlcKlic1t-T0P44wY9sZFWYhLc_bQaZDuL8nv/exec",
+       REPOINTED 2026-08-17 at a NEW sheet and a NEW deployment, built from the current
+       Code.gs. The previous URL (…AKfycbxWDedfr6SIknMT7TTt_…) belonged to an earlier
+       deployment running an older copy of the script — notably one WITHOUT the safe_()
+       formula-injection guard. That old sheet still exists, still holds this project's
+       early test rows, and is now orphaned: nothing posts to it. Delete it, or at least
+       stop treating it as the record, so there is exactly one source of truth for who
+       trained on what.
+
+       TO CHANGE THE SCRIPT LATER, edit the EXISTING deployment (Manage deployments →
+       edit → New version). Creating a new deployment mints a new /exec URL and leaves
+       this one serving an error page — which is how the URL above went stale. RUNBOOK
+       has the click path. */
+    url: "https://script.google.com/macros/s/AKfycby2_hg-MLcZfLEkrMTjIdAPad3diJQS-iqBgkSa7OHdaHJq1RUUcKv40XcYJIH5_9U/exec",
   },
 };
 
@@ -448,14 +456,16 @@ window.issueRewardCode = function (type, ctx) {
    COMPLETION REPORTING — the single, isolated send point.
    Called on every certification with an event object:
      { type:"course"|"master", name, email, store, product, score, certId, date }
-   Fire-and-forget POST (mode:"no-cors") so it never blocks the UI and needs no
-   CORS setup on the receiver. To change destinations, only edit reporting.url
-   in the config above (or swap this body). See REPORTING.md.
+   POSTs as text/plain — a CORS simple request, so no preflight — and READS the reply.
+   To change destinations, only edit reporting.url in the config above (or swap this
+   body). See google-sheet/README.md.
 
-   RETURNS true if the event was actually dispatched, false if reporting is off
-   or the send threw. Callers use this to decide whether to mark an event as
-   REPORTED — separately from marking it EARNED — so that anything earned while
-   reporting.url was empty is still resent once a webhook exists.
+   RETURNS A PROMISE of true only when the receiver answered 200 with {ok:true}, and
+   false for anything else: reporting off, network failure, a 4xx/5xx, an HTML error
+   page, or {ok:false,error:"busy"}. Callers use this to decide whether to mark an event
+   REPORTED — separately from marking it EARNED — so anything earned while reporting was
+   down is resent on a later load. False must therefore mean "not delivered", never
+   "probably fine".
    --------------------------------------------------------------------------- */
 window.reportCompletion = function (event) {
   var cfg = (window.TRAINING_CONFIG && window.TRAINING_CONFIG.reporting) || {};
@@ -469,8 +479,8 @@ window.reportCompletion = function (event) {
      room on flaky LTE lost that completion permanently, which is the exact failure the
      earned-vs-reported split exists to prevent, defeated by the return value.
 
-     mode:"no-cors" still resolves on network success and rejects on network failure, so
-     delivery is observable even though the response body is not. */
+     That fix was necessary but not sufficient — see the next block, which is the one
+     that actually made the return value trustworthy. */
   /* READS THE RESPONSE. This used mode:"no-cors", which was a mistake I only caught by
      probing it: an opaque response resolves on ANY HTTP reply, so a 404, a 500, or the
      Apps Script lock returning {ok:false,"busy"} all counted as delivered. The event was
