@@ -1184,8 +1184,18 @@ a.linklike.backdash { display: grid; place-items: center; min-height: 44px; widt
    (471 vs 619 tall at 1920). It is the first thing a retail partner sees.
    The 1fr max is what allowed the stretch; capping the track at 232px pins every card
    in every panel to one size band at every width. */
-.course-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(190px, 232px));
-  gap: 16px; margin-bottom: 0; justify-content: start; }
+/* auto-FIT with 1fr tracks, and the CARD capped instead of the track. Capping the track at
+   232px fixed the slab-card bug but traded it for two spacing ones: because auto-fill counts
+   tracks against the 232px MAXIMUM, two tracks needed ~553px of viewport — so between 461 and
+   552px the grid showed a single column with ~50% of the row empty (235px of dead space at
+   540px) — and on desktop the fixed tracks left whole empty columns, since no category holds
+   four products (they hold 3, 2 and 1), so every panel at =1119px showed at least one.
+   auto-fit collapses the empty tracks, 1fr lets the count come from the 190px minimum, and
+   max-width on .cc is what actually stops a lone card stretching across its panel — which is
+   the thing the 232px cap was really for. */
+.course-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(190px, 1fr));
+  gap: 16px; margin-bottom: 0; justify-items: start; }
+.course-grid > .cc { max-width: 232px; width: 100%; }
 @media (max-width: 460px) { .course-grid { grid-template-columns: 1fr; } }
 .cc {
   position: relative; display: flex; flex-direction: column; text-decoration: none; color: var(--ink);
@@ -1708,3 +1718,16 @@ a, button, summary, label, [role="button"] { -webkit-tap-highlight-color: transp
 @supports (height: 100dvh) {
   .modal-in { max-height: 92dvh; }
 }
+
+/* ---- 44px TAP TARGETS -----------------------------------------------------------
+   The app's own components already meet 44px — .choice is 119-160px, the quiz Next button
+   52px, certificate actions 45px — so 44 is this project's own bar. Five chrome elements
+   missed it, and they are the ones a rep uses to get anywhere: the brand link (26x26, and
+   below 560px it is the ONLY route home), the nav links (32px tall), the language button
+   (53x30), each language menu item (38px), and the sibling-product pills on a course page
+   (35px). Padding rather than height, so nothing shifts vertically. */
+.hdr-brand { min-height: 44px; display: inline-flex; align-items: center; }
+.hdr-navlink { min-height: 44px; display: inline-flex; align-items: center; }
+.langsel-btn { min-height: 44px; }
+.langmenu-item { min-height: 44px; }
+.sell-sib { min-height: 44px; display: inline-flex; align-items: center; }
