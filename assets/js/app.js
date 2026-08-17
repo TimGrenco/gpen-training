@@ -130,7 +130,7 @@
     return n + (s[(v - 20) % 10] || s[v] || s[0]);
   }
   function coreSlugs() { return CFG.coreCourses && CFG.coreCourses.length ? CFG.coreCourses : COURSES.map(function (c) { return c.slug; }); }
-  function niceDate() { return new Date().toLocaleDateString(undefined, { year: "numeric", month: "long", day: "numeric" }); }
+  function niceDate() { return new Date().toLocaleDateString(undefined, { year: "numeric", month: "long", day: "numeric", calendar: "gregory" }); }
   // Grenco Science launched at the 2012 Cypress Hill Smoke Out. Every "years in
   // the business" figure derives from this so none of them can drift apart or
   // quietly go stale — the About h1 and its stat tile used to disagree by one.
@@ -1191,10 +1191,21 @@
      anyway. A blind rep pressed "Start the quiz", heard nothing, and could not begin the
      training. The message also vanished after 2.6s, so a sighted rep who looked away
      came back to a form that simply appeared not to work. */
-  function field(id, label, type, val, ph, ac) {
+  /* `extra` carries the iOS keyboard attributes. Autocorrect is ON by default in iOS text
+     inputs, and this form's name field is not ordinary text — it is printed on the
+     certificate, drawn into the exported PNG, and fed to certSeed(), so it also determines
+     the certificate ID and the tracking sheet's upsert key. iOS silently "correcting" an
+     unusual surname as the rep moves to the next field therefore changes their record, not
+     just a label. Smart punctuation does the same quietly: it rewrites O'Brien's apostrophe
+     to a typographic one, so the same person gets a different certId on an iPhone than on a
+     laptop. autocapitalize defaults to `sentences`, which lowercases "cloud 9 SMOKE SHOP".
+
+     The email field needs none of this — type="email" already makes iOS suppress
+     autocapitalisation and autocorrect and show the @ keyboard. */
+  function field(id, label, type, val, ph, ac, extra) {
     return '<label class="field"><span>' + label + "</span>" +
       '<input id="f-' + id + '" type="' + type + '" value="' + esc(val || "") + '" placeholder="' + esc(ph) +
-        '" autocomplete="' + ac + '" required aria-describedby="e-' + id + '" />' +
+        '" autocomplete="' + ac + '"' + (extra ? " " + extra : "") + ' required aria-describedby="e-' + id + '" />' +
       '<span class="field-err" id="e-' + id + '" hidden></span></label>';
   }
   /* Shows the message where the problem is and keeps it there. Returns false so callers
@@ -1745,7 +1756,7 @@
   function openVideo(yt, title) {
     var m = document.createElement("div"); m.className = "modal";
     m.innerHTML = '<div class="modal-in"><button class="modal-x" aria-label="' + tx("Close") + '">×</button>' +
-      '<div class="modal-frame"><iframe src="https://www.youtube.com/embed/' + esc(yt) + '?autoplay=1&rel=0" title="' + esc(title) + '" allow="autoplay; encrypted-media; fullscreen" allowfullscreen></iframe></div>' +
+      '<div class="modal-frame"><iframe src="https://www.youtube.com/embed/' + esc(yt) + '?autoplay=1&rel=0&playsinline=1" title="' + esc(title) + '" allow="autoplay; encrypted-media; fullscreen" allowfullscreen></iframe></div>' +
       '<div class="modal-t">' + esc(title) + "</div></div>";
     document.body.appendChild(m); document.body.classList.add("noscroll");
     var release = manageModalFocus(m, title ? tfx("Video: {title}", { title: title }) : tx("Video"));
@@ -1856,9 +1867,9 @@
           ? tf("Retake the {n}-question quiz (score {pct}%+) to refresh your score on your <strong>{product}</strong> certificate. Your discount code is unchanged.", { n: c.quiz.length, pct: c.passPct, product: esc(c.name) })
           : tf("Score {pct}%+ on the {n}-question quiz to earn your <strong>{product}</strong> Product Specialist certificate and a gpen.com discount code. Spell your name the way you want it printed on the certificate.", { pct: c.passPct, n: c.quiz.length, product: esc(c.name) })) + "</p>" +
         '<div class="certify-form">' +
-          field("name", t("Your full name"), "text", e.name, tx("Jane Budtender"), "name") +
+          field("name", t("Your full name"), "text", e.name, tx("Jane Budtender"), "name", 'autocapitalize="words" autocorrect="off" spellcheck="false"') +
           field("email", t("Email address"), "email", e.email, "you@store.com", "email") +
-          field("store", t("Store name"), "text", e.store, tx("Cloud 9 Smoke Shop"), "organization") +
+          field("store", t("Store name"), "text", e.store, tx("Cloud 9 Smoke Shop"), "organization", 'autocapitalize="words" autocorrect="off" spellcheck="false"') +
           // Never pre-checked: the attestation is per person, and on a shared
           // counter tablet an inherited tick would attest for someone else.
           /* NOT translated, in any locale. This is a legal statement a person is
@@ -2427,11 +2438,33 @@
       clearTimeout(printT);
     }
     window.addEventListener("afterprint", cleanup);
+    /* SAFARI NEVER FIRES afterprint — desktop or iOS. So on every Safari the timer below
+       was the only cleanup path, and on iOS that actively broke the printout: window.print()
+       opens the AirPrint sheet WITHOUT blocking, so JS kept running, and 1.5s later cleanup()
+       removed #print-sheet and dropped body.printing while the rep was still choosing a
+       printer. iOS then rasterised the live DOM — and because the blackout is
+       `body.printing > *:not(#print-sheet)`, losing the class does not yield a blank page,
+       it yields the PLAIN Cmd+P path: hero photo, packaging, key points, reference block,
+       across several sheets, with the certificate somewhere inside. The certificate is the
+       one artefact a rep hands to a manager.
+
+       matchMedia("print") is the documented Safari idiom and it fires on the way OUT of
+       print, which is exactly when cleanup is due. The timer stays purely as a leak guard,
+       at 60s rather than 1.5s, so it can no longer land mid-print. */
+    var pmq = null;
+    try { pmq = window.matchMedia && window.matchMedia("print"); } catch (e) { pmq = null; }
+    if (pmq) {
+      var onPrintChange = function (ev) {
+        if (ev.matches) return;                 // entering print, not leaving
+        try { pmq.removeEventListener("change", onPrintChange); } catch (e2) {}
+        cleanup();
+      };
+      try { pmq.addEventListener("change", onPrintChange); }
+      catch (e) { if (pmq.addListener) pmq.addListener(onPrintChange); }   // older WebKit
+    }
     window.print();
-    // Belt and braces where afterprint never fires. Cancelled in cleanup() so a
-    // second print inside the window can't tear down the new sheet mid-print.
     clearTimeout(printT);
-    printT = setTimeout(cleanup, 1500);
+    printT = setTimeout(cleanup, 60000);
   }
   function showCertificate(c, nm, date, pct, cid, box) {
     var product = "G Pen " + c.name;
@@ -2661,9 +2694,27 @@
     // The full-lineup tier is the 40%, not the 4-course 35% — reconcile it here.
     revealReward("secret", { name: e.name, email: e.email, store: e.store, certId: cid }, $("#mreward"));
     var swc = $(".sw-copy");
-    if (swc) swc.addEventListener("click", function () {
-      Promise.resolve(window.issueRewardCode("secret", { name: e.name, email: e.email, store: e.store })).then(function (r) { if (r && r.code) copyCode(r.code); });
-    });
+    /* RESOLVE THE CODE FIRST, then bind — do not await inside the click. Safari requires
+       navigator.clipboard.writeText() to run in the same task as the user gesture, and this
+       awaited a network round trip (up to 12s on the AbortController timeout) before calling
+       it. So on iOS the write rejected with NotAllowedError, copyText fell back to a toast,
+       and the rep watched their 40% code flash for 2.6 seconds and land nowhere — at the
+       single highest-stakes moment in the whole portal.
+
+       By the time this renders, revealReward("secret", …) has already run and the code is in
+       the gpt.rewards cache, so resolving here costs nothing. Same pattern fillRewards()
+       already uses for the ladder buttons, which is why those copy correctly on iOS and this
+       one did not. The button stays hidden until a code actually exists, so it can never
+       promise a copy it cannot perform. */
+    if (swc) {
+      swc.hidden = true;
+      Promise.resolve(window.issueRewardCode("secret", { name: e.name, email: e.email, store: e.store }))
+        .then(function (r) {
+          if (!r || !r.code) return;            // no code, no button
+          swc.hidden = false;
+          swc.addEventListener("click", function () { copyCode(r.code); });   // synchronous
+        }, function () { /* leave it hidden */ });
+    }
     revealOnScroll();
   }
 

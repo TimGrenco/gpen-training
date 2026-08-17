@@ -107,6 +107,7 @@ h1, h2, h3, h4 { margin: 0; line-height: 1.08; letter-spacing: -.02em; }
   gap: 12px; background: rgba(250,249,245,.86);
   /* landscape notch: keep the header clear of the rounded corners / camera */
   padding: 12px max(clamp(16px, 4vw, 40px), env(safe-area-inset-right, 0px)) 12px max(clamp(16px, 4vw, 40px), env(safe-area-inset-left, 0px));
+  -webkit-backdrop-filter: saturate(1.4) blur(10px);   /* Safari needed the prefix until 18.0 */
   backdrop-filter: saturate(1.4) blur(10px); border-bottom: 1px solid var(--line);
 }
 .hdr-brand { display: flex; align-items: center; gap: 10px; font-weight: 900; letter-spacing: -.01em; min-width: 0; }
@@ -529,7 +530,10 @@ a.linklike.backdash { display: grid; place-items: center; min-height: 44px; widt
 
 /* =============================== MODAL ================================== */
 .modal { position: fixed; inset: 0; z-index: 90; background: rgba(10,10,10,.86); display: grid; place-items: center;
-  padding: 16px 16px calc(16px + env(safe-area-inset-bottom, 0px)); animation: fade .2s ease; }
+  /* Left/right insets too: in landscape on a notched iPhone these are 44-59px, and the
+     close button lives at right:16px inside this padding — it landed under the notch. */
+  padding: 16px max(16px, env(safe-area-inset-right, 0px))
+    calc(16px + env(safe-area-inset-bottom, 0px)) max(16px, env(safe-area-inset-left, 0px)); animation: fade .2s ease; }
 @keyframes fade { from { opacity: 0; } }
 .modal-in { width: 100%; max-width: var(--readw); }
 .modal-x { position: absolute; top: 14px; right: 16px; width: 44px; height: 44px; border-radius: 50%; border: 0; background: rgba(255,255,255,.14); color: #fff; font-size: 26px; cursor: pointer; line-height: 1; }
@@ -1676,4 +1680,20 @@ a.linklike.backdash { display: grid; place-items: center; min-height: 44px; widt
   /* The name is the part that identifies the session; the prompt can go. */
   .hdr-who { max-width: 38vw; padding: 6px 10px; }
   .hw-swap { display: none; }
+}
+
+/* ---- iOS TOUCH ------------------------------------------------------------------
+   Only .btn suppressed the tap highlight, so every other tappable surface flashed the
+   default translucent grey box — including .choice, which is a full-width quiz answer,
+   so the flash was a large rectangle on the control a rep presses 66 times.
+   touch-action: manipulation removes double-tap zoom on the controls a rep taps fast:
+   answering and immediately reaching for "Next question" could otherwise zoom the page. */
+a, button, summary, label, [role="button"] { -webkit-tap-highlight-color: transparent; }
+.choice, .btn, .cc, #q-next, .hdr-navlink, .langsel-btn, .hdr-who { touch-action: manipulation; }
+
+/* iOS resolves vh against the LARGE viewport (toolbars hidden), so 92vh overflows once the
+   URL bar and bottom bar are showing and the modal's close button can sit under them. The
+   vh line stays as the fallback for Safari < 15.4. */
+@supports (height: 100dvh) {
+  .modal-in { max-height: 92dvh; }
 }
