@@ -232,7 +232,9 @@
     try {
       if (!c) return null;
       var a = readAttempts()[c.slug];
-      if (!a || typeof a !== "object" || a.slug !== c.slug) return null;
+      if (a === undefined) return null;                       // nothing stored: nothing to clean
+      // These DID survive their own rejection, contradicting bad()'s comment.
+      if (!a || typeof a !== "object" || Array.isArray(a) || a.slug !== c.slug) return bad();
       if (!Array.isArray(a.order) || a.order.length !== c.quiz.length) return bad();
       // Integer, not merely "number": i = 2.5 passed a typeof check, rendered
       // "Continue from question 3.5", and threw reading c.quiz[undefined].q on click.
@@ -267,7 +269,10 @@
   function readAttempts() {
     try {
       var raw = JSON.parse(localStorage.getItem(K_ATTEMPT) || "null");
-      if (!raw || typeof raw !== "object") return {};
+      /* Array.isArray matters: an array IS typeof "object", so it passed, setAttempt set a
+         string key on it, and JSON.stringify silently dropped that key — nothing was ever
+         persisted again and the state never self-healed. Devtools-only, but permanent. */
+      if (!raw || typeof raw !== "object" || Array.isArray(raw)) return {};
       if (raw.slug && raw.order) { var m = {}; m[raw.slug] = raw; return m; }   // pre-migration shape
       return raw;
     } catch (e) { return {}; }
@@ -537,6 +542,30 @@
   // Where a rep with a problem should write. Falls back to contactEmail only if no
   // support address is configured, so an unset support block still reaches a human.
   function supportEmail() { return ((CFG.support || {}).email) || CFG.contactEmail || ""; }
+  /* Keep the header chip honest between route changes. The header is only rebuilt by
+     route(), and enrolling or handing over replaces #quiz-zone alone — so on the ONE screen
+     where a device actually changes hands, the chip kept naming the OUTGOING rep for the
+     whole quiz. Clicking it was self-contradictory: labelled "Casey Counter · Not you?"
+     while its own dialog said "This erases Dana New's training". A first enrolment showed no
+     chip at all until the rep happened to navigate. Called after every setEnroll. */
+  function syncIdentityChip() {
+    var hdr = $(".hdr"); if (!hdr) return;
+    var e = getEnroll(), chip = $("#hdr-who");
+    if (!e || !e.name) { if (chip) chip.remove(); hdr.classList.remove("has-user"); return; }
+    hdr.classList.add("has-user");
+    if (chip) {
+      var nm = $(".hw-name", chip);
+      if (nm) nm.textContent = e.name;           // textContent, so no escaping question
+      return;
+    }
+    chip = document.createElement("button");
+    chip.className = "hdr-who"; chip.id = "hdr-who"; chip.type = "button";
+    chip.title = tx("Switch to a different person");
+    chip.innerHTML = ic("user") + '<span class="hw-name"></span>' +
+      '<span class="hw-swap">' + t("Not you?") + "</span>";
+    $(".hw-name", chip).textContent = e.name;
+    hdr.appendChild(chip);   // same position header() puts it in: last child of .hdr
+  }
 
   /* =========================================================================
      I18N — same language set + endonym pattern as assets.gpen.com.
@@ -1938,6 +1967,7 @@
         if (typeof window.clearRewardCache === "function") window.clearRewardCache();
       }
       setEnroll({ name: name, email: email, store: store, attest21: true, attestedAt: new Date().toISOString(), ts: (!handover && prev && prev.ts) || new Date().toISOString() });
+      syncIdentityChip();   // the header is not re-rendered on this path — see the helper
       if (!prev || handover) logEvent("enroll", { name: name, email: email, store: store });
       runQuiz(c);
     });
@@ -1977,7 +2007,14 @@
        certificate, the state record, the reported row and the minted 25% code all came
        out under Bravo's name and email. Alpha's nine minutes became Bravo's
        certification. Stamping the attempt lets finish() notice. */
-    var startedBy = (getEnroll() || {}).email || "";
+    /* Prefer the attempt's OWN `by`. This read getEnroll() fresh, so on a resumed attempt
+       startedBy was always the CURRENT email and finish()'s comparison was nowBy === nowBy —
+       the guard could never fire for anything picked up from storage, and the next
+       saveAttempt() overwrote `by`, destroying the evidence. Which means it protected only
+       the same-JS-context case and missed "on this device between sessions" — precisely the
+       case its own comment claims to cover. Reproduced: an attempt stamped
+       by:"alpha@shop.com", resumed while bravo was enrolled, certified Bravo Rep. */
+    var startedBy = (resume && typeof resume.by === "string" && resume.by) || (getEnroll() || {}).email || "";
     function saveAttempt() {
       setAttempt({ slug: c.slug, order: order, i: i, answers: answers, by: startedBy, ts: new Date().toISOString() });
     }
@@ -2087,7 +2124,12 @@
          nor silently discarding the work is acceptable, so say what happened and let
          them decide. */
       var nowBy = (getEnroll() || {}).email || "";
-      if (startedBy && nowBy && nowBy !== startedBy) {
+      /* Normalised comparison, not ===. setEnroll lowercases and trims on write, but a
+         record stored before that shipped can still hold "  Maya@Shop.com  " — and now that
+         `by` is honoured on resume, a raw-case legacy value would otherwise refuse a rep
+         their own quiz. */
+      var same = String(startedBy).trim().toLowerCase() === String(nowBy).trim().toLowerCase();
+      if (startedBy && nowBy && !same) {
         clearAttemptFor(c);   // this course only; other courses may belong to either rep
         var z = $("#quiz-zone");
         z.innerHTML = '<div class="certify"><div class="certify-badge">' + ic("lock") + "</div>" +
@@ -2978,7 +3020,13 @@
        on `key` because a storage event with a null key means the whole store was
        cleared, which also matters. */
     window.addEventListener("storage", function (ev) {
-      if (ev.key && ev.key !== K_ENROLL && ev.key !== K_STATE && ev.key !== "gpt.rewards" && ev.key !== K_ATTEMPT) return;
+      /* K_ATTEMPT is deliberately NOT watched. Each tab drives its own quiz, and watching
+         it meant two tabs bounced each other on EVERY answer: a rep mid-question in tab B
+         was thrown back to "Pick up where you left off" the moment tab A answered anything,
+         losing the explainer they were reading and their scroll position. Identity, progress
+         and the code cache are the things a stale tab must react to — and a handover or
+         reset changes those too, so the case this listener exists for still fires. */
+      if (ev.key && ev.key !== K_ENROLL && ev.key !== K_STATE && ev.key !== "gpt.rewards") return;
       route();
     });
     // Bound ONCE, not per render — see revealOnScroll. Not `once: true` any more,

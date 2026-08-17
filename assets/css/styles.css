@@ -1673,7 +1673,14 @@ a.linklike.backdash { display: grid; place-items: center; min-height: 44px; widt
   cursor: pointer; min-height: 40px; }
 .hdr-who:hover { border-color: var(--gold); }
 .hdr-who .ic svg { width: 15px; height: 15px; color: var(--stone); }
-.hw-name { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+/* min-width: 0 is what makes the ellipsis actually engage. Without it a flex item keeps
+   its min-CONTENT width, so the chip stayed pinned at max-width:38vw and overflowed the
+   header's right padding instead of shrinking: at 375px an ordinary name like "Maria
+   Fernanda" pushed 21px of the pill off-screen, and longer ones 23px — visible on every
+   iPhone-class device for most real names. Also clip at the chip so the border can never
+   escape. */
+.hdr-who { overflow: hidden; }
+.hw-name { min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
 .hw-swap { flex: none; font-weight: 800; font-size: 11.5px; color: var(--gold);
   padding-left: 8px; border-left: 1px solid var(--line); }
 @media (max-width: 560px) {
