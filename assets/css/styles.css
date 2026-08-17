@@ -614,21 +614,40 @@ a.linklike.backdash { display: grid; place-items: center; min-height: 44px; widt
   text-transform: uppercase; color: var(--stone); margin: 0 0 10px; }
 .pk-grid { display: grid; gap: 12px; }
 @media (min-width: 700px) {
-  .pk-grid { grid-template-columns: 1fr 1fr; align-items: start; }
+  /* NOT align-items:start. The two cards carry unequal amounts of text — the retail box
+     lists its contents (four rows on the Dash II) while the POP card is a single
+     sentence — so start-aligned cards ended at different heights and the pair read as
+     two differently sized objects rather than one comparison. Default stretch makes both
+     cards the height of the taller one; .pk-body flexes to absorb the difference, so the
+     photos stay top-aligned and only the white space below the text grows. */
+  .pk-grid { grid-template-columns: 1fr 1fr; }
   .pk-grid.pk-one { grid-template-columns: minmax(0, 400px); }
 }
-.pk-card { background: #fff; border: 1px solid var(--line); border-radius: var(--r-md); overflow: hidden; box-shadow: var(--shadow); }
+.pk-card { background: #fff; border: 1px solid var(--line); border-radius: var(--r-md); overflow: hidden; box-shadow: var(--shadow);
+  display: flex; flex-direction: column; }
 /* The photo is a button, not an <img> in a link: it opens an overlay, which is an
    action on this page rather than a navigation. */
-.pk-shot { position: relative; display: block; width: 100%; padding: 0; border: 0; cursor: zoom-in;
-  background: var(--cream); line-height: 0; }
+/* THE FRAME IS FIXED AND THE SOURCE IMAGES ARE NOT. Measured across all five products
+   that have packaging: every retail-box shot is 640x640, while the POP shots are 640x800,
+   640x949 and 640x640 — three different ratios. Letting the frame follow the image made
+   the two photos on one page different heights, which is most of what read as "different
+   sized boxes". So the frame is locked square and the image is contained inside it: every
+   packaging photo on every product now occupies an identical box, and a tall POP shot
+   fills that box's height and simply sits narrower within it.
+   The inset padding matters too — a box shot is a product on white and a POP shot has a
+   grey studio backdrop baked in, so edge-to-edge one bled into the card and the other
+   showed as a hard grey rectangle. Insetting both reads as one photo treatment. */
+.pk-shot { position: relative; display: block; width: 100%; padding: 12px; border: 0; cursor: zoom-in;
+  background: var(--cream); line-height: 0; flex: none; }
 .pk-shot img { width: 100%; height: auto; aspect-ratio: 1 / 1; object-fit: contain; display: block; }
 .pk-zoom { position: absolute; right: 10px; bottom: 10px; width: 34px; height: 34px; border-radius: 50%;
   display: grid; place-items: center; background: rgba(17,17,17,.72); color: #fff;
   transition: background .18s ease; }
 .pk-zoom svg { width: 16px; height: 16px; }
 .pk-shot:hover .pk-zoom, .pk-shot:focus-visible .pk-zoom { background: var(--ink); }
-.pk-body { padding: 16px 18px 18px; }
+/* flex:1 is what absorbs the unequal text between the two cards, so the cards match
+   height without stretching the photos or centring the copy. */
+.pk-body { padding: 16px 18px 18px; flex: 1; }
 .pk-body h3 { margin: 0 0 10px; font-size: 15px; font-weight: 900; }
 .pk-body p { margin: 0; font-size: 14px; line-height: 1.5; color: var(--ink-2); }
 /* One list, two states. The not-included rows are the ones that cause a customer to
