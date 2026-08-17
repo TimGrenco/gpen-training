@@ -120,6 +120,43 @@ After redeploying, confirm with a real POST rather than by eye — the check in
 
 ---
 
+## Editing the reward endpoint — the same trap, different system
+
+**Pushing to `main` does not deploy `reward-api/`.** The static site publishes from git, so
+every other change in this repo goes live on push and it is natural to assume this one does
+too. It does not. The Vercel project `gpen-training-rewards` is **CLI-deployed only** — it
+has no Git integration — so a change to `api/reward.js` or `lib/ratelimit.js` sits in the
+repo looking shipped while the endpoint keeps running the old build.
+
+This has already happened once: a rate-limit fix was committed, pushed, and described as
+live while production was still serving a build three days older.
+
+To ship a change to the endpoint:
+
+```
+cd reward-api && npx vercel --prod
+```
+
+That also re-points the alias `gpen-training-rewards.vercel.app` — the URL in
+`config.js` — at the new build, so no config change is needed.
+
+**Confirm it rather than trusting the push.** `npx vercel ls --prod` lists production
+deployments newest-first with an age column; the top row should be seconds old, not days.
+An age older than your commit means the change is not live no matter what git says.
+
+Two things worth knowing before you go looking for other ways to verify:
+
+- **Most changes here are not observable from outside.** Cap values, counter logic and
+  seeds leave no trace in a response. Do not try to confirm them by calling the endpoint.
+- **You cannot reach the rate limiter without minting.** `ratelimit.check()` runs *after*
+  every validation gate, so any request that gets that far is a request that can create a
+  real discount code. To check whether limiting is active, read the environment instead:
+  `npx vercel env ls` (names only, no values) must show `KV_REST_API_URL` and
+  `KV_REST_API_TOKEN` targeting **Production**. If either is missing the endpoint mints
+  without a ceiling, and says so in the logs on every call.
+
+---
+
 ## Rotating the Shopify token
 
 If `SHOPIFY_ADMIN_TOKEN` leaks, or someone with access leaves:
