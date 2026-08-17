@@ -74,6 +74,41 @@ reload. That is the only supported way to regenerate, and it is deliberate.
 
 ---
 
+## Delete a rep's data when they ask
+
+The privacy notice promises this in writing — "ask us at the address above and we will
+delete it" — so it is an obligation, not a courtesy. It takes **three** places, and doing
+only the first is the mistake worth guarding against.
+
+**1. The `Completions` tab.** Filter or search column C for their email, delete those rows.
+This is the tab everyone thinks of, and on its own it is not enough.
+
+**2. The `Raw log` tab. THIS IS THE ONE PEOPLE MISS.** It holds the full JSON of every
+payload ever received — name, email, store, 21+ attestation, all in plain text in column B
+— and it is **append-only**. It never upserts, so a rep who certified on six products has
+at least six rows there, plus one per replay. A tidy `Completions` tab says nothing about
+what is still in `Raw log`. Search column B for their email and delete every match.
+
+Why it exists anyway: it is the only record of payloads the main parser failed to handle,
+which is what makes a reporting bug diagnosable instead of invisible. Worth keeping, worth
+knowing about.
+
+**3. Shopify.** Their discount codes are titled with their email
+(`Training 25% — course — dash-ii — rep@store.com`), so the address is sitting in the
+discount name. Search Discounts for it. If they are only asking for their training record
+to go, deactivating rather than deleting is still correct (see above) — but the email is in
+the title either way, so rename or delete if the request covers all of it.
+
+**What you cannot delete, and should say so if asked:** anything already stored in that
+rep's own browser (`gpt.state`, `gpt.enrollment`, `gpt.rewards`) is on their device, not
+ours. They clear it themselves with "Reset my progress" in the portal or by clearing site
+data. The notice already says this.
+
+**Codes stay valid unless you also revoke them.** Deleting the record does not disable a
+discount the rep is still holding. Decide deliberately which the request means.
+
+---
+
 ## "My discount code doesn't work"
 
 Work down this list; it is ordered by how often each one is the answer.
