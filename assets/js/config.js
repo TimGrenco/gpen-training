@@ -42,20 +42,38 @@ window.TRAINING_CONFIG = {
      leave "" and no privacy link is rendered; set it and it appears in the footer
      and under the certification form (where name / email / store are collected). */
   footerNote: "for authorized G Pen retail partners, 21+ — training and hardware education only. No cannabis, nicotine or e-liquid products are sold or shipped through this site.",
-  /* privacy.html EXISTS and is ready apart from two facts only the client has — the
-     legal entity name and the registered address — plus counsel review. Setting this
-     renders a "Privacy" link in the footer of every page and under the certification
-     form, so filling it in early published a notice that visibly reads
-     "[LEGAL ENTITY NAME]" to anyone who clicked. On a compliance document that is worse
-     than not linking one: it undermines the exact trust the page exists to build.
+  /* LIVE as of 2026-08-17. Renders a "Privacy" link in the footer of every page and under
+     the certification form, where name / email / store are collected.
 
-     TO TURN IT ON: fill the two highlighted placeholders in privacy.html, have counsel
-     read it, then set this back to "/privacy.html". That is the whole change.
+     It was deliberately "" before that, because privacy.html was missing two facts only
+     the client had — the operating entity and its registered address — and linking it
+     early published a notice that visibly read "[LEGAL ENTITY NAME]" to anyone who
+     clicked. On a compliance document that is worse than linking nothing: it undermines
+     the exact trust the page exists to build. Both are now filled in (GS Holistic LLC,
+     St Louis MO), so the link is on.
 
-     Until then boot() logs a warning on every load, which is the intended reminder — the
-     form does tell reps their name, email and store may be sent to G Pen, and that
-     should not go to partners with no notice behind it. */
-  privacyUrl: "",
+     IF YOU EVER BLANK THIS AGAIN, blank it because the notice is wrong, not to hide a
+     placeholder — fix the placeholder. boot() warns on every load while it is empty,
+     because the form tells reps their details may be sent to G Pen and that should not
+     reach partners with no notice behind it.
+
+     Still outstanding and NOT blocking: counsel has not read the notice. It is accurate
+     on the mechanics — it was written from the actual data flows — but nobody with a legal
+     qualification has reviewed the wording. Two specific questions were written INTO the
+     page as visible highlighted notes addressed to counsel, which would have published
+     "[counsel: confirm transfer mechanism...]" to every rep who clicked Privacy. They have
+     been rewritten as plain accurate statements and the questions moved here:
+
+       1. INTERNATIONAL TRANSFER. The page now states the fact — providers are in the US,
+          so submitting the form sends data there — and no longer claims "appropriate
+          safeguards", which nobody had verified. If partners in the EEA/UK actually use
+          this portal (the five translations suggest they might), counsel should say which
+          transfer mechanism applies and whether an EU/UK representative must be named.
+       2. RETENTION. The page gives a criterion rather than a number: kept while the program
+          runs, deleted on request. That is a defensible answer; a fixed period would be a
+          stronger one. If counsel wants "N years after last completion", it needs a
+          deletion procedure behind it, and there is none written yet — see RUNBOOK. */
+  privacyUrl: "privacy.html",
 
   /* >>> "TALK TO OUR TEAM" CONTACT BAND <<<
      The customer-service block at the very bottom of every page. Edit the
