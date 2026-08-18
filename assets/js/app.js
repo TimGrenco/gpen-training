@@ -1664,9 +1664,9 @@
      as a distinct, harder line for the same reason — they are the ones that generate
      a return, so they must not read as part of the same list.
 
-     A product with no `packaging` block renders nothing at all. That is the Grinder
-     today; when its images are added to the asset portal, the only change needed is
-     the data block in data.js. */
+     A product with no `packaging` block renders nothing at all. All six now have one:
+     the Grinder was the last, added once its box and POP renders reached the asset
+     portal. Adding the data block was indeed the only change needed. */
   /* Packaging images are NOT routed through sized(), and that is correct: sized() only
      rewrites cdn.shopify.com URLs, while these come from assets.gpen.com, which ignores
      a width parameter. Measured: 20KB each, already smaller than most of the page. An

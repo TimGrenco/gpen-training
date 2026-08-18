@@ -314,9 +314,29 @@ window.GPEN_COURSES = [
        transparent render the moment marketing produces one. */
     cover: "assets/img/grinder-cover.png",
     heroImg: LIFE + "slim-3-piece-grinder/6120e7c350834c0bc55f5b70288d5102d25d49bb546603d0fc2919f243c9f3da.jpg",
-    /* Packaging assets pending — the grinder has no "Packaging" folder in the asset
-       portal yet. packagingHTML() renders nothing until this block exists, so
-       adding it here is the only change needed when the images land. */
+    packaging: {
+      box: LIFE + "slim-3-piece-grinder/af9109ac9d7ac666346e4454bf5f71f02e4fccd6ab69228928184991885a9d10.jpg",
+      pop: LIFE + "slim-3-piece-grinder/1d36eb3de3fe085fd7d75671701db97d24e1a7741e0af7488ba2d8d93d75dc29.jpg",
+      inBox: ["3-Piece Grinder \u2014 64mm anodized aluminum"],
+      /* Not a missing accessory but a design choice, and it belongs here anyway: this
+         list exists for the things a customer expects and does not get, because those
+         are what generate a return. A buyer who assumes a kief screen and finds none is
+         exactly that case, and the course quiz already keys on it. */
+      notIncluded: ["Kief screen"],
+    },
+    /* Chosen from the portal's "Packaging" folder, which now has eight grinder files.
+       Matched to what every other product already uses so the six course pages stay
+       consistent: the BOX is the three-quarter view (grinder-3-4_1, 640x640, same as
+       every other box shot) and the POP is the straight-on front (grinder pop front 2,
+       640x800, same as the Dash II and 510 POPs).
+       Two candidates were rejected on purpose. "grinder pop" is an angled three-quarter
+       shot of the display — a better photograph, but every other product pairs an
+       angled box with a front-on POP, and matching that matters more than one nicer
+       frame. "grinder pop front copy" is the same front view on a warm cream ground,
+       which sat badly next to the neutral box shot beside it.
+       Transparent variants exist for all of these and are not used: the portal serves
+       them as flattened JPGs anyway, so the transparency buys nothing here.
+       perDisplay is deliberately ABSENT — see the note in packagingHTML's caption. */
     productUrl: "",
     gallery: [
       { url: CDN + "stashgrinder_thumb_03.jpg", caption: "Three pieces: lid, grinding ring, catch cup" },
