@@ -162,7 +162,7 @@ window.GPEN_COURSES = [
        is this thing and what is it for", shown at the top of the course above
        the price. Not marketing and not positioning — a rep who has never seen
        the category should be able to read one line and be right. */
-    whatItIs: "A dry herb vaporizer, designed to vaporize ground cannabis flower.",
+    whatItIs: "A dry herb vaporizer, with conduction and convection heating.",
     differentiator: "Titanium chamber and hybrid heating. The step-up model.",
     minutes: 11, passPct: 80, msrp: "$99.95", accent: "#D75D43",
     cover: CDN + "dash__vape_thumb_5e14bcb4-a63a-4cc3-8078-e57fc572e4da.png?v=1729247649",

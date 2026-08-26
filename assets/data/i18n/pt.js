@@ -298,7 +298,7 @@ window.GPEN_I18N = {
       },
     },
     "dash-plus": {
-      whatItIs: "Um vaporizador de erva seca, projetado para vaporizar flor de cannabis moída.",
+      whatItIs: "Um vaporizador de erva seca, com aquecimento por condução e convecção.",
       packaging: {
         inBox: ["Vaporizador Dash+", "Capa de silicone para a ponteira", "Ferramenta de carregamento com chaveiro", "Cabo de carregamento USB-C"],
         notIncluded: [],

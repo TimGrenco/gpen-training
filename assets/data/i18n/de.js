@@ -298,7 +298,7 @@ window.GPEN_I18N = {
       },
     },
     "dash-plus": {
-      whatItIs: "Ein Vaporizer für trockene Kräuter, entwickelt zum Vaporisieren gemahlener Cannabisblüten.",
+      whatItIs: "Ein Trockenkräuter-Vaporizer mit Konduktions- und Konvektionserhitzung.",
       packaging: {
         inBox: ["Dash+ Vaporizer", "Silikonhülle für das Mundstück", "Ladewerkzeug mit Schlüsselanhänger", "USB-C-Ladekabel"],
         notIncluded: [],

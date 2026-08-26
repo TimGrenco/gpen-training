@@ -296,7 +296,7 @@ window.GPEN_I18N = {
       },
     },
     "dash-plus": {
-      whatItIs: "Un vaporizzatore per erba secca, progettato per vaporizzare infiorescenza di cannabis macinata.",
+      whatItIs: "Un vaporizzatore per erba secca, con riscaldamento a conduzione e convezione.",
       packaging: {
         inBox: ["Vaporizzatore Dash+", "Guaina in silicone per il bocchino", "Strumento di caricamento con portachiavi", "Cavo di ricarica USB-C"],
         notIncluded: [],

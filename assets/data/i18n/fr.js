@@ -297,7 +297,7 @@ window.GPEN_I18N = {
       },
     },
     "dash-plus": {
-      whatItIs: "Un vaporisateur pour herbe sèche, conçu pour vaporiser de la fleur de cannabis moulue.",
+      whatItIs: "Un vaporisateur à herbes sèches, avec chauffage par conduction et convection.",
       packaging: {
         inBox: ["Vaporisateur Dash+", "Manchon en silicone pour l'embout", "Outil de remplissage avec porte-clés", "Câble de charge USB-C"],
         notIncluded: [],

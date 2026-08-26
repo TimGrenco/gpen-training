@@ -313,7 +313,7 @@ window.GPEN_I18N = {
       },
     },
     "dash-plus": {
-      whatItIs: "Un vaporizador de hierba seca, diseñado para vaporizar flor de cannabis molida.",
+      whatItIs: "Un vaporizador de hierba seca, con calentamiento por conducción y convección.",
       packaging: {
         inBox: ["Vaporizador Dash+", "Funda de silicona para la boquilla", "Herramienta de carga con llavero", "Cable de carga USB-C"],
         notIncluded: [],
