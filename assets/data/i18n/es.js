@@ -142,7 +142,7 @@ window.GPEN_I18N = {
     "Never make a health claim.": "Nunca haga una afirmación de salud.",
     "You can't say it's safer, healthier, or easier on anyone's lungs.": "No puede decir que sea más seguro, más saludable ni más suave para los pulmones de nadie.",
     "You can say": "Puede decir",
-    "it heats instead of burns, and you can say it tastes better.": "que calienta en lugar de quemar, y que sabe mejor.",
+    "it heats instead of burns, and tastes better.": "que calienta en lugar de quemar y sabe mejor.",
     "The either/or close": "El cierre de dos opciones",
     "They say": "Dicen",
     "You see": "Usted ve",

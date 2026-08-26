@@ -1672,7 +1672,7 @@
       "</div>" +
       '<div class="sell-can">' +
         "<em>" + t("You can say") + "</em>" +
-        "<span>" + t("it heats instead of burns, and you can say it tastes better.") + "</span>" +
+        "<span>" + t("it heats instead of burns, and tastes better.") + "</span>" +
       "</div>" +
       (h.aov ? '<p class="sell-aov">' + ic("tag") + "<span>" + esc(h.aov) + "</span></p>" : "") +
     "</div>";
