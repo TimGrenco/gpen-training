@@ -360,6 +360,17 @@ h1, h2, h3, h4 { margin: 0; line-height: 1.08; letter-spacing: -.02em; }
 .sell-never ul { list-style: none; margin: 0; padding: 0; display: grid; gap: 6px; }
 .sell-never li { font-size: 13.5px; line-height: 1.5; max-width: 68ch; }
 .sell-never b { color: var(--ink); }
+
+/* The permitted half of the same rule, and deliberately NOT red. It used to live inside
+   the red box as the middle of a sentence, so the one line a rep can actually act on read
+   as a third warning. Green states the ground they are allowed to stand on, which is what
+   makes the boundary usable rather than just frightening. */
+.sell-can { display: flex; align-items: baseline; gap: 10px; flex-wrap: wrap;
+  padding: 11px 15px; border-radius: var(--r-sm); background: #f0f8f2;
+  border: 1px solid #cfe8d8; color: #17402a; }
+.sell-can em { flex: none; font-style: normal; font-size: 11px; font-weight: 900;
+  text-transform: uppercase; letter-spacing: .08em; color: var(--ok); }
+.sell-can span { font-size: 13.5px; line-height: 1.5; font-weight: 600; max-width: 68ch; }
 /* The product accent used to be a 4px border-left. On a 999px-radius pill that
    renders as a thick coloured crescent down one side, which reads as a rendering
    glitch rather than as a colour key — so the accent is a dot inside the pill now,

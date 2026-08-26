@@ -1653,14 +1653,26 @@
          Rendered here rather than appended to five more strings, because that would be five
          strings in six languages free to drift, and the next product added would start out
          missing it again. */
+      /* Two blocks, not one list. The rule a rep needs is a boundary, and a boundary has two
+         sides — the old single paragraph buried the permitted half inside the forbidden
+         half, in the same red box, so the only part a rep could act on read as another
+         warning. Splitting them means the green block is the one they can actually use at a
+         counter and the red block is the short list of things that end the conversation.
+         The health rule is UNCONDITIONAL on every product: it lived inside each product's
+         `trap` string once and only the Dash II's carried it, so on five of six courses the
+         instruction that matters most appeared nowhere on the page. */
       '<div class="sell-never">' +
         '<em>' + ic("spark") + t("Never") + "</em>" +
         "<ul>" +
           (h.trap ? "<li>" + dt(c.slug, "howToSell", esc(h.trap)) + "</li>" : "") +
           "<li><b>" + t("Never make a health claim.") + "</b> " +
-            t("You can say it heats instead of burns, and you can say it tastes better. You can't say it's safer, healthier, or easier on anyone's lungs.") +
+            t("You can't say it's safer, healthier, or easier on anyone's lungs.") +
           "</li>" +
         "</ul>" +
+      "</div>" +
+      '<div class="sell-can">' +
+        "<em>" + t("You can say") + "</em>" +
+        "<span>" + t("it heats instead of burns, and you can say it tastes better.") + "</span>" +
       "</div>" +
       (h.aov ? '<p class="sell-aov">' + ic("tag") + "<span>" + esc(h.aov) + "</span></p>" : "") +
     "</div>";
