@@ -182,7 +182,6 @@ window.GPEN_COURSES = [
       { url: CDN + "dash__vape_thumb_6_2d2b66e0-28c5-4ab1-af46-f8f63d53227a.jpg?v=1729247640", caption: "Magnetic mouthpiece and its air path" },
     ],
     description: [
-      "Grenco Science introduces the next generation of portable dry herb vaporizers with the G Pen Dash+.",
       "The Dash+ features <strong>hybrid convection and conduction</strong> heating in a full <strong>titanium chamber</strong>, capable of reaching vaporization temperatures in as little as 20 seconds. Dual clean-air intake channels and a magnetic mouthpiece with a spiral ceramic air path deliver superior vapor production and flavor.",
       "With an easy 3-button interface, full-color LED display, and haptic feedback in a durable zinc-alloy body — powered by a 1,800mAh USB-C battery — the Dash+ is the evolution in portable dry herb vaporization.",
     ],

@@ -322,7 +322,6 @@ window.GPEN_I18N = {
       tagline: "Convección + conducción híbridas en una cámara de titanio completa.",
       differentiator: "Cámara de titanio y calentamiento híbrido. El modelo superior.",
       description: [
-        "Grenco Science presenta la nueva generación de vaporizadores portátiles de hierba seca con el G Pen Dash+.",
         "El Dash+ combina calentamiento por <strong>convección y conducción híbridas</strong> en una <strong>cámara de titanio</strong> completa, capaz de alcanzar temperaturas de vaporización en tan solo 20 segundos. Los dos canales de entrada de aire limpio y una boquilla magnética con paso de aire de cerámica en espiral ofrecen una producción de vapor y un sabor superiores.",
         "Con una interfaz sencilla de 3 botones, pantalla LED en color y respuesta háptica en un cuerpo resistente de aleación de zinc, y con una batería USB-C de 1.800 mAh, el Dash+ es la evolución de la vaporización portátil de hierba seca.",
       ],

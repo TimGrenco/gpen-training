@@ -307,7 +307,6 @@ window.GPEN_I18N = {
       tagline: "Hybride Konvektion und Konduktion in einer Kammer aus Volltitan.",
       differentiator: "Titankammer und hybride Heiztechnik. Das nächsthöhere Modell.",
       description: [
-        "Grenco Science stellt mit dem G Pen Dash+ die nächste Generation tragbarer Vaporizer für trockene Kräuter vor.",
         "Der Dash+ verbindet <strong>hybride Konvektions- und Konduktionsheizung</strong> in einer Kammer aus <strong>Volltitan</strong> und erreicht Vaporisationstemperaturen in nur 20 Sekunden. Zwei Frischluftkanäle und ein magnetisches Mundstück mit spiralförmigem Keramik-Luftweg sorgen für mehr Dampf und besseres Aroma.",
         "Mit einfacher 3-Tasten-Bedienung, farbigem LED-Display und haptischem Feedback in einem robusten Gehäuse aus Zinklegierung, angetrieben von einem USB-C-Akku mit 1.800 mAh, ist der Dash+ die Weiterentwicklung der tragbaren Vaporisation trockener Kräuter.",
       ],
