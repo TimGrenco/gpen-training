@@ -311,7 +311,7 @@ window.GPEN_I18N = {
       ],
       highlights: [
         "Chauffe hybride par convection et conduction",
-        "Chambre de chauffe tout titane",
+        "Chambre de chauffe tout titane, contenance 0,4 g",
         "Chauffe en environ 20 secondes",
         "Batterie de 1 800 mAh, charge rapide USB-C",
         "Écran LED couleur",
@@ -320,11 +320,7 @@ window.GPEN_I18N = {
         "Câble USB-C inclus",
       ],
       howToSell: {
-        vital: "La chambre en titane et la chauffe hybride donnent plus de vapeur et un arôme plus complet que le Dash II. C'est le modèle pour un client qui achète de la fleur de qualité supérieure.",
-        aov: "Présentez d'abord le Dash II à $49.95, puis celui-ci à $99.95. Montrer les deux ensemble double la valeur de l'appareil sur la même vente de fleur.",
-        talkTrack: { say: "Si l'arôme compte pour vous, c'est celui-là. Chambre tout titane, chauffe hybride, prêt en environ 20 secondes. $99.95, et le câble de charge est inclus." },
-        whichClose: "Le Dash II à $49.95, ou le Dash+ avec chambre en titane à $99.95 ?",
-        trap: "Ne le vendez pas sur les caractéristiques techniques. Vendez la différence d'arôme, c'est ce que le client peut juger. Personne n'achète du titane ; on achète le goût.",
+        talkTrack: { say: "Le goût compte beaucoup pour vous ? Celui-ci chauffe par convection et conduction dans une chambre en titane, donc il reste plus du caractère de la variété." },
         keyFacts: [
           "Chambre tout titane, chauffe hybride",
           "Chauffe en environ 20 secondes · écran couleur",

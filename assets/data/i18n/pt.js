@@ -312,7 +312,7 @@ window.GPEN_I18N = {
       ],
       highlights: [
         "Aquecimento híbrido por convecção e condução",
-        "Câmara de aquecimento totalmente de titânio",
+        "Câmara de aquecimento em titânio completa, 0,4 g",
         "Aquece em cerca de 20 segundos",
         "Bateria de 1.800 mAh, carregamento rápido USB-C",
         "Tela LED colorida",
@@ -321,11 +321,7 @@ window.GPEN_I18N = {
         "Cabo USB-C incluído",
       ],
       howToSell: {
-        vital: "A câmara de titânio e o aquecimento híbrido dão mais vapor e um sabor mais completo que o Dash II. É o modelo para o cliente que compra flor de qualidade superior.",
-        aov: "Apresente primeiro o Dash II por $49.95 e depois este por $99.95. Mostrar os dois juntos dobra o valor do aparelho na mesma venda de flor.",
-        talkTrack: { say: "Se sabor importa para você, é este. Câmara totalmente de titânio, aquecimento híbrido, pronto em cerca de 20 segundos. $99.95, e o cabo de carregamento vem incluído." },
-        whichClose: "O Dash II por $49.95 ou o Dash+ com câmara de titânio por $99.95?",
-        trap: "Não venda pelas especificações. Venda a diferença de sabor, que é o que o cliente consegue julgar. Ninguém compra titânio; compra o sabor.",
+        talkTrack: { say: "Que importância dá ao sabor? Este aquece por convecção e condução numa câmara de titânio, por isso passa mais sabor da variedade." },
         keyFacts: [
           "Câmara totalmente de titânio, aquecimento híbrido",
           "Aquece em cerca de 20 segundos · tela colorida",

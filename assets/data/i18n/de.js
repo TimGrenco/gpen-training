@@ -312,7 +312,7 @@ window.GPEN_I18N = {
       ],
       highlights: [
         "Hybride Konvektions- und Konduktionsheizung",
-        "Heizkammer aus Volltitan",
+        "Vollständige Titan-Heizkammer, fasst 0,4 g",
         "Heizt in etwa 20 Sekunden auf",
         "Akku mit 1.800 mAh, USB-C-Schnellladung",
         "Farbiges LED-Display",
@@ -321,11 +321,7 @@ window.GPEN_I18N = {
         "USB-C-Kabel im Lieferumfang",
       ],
       howToSell: {
-        vital: "Die Titankammer und die hybride Heiztechnik liefern mehr Dampf und ein volleres Aroma als der Dash II. Das ist das Modell für Kunden, die höherwertige Blüten kaufen.",
-        aov: "Zeigen Sie zuerst den Dash II für $49.95 und dann dieses Modell für $99.95. Beide gemeinsam zu zeigen, verdoppelt den Gerätewert bei demselben Blütenverkauf.",
-        talkTrack: { say: "Wenn Ihnen das Aroma wichtig ist, ist das Ihr Gerät. Kammer aus Volltitan, hybride Heiztechnik, bereit in etwa 20 Sekunden. $99.95, und das Ladekabel liegt bei." },
-        whichClose: "Der Dash II für $49.95 oder der Dash+ mit Titankammer für $99.95?",
-        trap: "Verkaufen Sie es nicht über technische Daten. Verkaufen Sie den Unterschied im Aroma, denn das kann der Kunde selbst beurteilen. Niemand kauft Titan; man kauft den Geschmack.",
+        talkTrack: { say: "Wie wichtig ist Ihnen der Geschmack? Dieser erhitzt per Konvektion und Konduktion in einer Titankammer, so kommt mehr von der Sorte durch." },
         keyFacts: [
           "Kammer aus Volltitan, hybride Heiztechnik",
           "Heizt in etwa 20 Sekunden auf · Farbdisplay",

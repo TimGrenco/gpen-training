@@ -310,7 +310,7 @@ window.GPEN_I18N = {
       ],
       highlights: [
         "Riscaldamento ibrido a convezione e conduzione",
-        "Camera di riscaldamento interamente in titanio",
+        "Camera di riscaldamento in titanio completa, 0,4 g",
         "Si scalda in circa 20 secondi",
         "Batteria da 1.800 mAh, ricarica rapida USB-C",
         "Display LED a colori",
@@ -319,11 +319,7 @@ window.GPEN_I18N = {
         "Cavo USB-C incluso",
       ],
       howToSell: {
-        vital: "La camera in titanio e il riscaldamento ibrido danno più vapore e un aroma più pieno rispetto al Dash II. È il modello per il cliente che acquista infiorescenza di qualità superiore.",
-        aov: "Presenti prima il Dash II a $49.95 e poi questo a $99.95. Mostrarli insieme raddoppia il valore del dispositivo nella stessa vendita di infiorescenza.",
-        talkTrack: { say: "Se per lei conta l'aroma, è questo. Camera interamente in titanio, riscaldamento ibrido, pronto in circa 20 secondi. $99.95, e il cavo di ricarica è incluso." },
-        whichClose: "Il Dash II a $49.95 o il Dash+ con camera in titanio a $99.95?",
-        trap: "Non lo venda sulle specifiche. Venda la differenza di aroma, che è ciò che il cliente può giudicare. Nessuno compra il titanio; si compra l'aroma.",
+        talkTrack: { say: "Quanto ti importa del sapore? Questo riscalda per convezione e conduzione in una camera in titanio, così arriva più sapore della varietà." },
         keyFacts: [
           "Camera interamente in titanio, riscaldamento ibrido",
           "Si scalda in circa 20 secondi · display a colori",

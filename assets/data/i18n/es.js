@@ -327,7 +327,7 @@ window.GPEN_I18N = {
       ],
       highlights: [
         "Calentamiento híbrido por convección + conducción",
-        "Cámara de calentamiento de titanio completa",
+        "Cámara de calentamiento de titanio completa, 0,4 g",
         "Calienta en unos 20 segundos",
         "Batería de 1.800 mAh, carga rápida USB-C",
         "Pantalla LED en color",
@@ -336,11 +336,7 @@ window.GPEN_I18N = {
         "Cable USB-C incluido",
       ],
       howToSell: {
-        vital: "La cámara de titanio y el calentamiento híbrido dan más vapor y un sabor más completo que el Dash II. Es el modelo para el cliente que compra flor de mayor calidad.",
-        aov: "Presente primero el Dash II a $49.95 y después este a $99.95. Mostrar los dos juntos duplica el valor del dispositivo en la misma venta de flor.",
-        talkTrack: { say: "Si el sabor le importa, este es el suyo. Cámara de titanio completa, calentamiento híbrido, listo en unos 20 segundos. $99.95, y el cable de carga viene incluido." },
-        whichClose: "¿El Dash II a $49.95, o el Dash+ con cámara de titanio a $99.95?",
-        trap: "No lo venda por sus especificaciones. Venda la diferencia de sabor, que es lo que el cliente puede juzgar. Nadie compra titanio; compran a qué sabe.",
+        talkTrack: { say: "¿Cuánto le importa el sabor? Este calienta por convección y conducción en una cámara de titanio, así que llega más sabor de la variedad." },
         keyFacts: [
           "Cámara de titanio completa, calentamiento híbrido",
           "Calienta en unos 20 segundos · pantalla en color",
