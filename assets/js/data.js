@@ -128,7 +128,7 @@ window.GPEN_COURSES = [
     howToSell: {
       upsellFrom: "Flower",
       // No invented fractions: "half the terpenes" was a fabricated statistic.
-      vital: "It heats ground flower instead of burning it, so the strain tastes clearer. This is the lowest-priced way in.",
+      vital: "No flame and no ash, so the terpenes come through instead of burning off.",
       aov: "The highest-value add-on on a flower sale — and it brings them back for flower.",
       keyFacts: ["Pocket-sized dry herb vaporizer", "Heats in about 30 seconds · 0.4g chamber", "$49.95 entry level price point"],
       talkTrack: { say: "Since you are buying flower — this heats it instead of burning it. Same gram goes further, clearer flavor. $49.95, pocket-sized." },

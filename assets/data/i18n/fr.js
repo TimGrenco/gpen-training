@@ -286,7 +286,7 @@ window.GPEN_I18N = {
         "Outil de remplissage intégré",
       ],
       howToSell: {
-        vital: "Il chauffe la fleur moulue au lieu de la brûler, ce qui rend le goût de la variété plus net. C’est l’entrée de gamme la moins chère.",
+        vital: "Pas de flamme ni de cendre : les terpènes ressortent au lieu de brûler.",
         aov: "L’accessoire à plus forte valeur sur une vente de fleur, et il fait revenir le client pour de la fleur.",
         talkTrack: { say: "Puisque vous achetez de la fleur : cela la chauffe au lieu de la brûler. Le même gramme dure plus longtemps, avec un goût plus net. $49.95, format poche." },
         whichClose: "Le Dash II à $49.95, ou le Dash+ avec chambre en titane à $99.95 : lequel vous convient ?",

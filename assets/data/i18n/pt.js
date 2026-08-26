@@ -287,7 +287,7 @@ window.GPEN_I18N = {
         "Ferramenta de carregamento integrada",
       ],
       howToSell: {
-        vital: "Aquece a flor moída em vez de a queimar, por isso o sabor da variedade fica mais nítido. É a forma mais barata de começar.",
+        vital: "Sem chama e sem cinza, por isso os terpenos sobressaem em vez de queimarem.",
         aov: "O complemento de maior valor numa venda de flor, e traz o cliente de volta para comprar flor.",
         talkTrack: { say: "Já que está a comprar flor: isto aquece-a em vez de a queimar. O mesmo grama rende mais, com sabor mais nítido. $49.95, de bolso." },
         whichClose: "O Dash II a $49.95 ou o Dash+ com câmara de titânio a $99.95: qual prefere?",

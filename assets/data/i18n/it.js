@@ -285,7 +285,7 @@ window.GPEN_I18N = {
         "Strumento di caricamento integrato",
       ],
       howToSell: {
-        vital: "Riscalda il fiore macinato invece di bruciarlo, così il sapore della varietà è più netto. È il modo più economico per iniziare.",
+        vital: "Niente fiamma e niente cenere, così i terpeni si sentono invece di bruciare.",
         aov: "L’accessorio di maggior valore su una vendita di infiorescenza, e riporta il cliente a comprare fiore.",
         talkTrack: { say: "Visto che compra fiore: questo lo riscalda invece di bruciarlo. Lo stesso grammo rende di più, con un sapore più netto. $49.95, tascabile." },
         whichClose: "Il Dash II a $49.95 o il Dash+ con camera in titanio a $99.95: quale preferisce?",

@@ -287,7 +287,7 @@ window.GPEN_I18N = {
         "Integriertes Ladewerkzeug",
       ],
       howToSell: {
-        vital: "Es erhitzt gemahlene Blüten, statt sie zu verbrennen, dadurch schmeckt die Sorte klarer. Das ist der günstigste Einstieg.",
+        vital: "Keine Flamme und keine Asche, so kommen die Terpene durch, statt zu verbrennen.",
         aov: "Das wertvollste Zusatzprodukt bei einem Blütenkauf – und es bringt den Kunden für Blüten zurück.",
         talkTrack: { say: "Da Sie Blüten kaufen: Das erhitzt sie, statt sie zu verbrennen. Dasselbe Gramm reicht länger, mit klarerem Geschmack. $49.95, taschengroß." },
         whichClose: "Der Dash II für $49.95 oder der Dash+ mit Titankammer für $99.95 – was passt besser?",

@@ -302,7 +302,7 @@ window.GPEN_I18N = {
         "Herramienta de carga integrada",
       ],
       howToSell: {
-        vital: "Calienta la flor molida en lugar de quemarla, así el sabor de la variedad se aprecia más claro. Es la forma más económica de empezar.",
+        vital: "Sin llama y sin ceniza, así los terpenos se aprecian en lugar de quemarse.",
         aov: "El complemento de mayor valor en una venta de flor, y hace que el cliente vuelva a por flor.",
         talkTrack: { say: "Ya que compra flor: esto la calienta en lugar de quemarla. El mismo gramo cunde más, con un sabor más claro. $49.95, de bolsillo." },
         whichClose: "El Dash II a $49.95, o el Dash+ con cámara de titanio a $99.95, ¿cuál prefiere?",
