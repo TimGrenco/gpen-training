@@ -231,8 +231,8 @@ window.GPEN_COURSES = [
       keyFacts: ["Full titanium chamber, hybrid heating", "Heats in about 20 seconds \u00b7 color display", "$99.95 \u2014 the step up from the Dash II"],
       talkTrack: { say: "How much do you care about vapor production? This heats by convection and conduction in a titanium chamber, giving you better flavor and denser vapor." },
       objections: [
-        { says: "Why is this double the Dash II?", say: "The extra $50 buys the titanium chamber and hybrid heating. That is where the fuller flavor comes from." },
-        { says: "It looks complicated.", say: "Three buttons. Load it, double-click, draw \u2014 and it buzzes when it is ready." },
+        { says: "Why is this double the cost of Dash II?", say: "The extra $50 buys the hybrid heating and titanium chamber. That is where the fuller flavor and denser vapor comes from." },
+        { says: "It looks complicated.", say: "It's actually pretty simple. Three buttons. Load it, double-click, draw \u2014 and it buzzes when it is ready." },
       ],
     },
     videos: [
