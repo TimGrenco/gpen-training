@@ -319,7 +319,7 @@ window.GPEN_I18N = {
         "Cavo USB-C incluso",
       ],
       howToSell: {
-        talkTrack: { say: "Quanto ti importa del sapore? Questo riscalda per convezione e conduzione in una camera in titanio, così arriva più sapore della varietà." },
+        talkTrack: { say: "Quanto ti importa della produzione di vapore? Questo riscalda per convezione e conduzione in una camera in titanio, per un sapore migliore e un vapore più denso." },
         keyFacts: [
           "Camera interamente in titanio, riscaldamento ibrido",
           "Si scalda in circa 20 secondi · display a colori",

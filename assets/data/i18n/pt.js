@@ -321,7 +321,7 @@ window.GPEN_I18N = {
         "Cabo USB-C incluído",
       ],
       howToSell: {
-        talkTrack: { say: "Que importância dá ao sabor? Este aquece por convecção e condução numa câmara de titânio, por isso passa mais sabor da variedade." },
+        talkTrack: { say: "Que importância dá à produção de vapor? Este aquece por convecção e condução numa câmara de titânio, o que dá melhor sabor e vapor mais denso." },
         keyFacts: [
           "Câmara totalmente de titânio, aquecimento híbrido",
           "Aquece em cerca de 20 segundos · tela colorida",

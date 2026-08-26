@@ -321,7 +321,7 @@ window.GPEN_I18N = {
         "USB-C-Kabel im Lieferumfang",
       ],
       howToSell: {
-        talkTrack: { say: "Wie wichtig ist Ihnen der Geschmack? Dieser erhitzt per Konvektion und Konduktion in einer Titankammer, so kommt mehr von der Sorte durch." },
+        talkTrack: { say: "Wie wichtig ist Ihnen die Dampfentwicklung? Dieser erhitzt per Konvektion und Konduktion in einer Titankammer, das bringt besseren Geschmack und dichteren Dampf." },
         keyFacts: [
           "Kammer aus Volltitan, hybride Heiztechnik",
           "Heizt in etwa 20 Sekunden auf · Farbdisplay",

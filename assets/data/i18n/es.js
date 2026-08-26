@@ -336,7 +336,7 @@ window.GPEN_I18N = {
         "Cable USB-C incluido",
       ],
       howToSell: {
-        talkTrack: { say: "¿Cuánto le importa el sabor? Este calienta por convección y conducción en una cámara de titanio, así que llega más sabor de la variedad." },
+        talkTrack: { say: "¿Cuánto le importa la producción de vapor? Este calienta por convección y conducción en una cámara de titanio, lo que da mejor sabor y un vapor más denso." },
         keyFacts: [
           "Cámara de titanio completa, calentamiento híbrido",
           "Calienta en unos 20 segundos · pantalla en color",

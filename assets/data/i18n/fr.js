@@ -320,7 +320,7 @@ window.GPEN_I18N = {
         "Câble USB-C inclus",
       ],
       howToSell: {
-        talkTrack: { say: "Le goût compte beaucoup pour vous ? Celui-ci chauffe par convection et conduction dans une chambre en titane, donc il reste plus du caractère de la variété." },
+        talkTrack: { say: "La production de vapeur compte pour vous ? Celui-ci chauffe par convection et conduction dans une chambre en titane, ce qui donne un meilleur goût et une vapeur plus dense." },
         keyFacts: [
           "Chambre tout titane, chauffe hybride",
           "Chauffe en environ 20 secondes · écran couleur",
