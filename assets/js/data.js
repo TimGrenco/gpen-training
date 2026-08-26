@@ -128,17 +128,10 @@ window.GPEN_COURSES = [
     howToSell: {
       upsellFrom: "Flower",
       // No invented fractions: "half the terpenes" was a fabricated statistic.
-      aov: "The highest-value add-on on a flower sale — and it brings them back for flower.",
       keyFacts: ["Pocket-sized dry herb vaporizer", "Heats in about 30 seconds · 0.4g chamber", "$49.95 entry level price point"],
       talkTrack: { say: "This heats it instead of burning it, so you taste the terpenes and flavor of the strain instead of the smoke." },
-      whichClose: "The Dash II at $49.95, or the Dash+ with a titanium chamber at $99.95 — which suits you?",
-      scenarios: [
-        { sees: "A half-ounce of flower + a grinder in their basket", say: "You are already grinding it — this is the next piece. Same flower lasts longer, because you are heating it, not burning it. $49.95." },
-        { sees: "They bring up how a joint feels compared to vaping", say: "A joint burns the flower; this heats it. I cannot give health advice, but flavor is why most people switch. Want to hold it?" },
-      ],
       trap: "Never describe it as being like smoking. Say that it heats the flower and does not burn it.",
       objections: [
-        { says: "I'll just roll it.", say: "You still can. Rolling burns it, so part of every bowl goes up in smoke. This heats the same gram at a set temperature, so it goes further.", why: "Do not argue against rolling. Reframe on waste and flavor." },
         { says: "Is $49.95 worth it?", say: "This has all the bells and whistles of a $100 device — temp control, ceramic chamber, built-in pick tool — for $50.", why: "Anchor on what the price buys rather than discounting. Then attach a USB-C cable — it is not in the box, and that is what brings them back annoyed." },
         { says: "I've never used a dry herb vaporizer.", say: "It's simpler than you'd think — four steps. Grind, pack, hold to power on, double-tap to heat. That's it.", why: "Answer with the actual step count. Four concrete steps remove the fear faster than reassurance does." },
       ],

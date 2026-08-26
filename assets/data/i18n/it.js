@@ -285,9 +285,7 @@ window.GPEN_I18N = {
         "Strumento di caricamento integrato",
       ],
       howToSell: {
-        aov: "L’accessorio di maggior valore su una vendita di infiorescenza, e riporta il cliente a comprare fiore.",
         talkTrack: { say: "Questo lo riscalda invece di bruciarlo, così senti i terpeni e il sapore della varietà invece del fumo." },
-        whichClose: "Il Dash II a $49.95 o il Dash+ con camera in titanio a $99.95: quale preferisce?",
         trap: "Non lo descriva mai come qualcosa di simile al fumare. Dica che riscalda l'infiorescenza e non la brucia.",
         keyFacts: [
           "Vaporizzatore da tasca per erba secca",

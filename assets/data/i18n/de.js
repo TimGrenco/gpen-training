@@ -287,9 +287,7 @@ window.GPEN_I18N = {
         "Integriertes Ladewerkzeug",
       ],
       howToSell: {
-        aov: "Das wertvollste Zusatzprodukt bei einem Blütenkauf – und es bringt den Kunden für Blüten zurück.",
         talkTrack: { say: "Das erhitzt sie, statt sie zu verbrennen, so schmecken Sie die Terpene und den Charakter der Sorte statt des Rauchs." },
-        whichClose: "Der Dash II für $49.95 oder der Dash+ mit Titankammer für $99.95 – was passt besser?",
         trap: "Beschreiben Sie es nie als etwas, das dem Rauchen gleicht. Sagen Sie, dass es die Blüten erhitzt und nicht verbrennt.",
         keyFacts: [
           "Vaporizer für trockene Kräuter im Taschenformat",

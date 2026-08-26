@@ -302,9 +302,7 @@ window.GPEN_I18N = {
         "Herramienta de carga integrada",
       ],
       howToSell: {
-        aov: "El complemento de mayor valor en una venta de flor, y hace que el cliente vuelva a por flor.",
         talkTrack: { say: "Esto la calienta en lugar de quemarla, así saborea los terpenos y el sabor de la variedad en vez del humo." },
-        whichClose: "El Dash II a $49.95, o el Dash+ con cámara de titanio a $99.95, ¿cuál prefiere?",
         trap: "Nunca lo describa como algo parecido a fumar. Diga que calienta la flor y no la quema.",
         keyFacts: [
           "Vaporizador de hierba seca de bolsillo",
