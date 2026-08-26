@@ -166,7 +166,8 @@ window.GPEN_COURSES = [
     differentiator: "Titanium chamber and hybrid heating. The step-up model.",
     minutes: 11, passPct: 80, msrp: "$99.95", accent: "#D75D43",
     cover: CDN + "dash__vape_thumb_5e14bcb4-a63a-4cc3-8078-e57fc572e4da.png?v=1729247649",
-    heroImg: LIFE + "dash-plus/5e5f67089995d3cfba84f862caf73d287ae9bc1d86d05818dde9204e6fce4b74.jpg",
+    heroImg: LIFE + "dash-plus/fa2c8251f87a6c51f5caeff6928ee01dee048a936682e1ea2f72746a142b7c47.jpg",
+    heroStack: true,
     /* No POP display for the Dash+ — it ships as a single unit only, which is why
        the SKU sheet lists its inner pack as N/A. The section renders one card. */
     packaging: {

@@ -626,6 +626,17 @@ a.linklike.backdash { display: grid; place-items: center; min-height: 44px; widt
    NINE pixels of vertical overflow and nowhere to move the device. Three elements
    then crossed it — the eyebrow by 114px, the headline by 84px, the lede by 27px.
    768 is iPad portrait, so this band is not hypothetical. */
+/* FORCED STACK, at any width, for a course that sets heroStack. Some lifestyle shots cannot
+   share a frame with the copy at all: the Dash+ hero is portrait with the device filling a
+   third of the frame, so scaled to a 780px-wide hero the device renders 366px tall while
+   only 199px are clear above the bottom-anchored copy. No object-position can fit 366 into
+   199 — the overlay would need a 600px hero. Stacking is the honest answer, and it is the
+   same arrangement phones already get. */
+.cx-hero.stacked { display: block; min-height: 0; }
+.cx-hero.stacked .cx-hero-media { position: relative; inset: auto; aspect-ratio: 4 / 3; }
+.cx-hero.stacked::after { display: none; }
+.cx-hero.stacked .cx-hero-body { background: #141414; }
+
 @media (max-width: 839px) {
   .cx-hero { display: block; min-height: 0; }
   .cx-hero-media { position: relative; inset: auto; aspect-ratio: 4 / 3; }

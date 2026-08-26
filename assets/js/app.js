@@ -677,7 +677,7 @@
      `name`, `msrp` and the media keys are refused: product names, prices, photos
      and discount codes are identical in every language. */
   var I18N_NEVER = { quiz: 1, slug: 1, name: 1, msrp: 1, family: 1, accent: 1, cover: 1, heroImg: 1, videos: 1, gallery: 1, productUrl: 1, faqUrl: 1, passPct: 1,
-                     box: 1, pop: 1, perDisplay: 1, heroPos: 1 };
+                     box: 1, pop: 1, perDisplay: 1, heroPos: 1, heroStack: 1 };
   // Objects whose keys merge rather than replace wholesale.
   var NESTED = { howToSell: 1, packaging: 1 };
   /* Which fields a locale actually replaced, per slug. dt() below reads this so a
@@ -1451,7 +1451,7 @@
     app.innerHTML = header() +
       '<section class="course reveal">' +
         '<a class="back" href="#/">' + ic("back") + " " + t("All products") + "</a>" +
-        '<div class="cx-hero' + (c.heroImg ? "" : " no-life") + '" style="--accent:' + c.accent + '">' +
+        '<div class="cx-hero' + (c.heroImg ? "" : " no-life") + (c.heroStack ? " stacked" : "") + '" style="--accent:' + c.accent + '">' +
           /* heroPos overrides the default object-position for this one photo. The default
              (50% 35%) suits a PORTRAIT lifestyle shot, where the subject is high in the
              frame and the bottom is empty for the text to sit on. A landscape shot with
