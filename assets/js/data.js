@@ -145,8 +145,8 @@ window.GPEN_COURSES = [
       ],
     },
     videos: [
-      { title: "How to Use: G Pen Dash II", thumb: "https://i.ytimg.com/vi/sqCdU8Kn5ek/hqdefault.jpg", youtube: "sqCdU8Kn5ek" },
-      { title: "How to Clean: Dash II", thumb: "https://i.ytimg.com/vi/wBOzqPxDhd8/hqdefault.jpg", youtube: "wBOzqPxDhd8" },
+      { title: "How to Use: G Pen Dash II", thumb: LIFE + "dash-ii/104a7f0b4823caa9475f7a3b5f3d7cdbc33ac29136a00172c3a2fcba981894d1.jpg", youtube: "sqCdU8Kn5ek" },
+      { title: "How to Clean: Dash II", thumb: LIFE + "dash-ii/d3998c328bcc382ab553d2e0933e5e3db9ad263f3efd336d2aef5dad67d6e2d7.jpg", youtube: "wBOzqPxDhd8" },
     ],
     quiz: [
       { q: "A customer sets down a half-ounce of flower and a grinder. They have never owned a vaporizer and mention they would rather not spend much. What do you put on the counter next to it?", choices: ["The Dash II, the entry pocket dry-herb vape", "The Dash+, since the titanium oven is the better vape", "The Melt Hot Knife, so they can prep it without the mess", "The 510 Original, the cheapest battery on the wall"], answer: 0, why: "Work the basket in two steps: the category decides the device — flower means a dry-herb vape, not a 510 battery or a concentrate tool — then the customer decides the model. A first-timer watching their spend takes the entry unit, not the upgrade." },
@@ -255,8 +255,8 @@ window.GPEN_COURSES = [
       ],
     },
     videos: [
-      { title: "How to Use: G Pen Dash+", thumb: "https://i.ytimg.com/vi/OzgMUHgEQao/hqdefault.jpg", youtube: "OzgMUHgEQao" },
-      { title: "How to Clean: G Pen Dash+", thumb: "https://i.ytimg.com/vi/vSAc8WPkUpY/hqdefault.jpg", youtube: "vSAc8WPkUpY" },
+      { title: "How to Use: G Pen Dash+", thumb: LIFE + "dash-plus/affe3e09cd229d28ff4daa80404a4a76db423c0eaa0f956af5163391e122244e.jpg", youtube: "OzgMUHgEQao" },
+      { title: "How to Clean: G Pen Dash+", thumb: LIFE + "dash-plus/26deeb240b7db5f44cd9358b942aef8c94bb22f371a0a3221af4d23b2df5d7dc.jpg", youtube: "vSAc8WPkUpY" },
     ],
     quiz: [
       { q: "A basket has an eighth of flower and a gram of live rosin in it. What is the correct two-piece attach?", choices: ["A Dash+ for the flower and a Melt for the rosin", "A Hydout for the flower and a Melt for the rosin", "One Dash+, which covers both the flower and the rosin", "One Melt, which covers both the rosin and the flower"], answer: 0, why: "Match the device to the material, not to the customer. The Dash+ is dry herb only and the Melt is a loading tool for concentrate, so two materials on the counter always mean two attaches." },
@@ -602,8 +602,8 @@ window.GPEN_COURSES = [
       ],
     },
     videos: [
-      { title: "How to Use: G Pen Hydout", thumb: "https://i.ytimg.com/vi/WK3EXouKwGs/hqdefault.jpg", youtube: "WK3EXouKwGs" },
-      { title: "How to Clean: G Pen Hydout", thumb: "https://i.ytimg.com/vi/e9oEXqNajh4/hqdefault.jpg", youtube: "e9oEXqNajh4" },
+      { title: "How to Use: G Pen Hydout", thumb: LIFE + "hydout/5f15ce2c04041ca331f87bc6b421339df199542a8bbf003b75522456d8f3712b.jpg", youtube: "WK3EXouKwGs" },
+      { title: "How to Clean: G Pen Hydout", thumb: LIFE + "hydout/0dd6886b1f0ce220b40b6216f9626174c0826e6c1057d0c0d7314404895a5579.jpg", youtube: "e9oEXqNajh4" },
     ],
     quiz: [
       { q: "A customer buying a 2g distillate cart mentions they mostly vape on their lunch break behind the shop where they work. Which battery do you put in their hand?", choices: ["The Hydout, since the mouthpiece hides inside for pocket carry", "The 510 Original, since it is the cheapest way to run the cart", "The 510 Original, since a 2g cart is too big for the Hydout", "Either one, since the two batteries only differ on price"], answer: 0, why: "Both batteries fit most 510 carts up to 2g, so price is not what decides it — the customer's context is. When someone volunteers where they vape, discretion is the feature that closes the sale." },
@@ -711,8 +711,8 @@ window.GPEN_COURSES = [
       ],
     },
     videos: [
-      { title: "How to Use: G Pen 510 Original", thumb: "https://i.ytimg.com/vi/_SF_4zkbZdI/hqdefault.jpg", youtube: "_SF_4zkbZdI" },
-      { title: "How to Clean: G Pen 510 Original", thumb: "https://i.ytimg.com/vi/4aMKTqSw0bQ/hqdefault.jpg", youtube: "4aMKTqSw0bQ" },
+      { title: "How to Use: G Pen 510 Original", thumb: LIFE + "510-original/7f3879a1dddf6f4c5c8dca1404cb9a67a4fb43c8ffda183ba69d311c5f3db50a.jpg", youtube: "_SF_4zkbZdI" },
+      { title: "How to Clean: G Pen 510 Original", thumb: LIFE + "510-original/b9aef761b21b9e90b3a5055b0faac40424242203669762451ada8b51d0541069.jpg", youtube: "4aMKTqSw0bQ" },
     ],
     quiz: [
       { q: "A customer sets a single 510 cart on the counter and it is clearly their first one. What is the strongest opening?", choices: ["You got a battery for that cart?", "Do you need a battery to go with that?", "Let me know if you need anything else.", "Want to see our dry herb vapes too?"], answer: 0, why: "Assume the need instead of asking permission. A yes or no question invites a no, so presume the battery and keep the sale moving." },

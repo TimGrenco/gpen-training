@@ -1528,7 +1528,13 @@
         (c.videos && c.videos.length
         ? secHead(++n, c.videos.length > 1 ? t("Videos") : t("Video")) +
         '<div class="vid-grid">' + c.videos.map(function (v) {
-          return '<button class="vid" data-yt="' + esc(v.youtube || "") + '" data-title="' + esc(v.title) + '">' +
+          /* Vimeo wins when a video has both. YouTube age-gates this catalogue: measured
+             on all ten videos in data.js, EIGHT return playabilityStatus LOGIN_REQUIRED,
+             so the embed refuses to play and a rep tapping it is asked to sign in and
+             confirm their age. A training video that demands a Google login on a shop
+             floor is not a training video. Vimeo carries no such gate, so a `vimeo` id
+             on a video makes the switch a data-only change. */
+          return '<button class="vid" data-vimeo="' + esc(v.vimeo || "") + '" data-yt="' + esc(v.youtube || "") + '" data-title="' + esc(v.title) + '">' +
             '<span class="vid-thumb"><img src="' + esc(v.thumb) + '" alt="" loading="lazy"/><span class="vid-play">' + ic("play") + "</span></span>" +
             '<span class="vid-title">' + esc(v.title) + "</span></button>";
         }).join("") + "</div>"
@@ -1816,15 +1822,22 @@
   function bindVideos() {
     $$(".vid").forEach(function (b) {
       b.addEventListener("click", function () {
-        var yt = b.getAttribute("data-yt"); if (!yt) { toast(tx("Video coming soon.")); return; }
-        openVideo(yt, b.getAttribute("data-title"));
+        var vimeo = b.getAttribute("data-vimeo");
+        var yt = b.getAttribute("data-yt");
+        if (!vimeo && !yt) { toast(tx("Video coming soon.")); return; }
+        openVideo({ vimeo: vimeo, youtube: yt }, b.getAttribute("data-title"));
       });
     });
   }
-  function openVideo(yt, title) {
+  function openVideo(src, title) {
+    /* Vimeo first — see the note on the card. dnt=1 keeps Vimeo from setting tracking
+       cookies, which matters because the privacy notice states this site sets none. */
+    var frame = src.vimeo
+      ? '<iframe src="https://player.vimeo.com/video/' + esc(src.vimeo) + '?autoplay=1&dnt=1&playsinline=1" title="' + esc(title) + '" allow="autoplay; fullscreen; picture-in-picture" allowfullscreen></iframe>'
+      : '<iframe src="https://www.youtube-nocookie.com/embed/' + esc(src.youtube) + '?autoplay=1&rel=0&playsinline=1" title="' + esc(title) + '" allow="autoplay; encrypted-media; fullscreen" allowfullscreen></iframe>';
     var m = document.createElement("div"); m.className = "modal";
     m.innerHTML = '<div class="modal-in"><button class="modal-x" aria-label="' + tx("Close") + '">×</button>' +
-      '<div class="modal-frame"><iframe src="https://www.youtube.com/embed/' + esc(yt) + '?autoplay=1&rel=0&playsinline=1" title="' + esc(title) + '" allow="autoplay; encrypted-media; fullscreen" allowfullscreen></iframe></div>' +
+      '<div class="modal-frame">' + frame + "</div>" +
       '<div class="modal-t">' + esc(title) + "</div></div>";
     document.body.appendChild(m); document.body.classList.add("noscroll");
     var release = manageModalFocus(m, title ? tfx("Video: {title}", { title: title }) : tx("Video"));
