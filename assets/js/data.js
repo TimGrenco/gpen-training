@@ -128,20 +128,20 @@ window.GPEN_COURSES = [
     howToSell: {
       upsellFrom: "Flower",
       // No invented fractions: "half the terpenes" was a fabricated statistic.
-      vital: "A vaporizer heats ground flower instead of burning it, which gives a clearer flavor of the strain. The Dash II is the lowest-priced way into that.",
-      aov: "Every flower sale can carry a $49.95 device. It is the highest-value add-on available on a flower purchase, and it brings the customer back for flower.",
+      vital: "It heats ground flower instead of burning it, so the strain tastes clearer. This is the lowest-priced way in.",
+      aov: "The highest-value add-on on a flower sale — and it brings them back for flower.",
       keyFacts: ["Pocket-sized dry herb vaporizer", "Heats in about 30 seconds · 0.4g chamber", "$49.95 entry level price point"],
-      talkTrack: { say: "Since you are buying flower: this heats it instead of burning it. You get more sessions from the same amount and a clearer flavor. $49.95, and it fits in a pocket." },
-      whichClose: "Two options for flower: the Dash II at $49.95, or the Dash+ with a titanium chamber at $99.95. Which suits you?",
+      talkTrack: { say: "Since you are buying flower — this heats it instead of burning it. Same gram goes further, clearer flavor. $49.95, pocket-sized." },
+      whichClose: "The Dash II at $49.95, or the Dash+ with a titanium chamber at $99.95 — which suits you?",
       scenarios: [
-        { sees: "A half-ounce of flower + a grinder in their basket", say: "You are already grinding it, so this is the next piece. Pack the ground flower and press the button. The same amount lasts longer because you are heating it, not burning it. $49.95." },
-        { sees: "They bring up how a joint feels compared to vaping", say: "The difference is burning versus heating. A joint combusts the flower; this vaporizes it. I cannot give health advice, but flavor is the reason most people switch. $49.95 — would you like to hold it?" },
+        { sees: "A half-ounce of flower + a grinder in their basket", say: "You are already grinding it — this is the next piece. Same flower lasts longer, because you are heating it, not burning it. $49.95." },
+        { sees: "They bring up how a joint feels compared to vaping", say: "A joint burns the flower; this heats it. I cannot give health advice, but flavor is why most people switch. Want to hold it?" },
       ],
       trap: "Never describe it as being like smoking. Say that it heats the flower and does not burn it.",
       objections: [
-        { says: "I'll just roll it.", say: "You still can. Rolling burns the flower, so part of every bowl is lost to smoke. This heats the same flower at a set temperature, so a gram goes further and the flavor is clearer. Would you like to see the size?", why: "Do not argue against rolling. Reframe on waste and flavor." },
-        { says: "Is $49.95 worth it?", say: "$49.95 is the entry price for a vaporizer with real temperature control and a display. It pays for itself in flower you no longer burn. Add a USB-C cable and you are ready.", why: "Anchor on what the price buys, then attach the cable. It is not in the box." },
-        { says: "I have never used a dry herb vaporizer.", say: "It is four steps: grind, pack, hold the button to power on, then double-tap to heat. That is the whole process.", why: "Answer with the actual step count. Four concrete steps remove the fear faster than reassurance does." },
+        { says: "I'll just roll it.", say: "You still can. Rolling burns it, so part of every bowl goes up in smoke. This heats the same gram at a set temperature, so it goes further.", why: "Do not argue against rolling. Reframe on waste and flavor." },
+        { says: "Is $49.95 worth it?", say: "That is the entry price for real temperature control and a display. Add a USB-C cable — it is not in the box.", why: "Anchor on what the price buys, then attach the cable. It is not in the box." },
+        { says: "I have never used a dry herb vaporizer.", say: "Four steps: grind, pack, hold to power on, double-tap to heat. That is all of it.", why: "Answer with the actual step count. Four concrete steps remove the fear faster than reassurance does." },
       ],
     },
     videos: [

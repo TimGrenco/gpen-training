@@ -126,15 +126,11 @@ window.GPEN_I18N = {
     "510 cartridge": "510-Kartusche",
     "Customer is buying <b>{what}</b>": "Kunde kauft <b>{what}</b>",
     "Say this": "Sagen Sie das",
+    "Never": "Niemals",
     "Never a health claim.": "Niemals Gesundheitsaussagen.",
     "If a customer raises coughing, harshness, lungs, or any other health topic, do not diagnose it and do not say the product fixes it. Redirect to flavor and experience, or refer them to their doctor.": "Wenn ein Kunde Husten, Kratzen, Lunge oder ein anderes Gesundheitsthema anspricht, stellen Sie keine Diagnose und sagen Sie nicht, dass das Produkt das behebt. Lenken Sie auf Geschmack und Erlebnis, oder verweisen Sie ihn an seinen Arzt.",
-    "Common mistake:": "Häufiger Fehler:",
-    "More scripts and objections ({n})": "Weitere Formulierungen und Einwände ({n})",
-    "Counter scenarios": "Situationen am Tresen",
     "The either/or close": "Der Abschluss mit zwei Optionen",
-    "When they hesitate": "Wenn Kunden zögern",
     "They say": "Kunde sagt",
-    "You say": "Sie sagen",
     "You see": "Sie sehen",
 
     /* ---- packaging ---- */

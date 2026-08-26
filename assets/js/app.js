@@ -1602,70 +1602,61 @@
      rule, and a compliance warning nobody opens is not a warning. */
   function howToSellHTML(c) {
     var h = c.howToSell; if (!h) return "";
-    var objs = (h.objections || []).map(function (o) {
-      return '<div class="obj-card">' +
-        '<div class="obj-says"><em>' + t("They say") + "</em><span>&ldquo;" + esc(o.says) + "&rdquo;</span></div>" +
-        '<div class="obj-say"><em>' + t("You say") + "</em><span>" + esc(o.say) + "</span></div>" +
-        (o.why ? '<div class="obj-why">' + ic("spark") + "<span>" + esc(o.why) + "</span></div>" : "") +
-      "</div>";
-    }).join("");
-    // Counter scenarios: what you SEE in the basket → what you say.
-    var sces = (h.scenarios || []).map(function (sc) {
-      return '<div class="scn"><em>' + t("You see") + "</em>" +
-        '<span class="scn-sees">' + esc(sc.sees) + "</span>" +
-        '<span class="scn-say">&ldquo;' + esc(sc.say) + "&rdquo;</span></div>";
-    }).join("");
-    // What the summary promises, counted from what is actually in there.
-    var extras = (h.scenarios || []).length + (h.objections || []).length + (h.whichClose ? 1 : 0);
-    var more = (sces || objs || h.whichClose)
-      ? '<details class="sell-more">' +
-          "<summary>" + ic("caret") +
-            "<span>" + tf("More scripts and objections ({n})", { n: extras }) + "</span>" +
-          "</summary>" +
-          '<div class="sell-more-body">' +
-            (sces ? '<div class="sell-scns"><h3>' + t("Counter scenarios") + "</h3>" + sces + "</div>" : "") +
-            (h.whichClose ? '<div class="sell-close"><em>' + t("The either/or close") + "</em>&ldquo;" + esc(h.whichClose) + "&rdquo;</div>" : "") +
-            (objs ? '<div class="sell-objs"><h3>' + t("When they hesitate") + "</h3>" + objs + "</div>" : "") +
-          "</div>" +
-        "</details>"
-      : "";
-    return '<div class="sell2" style="--accent:' + (c.accent || "var(--gold-bright)") + '">' +
-      // The upsell overview OPENS the section. It is the one paragraph that says what
-      // this product is worth to a basket and why it attaches, so it belongs before
-      // the specifics rather than buried at the end of a disclosure — a rep reads the
-      // shape of the opportunity, then the words to use on it.
-      (h.aov ? '<p class="sell-aov lead">' + ic("tag") + "<span>" + esc(h.aov) + "</span></p>" : "") +
-      '<div class="sell-pair">' +
-        // No icon here. The tag icon now belongs to the overview directly above, and
-        // two of them stacked read as a repeated element rather than as two ideas.
-        // "Customer is buying" is its own label; it does not need a glyph.
-        '<div class="sell-cue">' + tf("Customer is buying <b>{what}</b>", { what: esc(tx(h.upsellFrom || "").toUpperCase()) }) + "</div>" +
-        "<p>" + esc(h.vital) + "</p>" +
-        /* No "Pair with" row. It listed other COURSES to sell alongside this one, but the
-           cue directly above already names what the customer is buying — flower, a 510
-           cartridge, concentrate — and that IS the pairing. Restating it as a chip added a
-           second, weaker answer to the same question, and when the chip named a product it
-           was wrong more often than right: the two vaporizers pointed at each other and so
-           did the two 510 batteries, in both cases naming the thing a customer buys
-           INSTEAD. Where two products genuinely need comparing, whichClose does it in
-           words a rep can say out loud. */
-      "</div>" +
-      (h.talkTrack && h.talkTrack.say ? '<blockquote class="sell-say"><em>' + t("Say this") + "</em>&ldquo;" + esc(h.talkTrack.say) + "&rdquo;</blockquote>" : "") +
-      (h.trap ? '<p class="sell-trap">' + ic("spark") + "<span><b>" + t("Common mistake:") + "</b> " + dt(c.slug, "howToSell", esc(h.trap)) + "</span></p>" : "") +
-      /* UNCONDITIONAL, on every product. This rule used to live inside the per-product
-         `trap` string — and only the Dash II's actually carried it. On the other five
-         courses the one instruction that stops a rep making a health claim appeared
-         nowhere on the page; it existed solely inside a quiz explanation the rep sees
-         once, if at all, after answering. A compliance rule that ships on one product in
-         six is not a compliance rule.
+    /* ONE VISIBLE LIST, not a disclosure. Scenarios and objections were two separate
+       sections behind a "More scripts and objections (6)" summary, so on the Dash II every
+       usable line — the thing a rep actually says out loud — was one tap away and out of
+       sight, while two abstract paragraphs held the top of the section. A rep between
+       customers does not open an accordion.
 
-         Rendered here rather than appended to five more `trap` strings because that
-         would be five strings in six languages, each free to drift, and the next product
-         added would start out missing it again. */
-      '<p class="sell-health"><span><b>' + t("Never a health claim.") + "</b> " +
-        t("If a customer raises coughing, harshness, lungs, or any other health topic, do not diagnose it and do not say the product fixes it. Redirect to flavor and experience, or refer them to their doctor.") +
-      "</span></p>" +
-      more +
+       They merge because they are the same move at the counter: something happens, you say
+       a line. The only difference is whether the trigger is something you SEE in the basket
+       or something they SAY, so that becomes a label on the row rather than a section
+       heading with its own paragraph of chrome. */
+    var quick = []
+      .concat((h.scenarios || []).map(function (sc) {
+        return { kind: "sees", trigger: sc.sees, say: sc.say, why: sc.why };
+      }))
+      .concat((h.objections || []).map(function (o) {
+        return { kind: "says", trigger: o.says, say: o.say, why: o.why };
+      }));
+    var quickHTML = quick.map(function (q) {
+      return '<li class="qk">' +
+        '<div class="qk-when"><em>' + (q.kind === "sees" ? t("You see") : t("They say")) + "</em>" +
+          "<span>" + (q.kind === "says" ? "&ldquo;" + esc(q.trigger) + "&rdquo;" : esc(q.trigger)) + "</span></div>" +
+        '<div class="qk-say">&ldquo;' + esc(q.say) + "&rdquo;</div>" +
+        (q.why ? '<div class="qk-why">' + esc(q.why) + "</div>" : "") +
+      "</li>";
+    }).join("");
+
+    return '<div class="sell2" style="--accent:' + (c.accent || "var(--gold-bright)") + '">' +
+      /* The trigger and the one-line reason, on one row. `aov` used to be a lead paragraph
+         of its own above this; it is the commercial framing rather than anything a rep says,
+         so it reads as a caption here instead of holding the top of the section. */
+      '<div class="sell-cue">' + tf("Customer is buying <b>{what}</b>", { what: esc(tx(h.upsellFrom || "").toUpperCase()) }) +
+        (h.vital ? "<p>" + esc(h.vital) + "</p>" : "") +
+      "</div>" +
+      (h.talkTrack && h.talkTrack.say
+        ? '<blockquote class="sell-say"><em>' + t("Say this") + "</em>&ldquo;" + esc(h.talkTrack.say) + "&rdquo;</blockquote>"
+        : "") +
+      (quickHTML ? '<ul class="sell-quick">' + quickHTML + "</ul>" : "") +
+      (h.whichClose ? '<div class="sell-close"><em>' + t("The either/or close") + "</em>&ldquo;" + esc(h.whichClose) + "&rdquo;</div>" : "") +
+      /* The two rules that stop a rep saying something wrong, in one block. The
+         health-claim rule is UNCONDITIONAL on every product: it used to live inside each
+         product's `trap` string and only the Dash II's actually carried it, so on five of
+         six courses the one instruction that matters most appeared nowhere on the page.
+         Rendered here rather than appended to five more strings, because that would be five
+         strings in six languages free to drift, and the next product added would start out
+         missing it again. */
+      '<div class="sell-never">' +
+        '<em>' + ic("spark") + t("Never") + "</em>" +
+        "<ul>" +
+          (h.trap ? "<li>" + dt(c.slug, "howToSell", esc(h.trap)) + "</li>" : "") +
+          "<li><b>" + t("Never a health claim.") + "</b> " +
+            t("If a customer raises coughing, harshness, lungs, or any other health topic, do not diagnose it and do not say the product fixes it. Redirect to flavor and experience, or refer them to their doctor.") +
+          "</li>" +
+        "</ul>" +
+      "</div>" +
+      (h.aov ? '<p class="sell-aov">' + ic("tag") + "<span>" + esc(h.aov) + "</span></p>" : "") +
     "</div>";
   }
   /* PACKAGING. Two cards: the retail box with its contents, and the POP display it
