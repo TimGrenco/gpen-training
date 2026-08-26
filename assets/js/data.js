@@ -136,7 +136,7 @@ window.GPEN_COURSES = [
       ],
     },
     videos: [
-      { title: "How to Use: G Pen Dash II", thumb: LIFE + "dash-ii/104a7f0b4823caa9475f7a3b5f3d7cdbc33ac29136a00172c3a2fcba981894d1.jpg", youtube: "sqCdU8Kn5ek" },
+      { title: "How to Use: G Pen Dash II", thumb: LIFE + "dash-ii/104a7f0b4823caa9475f7a3b5f3d7cdbc33ac29136a00172c3a2fcba981894d1.jpg", vimeo: "1170864602" },
       { title: "How to Clean: Dash II", thumb: LIFE + "dash-ii/d3998c328bcc382ab553d2e0933e5e3db9ad263f3efd336d2aef5dad67d6e2d7.jpg", vimeo: "1170878031" },
     ],
     quiz: [
@@ -236,7 +236,7 @@ window.GPEN_COURSES = [
       ],
     },
     videos: [
-      { title: "How to Use: G Pen Dash+", thumb: LIFE + "dash-plus/affe3e09cd229d28ff4daa80404a4a76db423c0eaa0f956af5163391e122244e.jpg", youtube: "OzgMUHgEQao" },
+      { title: "How to Use: G Pen Dash+", thumb: LIFE + "dash-plus/affe3e09cd229d28ff4daa80404a4a76db423c0eaa0f956af5163391e122244e.jpg", vimeo: "843236157/221a4aa774" },
       { title: "How to Clean: G Pen Dash+", thumb: LIFE + "dash-plus/26deeb240b7db5f44cd9358b942aef8c94bb22f371a0a3221af4d23b2df5d7dc.jpg", vimeo: "989096678" },
     ],
     quiz: [
