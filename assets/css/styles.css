@@ -608,7 +608,14 @@ a.linklike.backdash { display: grid; place-items: center; min-height: 44px; widt
    solid panel. Nothing overlaps anything, the product is never behind a headline, and
    the copy gets real contrast instead of relying on a scrim — which is the more legible
    arrangement on a small screen regardless of which photo is used. */
-@media (max-width: 679px) {
+/* 839, not 679. The overlay only works once the hero is wide enough for the photo to
+   have vertical room to pan, and the hero width is the container width capped at 780
+   — which it only reaches at about 836px of viewport. Measured at 700px: the hero is
+   644 wide, the landscape source scales to 429 tall against a 420 box, so there are
+   NINE pixels of vertical overflow and nowhere to move the device. Three elements
+   then crossed it — the eyebrow by 114px, the headline by 84px, the lede by 27px.
+   768 is iPad portrait, so this band is not hypothetical. */
+@media (max-width: 839px) {
   .cx-hero { display: block; min-height: 0; }
   .cx-hero-media { position: relative; inset: auto; aspect-ratio: 4 / 3; }
   /* The scrim exists to make white text readable over a photo. With the text no longer
