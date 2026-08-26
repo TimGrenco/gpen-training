@@ -119,7 +119,7 @@ window.GPEN_COURSES = [
     ],
     faq: [
       { q: "What can the Dash II vaporize?", a: "Dry herb only — it is not compatible with concentrates, oils, or 510 carts." },
-      { q: "How big is the chamber?", a: "An upgraded 0.4g ceramic chamber — larger than the original Dash and easier to load." },
+      { q: "How big is the chamber?", a: "The ceramic chamber fits 0.4g of ground flower." },
       { q: "How does it charge?", a: "Via USB-C with pass-through, so you can use it while it's plugged in. A USB-C cable is not included." },
       { q: "Does it have temperature control?", a: "Yes — precise, adjustable temperature control with an OLED display showing real-time temp and battery." },
       { q: "How long does it take to heat up?", a: "About 30 seconds with its conduction heating system." },
