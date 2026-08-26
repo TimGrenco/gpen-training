@@ -139,8 +139,8 @@ window.GPEN_COURSES = [
       trap: "Never describe it as being like smoking. Say that it heats the flower and does not burn it.",
       objections: [
         { says: "I'll just roll it.", say: "You still can. Rolling burns it, so part of every bowl goes up in smoke. This heats the same gram at a set temperature, so it goes further.", why: "Do not argue against rolling. Reframe on waste and flavor." },
-        { says: "Is $49.95 worth it?", say: "That is the entry price for real temperature control and a display. Add a USB-C cable — it is not in the box.", why: "Anchor on what the price buys, then attach the cable. It is not in the box." },
-        { says: "I have never used a dry herb vaporizer.", say: "Four steps: grind, pack, hold to power on, double-tap to heat. That is all of it.", why: "Answer with the actual step count. Four concrete steps remove the fear faster than reassurance does." },
+        { says: "Is $49.95 worth it?", say: "This has all the bells and whistles of a $100 device — temp control, ceramic chamber, built-in pick tool — for $50.", why: "Anchor on what the price buys rather than discounting. Then attach a USB-C cable — it is not in the box, and that is what brings them back annoyed." },
+        { says: "I've never used a dry herb vaporizer.", say: "It's simpler than you'd think — four steps. Grind, pack, hold to power on, double-tap to heat. That's it.", why: "Answer with the actual step count. Four concrete steps remove the fear faster than reassurance does." },
       ],
     },
     videos: [

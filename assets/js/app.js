@@ -1657,8 +1657,8 @@
         '<em>' + ic("spark") + t("Never") + "</em>" +
         "<ul>" +
           (h.trap ? "<li>" + dt(c.slug, "howToSell", esc(h.trap)) + "</li>" : "") +
-          "<li><b>" + t("Never a health claim.") + "</b> " +
-            t("If a customer raises coughing, harshness, lungs, or any other health topic, do not diagnose it and do not say the product fixes it. Redirect to flavor and experience, or refer them to their doctor.") +
+          "<li><b>" + t("Never make a health claim.") + "</b> " +
+            t("You can say it heats instead of burns, and you can say it tastes better. You can't say it's safer, healthier, or easier on anyone's lungs.") +
           "</li>" +
         "</ul>" +
       "</div>" +
