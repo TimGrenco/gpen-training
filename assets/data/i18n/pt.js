@@ -289,8 +289,7 @@ window.GPEN_I18N = {
         "Ferramenta de carregamento integrada",
       ],
       howToSell: {
-        talkTrack: { say: "Isto aquece-a em vez de a queimar, por isso sente os terpenos e o sabor da variedade em vez do fumo." },
-        trap: "Nunca descreva como algo parecido com fumar. Diga que aquece a flor e não a queima.",
+        talkTrack: { say: "Já experimentou um vaporizador de erva seca? Isto aquece-a em vez de a queimar, por isso sente os terpenos e o sabor da variedade em vez do fumo." },
         keyFacts: [
           "Vaporizador de erva seca de bolso",
           "Aquece em cerca de 30 segundos · câmara de 0,4 g",

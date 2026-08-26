@@ -304,8 +304,7 @@ window.GPEN_I18N = {
         "Herramienta de carga integrada",
       ],
       howToSell: {
-        talkTrack: { say: "Esto la calienta en lugar de quemarla, así saborea los terpenos y el sabor de la variedad en vez del humo." },
-        trap: "Nunca lo describa como algo parecido a fumar. Diga que calienta la flor y no la quema.",
+        talkTrack: { say: "¿Ha probado un vaporizador de hierba seca? Esto la calienta en lugar de quemarla, así saborea los terpenos y el sabor de la variedad en vez del humo." },
         keyFacts: [
           "Vaporizador de hierba seca de bolsillo",
           "Calienta en unos 30 segundos · cámara de 0,4 g",

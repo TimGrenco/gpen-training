@@ -288,8 +288,7 @@ window.GPEN_I18N = {
         "Outil de remplissage intégré",
       ],
       howToSell: {
-        talkTrack: { say: "Cela la chauffe au lieu de la brûler : vous goûtez les terpènes et le caractère de la variété plutôt que la fumée." },
-        trap: "Ne le décrivez jamais comme quelque chose de comparable au fait de fumer. Dites qu'il chauffe la fleur et ne la brûle pas.",
+        talkTrack: { say: "Avez-vous déjà essayé un vaporisateur à herbes sèches ? Cela la chauffe au lieu de la brûler : vous goûtez les terpènes et le caractère de la variété plutôt que la fumée." },
         keyFacts: [
           "Vaporisateur de poche pour herbe sèche",
           "Chauffe en environ 30 secondes · chambre de 0,4 g",

@@ -129,8 +129,7 @@ window.GPEN_COURSES = [
       upsellFrom: "Flower",
       // No invented fractions: "half the terpenes" was a fabricated statistic.
       keyFacts: ["Pocket-sized dry herb vaporizer", "Heats in about 30 seconds · 0.4g chamber", "$49.95 entry level price point"],
-      talkTrack: { say: "This heats it instead of burning it, so you taste the terpenes and flavor of the strain instead of the smoke." },
-      trap: "Never describe it as being like smoking. Say that it heats the flower and does not burn it.",
+      talkTrack: { say: "Have you tried a dry herb vaporizer? This heats it instead of burning it, so you taste the terpenes and flavor of the strain instead of the smoke." },
       objections: [
         { says: "Is $49.95 worth it?", say: "This has all the bells and whistles of a $100 device — temp control, ceramic chamber, built-in pick tool — for $50." },
         { says: "I've never used a dry herb vaporizer.", say: "It's simpler than you'd think — four steps. Grind, pack, hold to power on, double-tap to heat. That's it." },

@@ -287,8 +287,7 @@ window.GPEN_I18N = {
         "Strumento di caricamento integrato",
       ],
       howToSell: {
-        talkTrack: { say: "Questo lo riscalda invece di bruciarlo, così senti i terpeni e il sapore della varietà invece del fumo." },
-        trap: "Non lo descriva mai come qualcosa di simile al fumare. Dica che riscalda l'infiorescenza e non la brucia.",
+        talkTrack: { say: "Hai mai provato un vaporizzatore per erba secca? Questo lo riscalda invece di bruciarlo, così senti i terpeni e il sapore della varietà invece del fumo." },
         keyFacts: [
           "Vaporizzatore da tasca per erba secca",
           "Si scalda in circa 30 secondi · camera da 0,4 g",

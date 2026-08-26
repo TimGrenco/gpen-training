@@ -289,8 +289,7 @@ window.GPEN_I18N = {
         "Integriertes Ladewerkzeug",
       ],
       howToSell: {
-        talkTrack: { say: "Das erhitzt sie, statt sie zu verbrennen, so schmecken Sie die Terpene und den Charakter der Sorte statt des Rauchs." },
-        trap: "Beschreiben Sie es nie als etwas, das dem Rauchen gleicht. Sagen Sie, dass es die Blüten erhitzt und nicht verbrennt.",
+        talkTrack: { say: "Haben Sie schon einmal einen Trockenkräuter-Vaporizer probiert? Das erhitzt sie, statt sie zu verbrennen, so schmecken Sie die Terpene und den Charakter der Sorte statt des Rauchs." },
         keyFacts: [
           "Vaporizer für trockene Kräuter im Taschenformat",
           "Heizt in etwa 30 Sekunden auf · 0,4-g-Kammer",
