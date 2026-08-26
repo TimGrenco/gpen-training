@@ -286,9 +286,8 @@ window.GPEN_I18N = {
         "Outil de remplissage intégré",
       ],
       howToSell: {
-        vital: "Pas de flamme ni de cendre : les terpènes ressortent au lieu de brûler.",
         aov: "L’accessoire à plus forte valeur sur une vente de fleur, et il fait revenir le client pour de la fleur.",
-        talkTrack: { say: "Puisque vous achetez de la fleur : cela la chauffe au lieu de la brûler. Le même gramme dure plus longtemps, avec un goût plus net. $49.95, format poche." },
+        talkTrack: { say: "Cela la chauffe au lieu de la brûler : vous goûtez les terpènes et le caractère de la variété plutôt que la fumée." },
         whichClose: "Le Dash II à $49.95, ou le Dash+ avec chambre en titane à $99.95 : lequel vous convient ?",
         trap: "Ne le décrivez jamais comme quelque chose de comparable au fait de fumer. Dites qu'il chauffe la fleur et ne la brûle pas.",
         keyFacts: [

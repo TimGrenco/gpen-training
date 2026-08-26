@@ -287,9 +287,8 @@ window.GPEN_I18N = {
         "Integriertes Ladewerkzeug",
       ],
       howToSell: {
-        vital: "Keine Flamme und keine Asche, so kommen die Terpene durch, statt zu verbrennen.",
         aov: "Das wertvollste Zusatzprodukt bei einem Blütenkauf – und es bringt den Kunden für Blüten zurück.",
-        talkTrack: { say: "Da Sie Blüten kaufen: Das erhitzt sie, statt sie zu verbrennen. Dasselbe Gramm reicht länger, mit klarerem Geschmack. $49.95, taschengroß." },
+        talkTrack: { say: "Das erhitzt sie, statt sie zu verbrennen, so schmecken Sie die Terpene und den Charakter der Sorte statt des Rauchs." },
         whichClose: "Der Dash II für $49.95 oder der Dash+ mit Titankammer für $99.95 – was passt besser?",
         trap: "Beschreiben Sie es nie als etwas, das dem Rauchen gleicht. Sagen Sie, dass es die Blüten erhitzt und nicht verbrennt.",
         keyFacts: [

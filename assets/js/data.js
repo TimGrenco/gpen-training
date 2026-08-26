@@ -128,10 +128,9 @@ window.GPEN_COURSES = [
     howToSell: {
       upsellFrom: "Flower",
       // No invented fractions: "half the terpenes" was a fabricated statistic.
-      vital: "No flame and no ash, so the terpenes come through instead of burning off.",
       aov: "The highest-value add-on on a flower sale — and it brings them back for flower.",
       keyFacts: ["Pocket-sized dry herb vaporizer", "Heats in about 30 seconds · 0.4g chamber", "$49.95 entry level price point"],
-      talkTrack: { say: "Since you are buying flower — this heats it instead of burning it. Same gram goes further, clearer flavor. $49.95, pocket-sized." },
+      talkTrack: { say: "This heats it instead of burning it, so you taste the terpenes and flavor of the strain instead of the smoke." },
       whichClose: "The Dash II at $49.95, or the Dash+ with a titanium chamber at $99.95 — which suits you?",
       scenarios: [
         { sees: "A half-ounce of flower + a grinder in their basket", say: "You are already grinding it — this is the next piece. Same flower lasts longer, because you are heating it, not burning it. $49.95." },
