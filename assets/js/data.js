@@ -167,7 +167,7 @@ window.GPEN_COURSES = [
     minutes: 11, passPct: 80, msrp: "$99.95", accent: "#D75D43",
     cover: CDN + "dash__vape_thumb_5e14bcb4-a63a-4cc3-8078-e57fc572e4da.png?v=1729247649",
     heroImg: LIFE + "dash-plus/fa2c8251f87a6c51f5caeff6928ee01dee048a936682e1ea2f72746a142b7c47.jpg",
-    heroStack: true,
+    heroSplit: true,
     /* No POP display for the Dash+ — it ships as a single unit only, which is why
        the SKU sheet lists its inner pack as N/A. The section renders one card. */
     packaging: {

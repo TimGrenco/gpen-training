@@ -626,16 +626,31 @@ a.linklike.backdash { display: grid; place-items: center; min-height: 44px; widt
    NINE pixels of vertical overflow and nowhere to move the device. Three elements
    then crossed it — the eyebrow by 114px, the headline by 84px, the lede by 27px.
    768 is iPad portrait, so this band is not hypothetical. */
-/* FORCED STACK, at any width, for a course that sets heroStack. Some lifestyle shots cannot
-   share a frame with the copy at all: the Dash+ hero is portrait with the device filling a
-   third of the frame, so scaled to a 780px-wide hero the device renders 366px tall while
-   only 199px are clear above the bottom-anchored copy. No object-position can fit 366 into
-   199 — the overlay would need a 600px hero. Stacking is the honest answer, and it is the
-   same arrangement phones already get. */
-.cx-hero.stacked { display: block; min-height: 0; }
-.cx-hero.stacked .cx-hero-media { position: relative; inset: auto; aspect-ratio: 4 / 3; }
-.cx-hero.stacked::after { display: none; }
-.cx-hero.stacked .cx-hero-body { background: #141414; }
+/* SPLIT HERO — for a course whose photo cannot share a frame with the copy. The Dash+ shot is
+   portrait with the device filling a third of it, so scaled into a 780px-wide overlay the
+   device renders 366px tall against only 199px of clear space above the bottom-anchored
+   copy. No object-position fits 366 into 199; the overlay would need a 600px banner.
+
+   Photo and copy therefore never overlap. On a wide screen they sit SIDE BY SIDE rather than
+   stacked: stacking a 4:3 photo above a full-width dark slab made the hero enormous and
+   top-heavy, which is what the client saw. Two columns keeps the page balanced, gives a
+   portrait photo a portrait-ish cell to fill, and still leaves the device completely clear
+   of the text. Below the breakpoint it stacks, because side-by-side columns on a phone are
+   two things too narrow to read. */
+.cx-hero.split { display: block; min-height: 0; }
+.cx-hero.split .cx-hero-media { position: relative; inset: auto; aspect-ratio: 4 / 3; }
+.cx-hero.split::after { display: none; }
+.cx-hero.split .cx-hero-body { background: #141414; }
+@media (min-width: 840px) {
+  /* align-items:stretch is load-bearing: the overlay rule above sets flex-end at this
+     same breakpoint, and it applies to grid items too — which left the dark copy panel
+     sized to its content and floating at the bottom of its column, with a cream gap
+     above it. */
+  .cx-hero.split { display: grid; grid-template-columns: 1fr 1fr; align-items: stretch; min-height: 460px; }
+  /* the photo cell fills its column; aspect-ratio would fight the grid row height */
+  .cx-hero.split .cx-hero-media { aspect-ratio: auto; height: 100%; }
+  .cx-hero.split .cx-hero-body { display: flex; flex-direction: column; justify-content: center; padding: 32px; }
+}
 
 @media (max-width: 839px) {
   .cx-hero { display: block; min-height: 0; }
