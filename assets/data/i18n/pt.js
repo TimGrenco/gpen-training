@@ -125,7 +125,6 @@ window.GPEN_I18N = {
     "Dabs / concentrate": "Dabs / concentrado",
     "510 cartridge": "Cartucho 510",
     "Customer is buying <b>{what}</b>": "O cliente está comprando <b>{what}</b>",
-    "Pair with": "Combine com",
     "Say this": "Diga isto",
     "Never a health claim.": "Nunca faça alegações de saúde.",
     "If a customer raises coughing, harshness, lungs, or any other health topic, do not diagnose it and do not say the product fixes it. Redirect to flavor and experience, or refer them to their doctor.": "Se um cliente mencionar tosse, aspereza, pulmões ou qualquer outro tema de saúde, não diagnostique e não diga que o produto resolve. Redirecione para sabor e experiência, ou encaminhe ao médico dele.",

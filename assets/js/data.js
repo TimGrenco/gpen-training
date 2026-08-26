@@ -61,7 +61,8 @@ window.GPEN_COURSES = [
     differentiator: "The entry dry herb vaporizer. Simple to use.",
     minutes: 11, passPct: 80, msrp: "$49.95", accent: "#FEC870",
     cover: CDN + "Dash2_thumb_01.png?v=1782936076",
-    heroImg: LIFE + "dash-ii/f37d082035ae142949fa4dfe33aeebf6d9b556a2745187c26db91bc2ca08a020.jpg",
+    heroImg: LIFE + "dash-ii/fa7d18dfeb95a3e64c1463c8b71f8a14fda9385f98cac0edf10939e3f33446c8.jpg",
+    heroPos: "50% 100%",
     /* Packaging, from the asset portal's synced "Packaging" folder. `perDisplay`
        is the inner-pack count on the SKU sheet — what a store actually receives. */
     packaging: {
@@ -126,19 +127,10 @@ window.GPEN_COURSES = [
     ],
     howToSell: {
       upsellFrom: "Flower",
-      /* pairsWith renders under "Pair with" as something to sell ALONGSIDE this, on the
-         same flower purchase — so it must not name a product the customer would buy
-         INSTEAD. This said ["dash-plus"], which put "Pair with: Dash+" on the Dash II
-         page: two dry herb vaporizers at $49.95 and $99.95, recommending each other. A
-         rep reading it literally would try to sell one customer both.
-         The grinder is the real attach on a flower sale — flower has to be broken up
-         before either vaporizer can heat it — and it is what the quiz for this course
-         already teaches ("flower on the counter -> grinder and a Dash II"). */
-      pairsWith: ["grinder"],
       // No invented fractions: "half the terpenes" was a fabricated statistic.
       vital: "A vaporizer heats ground flower instead of burning it, which gives a clearer flavor of the strain. The Dash II is the lowest-priced way into that.",
       aov: "Every flower sale can carry a $49.95 device. It is the highest-value add-on available on a flower purchase, and it brings the customer back for flower.",
-      keyFacts: ["Pocket-sized dry herb vaporizer", "Heats in about 30 seconds · 0.4g chamber", "$49.95 — the entry price point"],
+      keyFacts: ["Pocket-sized dry herb vaporizer", "Heats in about 30 seconds · 0.4g chamber", "$49.95 entry level price point"],
       talkTrack: { say: "Since you are buying flower: this heats it instead of burning it. You get more sessions from the same amount and a clearer flavor. $49.95, and it fits in a pocket." },
       whichClose: "Two options for flower: the Dash II at $49.95, or the Dash+ with a titanium chamber at $99.95. Which suits you?",
       scenarios: [
@@ -246,9 +238,6 @@ window.GPEN_COURSES = [
     ],
     howToSell: {
       upsellFrom: "Flower",
-      // Same fix as the Dash II, in the other direction: this said ["dash-ii"], so the
-      // two vaporizers pointed at each other as companions. See the note there.
-      pairsWith: ["grinder"],
       vital: "The titanium chamber and hybrid heating give more vapor and a fuller flavor than the Dash II. This is the model for a customer buying higher-grade flower.",
       aov: "Present the Dash II at $49.95 first, then this at $99.95. Showing the two together doubles the device value on the same flower sale.",
       keyFacts: ["Full titanium chamber, hybrid heating", "Heats in about 20 seconds · color display", "$99.95 — the step up from the Dash II"],
@@ -384,7 +373,6 @@ window.GPEN_COURSES = [
     ],
     howToSell: {
       upsellFrom: "Flower",
-      pairsWith: ["dash-ii", "dash-plus"],
       vital: "Every flower customer grinds somehow. This is the cheapest thing on the counter that improves what they already bought, and it is the accessory that makes a Dash pack evenly.",
       aov: "A $19.95 mechanical add-on with nothing to break and nothing to charge. It attaches to any flower sale, and it ships as a 10-pack POP display so it can live right at the register.",
       keyFacts: ["3-piece, 64mm, aluminum", "Patented micro-rounded teeth", "No kief screen — $19.95"],
@@ -487,7 +475,6 @@ window.GPEN_COURSES = [
     ],
     howToSell: {
       upsellFrom: "Dabs / concentrate",
-      pairsWith: [],
       vital: "Concentrate needs a tool to handle it, and a cold tool drags and leaves residue behind. The heated ceramic tip releases it cleanly into the rig, so less of what they paid for is wasted.",
       aov: "A $24.95 add-on that fits every concentrate sale. Anyone buying wax or rosin is already working with a cold tool, so the need exists before you mention it.",
       keyFacts: ["Heated ceramic tip releases concentrate cleanly", "Heats in seconds · pocket-sized", "Loads any rig or banger — $24.95"],
@@ -598,16 +585,6 @@ window.GPEN_COURSES = [
     ],
     howToSell: {
       upsellFrom: "510 cartridge",
-      /* EMPTY ON PURPOSE. What this pairs with is the 510 cartridge the customer is
-         already buying, and a cartridge is not a G Pen product, so there is nothing in
-         the lineup to link to. This used to say ["510-original"] — the other 510
-         battery — which read as "sell them both" when a customer buys one battery or
-         the other, never two. An empty list drops the whole "Pair with" row rather
-         than rendering a misleading one; the cue directly above it already says the
-         customer is buying a 510 cartridge.
-         The two batteries are still connected where that genuinely helps: whichClose on
-         the 510 Original offers them as the either/or they actually are. */
-      pairsWith: [],
       vital: "It does the same job as any 510 battery, but the mouthpiece stores inside the body. That keeps the cartridge discreet and shielded from light.",
       aov: "The step-up cartridge battery. Against the $12.95 510 Original, this adds discretion and five voltage settings, and doubles the value of the battery attach.",
       keyFacts: ["Mouthpiece stores inside the body", "Five voltage settings plus preheat", "Discreet, and shields the cartridge — $24.95"],
@@ -717,10 +694,6 @@ window.GPEN_COURSES = [
     ],
     howToSell: {
       upsellFrom: "510 cartridge",
-      // Empty for the same reason as the Hydout: the pairing is the cartridge itself,
-      // not another G Pen product. See the note there. whichClose below still puts this
-      // and the Hydout side by side, which is the correct way to relate them.
-      pairsWith: [],
       vital: "A cartridge does not work without a battery. This is the lowest-priced way to make the cartridge they are already buying usable.",
       aov: "At $12.95 this is the simplest attach in the store, because the need is absolute: no customer should leave with a cartridge and no way to use it.",
       keyFacts: ["Smallest G Pen battery — $12.95", "Draw-activated: no button needed", "Fits most standard 510 cartridges"],

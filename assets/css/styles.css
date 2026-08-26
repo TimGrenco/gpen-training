@@ -326,15 +326,10 @@ h1, h2, h3, h4 { margin: 0; line-height: 1.08; letter-spacing: -.02em; }
 .sell-cue { display: flex; align-items: center; gap: 8px; flex-wrap: wrap; font-size: 13px; font-weight: 800; text-transform: uppercase; letter-spacing: .04em; color: var(--ink); }
 .sell-cue b { color: var(--gold); }
 .sell-pair p { margin: 8px 0 0; font-size: 15px; line-height: 1.55; color: var(--ink-2); }
-.sell-sibs { display: flex; align-items: center; flex-wrap: wrap; gap: 8px; margin-top: 12px; }
-.sell-sibs span { font-size: 12px; font-weight: 800; text-transform: uppercase; letter-spacing: .05em; color: var(--stone); }
 /* The product accent used to be a 4px border-left. On a 999px-radius pill that
    renders as a thick coloured crescent down one side, which reads as a rendering
    glitch rather than as a colour key — so the accent is a dot inside the pill now,
    where it is legible at any radius. */
-.sell-sib { display: inline-flex; align-items: center; min-height: 32px; gap: 7px; padding: 6px 13px; border-radius: 999px; border: 1.5px solid var(--line); font-size: 13px; font-weight: 800; color: var(--ink); text-decoration: none; }
-.sell-sib::before { content: ""; flex: none; width: 8px; height: 8px; border-radius: 50%; background: var(--accent, var(--gold-bright)); }
-.sell-sib:hover { border-color: var(--gold-bright); }
 
 /* "Say this" talk track — the read-aloud line. */
 .sell-say { position: relative; margin: 0; padding: 16px 18px; border-radius: var(--r-md); background: #f0f8f2; border: 1px solid #cfe8d8; border-left: 5px solid var(--ok); font-size: 16px; line-height: 1.5; font-weight: 600; color: #17402a; }
@@ -868,7 +863,13 @@ a.linklike.backdash { display: grid; place-items: center; min-height: 44px; widt
   .vid-grid { grid-template-columns: repeat(2, 1fr); }
   .about-stats { grid-template-columns: repeat(4, 1fr); }
   .gallery { grid-template-columns: repeat(3, 1fr); }
-  .cx-hero { min-height: 400px; }
+  /* 420, not 400. The text block is bottom-anchored and about 220px tall, so a 400px
+     hero leaves only ~180px of clear image above it. On a LANDSCAPE lifestyle shot
+     that is not enough to hold the product clear of the copy: the Dash II photo had
+     to be panned so far up to clear the price row that the top of the device was
+     clipped off. Twenty more pixels buys enough room for both. Portrait shots are
+     unaffected either way — their subject sits high in the frame already. */
+  .cx-hero { min-height: 420px; }
   .cx-hero { align-items: flex-end; }
   .cx-hero-body { max-width: 760px; }
   .social-grid { grid-template-columns: repeat(4, 1fr); }
@@ -1756,4 +1757,3 @@ a, button, summary, label, [role="button"] { -webkit-tap-highlight-color: transp
 .hdr-navlink { min-height: 44px; display: inline-flex; align-items: center; }
 .langsel-btn { min-height: 44px; }
 .langmenu-item { min-height: 44px; }
-.sell-sib { min-height: 44px; display: inline-flex; align-items: center; }

@@ -676,8 +676,8 @@
      answer wrong, and a rep fails a quiz they answered correctly. Same reason
      `name`, `msrp` and the media keys are refused: product names, prices, photos
      and discount codes are identical in every language. */
-  var I18N_NEVER = { quiz: 1, slug: 1, name: 1, msrp: 1, family: 1, accent: 1, cover: 1, heroImg: 1, videos: 1, gallery: 1, pairsWith: 1, productUrl: 1, faqUrl: 1, passPct: 1,
-                     box: 1, pop: 1, perDisplay: 1 };
+  var I18N_NEVER = { quiz: 1, slug: 1, name: 1, msrp: 1, family: 1, accent: 1, cover: 1, heroImg: 1, videos: 1, gallery: 1, productUrl: 1, faqUrl: 1, passPct: 1,
+                     box: 1, pop: 1, perDisplay: 1, heroPos: 1 };
   // Objects whose keys merge rather than replace wholesale.
   var NESTED = { howToSell: 1, packaging: 1 };
   /* Which fields a locale actually replaced, per slug. dt() below reads this so a
@@ -1452,7 +1452,18 @@
       '<section class="course reveal">' +
         '<a class="back" href="#/">' + ic("back") + " " + t("All products") + "</a>" +
         '<div class="cx-hero' + (c.heroImg ? "" : " no-life") + '" style="--accent:' + c.accent + '">' +
-          '<div class="cx-hero-media"><img src="' + esc(sized(hero, 760)) + '" alt="' + esc(c.name) + '" loading="eager"/></div>' +
+          /* heroPos overrides the default object-position for this one photo. The default
+             (50% 35%) suits a PORTRAIT lifestyle shot, where the subject is high in the
+             frame and the bottom is empty for the text to sit on. A landscape shot with
+             the product mid-frame needs a different crop or the price row lands on the
+             device.
+             Note that only the VERTICAL half of this value can do anything here: at
+             every width the hero is wider than 4:3, so a landscape source scales to fill
+             the width exactly and overflows only vertically. Setting an X other than 50%
+             is silently inert — do not reach for it when a subject is off-centre. */
+          '<div class="cx-hero-media"><img src="' + esc(sized(hero, 760)) + '" alt="' + esc(c.name) + '"' +
+            (c.heroPos ? ' style="object-position:' + esc(c.heroPos) + '"' : "") +
+            ' loading="eager"/></div>' +
           '<div class="cx-hero-body">' +
             '<span class="ch-eyebrow">' + ic("cap") + " " + t("Product training") + (passed ? ' · <b class="ch-done">' + ic("check") + " " + t("Complete") + "</b>" : "") + "</span>" +
             "<h1>" + esc(c.name) + "</h1>" +
@@ -1591,10 +1602,6 @@
      rule, and a compliance warning nobody opens is not a warning. */
   function howToSellHTML(c) {
     var h = c.howToSell; if (!h) return "";
-    var sibs = (h.pairsWith || []).map(function (sl) {
-      var sc = courseBySlug(sl);
-      return sc ? '<a class="sell-sib" href="#/course/' + sl + '" style="--accent:' + sc.accent + '">' + esc(sc.name) + "</a>" : "";
-    }).join("");
     var objs = (h.objections || []).map(function (o) {
       return '<div class="obj-card">' +
         '<div class="obj-says"><em>' + t("They say") + "</em><span>&ldquo;" + esc(o.says) + "&rdquo;</span></div>" +
@@ -1634,7 +1641,14 @@
         // "Customer is buying" is its own label; it does not need a glyph.
         '<div class="sell-cue">' + tf("Customer is buying <b>{what}</b>", { what: esc(tx(h.upsellFrom || "").toUpperCase()) }) + "</div>" +
         "<p>" + esc(h.vital) + "</p>" +
-        (sibs ? '<div class="sell-sibs"><span>' + t("Pair with") + "</span>" + sibs + "</div>" : "") +
+        /* No "Pair with" row. It listed other COURSES to sell alongside this one, but the
+           cue directly above already names what the customer is buying — flower, a 510
+           cartridge, concentrate — and that IS the pairing. Restating it as a chip added a
+           second, weaker answer to the same question, and when the chip named a product it
+           was wrong more often than right: the two vaporizers pointed at each other and so
+           did the two 510 batteries, in both cases naming the thing a customer buys
+           INSTEAD. Where two products genuinely need comparing, whichClose does it in
+           words a rep can say out loud. */
       "</div>" +
       (h.talkTrack && h.talkTrack.say ? '<blockquote class="sell-say"><em>' + t("Say this") + "</em>&ldquo;" + esc(h.talkTrack.say) + "&rdquo;</blockquote>" : "") +
       (h.trap ? '<p class="sell-trap">' + ic("spark") + "<span><b>" + t("Common mistake:") + "</b> " + dt(c.slug, "howToSell", esc(h.trap)) + "</span></p>" : "") +
