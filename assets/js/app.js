@@ -1844,8 +1844,16 @@
   function openVideo(src, title) {
     /* Vimeo first — see the note on the card. dnt=1 keeps Vimeo from setting tracking
        cookies, which matters because the privacy notice states this site sets none. */
+    /* A vimeo value is either "1234567890" or "1234567890/abc123def" — the second form is an
+       UNLISTED video, and its privacy hash is not optional: without ?h= the player answers
+       "Because of its privacy settings, this video cannot be played here" and the card looks
+       broken. Vimeo's own oEmbed returns the hash in exactly this position, and most of this
+       catalogue is unlisted, so the split is the normal path rather than an edge case. */
+    var vparts = String(src.vimeo || "").split("/");
+    var vurl = "https://player.vimeo.com/video/" + encodeURIComponent(vparts[0]) +
+      "?autoplay=1&dnt=1&playsinline=1" + (vparts[1] ? "&h=" + encodeURIComponent(vparts[1]) : "");
     var frame = src.vimeo
-      ? '<iframe src="https://player.vimeo.com/video/' + esc(src.vimeo) + '?autoplay=1&dnt=1&playsinline=1" title="' + esc(title) + '" allow="autoplay; fullscreen; picture-in-picture" allowfullscreen></iframe>'
+      ? '<iframe src="' + esc(vurl) + '" title="' + esc(title) + '" allow="autoplay; fullscreen; picture-in-picture" allowfullscreen></iframe>'
       : '<iframe src="https://www.youtube-nocookie.com/embed/' + esc(src.youtube) + '?autoplay=1&rel=0&playsinline=1" title="' + esc(title) + '" allow="autoplay; encrypted-media; fullscreen" allowfullscreen></iframe>';
     var m = document.createElement("div"); m.className = "modal";
     m.innerHTML = '<div class="modal-in"><button class="modal-x" aria-label="' + tx("Close") + '">×</button>' +

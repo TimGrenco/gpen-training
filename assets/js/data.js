@@ -137,7 +137,7 @@ window.GPEN_COURSES = [
     },
     videos: [
       { title: "How to Use: G Pen Dash II", thumb: LIFE + "dash-ii/104a7f0b4823caa9475f7a3b5f3d7cdbc33ac29136a00172c3a2fcba981894d1.jpg", youtube: "sqCdU8Kn5ek" },
-      { title: "How to Clean: Dash II", thumb: LIFE + "dash-ii/d3998c328bcc382ab553d2e0933e5e3db9ad263f3efd336d2aef5dad67d6e2d7.jpg", youtube: "wBOzqPxDhd8" },
+      { title: "How to Clean: Dash II", thumb: LIFE + "dash-ii/d3998c328bcc382ab553d2e0933e5e3db9ad263f3efd336d2aef5dad67d6e2d7.jpg", vimeo: "1170878031" },
     ],
     quiz: [
       { q: "A customer puts a half-ounce of flower on the counter. What is the strongest way to open?", choices: ["“Do you need a grinder to go with that?”", "“Have you tried a dry herb vaporizer?”", "“Can I show you what is on sale today?”", "“Are you a smoker, or more of an edibles person?”"], answer: 1, why: "Open with a question they can answer about what they are already buying. Leading with a product or a discount asks them to decide before they know why." },
@@ -237,7 +237,7 @@ window.GPEN_COURSES = [
     },
     videos: [
       { title: "How to Use: G Pen Dash+", thumb: LIFE + "dash-plus/affe3e09cd229d28ff4daa80404a4a76db423c0eaa0f956af5163391e122244e.jpg", youtube: "OzgMUHgEQao" },
-      { title: "How to Clean: G Pen Dash+", thumb: LIFE + "dash-plus/26deeb240b7db5f44cd9358b942aef8c94bb22f371a0a3221af4d23b2df5d7dc.jpg", youtube: "vSAc8WPkUpY" },
+      { title: "How to Clean: G Pen Dash+", thumb: LIFE + "dash-plus/26deeb240b7db5f44cd9358b942aef8c94bb22f371a0a3221af4d23b2df5d7dc.jpg", vimeo: "989096678" },
     ],
     quiz: [
             { q: "“Why is this double the price of the Dash II?” What answers that best at the counter?", choices: ["It is newer, so the older model is being phased out", "It holds more flower, so a session lasts longer", "The battery is bigger, so it lasts a lot longer", "The extra $50 buys titanium and hybrid heating"], answer: 3, why: "Justify the gap with the mechanism behind the difference: a titanium chamber heated by convection and conduction together. Capacity is not the answer — both chambers hold 0.4g." },
@@ -363,6 +363,12 @@ window.GPEN_COURSES = [
         { says: "$19.95 for a grinder?", say: "It is machined aluminum with patented teeth and a magnetic lid. There is nothing in it to wear out and nothing to charge.", why: "Durability is the value argument. Never discount into this objection." },
       ],
     },
+    videos: [
+      /* The only clip supplied for the grinder. Vimeo titles it "Grinder Larry Horiztonal A"
+         and it runs 14 seconds, so it is a brand loop rather than a how-to — named neutrally
+         here rather than as a tutorial it is not. */
+      { title: "G Pen 3-Piece Grinder", thumb: LIFE + "slim-3-piece-grinder/a8a0f52f0494bd3368b12fab45566d0d1fba32d773ecc3fa4129bff8250da72d.jpg", vimeo: "1212760378/75b863a6cb" },
+    ],
     quiz: [
       { q: "A customer picks up the 3-Piece Grinder, turns it over and asks whether it has a kief screen. What do you tell them?", choices: ["There is no kief screen — everything stays together on purpose", "Kief collects under the teeth and you scrape it out", "You have to buy the four-piece for that", "Yes, there is a fine screen under the catch cup"], answer: 0, why: "This is the single most common question on a 3-piece and the fastest route to a return if you fudge it. There is no kief screen at all, which the one-sheet frames as the feature: flower, trichomes and kief stay together instead of separating into a chamber people forget." },
       { q: "A regular says their free plastic grinder works fine. What is the strongest thing to lead with?", choices: ["This one costs more, so the build quality is better", "It is aluminum with micro-rounded teeth that separate rather than crush", "Plastic grinders break within a few months of daily use", "It is the same idea but it has the G Pen logo on it"], answer: 1, why: "Name the mechanism, not the price and not a durability claim you cannot back up. Micro-rounded teeth separating flower instead of shredding it is the patented difference, and it is what they will actually notice in the grind." },
@@ -466,8 +472,8 @@ window.GPEN_COURSES = [
       ],
     },
     videos: [
-      { title: "A Closer Look at the Melt", thumb: "https://i.ytimg.com/vi/nEDYSJqHk5o/hqdefault.jpg", youtube: "nEDYSJqHk5o" },
-      { title: "Melt — The Judge's Favorite", thumb: "https://i.ytimg.com/vi/mgErvUJHYQU/hqdefault.jpg", youtube: "mgErvUJHYQU" },
+      { title: "How to Use: G Pen Melt", thumb: LIFE + "melt/a856f7a351d9b1451fdda2922f32016d138d9a0523890ad39e2e288ea16e0a2a.jpg", vimeo: "1208556908/162aaa2dfa" },
+      { title: "How to Clean: G Pen Melt", thumb: LIFE + "melt/8c42edc1a83f93335746bd5c1c61f4b707d231f6d04779917e05cce55397f303.jpg", vimeo: "1208557447/7d62827d9d" },
     ],
     quiz: [
       { q: "A customer says \"I've already got a dab tool.\" What is the strongest response?", choices: ["The cold tool is the problem; heat lets the dab release clean", "Yours will wear out eventually, so a backup is worth having around", "This one is electric instead of manual, so it is the premium pick", "This one is smaller and easier to carry in a pocket every day"], answer: 0, why: "Comparing features against a tool they already own turns into a price argument you lose. Name the problem they live with instead — a cold tool is what causes the stringing and the reclaim left behind." },
@@ -576,8 +582,8 @@ window.GPEN_COURSES = [
       ],
     },
     videos: [
-      { title: "How to Use: G Pen Hydout", thumb: LIFE + "hydout/5f15ce2c04041ca331f87bc6b421339df199542a8bbf003b75522456d8f3712b.jpg", youtube: "WK3EXouKwGs" },
-      { title: "How to Clean: G Pen Hydout", thumb: LIFE + "hydout/0dd6886b1f0ce220b40b6216f9626174c0826e6c1057d0c0d7314404895a5579.jpg", youtube: "e9oEXqNajh4" },
+      { title: "How to Use: G Pen Hydout", thumb: LIFE + "hydout/5f15ce2c04041ca331f87bc6b421339df199542a8bbf003b75522456d8f3712b.jpg", vimeo: "1105930986/af9928a9e8" },
+      { title: "How to Clean: G Pen Hydout", thumb: LIFE + "hydout/0dd6886b1f0ce220b40b6216f9626174c0826e6c1057d0c0d7314404895a5579.jpg", vimeo: "1105958727" },
     ],
     quiz: [
       { q: "A customer buying a 2g distillate cart mentions they mostly vape on their lunch break behind the shop where they work. Which battery do you put in their hand?", choices: ["The Hydout, since the mouthpiece hides inside for pocket carry", "The 510 Original, since it is the cheapest way to run the cart", "The 510 Original, since a 2g cart is too big for the Hydout", "Either one, since the two batteries only differ on price"], answer: 0, why: "Both batteries fit most 510 carts up to 2g, so price is not what decides it — the customer's context is. When someone volunteers where they vape, discretion is the feature that closes the sale." },
@@ -685,8 +691,8 @@ window.GPEN_COURSES = [
       ],
     },
     videos: [
-      { title: "How to Use: G Pen 510 Original", thumb: LIFE + "510-original/7f3879a1dddf6f4c5c8dca1404cb9a67a4fb43c8ffda183ba69d311c5f3db50a.jpg", youtube: "_SF_4zkbZdI" },
-      { title: "How to Clean: G Pen 510 Original", thumb: LIFE + "510-original/b9aef761b21b9e90b3a5055b0faac40424242203669762451ada8b51d0541069.jpg", youtube: "4aMKTqSw0bQ" },
+      { title: "How to Use: G Pen 510 Original", thumb: LIFE + "510-original/7f3879a1dddf6f4c5c8dca1404cb9a67a4fb43c8ffda183ba69d311c5f3db50a.jpg", vimeo: "1149053260" },
+      { title: "How to Clean: G Pen 510 Original", thumb: LIFE + "510-original/b9aef761b21b9e90b3a5055b0faac40424242203669762451ada8b51d0541069.jpg", vimeo: "1198848006" },
     ],
     quiz: [
       { q: "A customer sets a single 510 cart on the counter and it is clearly their first one. What is the strongest opening?", choices: ["You got a battery for that cart?", "Do you need a battery to go with that?", "Let me know if you need anything else.", "Want to see our dry herb vapes too?"], answer: 0, why: "Assume the need instead of asking permission. A yes or no question invites a no, so presume the battery and keep the sale moving." },
