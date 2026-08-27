@@ -312,11 +312,12 @@ window.GPEN_COURSES = [
       { url: CDN + "stashgrinder_thumb_01.jpg", caption: "Closed — lid seated flush" },
     ],
     description: [
-      "The G&nbsp;Pen Grinder is a <strong>3-piece, 64mm (2.5\")</strong> grinder precision-machined from durable <strong>6063 anodized aluminum</strong> — the same aircraft-grade material family as the devices it feeds.",
-      "Its <strong>patented micro-rounded teeth</strong> (Patent No. 11690480) gently separate flower rather than shredding it, for a smoother, more consistent grind. A <strong>strong magnetic lid</strong> keeps the closure tight and the contents where they belong.",
-      "There is <strong>no kief screen</strong>, and that is deliberate: everything you grind — flower, trichomes and kief together — falls into the catch cup and goes into your bowl or chamber.",
+      "Every great session starts with a better grind. The G&nbsp;Pen Slim 3-Piece Grinder is engineered with <strong>micro-rounded teeth</strong> that gently separate flower into a consistent grind, helping preserve the cannabinoids and terpenes that make each strain distinct.",
+      "Unlike traditional sharp-tooth grinders, the rounded tooth geometry and smooth interior <strong>reduce friction and minimize buildup</strong>, keeping more of the flower where it belongs. The <strong>screenless</strong> 3-piece design keeps trichomes mixed into the ground material instead of separating them away, and the slim profile suits a pocket, a bag or everyday carry.",
+      "Crafted from <strong>6063 aircraft-grade anodized aluminum</strong>, it delivers smooth rotation, lasting durability and precision performance. In independent testing by <strong>Orange Photonics</strong>, the micro-rounded tooth design showed the highest post-grind THC retention among the grinder styles tested.",
+      "The consistent grind it produces is ideal for vaporization, so it pairs naturally with the <strong>G&nbsp;Pen Dash II</strong> and <strong>G&nbsp;Pen Dash+</strong> — an even, efficient pack, and more flavor out of every bowl.",
     ],
-    highlights: ["3-piece, 64mm (2.5\")", "Patented micro-rounded teeth", "6063 anodized aluminum", "Strong magnetic lid", "No kief screen — nothing separated out", "Designed to help retain terpenes and trichomes"],
+    highlights: ["3-piece, 64mm (2.5\")", "Patented micro-rounded teeth", "Highest post-grind THC retention in independent testing", "Screenless — trichomes stay in the grind", "Smooth interior reduces friction and buildup", "6063 aircraft-grade anodized aluminum", "Strong magnetic lid"],
     specs: [
       { label: "Type", value: "3-piece dry herb grinder (accessory — no battery, no heat)" },
       { label: "Size", value: "64mm (2.5\")" },
@@ -356,11 +357,11 @@ window.GPEN_COURSES = [
          The kief objection is kept deliberately. It was also the subject of the removed trap,
          and it is the one thing on this product that brings a customer back: no screen means
          no fourth chamber, and a buyer expecting one returns it. */
-      keyFacts: ["3-piece, 64mm (2.5\"), aluminum", "Patented micro-rounded teeth", "No kief screen \u2014 $19.95"],
-      talkTrack: { say: "How are you breaking up your flower? Micro-rounded teeth separate it instead of crushing it, so the flower stays intact and packs evenly." },
+      keyFacts: ["Rounded teeth separate, they do not shred", "Highest THC retention in independent testing", "Screenless \u2014 trichomes stay in \u00b7 $19.95"],
+      talkTrack: { say: "How are you breaking up your flower? Rounded teeth separate it instead of shredding it, so more stays in the grind \u2014 independent testing put this design highest for THC retention." },
       objections: [
-        { says: "I already have a grinder.", say: "Most free ones are plastic and crush the flower. This is machined aluminum with micro-rounded teeth, so it separates instead of shredding." },
-        { says: "Where does the kief go?", say: "There is no screen on this one, on purpose. Nothing gets separated out, so all of it goes in your bowl." },
+        { says: "I already have a grinder.", say: "Most grinders use sharp teeth that shred it. These are rounded, so they separate the flower \u2014 independent testing put this design highest for THC retention." },
+        { says: "Where does the kief go?", say: "It stays in your grind. There is no screen, so the trichomes go into the bowl with everything else instead of collecting in a chamber." },
       ],
     },
     videos: [
@@ -370,12 +371,12 @@ window.GPEN_COURSES = [
       { title: "G Pen 3-Piece Grinder", thumb: LIFE + "slim-3-piece-grinder/a8a0f52f0494bd3368b12fab45566d0d1fba32d773ecc3fa4129bff8250da72d.jpg", vimeo: "1212760378/75b863a6cb" },
     ],
     quiz: [
-      { q: "A customer asks what makes this different from the grinder they already own.", choices: ["It has a much finer screen, so the kief separates better", "Micro-rounded teeth separate flower instead of shredding it", "It grinds faster, because the teeth are sharper than most", "The chambers are deeper, so it holds more in a single go"], answer: 1, why: "The patented micro-rounded teeth are the product. They part the flower rather than tearing it, so it stays intact and packs evenly — and that is something a customer notices the first time they use it." },
+      { q: "A customer asks what makes this different from the grinder they already own.", choices: ["It has a much finer screen, so the kief separates better", "Micro-rounded teeth separate flower instead of shredding it", "It grinds faster, because the teeth are sharper than most", "The chambers are deeper, so it holds more in a single go"], answer: 1, why: "The rounded tooth geometry is the product. It parts the flower instead of tearing it, which is why independent testing put this design highest for post-grind THC retention among the styles tested." },
       { q: "A customer turns it over and asks where the kief goes.", choices: ["There is no screen — nothing gets separated out", "The bottom chamber collects it once the screen fills", "It sits under the teeth and you tap it out later", "A screen is included in the box if they want one"], answer: 0, why: "No kief screen, on purpose, and it has to be said as the feature it is: nothing is held back, so all of it goes in the bowl. A customer who expects a fourth chamber brings the grinder back." },
       { q: "“Twenty bucks for a grinder?” What do you lead with?", choices: ["It is on sale this week, so it works out cheaper", "The free ones break within a few months of use", "Machined aluminum, patented teeth, magnetic lid", "It catches your kief, so it pays for itself"], answer: 2, why: "Say what the money buys. Discounting teaches them to wait for a sale, durability claims about other brands are not yours to make, and kief is the one thing this grinder deliberately does not do." },
       { q: "What is the grinder made of, and what size is it?", choices: ["50mm, anodized aluminum with a steel grinding ring", "64mm, zinc alloy with an aluminum lid", "64mm, 7075 anodized aluminum with a steel ring", "64mm, precision-machined 6063 anodized aluminum"], answer: 3, why: "64mm of machined 6063 anodized aluminum — the same aircraft-grade family as the devices it feeds. The alloy number and the size are both things a customer weighing it in their hand will ask about." },
       { q: "A customer is buying flower and a Dash II. What completes that sale?", choices: ["The grinder, because a vaporizer needs an even grind", "A second Dash II, so they have one for travelling", "The Melt Hot Knife, for loading the chamber cleanly", "A Hydout, so they have a battery for cartridges"], answer: 0, why: "A dry herb vaporizer only performs as well as the grind: an even, loose pack is what lets air move through the load. That makes the grinder the piece that finishes a flower-and-vaporizer basket." },
-      { q: "A customer asks what the patented part actually is.", choices: ["The 6063 anodized aluminum alloy", "The magnetic lid closure", "The micro-rounded tooth design", "The three-piece 64mm format"], answer: 2, why: "The patent is on the tooth geometry, which is also the reason the grind is gentler. Anodized aluminum, magnetic lids and three-piece bodies are all common; the tooth shape is the part that is protected." }
+      { q: "A customer asks whether the rounded teeth actually make any difference.", choices: ["It is a design choice, mostly about how it feels to turn", "Independent testing put it highest for THC retention", "It doubles what you get out of the same amount of flower", "It produces a finer grind than any sharp-tooth grinder"], answer: 1, why: "Orange Photonics tested several grinder styles and this one retained the most THC after grinding. That is a specific, testable claim, which is what makes it worth saying — do not stretch it into a yield promise or a claim about fineness, neither of which was tested." }
     ],
   },
   /* -------------------------------------------------------- MELT HOT KNIFE */
