@@ -276,7 +276,8 @@ window.GPEN_COURSES = [
        near-white threshold punches a hole through the logo). Swap this for an official
        transparent render the moment marketing produces one. */
     cover: "assets/img/grinder-cover.png",
-    heroImg: LIFE + "slim-3-piece-grinder/6120e7c350834c0bc55f5b70288d5102d25d49bb546603d0fc2919f243c9f3da.jpg",
+    heroImg: LIFE + "slim-3-piece-grinder/0fbb1f8d492eb9a3230da10082b02e5dbce938d37a055f7945e5ac7080e2dd90.jpg",
+    heroSplit: true,
     packaging: {
       box: LIFE + "slim-3-piece-grinder/af9109ac9d7ac666346e4454bf5f71f02e4fccd6ab69228928184991885a9d10.jpg",
       pop: LIFE + "slim-3-piece-grinder/1d36eb3de3fe085fd7d75671701db97d24e1a7741e0af7488ba2d8d93d75dc29.jpg",
