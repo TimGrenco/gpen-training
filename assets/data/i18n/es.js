@@ -345,7 +345,7 @@ window.GPEN_I18N = {
       },
     },
     "grinder": {
-      whatItIs: "Un grinder manual, diseñado para desmenuzar la flor de cannabis antes de cargarla.",
+      whatItIs: "Grinder con dientes microrredondeados que desmenuzan la flor con suavidad en lugar de desgarrarla.",
       category: "Accesorio para hierba seca",
       tagline: "Grinder de aluminio de 64 mm (2,5\"). Sin filtro de kief: no se queda nada atrás.",
       differentiator: "El complemento de $19.95 para cualquier venta de flor.",
@@ -363,11 +363,7 @@ window.GPEN_I18N = {
         "Diseñado para ayudar a conservar terpenos y tricomas",
       ],
       howToSell: {
-        vital: "Todo cliente de flor la muele de alguna manera. Es lo más económico del mostrador que mejora lo que ya ha comprado, y es el accesorio que hace que un Dash se cargue de forma uniforme.",
-        aov: "Un complemento mecánico de $19.95 sin nada que se rompa y sin nada que cargar. Se añade a cualquier venta de flor y se sirve en expositor de 10 unidades, para tenerlo junto a la caja.",
-        talkTrack: { say: "¿Cómo desmenuza su flor? Este es de aluminio mecanizado de 64 mm (2,5\") con dientes patentados y sin filtro de kief, así que nada se separa ni se queda atrás. $19.95, y su vaporizador se carga de forma más uniforme." },
-        whichClose: "¿Va a cargar un vaporizador o a liar? Un molido uniforme importa en ambos casos. ¿Añadimos el grinder por $19.95?",
-        trap: "No lo venda como recolector de kief: deliberadamente NO tiene filtro de kief, y un cliente que espere una cuarta cámara lo devolverá. Véndalo como la ventaja que es: nada se separa ni se queda atrás.",
+        talkTrack: { say: "¿Cómo desmenuza su flor? Los dientes microrredondeados la separan en lugar de aplastarla, así la flor queda intacta y se carga de forma más uniforme." },
         keyFacts: [
           "3 piezas, 64 mm (2,5\"), aluminio",
           "Dientes microredondeados patentados",

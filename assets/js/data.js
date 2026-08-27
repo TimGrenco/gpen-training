@@ -265,9 +265,9 @@ window.GPEN_COURSES = [
        is this thing and what is it for", shown at the top of the course above
        the price. Not marketing and not positioning — a rep who has never seen
        the category should be able to read one line and be right. */
-    whatItIs: "A hand grinder, designed to break up cannabis flower before it is packed.",
+    whatItIs: "Grinder with micro-rounded teeth gently break up flower instead of shredding it",
     differentiator: "The $19.95 add-on for any flower sale.",
-    minutes: 9, passPct: 80, msrp: "$19.95", accent: "#5E8C61",
+    minutes: 6, passPct: 80, msrp: "$19.95", accent: "#5E8C61",
     /* Locally cut out, not a CDN render: every stashgrinder_* asset on the CDN and in
        the asset portal is a JPEG with a baked white background, and every other cover
        in this file is a transparent cut-out — a white square would sit inside the
@@ -306,6 +306,8 @@ window.GPEN_COURSES = [
       { url: CDN + "stashgrinder_thumb_03.jpg", caption: "Three pieces: lid, grinding ring, catch cup" },
       { url: CDN + "stashgrinder_thumb_02.jpg", caption: "Lid off — teeth above, drop-through floor below" },
       { url: CDN + "stashgrinder_thumb_04.jpg", caption: "Micro-rounded teeth, and the magnet in the middle" },
+      { url: LIFE + "slim-3-piece-grinder/a52401de4dd42ba77080be116de92aa4b9faed4bfebe6be94822bc3df8e0d0a8.jpg", caption: "The teeth up close \u2014 domed, not sharpened to a point" },
+      { url: LIFE + "slim-3-piece-grinder/f0daf4e2325f2cd99f3fd9509d0f448f12b3edcd538aecad8807329dc3feb31a.jpg", caption: "Rounded teeth over drop-through holes, and no screen below" },
       { url: CDN + "stashgrinder_thumb_05.jpg", caption: "Patent No. 11690480, printed on the rim" },
       { url: CDN + "stashgrinder_thumb_01.jpg", caption: "Closed — lid seated flush" },
     ],
@@ -348,20 +350,17 @@ window.GPEN_COURSES = [
     ],
     howToSell: {
       upsellFrom: "Flower",
-      vital: "Every flower customer grinds somehow. This is the cheapest thing on the counter that improves what they already bought, and it is the accessory that makes a Dash pack evenly.",
-      aov: "A $19.95 mechanical add-on with nothing to break and nothing to charge. It attaches to any flower sale, and it ships as a 10-pack POP display so it can live right at the register.",
-      keyFacts: ["3-piece, 64mm (2.5\"), aluminum", "Patented micro-rounded teeth", "No kief screen — $19.95"],
-      talkTrack: { say: "How are you breaking up your flower? This is 64mm (2.5\") machined aluminum with patented teeth, and no kief screen, so nothing is separated out and left behind. $19.95, and your vaporizer packs more evenly." },
-      whichClose: "Packing a vaporizer or rolling? An even grind matters either way. Add the grinder at $19.95?",
-      scenarios: [
-        { sees: "Flower going out with no grinder in the basket", say: "How are you breaking that up? A plastic grinder crushes flower. This has micro-rounded teeth that separate it instead. $19.95, machined aluminum, and nothing to charge." },
-        { sees: "Someone buying a Dash II or Dash+ with flower", say: "Add the grinder. A dry herb vaporizer only performs as well as the grind: an even, loose pack lets the chamber heat the flower evenly. $19.95." },
-      ],
-      trap: "Do not sell it as a kief catcher — it deliberately has NO kief screen, and a customer expecting a fourth chamber will bring it back. Sell that as the feature it is: nothing gets separated out and left behind.",
+      /* Same four blocks as the Dash II and Dash+: trigger, one line to say, two objections,
+         compliance. The overview paragraph, the product rationale, the either/or close, the
+         common-mistake line and both counter scenarios are gone.
+         The kief objection is kept deliberately. It was also the subject of the removed trap,
+         and it is the one thing on this product that brings a customer back: no screen means
+         no fourth chamber, and a buyer expecting one returns it. */
+      keyFacts: ["3-piece, 64mm (2.5\"), aluminum", "Patented micro-rounded teeth", "No kief screen \u2014 $19.95"],
+      talkTrack: { say: "How are you breaking up your flower? Micro-rounded teeth separate it instead of crushing it, so the flower stays intact and packs evenly." },
       objections: [
-        { says: "I already have a grinder.", say: "Most free grinders are plastic and crush the flower rather than separating it. This is machined aluminum with micro-rounded teeth. You will notice the difference in how evenly it packs. $19.95.", why: "Compete on grind quality and material, never on price." },
-        { says: "Where does the kief go?", say: "There is no kief screen on this one, on purpose. Everything stays together and goes into your bowl instead of collecting in a chamber you forget about.", why: "Answer it straight and immediately. This is THE question on a 3-piece, and dodging it is what causes returns." },
-        { says: "$19.95 for a grinder?", say: "It is machined aluminum with patented teeth and a magnetic lid. There is nothing in it to wear out and nothing to charge.", why: "Durability is the value argument. Never discount into this objection." },
+        { says: "I already have a grinder.", say: "Most free ones are plastic and crush the flower. This is machined aluminum with micro-rounded teeth, so it separates instead of shredding." },
+        { says: "Where does the kief go?", say: "There is no screen on this one, on purpose. Nothing gets separated out, so all of it goes in your bowl." },
       ],
     },
     videos: [
@@ -371,19 +370,12 @@ window.GPEN_COURSES = [
       { title: "G Pen 3-Piece Grinder", thumb: LIFE + "slim-3-piece-grinder/a8a0f52f0494bd3368b12fab45566d0d1fba32d773ecc3fa4129bff8250da72d.jpg", vimeo: "1212760378/75b863a6cb" },
     ],
     quiz: [
-      { q: "A customer picks up the 3-Piece Grinder, turns it over and asks whether it has a kief screen. What do you tell them?", choices: ["There is no kief screen — everything stays together on purpose", "Kief collects under the teeth and you scrape it out", "You have to buy the four-piece for that", "Yes, there is a fine screen under the catch cup"], answer: 0, why: "This is the single most common question on a 3-piece and the fastest route to a return if you fudge it. There is no kief screen at all, which the one-sheet frames as the feature: flower, trichomes and kief stay together instead of separating into a chamber people forget." },
-      { q: "A regular says their free plastic grinder works fine. What is the strongest thing to lead with?", choices: ["This one costs more, so the build quality is better", "It is aluminum with micro-rounded teeth that separate rather than crush", "Plastic grinders break within a few months of daily use", "It is the same idea but it has the G Pen logo on it"], answer: 1, why: "Name the mechanism, not the price and not a durability claim you cannot back up. Micro-rounded teeth separating flower instead of shredding it is the patented difference, and it is what they will actually notice in the grind." },
-      { q: "Someone is buying flower and a Dash+ together. How does the grinder attach to that sale?", choices: ["It is required for the warranty to stay valid", "It is a spare part they will need when the chamber wears", "An even grind is what makes the chamber heat the flower evenly", "It doubles the capacity of the Dash+ chamber"], answer: 2, why: "A dry herb vape only performs as well as its grind — even, fluffy flower is what lets the chamber heat consistently. That is a real reason to pair it, and it does not overstate anything about capacity or warranty." },
-      { q: "What is the grinder actually made of, and what size is it?", choices: ["50mm, anodized aluminum with a steel grinding ring", "64mm, zinc alloy with an aluminum lid", "64mm, 7075 anodized aluminum with a steel ring", "64mm, precision-machined 6063 anodized aluminum"], answer: 3, why: "64mm and 6063 anodized aluminum are the two spec facts on the one-sheet. Reps get asked about material constantly on accessories, and inventing a metal is how a spec argument starts at the counter." },
-      { q: "How many pieces come apart, and what are they?", choices: ["Two: a lid and a grinding cup", "Three: lid, grinding ring, and catch cup", "Three: lid, grinding ring, and a kief screen", "Four: lid, ring, screen, and kief chamber"], answer: 1, why: "Three pieces: the magnetic lid, the ring that holds the teeth and the drop-through floor, and the cup that catches the ground flower. Naming them in order is also how you demo it in about five seconds." },
-      { q: "A customer asks how the lid stays shut in a bag. What is accurate?", choices: ["It uses a strong magnetic closure", "It snaps on with a silicone gasket", "It is friction-fit, so keep it upright", "It screws down onto a threaded rim"], answer: 0, why: "The lid is magnetic — that is why it lifts straight off rather than unscrewing, and it is the answer to the spill question a commuter will ask." },
-      { q: "\"Does it need charging?\" — what do you say?", choices: ["Only the magnetic lid holds a small charge", "Yes, over USB-C like the rest of the lineup", "It charges from the Dash II when stacked", "No — it is fully mechanical, nothing to charge"], answer: 3, why: "It is an accessory with no battery and no heat. This sounds obvious on the floor, but it is worth being crisp about, because everything else in the lineup does charge." },
-      { q: "How should someone actually load the grinding ring?", choices: ["Grind one small piece at a time in the center", "Pack it in tight so the teeth get full contact", "Break the flower in loosely around the teeth", "Fill it to the very top of the rim"], answer: 2, why: "Loose flower around the teeth is what lets the ring turn and the ground flower drop through the floor. Packing it tight is the usual reason someone says a grinder is stiff or does not work." },
-      { q: "A customer wants to know how to clean resin off it. What is safe to tell them?", choices: ["Wipe it while it is warm from grinding", "Rinse it under hot water and dry it fast", "Take it apart and soak the pieces in Isopropyl Alcohol", "Run it through the dishwasher on a low cycle"], answer: 2, why: "There is nothing electronic in it, so unlike every other product in the lineup it can be fully taken apart and soaked. Dry it completely afterwards — trapped moisture is what makes flower clump on the teeth." },
-      { q: "The grinder ships to retail in what format?", choices: ["A 24-count carton with no display", "Bulk polybags, display sold separately", "Single boxed units only", "A 10-pack POP display for the counter"], answer: 3, why: "It comes as a 10-pack POP display (GPA-001-APSC), which is worth knowing because a counter display is what turns a $19.95 accessory into an impulse attach on a flower sale." },
-      { q: "A customer asks what the patented part actually is. What is accurate?", choices: ["The micro-rounded tooth design", "The 6063 aluminum alloy", "The 64mm form factor", "The magnetic lid closure"], answer: 0, why: "Patent No. 11690480 covers the micro-rounded teeth — the gentle-separation design. It is printed right on the rim, so a curious customer can read it themselves." },
-      
-      { q: "\"Twenty bucks? That is a lot for a grinder.\" What do you lead with?", choices: ["It is on sale this week, so it works out closer to fifteen", "Machined aluminum, patented teeth, magnetic lid — nothing to wear out", "The free ones tend to break within a few months of daily use", "It catches your kief in the bottom chamber, so it pays for itself"], answer: 1, why: "On an accessory, durability and the patented teeth are the value argument — say what the money buys. Discounting into the objection teaches them to wait for a sale. Claiming other grinders fail is a durability claim you cannot back up. And never reach for kief on this one: it has no screen, and that promise is the return." }
+      { q: "A customer asks what makes this different from the grinder they already own.", choices: ["It has a much finer screen, so the kief separates better", "Micro-rounded teeth separate flower instead of shredding it", "It grinds faster, because the teeth are sharper than most", "The chambers are deeper, so it holds more in a single go"], answer: 1, why: "The patented micro-rounded teeth are the product. They part the flower rather than tearing it, so it stays intact and packs evenly — and that is something a customer notices the first time they use it." },
+      { q: "A customer turns it over and asks where the kief goes.", choices: ["There is no screen — nothing gets separated out", "The bottom chamber collects it once the screen fills", "It sits under the teeth and you tap it out later", "A screen is included in the box if they want one"], answer: 0, why: "No kief screen, on purpose, and it has to be said as the feature it is: nothing is held back, so all of it goes in the bowl. A customer who expects a fourth chamber brings the grinder back." },
+      { q: "“Twenty bucks for a grinder?” What do you lead with?", choices: ["It is on sale this week, so it works out cheaper", "The free ones break within a few months of use", "Machined aluminum, patented teeth, magnetic lid", "It catches your kief, so it pays for itself"], answer: 2, why: "Say what the money buys. Discounting teaches them to wait for a sale, durability claims about other brands are not yours to make, and kief is the one thing this grinder deliberately does not do." },
+      { q: "What is the grinder made of, and what size is it?", choices: ["50mm, anodized aluminum with a steel grinding ring", "64mm, zinc alloy with an aluminum lid", "64mm, 7075 anodized aluminum with a steel ring", "64mm, precision-machined 6063 anodized aluminum"], answer: 3, why: "64mm of machined 6063 anodized aluminum — the same aircraft-grade family as the devices it feeds. The alloy number and the size are both things a customer weighing it in their hand will ask about." },
+      { q: "A customer is buying flower and a Dash II. What completes that sale?", choices: ["The grinder, because a vaporizer needs an even grind", "A second Dash II, so they have one for travelling", "The Melt Hot Knife, for loading the chamber cleanly", "A Hydout, so they have a battery for cartridges"], answer: 0, why: "A dry herb vaporizer only performs as well as the grind: an even, loose pack is what lets air move through the load. That makes the grinder the piece that finishes a flower-and-vaporizer basket." },
+      { q: "A customer asks what the patented part actually is.", choices: ["The 6063 anodized aluminum alloy", "The magnetic lid closure", "The micro-rounded tooth design", "The three-piece 64mm format"], answer: 2, why: "The patent is on the tooth geometry, which is also the reason the grind is gentler. Anodized aluminum, magnetic lids and three-piece bodies are all common; the tooth shape is the part that is protected." }
     ],
   },
   /* -------------------------------------------------------- MELT HOT KNIFE */

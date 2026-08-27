@@ -328,7 +328,7 @@ window.GPEN_I18N = {
       },
     },
     "grinder": {
-      whatItIs: "Un grinder manuale, progettato per sminuzzare l'infiorescenza di cannabis prima di caricarla.",
+      whatItIs: "Grinder con denti micro-arrotondati che sminuzzano delicatamente il fiore invece di lacerarlo.",
       category: "Accessorio per erba secca",
       tagline: "Grinder in alluminio da 64 mm (2,5\"). Senza filtro per il kief: non resta niente indietro.",
       differentiator: "L'accessorio da $19.95 per ogni vendita di infiorescenza.",
@@ -346,11 +346,7 @@ window.GPEN_I18N = {
         "Progettato per aiutare a conservare terpeni e tricomi",
       ],
       howToSell: {
-        vital: "Ogni cliente che acquista infiorescenza la macina in qualche modo. È l'articolo più economico al banco che migliora ciò che ha già comprato, ed è l'accessorio che permette di riempire un Dash in modo uniforme.",
-        aov: "Un accessorio meccanico da $19.95 senza nulla che si rompa e nulla da ricaricare. Si aggiunge a qualsiasi vendita di infiorescenza e arriva in espositore da 10 pezzi, da tenere accanto alla cassa.",
-        talkTrack: { say: "Come sminuzza la sua infiorescenza? Questo è in alluminio lavorato da 64 mm (2,5\") con denti brevettati e senza filtro per il kief, così niente viene separato e lasciato indietro. $19.95, e il suo vaporizzatore si riempie in modo più uniforme." },
-        whichClose: "Deve riempire un vaporizzatore o rollare? Una macinatura uniforme conta in entrambi i casi. Aggiungiamo il grinder a $19.95?",
-        trap: "Non lo venda come raccoglitore di kief: volutamente NON ha il filtro per il kief, e un cliente che si aspetta una quarta camera lo riporterà. Lo venda per il vantaggio che è: niente viene separato e lasciato indietro.",
+        talkTrack: { say: "Come sminuzza la sua infiorescenza? I denti micro-arrotondati la separano invece di schiacciarla, così il fiore resta intatto e si carica in modo più uniforme." },
         keyFacts: [
           "3 pezzi, 64 mm (2,5\"), alluminio",
           "Denti micro-arrotondati brevettati",

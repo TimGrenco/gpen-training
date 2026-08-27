@@ -329,7 +329,7 @@ window.GPEN_I18N = {
       },
     },
     "grinder": {
-      whatItIs: "Un grinder manuel, conçu pour broyer la fleur de cannabis avant le remplissage.",
+      whatItIs: "Grinder à dents micro-arrondies qui effritent la fleur en douceur au lieu de la déchiqueter.",
       category: "Accessoire pour herbe sèche",
       tagline: "Grinder en aluminium de 64 mm (2,5\"). Sans grille à kief : rien ne se perd.",
       differentiator: "L'accessoire à $19.95 pour toute vente de fleur.",
@@ -347,11 +347,7 @@ window.GPEN_I18N = {
         "Conçu pour aider à préserver terpènes et trichomes",
       ],
       howToSell: {
-        vital: "Tout client qui achète de la fleur la broie d'une manière ou d'une autre. C'est l'article le moins cher du comptoir qui améliore ce qu'il vient d'acheter, et c'est l'accessoire qui permet de remplir un Dash de façon régulière.",
-        aov: "Un accessoire mécanique à $19.95, sans rien qui casse et sans rien à recharger. Il s'ajoute à toute vente de fleur et se livre en présentoir de 10, pour rester à la caisse.",
-        talkTrack: { say: "Comment broyez-vous votre fleur ? Celui-ci fait 64 mm (2,5\") en aluminium usiné avec des dents brevetées, sans grille à kief, donc rien n'est séparé ni perdu. $19.95, et votre vaporisateur se remplit plus régulièrement." },
-        whichClose: "Vous remplissez un vaporisateur ou vous roulez ? Une mouture régulière compte dans les deux cas. On ajoute le grinder à $19.95 ?",
-        trap: "Ne le vendez pas comme un récupérateur de kief : il n'a volontairement PAS de grille à kief, et un client qui attend une quatrième chambre le rapportera. Vendez-le pour l'atout qu'il représente : rien n'est séparé ni perdu.",
+        talkTrack: { say: "Comment effritez-vous votre fleur ? Les dents micro-arrondies la séparent au lieu de l’écraser : la fleur reste intacte et se tasse plus régulièrement." },
         keyFacts: [
           "3 pièces, 64 mm (2,5\"), aluminium",
           "Dents micro-arrondies brevetées",

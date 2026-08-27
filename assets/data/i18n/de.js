@@ -330,7 +330,7 @@ window.GPEN_I18N = {
       },
     },
     "grinder": {
-      whatItIs: "Ein Handgrinder, entwickelt zum Zerkleinern von Cannabisblüten vor dem Befüllen.",
+      whatItIs: "Grinder mit mikro-abgerundeten Zähnen, die die Blüten sanft zerkleinern statt sie zu zerfetzen.",
       category: "Zubehör für trockene Kräuter",
       tagline: "Aluminium-Grinder, 64 mm (2,5\"). Ohne Kief-Sieb — nichts bleibt zurück.",
       differentiator: "Das Zusatzprodukt für $19.95 zu jedem Blütenverkauf.",
@@ -348,11 +348,7 @@ window.GPEN_I18N = {
         "Ausgelegt darauf, Terpene und Trichome besser zu erhalten",
       ],
       howToSell: {
-        vital: "Jeder Blütenkunde mahlt irgendwie. Das ist der günstigste Artikel am Tresen, der verbessert, was der Kunde ohnehin gekauft hat, und das Zubehör, mit dem sich ein Dash gleichmäßig füllen lässt.",
-        aov: "Ein mechanisches Zusatzprodukt für $19.95, an dem nichts kaputtgeht und nichts geladen werden muss. Es passt zu jedem Blütenverkauf und kommt als 10er-Display, das direkt an die Kasse gehört.",
-        talkTrack: { say: "Wie zerkleinern Sie Ihre Blüten? Das hier ist gefrästes Aluminium mit 64 mm (2,5\") und patentierten Zähnen, ohne Kief-Sieb, damit nichts abgetrennt wird und zurückbleibt. $19.95, und Ihr Vaporizer füllt sich gleichmäßiger." },
-        whichClose: "Füllen Sie einen Vaporizer oder drehen Sie? Ein gleichmäßiges Mahlergebnis zählt in beiden Fällen. Den Grinder für $19.95 dazu?",
-        trap: "Verkaufen Sie ihn nicht als Kief-Fänger: Er hat bewusst KEIN Kief-Sieb, und ein Kunde, der eine vierte Kammer erwartet, bringt ihn zurück. Verkaufen Sie das als das Merkmal, das es ist: Nichts wird abgetrennt und bleibt zurück.",
+        talkTrack: { say: "Wie zerkleinern Sie Ihre Blüten? Die mikro-abgerundeten Zähne trennen sie, statt sie zu zerdrücken, so bleibt die Blüte intakt und lässt sich gleichmäßiger packen." },
         keyFacts: [
           "Dreiteilig, 64 mm (2,5\"), Aluminium",
           "Patentierte mikroabgerundete Zähne",
