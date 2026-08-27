@@ -366,7 +366,7 @@ window.GPEN_I18N = {
         "Tapa magnética resistente",
       ],
       howToSell: {
-        talkTrack: { say: "¿Cómo desmenuza su flor? Los dientes redondeados la separan en lugar de desgarrarla, así está demostrado que retiene más THC y terpenos." },
+        talkTrack: { say: "¿Tiene grinder? Esta nueva tecnología usa dientes redondeados para separar la flor en lugar de desgarrarla, y está demostrado que retiene más THC y terpenos." },
         keyFacts: [
           "Los dientes microrredondeados desmenuzan la flor con suavidad en lugar de desgarrarla",
           "La mayor retención de THC y terpenos en pruebas independientes",

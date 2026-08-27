@@ -351,7 +351,7 @@ window.GPEN_I18N = {
         "Starker Magnetdeckel",
       ],
       howToSell: {
-        talkTrack: { say: "Wie zerkleinern Sie Ihre Blüten? Die abgerundeten Zähne trennen sie, statt sie zu zerfetzen – nachweislich bleiben mehr THC und Terpene erhalten." },
+        talkTrack: { say: "Haben Sie einen Grinder? Diese neue Technik hat abgerundete Zähne, die die Blüte trennen statt sie zu zerfetzen – nachweislich bleiben mehr THC und Terpene erhalten." },
         keyFacts: [
           "Mikro-abgerundete Zähne zerkleinern die Blüte sanft, statt sie zu zerfetzen",
           "Höchste THC- und Terpen-Retention in unabhängigen Tests",

@@ -358,7 +358,7 @@ window.GPEN_COURSES = [
          and it is the one thing on this product that brings a customer back: no screen means
          no fourth chamber, and a buyer expecting one returns it. */
       keyFacts: ["Micro-rounded teeth gently break up flower instead of shredding it", "Highest THC & Terpene retention in independent testing", "Aluminum 3 Piece Grinder for only $19.95"],
-      talkTrack: { say: "How are you breaking up your flower? The rounded teeth separate it instead of shredding it, so it's proven to retain more of your THC and terpenes." },
+      talkTrack: { say: "Do you have a grinder? This new grinder tech has rounded teeth to separate it instead of shredding it, and it's proven to retain more of your THC and terpenes." },
       objections: [
         { says: "I already have a grinder.", say: "Most free ones are plastic with sharp teeth, so they shred the flower and shed plastic into it. This is machined aluminum with rounded teeth \u2014 proven to retain more of your THC and terpenes." },
         { says: "Where does the kief go?", say: "It stays in your grind. There is no screen, so the trichomes go in the bowl with everything else instead of collecting in a chamber." },

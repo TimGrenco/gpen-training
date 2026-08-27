@@ -350,7 +350,7 @@ window.GPEN_I18N = {
         "Couvercle magnétique solide",
       ],
       howToSell: {
-        talkTrack: { say: "Comment effritez-vous votre fleur ? Les dents arrondies la séparent au lieu de la déchiqueter : il est prouvé qu’elle retient davantage de THC et de terpènes." },
+        talkTrack: { say: "Avez-vous un grinder ? Cette nouvelle technologie utilise des dents arrondies pour séparer la fleur au lieu de la déchiqueter, et il est prouvé qu’elle retient davantage de THC et de terpènes." },
         keyFacts: [
           "Des dents micro-arrondies effritent la fleur en douceur au lieu de la déchiqueter",
           "Meilleure rétention de THC et de terpènes lors de tests indépendants",

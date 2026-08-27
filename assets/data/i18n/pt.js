@@ -351,7 +351,7 @@ window.GPEN_I18N = {
         "Tampa magnética resistente",
       ],
       howToSell: {
-        talkTrack: { say: "Como desfaz a sua flor? Os dentes arredondados separam-na em vez de a rasgar, por isso está provado que retém mais THC e terpenos." },
+        talkTrack: { say: "Tem um grinder? Esta nova tecnologia usa dentes arredondados para separar a flor em vez de a rasgar, e está provado que retém mais THC e terpenos." },
         keyFacts: [
           "Os dentes micro-arredondados desfazem a flor com suavidade em vez de a rasgar",
           "Maior retenção de THC e terpenos em testes independentes",

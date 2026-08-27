@@ -349,7 +349,7 @@ window.GPEN_I18N = {
         "Coperchio magnetico robusto",
       ],
       howToSell: {
-        talkTrack: { say: "Come sminuzza la sua infiorescenza? I denti arrotondati la separano invece di lacerarla: è dimostrato che trattiene più THC e terpeni." },
+        talkTrack: { say: "Ha un grinder? Questa nuova tecnologia usa denti arrotondati per separare il fiore invece di lacerarlo, ed è dimostrato che trattiene più THC e terpeni." },
         keyFacts: [
           "I denti micro-arrotondati sminuzzano delicatamente il fiore invece di lacerarlo",
           "La più alta ritenzione di THC e terpeni in test indipendenti",
