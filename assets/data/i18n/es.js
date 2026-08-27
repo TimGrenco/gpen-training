@@ -367,9 +367,9 @@ window.GPEN_I18N = {
       howToSell: {
         talkTrack: { say: "¿Cómo desmenuza su flor? Los dientes redondeados la separan en lugar de desgarrarla, así queda más en el molido: en pruebas independientes este diseño obtuvo la mayor retención de THC." },
         keyFacts: [
-          "Los dientes redondeados separan, no desgarran",
-          "La mayor retención de THC en pruebas independientes",
-          "Sin filtro: los tricomas se quedan · $19.95",
+          "Los dientes microrredondeados desmenuzan la flor con suavidad en lugar de desgarrarla",
+          "La mayor retención de THC y terpenos en pruebas independientes",
+          "Grinder de aluminio de 3 piezas por solo $19.95",
         ],
       },
     },

@@ -357,7 +357,7 @@ window.GPEN_COURSES = [
          The kief objection is kept deliberately. It was also the subject of the removed trap,
          and it is the one thing on this product that brings a customer back: no screen means
          no fourth chamber, and a buyer expecting one returns it. */
-      keyFacts: ["Rounded teeth separate, they do not shred", "Highest THC retention in independent testing", "Screenless \u2014 trichomes stay in \u00b7 $19.95"],
+      keyFacts: ["Micro-rounded teeth gently break up flower instead of shredding it", "Highest THC & Terpene retention in independent testing", "Aluminum 3 Piece Grinder for only $19.95"],
       talkTrack: { say: "How are you breaking up your flower? Rounded teeth separate it instead of shredding it, so more stays in the grind \u2014 independent testing put this design highest for THC retention." },
       objections: [
         { says: "I already have a grinder.", say: "Most grinders use sharp teeth that shred it. These are rounded, so they separate the flower \u2014 independent testing put this design highest for THC retention." },

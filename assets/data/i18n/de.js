@@ -352,9 +352,9 @@ window.GPEN_I18N = {
       howToSell: {
         talkTrack: { say: "Wie zerkleinern Sie Ihre Blüten? Die abgerundeten Zähne trennen sie, statt sie zu zerfetzen, so bleibt mehr im Mahlgut – in unabhängigen Tests erreichte dieses Design die höchste THC-Retention." },
         keyFacts: [
-          "Abgerundete Zähne trennen, sie zerfetzen nicht",
-          "Höchste THC-Retention in unabhängigen Tests",
-          "Sieblos – die Trichome bleiben drin · $19.95",
+          "Mikro-abgerundete Zähne zerkleinern die Blüte sanft, statt sie zu zerfetzen",
+          "Höchste THC- und Terpen-Retention in unabhängigen Tests",
+          "Dreiteiliger Aluminium-Grinder für nur $19.95",
         ],
       },
     },

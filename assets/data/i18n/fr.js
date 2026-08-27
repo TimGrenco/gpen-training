@@ -351,9 +351,9 @@ window.GPEN_I18N = {
       howToSell: {
         talkTrack: { say: "Comment effritez-vous votre fleur ? Les dents arrondies la séparent au lieu de la déchiqueter, donc il en reste plus dans l’effritage : lors de tests indépendants, ce design a obtenu la meilleure rétention de THC." },
         keyFacts: [
-          "Les dents arrondies séparent, elles ne déchiquettent pas",
-          "Meilleure rétention de THC lors de tests indépendants",
-          "Sans grille : les trichomes restent · $19.95",
+          "Des dents micro-arrondies effritent la fleur en douceur au lieu de la déchiqueter",
+          "Meilleure rétention de THC et de terpènes lors de tests indépendants",
+          "Grinder 3 pièces en aluminium pour seulement $19.95",
         ],
       },
     },

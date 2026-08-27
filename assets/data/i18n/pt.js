@@ -352,9 +352,9 @@ window.GPEN_I18N = {
       howToSell: {
         talkTrack: { say: "Como desfaz a sua flor? Os dentes arredondados separam-na em vez de a rasgar, por isso fica mais no grão: em testes independentes, este design obteve a maior retenção de THC." },
         keyFacts: [
-          "Os dentes arredondados separam, não rasgam",
-          "Maior retenção de THC em testes independentes",
-          "Sem peneira: os tricomas ficam · $19.95",
+          "Os dentes micro-arredondados desfazem a flor com suavidade em vez de a rasgar",
+          "Maior retenção de THC e terpenos em testes independentes",
+          "Grinder de alumínio de 3 peças por apenas $19.95",
         ],
       },
     },

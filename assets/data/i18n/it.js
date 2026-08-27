@@ -350,9 +350,9 @@ window.GPEN_I18N = {
       howToSell: {
         talkTrack: { say: "Come sminuzza la sua infiorescenza? I denti arrotondati la separano invece di lacerarla, così resta di più nel macinato: in test indipendenti questo design ha ottenuto la più alta ritenzione di THC." },
         keyFacts: [
-          "I denti arrotondati separano, non lacerano",
-          "La più alta ritenzione di THC in test indipendenti",
-          "Senza filtro: i tricomi restano · $19.95",
+          "I denti micro-arrotondati sminuzzano delicatamente il fiore invece di lacerarlo",
+          "La più alta ritenzione di THC e terpeni in test indipendenti",
+          "Grinder in alluminio a 3 pezzi a soli $19.95",
         ],
       },
     },
