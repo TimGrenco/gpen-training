@@ -260,7 +260,7 @@ window.GPEN_COURSES = [
     name: "3-Piece Grinder",
     category: "Dry Herb Accessory",
     family: "dryherb",
-    tagline: "64mm aluminum grinder. No kief screen — nothing gets left behind.",
+    tagline: "64mm (2.5\") aluminum grinder. No kief screen — nothing gets left behind.",
     /* What the object IS, in the plainest words available: the answer to "what
        is this thing and what is it for", shown at the top of the course above
        the price. Not marketing and not positioning — a rep who has never seen
@@ -281,7 +281,7 @@ window.GPEN_COURSES = [
     packaging: {
       box: LIFE + "slim-3-piece-grinder/af9109ac9d7ac666346e4454bf5f71f02e4fccd6ab69228928184991885a9d10.jpg",
       pop: LIFE + "slim-3-piece-grinder/1d36eb3de3fe085fd7d75671701db97d24e1a7741e0af7488ba2d8d93d75dc29.jpg",
-      inBox: ["3-Piece Grinder \u2014 64mm anodized aluminum"],
+      inBox: ["3-Piece Grinder \u2014 64mm (2.5\") anodized aluminum"],
       /* Not a missing accessory but a design choice, and it belongs here anyway: this
          list exists for the things a customer expects and does not get, because those
          are what generate a return. A buyer who assumes a kief screen and finds none is
@@ -310,14 +310,14 @@ window.GPEN_COURSES = [
       { url: CDN + "stashgrinder_thumb_01.jpg", caption: "Closed — lid seated flush" },
     ],
     description: [
-      "The G&nbsp;Pen Grinder is a <strong>3-piece, 64mm</strong> grinder precision-machined from durable <strong>6063 anodized aluminum</strong> — the same aircraft-grade material family as the devices it feeds.",
+      "The G&nbsp;Pen Grinder is a <strong>3-piece, 64mm (2.5\")</strong> grinder precision-machined from durable <strong>6063 anodized aluminum</strong> — the same aircraft-grade material family as the devices it feeds.",
       "Its <strong>patented micro-rounded teeth</strong> (Patent No. 11690480) gently separate flower rather than shredding it, for a smoother, more consistent grind. A <strong>strong magnetic lid</strong> keeps the closure tight and the contents where they belong.",
       "There is <strong>no kief screen</strong>, and that is deliberate: everything you grind — flower, trichomes and kief together — falls into the catch cup and goes into your bowl or chamber.",
     ],
-    highlights: ["3-piece, 64mm", "Patented micro-rounded teeth", "6063 anodized aluminum", "Strong magnetic lid", "No kief screen — nothing separated out", "Designed to help retain terpenes and trichomes"],
+    highlights: ["3-piece, 64mm (2.5\")", "Patented micro-rounded teeth", "6063 anodized aluminum", "Strong magnetic lid", "No kief screen — nothing separated out", "Designed to help retain terpenes and trichomes"],
     specs: [
       { label: "Type", value: "3-piece dry herb grinder (accessory — no battery, no heat)" },
-      { label: "Size", value: "64mm" },
+      { label: "Size", value: "64mm (2.5\")" },
       { label: "Pieces", value: "Lid, grinding ring, catch cup" },
       { label: "Teeth", value: "Patented micro-rounded (Patent No. 11690480)" },
       { label: "Materials", value: "Precision-machined 6063 anodized aluminum" },
@@ -340,7 +340,7 @@ window.GPEN_COURSES = [
     ],
     faq: [
       { q: "Why is there no kief screen?", a: "By design. A screen separates trichomes out into a fourth chamber, where most people forget about them. With no screen, the flower, trichomes and kief stay together and all of it goes into your bowl." },
-      { q: "How big is it?", a: "64mm across — a full-size grinding surface in a slim body." },
+      { q: "How big is it?", a: "64mm (2.5\") across — a full-size grinding surface in a slim body." },
       { q: "What is it made of?", a: "Precision-machined 6063 anodized aluminum." },
       { q: "What do the micro-rounded teeth do?", a: "They separate flower gently instead of shredding it, which is what gives the smoother, more consistent grind. The design is patented (No. 11690480)." },
       { q: "Does the lid stay on?", a: "Yes — it uses a strong magnetic closure, so it holds shut in a bag or a pocket." },
@@ -350,8 +350,8 @@ window.GPEN_COURSES = [
       upsellFrom: "Flower",
       vital: "Every flower customer grinds somehow. This is the cheapest thing on the counter that improves what they already bought, and it is the accessory that makes a Dash pack evenly.",
       aov: "A $19.95 mechanical add-on with nothing to break and nothing to charge. It attaches to any flower sale, and it ships as a 10-pack POP display so it can live right at the register.",
-      keyFacts: ["3-piece, 64mm, aluminum", "Patented micro-rounded teeth", "No kief screen — $19.95"],
-      talkTrack: { say: "How are you breaking up your flower? This is 64mm machined aluminum with patented teeth, and no kief screen, so nothing is separated out and left behind. $19.95, and your vaporizer packs more evenly." },
+      keyFacts: ["3-piece, 64mm (2.5\"), aluminum", "Patented micro-rounded teeth", "No kief screen — $19.95"],
+      talkTrack: { say: "How are you breaking up your flower? This is 64mm (2.5\") machined aluminum with patented teeth, and no kief screen, so nothing is separated out and left behind. $19.95, and your vaporizer packs more evenly." },
       whichClose: "Packing a vaporizer or rolling? An even grind matters either way. Add the grinder at $19.95?",
       scenarios: [
         { sees: "Flower going out with no grinder in the basket", say: "How are you breaking that up? A plastic grinder crushes flower. This has micro-rounded teeth that separate it instead. $19.95, machined aluminum, and nothing to charge." },

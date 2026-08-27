@@ -331,15 +331,15 @@ window.GPEN_I18N = {
     "grinder": {
       whatItIs: "Un grinder manuel, conçu pour broyer la fleur de cannabis avant le remplissage.",
       category: "Accessoire pour herbe sèche",
-      tagline: "Grinder en aluminium de 64 mm. Sans grille à kief : rien ne se perd.",
+      tagline: "Grinder en aluminium de 64 mm (2,5\"). Sans grille à kief : rien ne se perd.",
       differentiator: "L'accessoire à $19.95 pour toute vente de fleur.",
       description: [
-        "Le G&nbsp;Pen Grinder est un grinder <strong>3 pièces de 64 mm</strong> usiné avec précision dans un <strong>aluminium anodisé 6063</strong> robuste — la même famille de matériaux de qualité aéronautique que les appareils qu'il remplit.",
+        "Le G&nbsp;Pen Grinder est un grinder <strong>3 pièces de 64 mm (2,5\")</strong> usiné avec précision dans un <strong>aluminium anodisé 6063</strong> robuste — la même famille de matériaux de qualité aéronautique que les appareils qu'il remplit.",
         "Ses <strong>dents micro-arrondies brevetées</strong> (brevet n° 11690480) séparent la fleur en douceur au lieu de la déchiqueter, pour une mouture plus régulière. Un <strong>couvercle magnétique puissant</strong> maintient la fermeture serrée et le contenu à sa place.",
         "Il n'y a <strong>pas de grille à kief</strong>, et c'est volontaire : tout ce que vous moulez — fleur, trichomes et kief ensemble — tombe dans le réceptacle et part dans votre bol ou votre chambre.",
       ],
       highlights: [
-        "3 pièces, 64 mm",
+        "3 pièces, 64 mm (2,5\")",
         "Dents micro-arrondies brevetées",
         "Aluminium anodisé 6063",
         "Couvercle magnétique puissant",
@@ -349,11 +349,11 @@ window.GPEN_I18N = {
       howToSell: {
         vital: "Tout client qui achète de la fleur la broie d'une manière ou d'une autre. C'est l'article le moins cher du comptoir qui améliore ce qu'il vient d'acheter, et c'est l'accessoire qui permet de remplir un Dash de façon régulière.",
         aov: "Un accessoire mécanique à $19.95, sans rien qui casse et sans rien à recharger. Il s'ajoute à toute vente de fleur et se livre en présentoir de 10, pour rester à la caisse.",
-        talkTrack: { say: "Comment broyez-vous votre fleur ? Celui-ci fait 64 mm en aluminium usiné avec des dents brevetées, sans grille à kief, donc rien n'est séparé ni perdu. $19.95, et votre vaporisateur se remplit plus régulièrement." },
+        talkTrack: { say: "Comment broyez-vous votre fleur ? Celui-ci fait 64 mm (2,5\") en aluminium usiné avec des dents brevetées, sans grille à kief, donc rien n'est séparé ni perdu. $19.95, et votre vaporisateur se remplit plus régulièrement." },
         whichClose: "Vous remplissez un vaporisateur ou vous roulez ? Une mouture régulière compte dans les deux cas. On ajoute le grinder à $19.95 ?",
         trap: "Ne le vendez pas comme un récupérateur de kief : il n'a volontairement PAS de grille à kief, et un client qui attend une quatrième chambre le rapportera. Vendez-le pour l'atout qu'il représente : rien n'est séparé ni perdu.",
         keyFacts: [
-          "3 pièces, 64 mm, aluminium",
+          "3 pièces, 64 mm (2,5\"), aluminium",
           "Dents micro-arrondies brevetées",
           "Sans grille à kief — $19.95",
         ],

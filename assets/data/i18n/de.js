@@ -332,15 +332,15 @@ window.GPEN_I18N = {
     "grinder": {
       whatItIs: "Ein Handgrinder, entwickelt zum Zerkleinern von Cannabisblüten vor dem Befüllen.",
       category: "Zubehör für trockene Kräuter",
-      tagline: "64-mm-Grinder aus Aluminium. Ohne Kief-Sieb — nichts bleibt zurück.",
+      tagline: "Aluminium-Grinder, 64 mm (2,5\"). Ohne Kief-Sieb — nichts bleibt zurück.",
       differentiator: "Das Zusatzprodukt für $19.95 zu jedem Blütenverkauf.",
       description: [
-        "Der G&nbsp;Pen Grinder ist ein <strong>dreiteiliger 64-mm-Grinder</strong>, präzisionsgefräst aus robustem <strong>eloxiertem Aluminium 6063</strong> — derselben Materialfamilie in Luftfahrtqualität wie die Geräte, die er befüllt.",
+        "Der G&nbsp;Pen Grinder ist ein <strong>dreiteiliger Grinder mit 64 mm (2,5\")</strong>, präzisionsgefräst aus robustem <strong>eloxiertem Aluminium 6063</strong> — derselben Materialfamilie in Luftfahrtqualität wie die Geräte, die er befüllt.",
         "Die <strong>patentierten mikroabgerundeten Zähne</strong> (Patent Nr. 11690480) trennen die Blüten sanft, statt sie zu zerreißen, für ein gleichmäßigeres Mahlergebnis. Ein <strong>starker Magnetdeckel</strong> hält den Verschluss fest und den Inhalt an seinem Platz.",
         "Es gibt <strong>kein Kief-Sieb</strong>, und das ist Absicht: Alles, was Sie mahlen — Blüten, Trichome und Kief zusammen — fällt in den Auffangbehälter und geht in Ihren Pfeifenkopf oder Ihre Kammer.",
       ],
       highlights: [
-        "Dreiteilig, 64 mm",
+        "Dreiteilig, 64 mm (2,5\")",
         "Patentierte mikroabgerundete Zähne",
         "Eloxiertes Aluminium 6063",
         "Starker Magnetdeckel",
@@ -350,11 +350,11 @@ window.GPEN_I18N = {
       howToSell: {
         vital: "Jeder Blütenkunde mahlt irgendwie. Das ist der günstigste Artikel am Tresen, der verbessert, was der Kunde ohnehin gekauft hat, und das Zubehör, mit dem sich ein Dash gleichmäßig füllen lässt.",
         aov: "Ein mechanisches Zusatzprodukt für $19.95, an dem nichts kaputtgeht und nichts geladen werden muss. Es passt zu jedem Blütenverkauf und kommt als 10er-Display, das direkt an die Kasse gehört.",
-        talkTrack: { say: "Wie zerkleinern Sie Ihre Blüten? Das hier ist gefrästes Aluminium mit 64 mm und patentierten Zähnen, ohne Kief-Sieb, damit nichts abgetrennt wird und zurückbleibt. $19.95, und Ihr Vaporizer füllt sich gleichmäßiger." },
+        talkTrack: { say: "Wie zerkleinern Sie Ihre Blüten? Das hier ist gefrästes Aluminium mit 64 mm (2,5\") und patentierten Zähnen, ohne Kief-Sieb, damit nichts abgetrennt wird und zurückbleibt. $19.95, und Ihr Vaporizer füllt sich gleichmäßiger." },
         whichClose: "Füllen Sie einen Vaporizer oder drehen Sie? Ein gleichmäßiges Mahlergebnis zählt in beiden Fällen. Den Grinder für $19.95 dazu?",
         trap: "Verkaufen Sie ihn nicht als Kief-Fänger: Er hat bewusst KEIN Kief-Sieb, und ein Kunde, der eine vierte Kammer erwartet, bringt ihn zurück. Verkaufen Sie das als das Merkmal, das es ist: Nichts wird abgetrennt und bleibt zurück.",
         keyFacts: [
-          "Dreiteilig, 64 mm, Aluminium",
+          "Dreiteilig, 64 mm (2,5\"), Aluminium",
           "Patentierte mikroabgerundete Zähne",
           "Kein Kief-Sieb — $19.95",
         ],

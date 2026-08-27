@@ -330,15 +330,15 @@ window.GPEN_I18N = {
     "grinder": {
       whatItIs: "Un grinder manuale, progettato per sminuzzare l'infiorescenza di cannabis prima di caricarla.",
       category: "Accessorio per erba secca",
-      tagline: "Grinder in alluminio da 64 mm. Senza filtro per il kief: non resta niente indietro.",
+      tagline: "Grinder in alluminio da 64 mm (2,5\"). Senza filtro per il kief: non resta niente indietro.",
       differentiator: "L'accessorio da $19.95 per ogni vendita di infiorescenza.",
       description: [
-        "Il G&nbsp;Pen Grinder è un grinder <strong>a 3 pezzi da 64 mm</strong> lavorato con precisione in resistente <strong>alluminio anodizzato 6063</strong>, la stessa famiglia di materiali di grado aeronautico dei dispositivi che rifornisce.",
+        "Il G&nbsp;Pen Grinder è un grinder <strong>a 3 pezzi da 64 mm (2,5\")</strong> lavorato con precisione in resistente <strong>alluminio anodizzato 6063</strong>, la stessa famiglia di materiali di grado aeronautico dei dispositivi che rifornisce.",
         "I suoi <strong>denti micro-arrotondati brevettati</strong> (brevetto n. 11690480) separano delicatamente l'infiorescenza invece di lacerarla, per una macinatura più uniforme. Un <strong>coperchio magnetico potente</strong> mantiene la chiusura salda e il contenuto al suo posto.",
         "<strong>Non c'è il filtro per il kief</strong>, ed è una scelta precisa: tutto ciò che macina — infiorescenza, tricomi e kief insieme — cade nel contenitore e finisce nel suo braciere o nella sua camera.",
       ],
       highlights: [
-        "3 pezzi, 64 mm",
+        "3 pezzi, 64 mm (2,5\")",
         "Denti micro-arrotondati brevettati",
         "Alluminio anodizzato 6063",
         "Coperchio magnetico potente",
@@ -348,11 +348,11 @@ window.GPEN_I18N = {
       howToSell: {
         vital: "Ogni cliente che acquista infiorescenza la macina in qualche modo. È l'articolo più economico al banco che migliora ciò che ha già comprato, ed è l'accessorio che permette di riempire un Dash in modo uniforme.",
         aov: "Un accessorio meccanico da $19.95 senza nulla che si rompa e nulla da ricaricare. Si aggiunge a qualsiasi vendita di infiorescenza e arriva in espositore da 10 pezzi, da tenere accanto alla cassa.",
-        talkTrack: { say: "Come sminuzza la sua infiorescenza? Questo è in alluminio lavorato da 64 mm con denti brevettati e senza filtro per il kief, così niente viene separato e lasciato indietro. $19.95, e il suo vaporizzatore si riempie in modo più uniforme." },
+        talkTrack: { say: "Come sminuzza la sua infiorescenza? Questo è in alluminio lavorato da 64 mm (2,5\") con denti brevettati e senza filtro per il kief, così niente viene separato e lasciato indietro. $19.95, e il suo vaporizzatore si riempie in modo più uniforme." },
         whichClose: "Deve riempire un vaporizzatore o rollare? Una macinatura uniforme conta in entrambi i casi. Aggiungiamo il grinder a $19.95?",
         trap: "Non lo venda come raccoglitore di kief: volutamente NON ha il filtro per il kief, e un cliente che si aspetta una quarta camera lo riporterà. Lo venda per il vantaggio che è: niente viene separato e lasciato indietro.",
         keyFacts: [
-          "3 pezzi, 64 mm, alluminio",
+          "3 pezzi, 64 mm (2,5\"), alluminio",
           "Denti micro-arrotondati brevettati",
           "Senza filtro per il kief — $19.95",
         ],

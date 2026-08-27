@@ -347,15 +347,15 @@ window.GPEN_I18N = {
     "grinder": {
       whatItIs: "Un grinder manual, diseñado para desmenuzar la flor de cannabis antes de cargarla.",
       category: "Accesorio para hierba seca",
-      tagline: "Grinder de aluminio de 64 mm. Sin filtro de kief: no se queda nada atrás.",
+      tagline: "Grinder de aluminio de 64 mm (2,5\"). Sin filtro de kief: no se queda nada atrás.",
       differentiator: "El complemento de $19.95 para cualquier venta de flor.",
       description: [
-        "El G&nbsp;Pen Grinder es un grinder de <strong>3 piezas y 64 mm</strong> mecanizado con precisión en resistente <strong>aluminio anodizado 6063</strong>, la misma familia de materiales de calidad aeronáutica que los dispositivos que llena.",
+        "El G&nbsp;Pen Grinder es un grinder de <strong>3 piezas y 64 mm (2,5\")</strong> mecanizado con precisión en resistente <strong>aluminio anodizado 6063</strong>, la misma familia de materiales de calidad aeronáutica que los dispositivos que llena.",
         "Sus <strong>dientes microredondeados patentados</strong> (patente n.º 11690480) separan la flor con suavidad en lugar de desgarrarla, para un molido más uniforme. Una <strong>tapa magnética potente</strong> mantiene el cierre firme y el contenido en su sitio.",
         "<strong>No tiene filtro de kief</strong>, y es intencionado: todo lo que muele (flor, tricomas y kief juntos) cae en el vaso y pasa a su cazoleta o cámara.",
       ],
       highlights: [
-        "3 piezas, 64 mm",
+        "3 piezas, 64 mm (2,5\")",
         "Dientes microredondeados patentados",
         "Aluminio anodizado 6063",
         "Tapa magnética potente",
@@ -365,11 +365,11 @@ window.GPEN_I18N = {
       howToSell: {
         vital: "Todo cliente de flor la muele de alguna manera. Es lo más económico del mostrador que mejora lo que ya ha comprado, y es el accesorio que hace que un Dash se cargue de forma uniforme.",
         aov: "Un complemento mecánico de $19.95 sin nada que se rompa y sin nada que cargar. Se añade a cualquier venta de flor y se sirve en expositor de 10 unidades, para tenerlo junto a la caja.",
-        talkTrack: { say: "¿Cómo desmenuza su flor? Este es de aluminio mecanizado de 64 mm con dientes patentados y sin filtro de kief, así que nada se separa ni se queda atrás. $19.95, y su vaporizador se carga de forma más uniforme." },
+        talkTrack: { say: "¿Cómo desmenuza su flor? Este es de aluminio mecanizado de 64 mm (2,5\") con dientes patentados y sin filtro de kief, así que nada se separa ni se queda atrás. $19.95, y su vaporizador se carga de forma más uniforme." },
         whichClose: "¿Va a cargar un vaporizador o a liar? Un molido uniforme importa en ambos casos. ¿Añadimos el grinder por $19.95?",
         trap: "No lo venda como recolector de kief: deliberadamente NO tiene filtro de kief, y un cliente que espere una cuarta cámara lo devolverá. Véndalo como la ventaja que es: nada se separa ni se queda atrás.",
         keyFacts: [
-          "3 piezas, 64 mm, aluminio",
+          "3 piezas, 64 mm (2,5\"), aluminio",
           "Dientes microredondeados patentados",
           "Sin filtro de kief — $19.95",
         ],

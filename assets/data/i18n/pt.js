@@ -332,15 +332,15 @@ window.GPEN_I18N = {
     "grinder": {
       whatItIs: "Um grinder manual, projetado para quebrar a flor de cannabis antes de carregar.",
       category: "Acessório para erva seca",
-      tagline: "Grinder de alumínio de 64 mm. Sem peneira de kief: nada fica para trás.",
+      tagline: "Grinder de alumínio de 64 mm (2,5\"). Sem peneira de kief: nada fica para trás.",
       differentiator: "O adicional de $19.95 para qualquer venda de flor.",
       description: [
-        "O G&nbsp;Pen Grinder é um grinder de <strong>3 peças e 64 mm</strong> usinado com precisão em <strong>alumínio anodizado 6063</strong> resistente — a mesma família de materiais de grau aeronáutico dos aparelhos que ele enche.",
+        "O G&nbsp;Pen Grinder é um grinder de <strong>3 peças e 64 mm (2,5\")</strong> usinado com precisão em <strong>alumínio anodizado 6063</strong> resistente — a mesma família de materiais de grau aeronáutico dos aparelhos que ele enche.",
         "Seus <strong>dentes micro-arredondados patenteados</strong> (patente nº 11690480) separam a flor com suavidade em vez de rasgá-la, para uma moagem mais uniforme. Uma <strong>tampa magnética forte</strong> mantém o fechamento firme e o conteúdo no lugar.",
         "<strong>Não há peneira de kief</strong>, e isso é proposital: tudo o que você mói — flor, tricomas e kief juntos — cai no compartimento e vai para o seu fornilho ou câmara.",
       ],
       highlights: [
-        "3 peças, 64 mm",
+        "3 peças, 64 mm (2,5\")",
         "Dentes micro-arredondados patenteados",
         "Alumínio anodizado 6063",
         "Tampa magnética forte",
@@ -350,11 +350,11 @@ window.GPEN_I18N = {
       howToSell: {
         vital: "Todo cliente de flor mói de alguma forma. É o item mais barato do balcão que melhora o que ele já comprou, e é o acessório que faz um Dash ser carregado de forma uniforme.",
         aov: "Um adicional mecânico de $19.95 sem nada para quebrar e nada para carregar. Encaixa em qualquer venda de flor e vem em display de 10 unidades, para ficar no caixa.",
-        talkTrack: { say: "Como você quebra sua flor? Este é de alumínio usinado de 64 mm com dentes patenteados e sem peneira de kief, então nada é separado e deixado para trás. $19.95, e seu vaporizador é carregado de forma mais uniforme." },
+        talkTrack: { say: "Como você quebra sua flor? Este é de alumínio usinado de 64 mm (2,5\") com dentes patenteados e sem peneira de kief, então nada é separado e deixado para trás. $19.95, e seu vaporizador é carregado de forma mais uniforme." },
         whichClose: "Vai carregar um vaporizador ou enrolar? Uma moagem uniforme importa nos dois casos. Adiciono o grinder por $19.95?",
         trap: "Não venda como coletor de kief: ele propositalmente NÃO tem peneira de kief, e um cliente esperando uma quarta câmara vai devolvê-lo. Venda como a vantagem que é: nada é separado e deixado para trás.",
         keyFacts: [
-          "3 peças, 64 mm, alumínio",
+          "3 peças, 64 mm (2,5\"), alumínio",
           "Dentes micro-arredondados patenteados",
           "Sem peneira de kief — $19.95",
         ],
