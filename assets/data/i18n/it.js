@@ -330,8 +330,8 @@ window.GPEN_I18N = {
     "grinder": {
       whatItIs: "Grinder con denti micro-arrotondati che sminuzzano delicatamente il fiore invece di lacerarlo.",
       category: "Accessorio per erba secca",
-      tagline: "Grinder in alluminio da 64 mm (2,5\"). Senza filtro per il kief: non resta niente indietro.",
-      differentiator: "L'accessorio da $19.95 per ogni vendita di infiorescenza.",
+      tagline: "Denti micro-arrotondati che separano il fiore invece di lacerarlo. Senza filtro, 64 mm (2,5\").",
+      differentiator: "Denti micro-arrotondati: la più alta ritenzione di THC in test di terze parti.",
       description: [
         "Ogni buona sessione parte da una macinatura migliore. Il G&nbsp;Pen Slim 3-Piece Grinder è progettato con <strong>denti micro-arrotondati</strong> che separano delicatamente il fiore in una macinatura uniforme, aiutando a preservare i cannabinoidi e i terpeni che rendono unica ogni varietà.",
         "A differenza dei grinder con denti affilati, la geometria arrotondata e l’interno liscio <strong>riducono attrito e accumuli</strong>, così resta più fiore dove deve stare. La struttura a 3 pezzi <strong>senza filtro</strong> mantiene i tricomi mescolati al macinato invece di separarli, e il profilo sottile entra in tasca o in borsa.",

@@ -260,13 +260,13 @@ window.GPEN_COURSES = [
     name: "3-Piece Grinder",
     category: "Dry Herb Accessory",
     family: "dryherb",
-    tagline: "64mm (2.5\") aluminum grinder. No kief screen — nothing gets left behind.",
+    tagline: "Micro-rounded teeth that separate flower instead of shredding it. Screenless, 64mm (2.5\").",
     /* What the object IS, in the plainest words available: the answer to "what
        is this thing and what is it for", shown at the top of the course above
        the price. Not marketing and not positioning — a rep who has never seen
        the category should be able to read one line and be right. */
     whatItIs: "Grinder with micro-rounded teeth gently breaks up flower instead of shredding it",
-    differentiator: "The $19.95 add-on for any flower sale.",
+    differentiator: "Micro-rounded teeth \u2014 the highest THC retention in third-party testing.",
     minutes: 6, passPct: 80, msrp: "$19.95", accent: "#5E8C61",
     /* Locally cut out, not a CDN render: every stashgrinder_* asset on the CDN and in
        the asset portal is a JPEG with a baked white background, and every other cover

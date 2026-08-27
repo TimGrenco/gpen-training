@@ -332,8 +332,8 @@ window.GPEN_I18N = {
     "grinder": {
       whatItIs: "Grinder mit mikro-abgerundeten Zähnen, die die Blüten sanft zerkleinern statt sie zu zerfetzen.",
       category: "Zubehör für trockene Kräuter",
-      tagline: "Aluminium-Grinder, 64 mm (2,5\"). Ohne Kief-Sieb — nichts bleibt zurück.",
-      differentiator: "Das Zusatzprodukt für $19.95 zu jedem Blütenverkauf.",
+      tagline: "Mikro-abgerundete Zähne, die Blüten trennen statt sie zu zerfetzen. Sieblos, 64 mm (2,5\").",
+      differentiator: "Mikro-abgerundete Zähne – höchste THC-Retention in Tests unabhängiger Dritter.",
       description: [
         "Jede gute Session beginnt mit einem besseren Mahlgrad. Der G&nbsp;Pen Slim 3-Piece Grinder ist mit <strong>mikro-abgerundeten Zähnen</strong> konstruiert, die Blüten sanft zu einem gleichmäßigen Mahlgut trennen und dabei helfen, die Cannabinoide und Terpene zu bewahren, die jede Sorte ausmachen.",
         "Anders als bei Grindern mit scharfen Zähnen <strong>verringern die abgerundete Zahngeometrie und das glatte Innere Reibung und Ablagerungen</strong>, sodass mehr Blüte dort bleibt, wo sie hingehört. Die <strong>sieblose</strong> dreiteilige Bauweise hält die Trichome im Mahlgut, statt sie abzutrennen, und das schlanke Profil passt in Tasche oder Rucksack.",

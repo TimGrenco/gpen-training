@@ -331,8 +331,8 @@ window.GPEN_I18N = {
     "grinder": {
       whatItIs: "Grinder à dents micro-arrondies qui effritent la fleur en douceur au lieu de la déchiqueter.",
       category: "Accessoire pour herbe sèche",
-      tagline: "Grinder en aluminium de 64 mm (2,5\"). Sans grille à kief : rien ne se perd.",
-      differentiator: "L'accessoire à $19.95 pour toute vente de fleur.",
+      tagline: "Des dents micro-arrondies qui séparent la fleur au lieu de la déchiqueter. Sans grille, 64 mm (2,5\").",
+      differentiator: "Dents micro-arrondies : la meilleure rétention de THC lors de tests tiers.",
       description: [
         "Toute bonne session commence par un meilleur effritage. Le G&nbsp;Pen Slim 3-Piece Grinder est conçu avec des <strong>dents micro-arrondies</strong> qui séparent la fleur en douceur pour un effritage régulier, en aidant à préserver les cannabinoïdes et les terpènes propres à chaque variété.",
         "Contrairement aux grinders à dents pointues, la géométrie arrondie et l’intérieur lisse <strong>réduisent la friction et les dépôts</strong>, et gardent davantage de fleur là où elle doit être. La conception 3 pièces <strong>sans grille</strong> laisse les trichomes mélangés à la matière effritée au lieu de les séparer, et le profil fin se glisse dans une poche ou un sac.",
