@@ -317,7 +317,7 @@ window.GPEN_COURSES = [
       "Crafted from <strong>6063 aircraft-grade anodized aluminum</strong>, it delivers smooth rotation, lasting durability and precision performance. In independent testing by <strong>Orange Photonics</strong>, the micro-rounded tooth design showed the highest post-grind THC retention among the grinder styles tested.",
       "The consistent grind it produces is ideal for vaporization, so it pairs naturally with the <strong>G&nbsp;Pen Dash II</strong> and <strong>G&nbsp;Pen Dash+</strong> — an even, efficient pack, and more flavor out of every bowl.",
     ],
-    highlights: ["3-piece, 64mm (2.5\")", "Patented micro-rounded teeth", "Highest post-grind THC retention in independent testing", "Screenless — trichomes stay in the grind", "Smooth interior reduces friction and buildup", "6063 aircraft-grade anodized aluminum", "Strong magnetic lid"],
+    highlights: ["3-piece, 64mm (2.5\")", "Patented micro-rounded teeth", "Highest post-grind THC retention in independent testing", "Screenless — trichomes stay in the grind", "Machined aluminum, not plastic \u2014 no plastic shed into your flower", "Smooth interior reduces friction and buildup", "6063 aircraft-grade anodized aluminum", "Strong magnetic lid"],
     specs: [
       { label: "Type", value: "3-piece dry herb grinder (accessory — no battery, no heat)" },
       { label: "Size", value: "64mm (2.5\")" },
@@ -358,10 +358,10 @@ window.GPEN_COURSES = [
          and it is the one thing on this product that brings a customer back: no screen means
          no fourth chamber, and a buyer expecting one returns it. */
       keyFacts: ["Micro-rounded teeth gently break up flower instead of shredding it", "Highest THC & Terpene retention in independent testing", "Aluminum 3 Piece Grinder for only $19.95"],
-      talkTrack: { say: "How are you breaking up your flower? Rounded teeth separate it instead of shredding it, so more stays in the grind \u2014 independent testing put this design highest for THC retention." },
+      talkTrack: { say: "How are you breaking up your flower? The rounded teeth separate it instead of shredding it, so it's proven to retain more of your THC and terpenes." },
       objections: [
-        { says: "I already have a grinder.", say: "Most grinders use sharp teeth that shred it. These are rounded, so they separate the flower \u2014 independent testing put this design highest for THC retention." },
-        { says: "Where does the kief go?", say: "It stays in your grind. There is no screen, so the trichomes go into the bowl with everything else instead of collecting in a chamber." },
+        { says: "I already have a grinder.", say: "Most free ones are plastic with sharp teeth, so they shred the flower and shed plastic into it. This is machined aluminum with rounded teeth \u2014 proven to retain more of your THC and terpenes." },
+        { says: "Where does the kief go?", say: "It stays in your grind. There is no screen, so the trichomes go in the bowl with everything else instead of collecting in a chamber." },
       ],
     },
     videos: [

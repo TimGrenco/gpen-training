@@ -345,12 +345,13 @@ window.GPEN_I18N = {
         "Patentierte mikro-abgerundete Zähne",
         "Höchste THC-Retention nach dem Mahlen in unabhängigen Tests",
         "Sieblos – die Trichome bleiben im Mahlgut",
+        "Gefrästes Aluminium statt Kunststoff – kein Kunststoff in Ihrer Blüte",
         "Glattes Inneres reduziert Reibung und Ablagerungen",
         "Eloxiertes Aluminium 6063 in Luftfahrtqualität",
         "Starker Magnetdeckel",
       ],
       howToSell: {
-        talkTrack: { say: "Wie zerkleinern Sie Ihre Blüten? Die abgerundeten Zähne trennen sie, statt sie zu zerfetzen, so bleibt mehr im Mahlgut – in unabhängigen Tests erreichte dieses Design die höchste THC-Retention." },
+        talkTrack: { say: "Wie zerkleinern Sie Ihre Blüten? Die abgerundeten Zähne trennen sie, statt sie zu zerfetzen – nachweislich bleiben mehr THC und Terpene erhalten." },
         keyFacts: [
           "Mikro-abgerundete Zähne zerkleinern die Blüte sanft, statt sie zu zerfetzen",
           "Höchste THC- und Terpen-Retention in unabhängigen Tests",

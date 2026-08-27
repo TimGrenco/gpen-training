@@ -345,12 +345,13 @@ window.GPEN_I18N = {
         "Dentes micro-arredondados patenteados",
         "Maior retenção de THC após a trituração em testes independentes",
         "Sem peneira: os tricomas ficam no grão",
+        "Alumínio usinado, não plástico: nada de plástico na sua flor",
         "Interior liso que reduz atrito e acumulação",
         "Alumínio anodizado 6063 de grau aeronáutico",
         "Tampa magnética resistente",
       ],
       howToSell: {
-        talkTrack: { say: "Como desfaz a sua flor? Os dentes arredondados separam-na em vez de a rasgar, por isso fica mais no grão: em testes independentes, este design obteve a maior retenção de THC." },
+        talkTrack: { say: "Como desfaz a sua flor? Os dentes arredondados separam-na em vez de a rasgar, por isso está provado que retém mais THC e terpenos." },
         keyFacts: [
           "Os dentes micro-arredondados desfazem a flor com suavidade em vez de a rasgar",
           "Maior retenção de THC e terpenos em testes independentes",

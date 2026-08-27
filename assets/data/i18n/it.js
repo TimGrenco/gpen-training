@@ -343,12 +343,13 @@ window.GPEN_I18N = {
         "Denti micro-arrotondati brevettati",
         "La più alta ritenzione di THC dopo la macinatura in test indipendenti",
         "Senza filtro: i tricomi restano nel macinato",
+        "Alluminio lavorato, non plastica: nessuna plastica nel fiore",
         "Interno liscio che riduce attrito e accumuli",
         "Alluminio anodizzato 6063 di grado aeronautico",
         "Coperchio magnetico robusto",
       ],
       howToSell: {
-        talkTrack: { say: "Come sminuzza la sua infiorescenza? I denti arrotondati la separano invece di lacerarla, così resta di più nel macinato: in test indipendenti questo design ha ottenuto la più alta ritenzione di THC." },
+        talkTrack: { say: "Come sminuzza la sua infiorescenza? I denti arrotondati la separano invece di lacerarla: è dimostrato che trattiene più THC e terpeni." },
         keyFacts: [
           "I denti micro-arrotondati sminuzzano delicatamente il fiore invece di lacerarlo",
           "La più alta ritenzione di THC e terpeni in test indipendenti",

@@ -344,12 +344,13 @@ window.GPEN_I18N = {
         "Dents micro-arrondies brevetées",
         "Meilleure rétention de THC après effritage lors de tests indépendants",
         "Sans grille : les trichomes restent dans l’effritage",
+        "Aluminium usiné, pas de plastique : aucun plastique dans votre fleur",
         "Intérieur lisse qui réduit friction et dépôts",
         "Aluminium anodisé 6063 de qualité aéronautique",
         "Couvercle magnétique solide",
       ],
       howToSell: {
-        talkTrack: { say: "Comment effritez-vous votre fleur ? Les dents arrondies la séparent au lieu de la déchiqueter, donc il en reste plus dans l’effritage : lors de tests indépendants, ce design a obtenu la meilleure rétention de THC." },
+        talkTrack: { say: "Comment effritez-vous votre fleur ? Les dents arrondies la séparent au lieu de la déchiqueter : il est prouvé qu’elle retient davantage de THC et de terpènes." },
         keyFacts: [
           "Des dents micro-arrondies effritent la fleur en douceur au lieu de la déchiqueter",
           "Meilleure rétention de THC et de terpènes lors de tests indépendants",

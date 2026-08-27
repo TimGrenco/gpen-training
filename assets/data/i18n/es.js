@@ -360,12 +360,13 @@ window.GPEN_I18N = {
         "Dientes microrredondeados patentados",
         "La mayor retención de THC tras el molido en pruebas independientes",
         "Sin filtro: los tricomas se quedan en el molido",
+        "Aluminio mecanizado, no plástico: no suelta plástico en su flor",
         "Interior liso que reduce fricción y acumulación",
         "Aluminio anodizado 6063 de grado aeronáutico",
         "Tapa magnética resistente",
       ],
       howToSell: {
-        talkTrack: { say: "¿Cómo desmenuza su flor? Los dientes redondeados la separan en lugar de desgarrarla, así queda más en el molido: en pruebas independientes este diseño obtuvo la mayor retención de THC." },
+        talkTrack: { say: "¿Cómo desmenuza su flor? Los dientes redondeados la separan en lugar de desgarrarla, así está demostrado que retiene más THC y terpenos." },
         keyFacts: [
           "Los dientes microrredondeados desmenuzan la flor con suavidad en lugar de desgarrarla",
           "La mayor retención de THC y terpenos en pruebas independientes",
