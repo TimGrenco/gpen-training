@@ -337,7 +337,7 @@ window.GPEN_I18N = {
       description: [
         "Jede gute Session beginnt mit einem besseren Mahlgrad. Der G&nbsp;Pen Slim 3-Piece Grinder ist mit <strong>mikro-abgerundeten Zähnen</strong> konstruiert, die Blüten sanft zu einem gleichmäßigen Mahlgut trennen und dabei helfen, die Cannabinoide und Terpene zu bewahren, die jede Sorte ausmachen.",
         "Anders als bei Grindern mit scharfen Zähnen <strong>verringern die abgerundete Zahngeometrie und das glatte Innere Reibung und Ablagerungen</strong>, sodass mehr Blüte dort bleibt, wo sie hingehört. Die <strong>sieblose</strong> dreiteilige Bauweise hält die Trichome im Mahlgut, statt sie abzutrennen, und das schlanke Profil passt in Tasche oder Rucksack.",
-        "Gefertigt aus <strong>eloxiertem Aluminium 6063 in Luftfahrtqualität</strong>, läuft er rund, hält lange und arbeitet präzise. In unabhängigen Tests von <strong>Orange Photonics</strong> zeigte das mikro-abgerundete Zahndesign die höchste THC-Retention nach dem Mahlen unter den geprüften Grinder-Bauarten.",
+        "Gefertigt aus <strong>eloxiertem Aluminium 6063 in Luftfahrtqualität</strong>, läuft er rund, hält lange und arbeitet präzise. In unabhängigen Tests von <strong>Independent Testing Labs</strong> zeigte das mikro-abgerundete Zahndesign die höchste THC-Retention nach dem Mahlen unter den geprüften Grinder-Bauarten.",
         "Der gleichmäßige Mahlgrad eignet sich ideal zum Verdampfen und passt damit natürlich zum <strong>G&nbsp;Pen Dash II</strong> und zum <strong>G&nbsp;Pen Dash+</strong>: gleichmäßig gepackt, mehr Geschmack aus jeder Füllung.",
       ],
       highlights: [

@@ -336,7 +336,7 @@ window.GPEN_I18N = {
       description: [
         "Toute bonne session commence par un meilleur effritage. Le G&nbsp;Pen Slim 3-Piece Grinder est conçu avec des <strong>dents micro-arrondies</strong> qui séparent la fleur en douceur pour un effritage régulier, en aidant à préserver les cannabinoïdes et les terpènes propres à chaque variété.",
         "Contrairement aux grinders à dents pointues, la géométrie arrondie et l’intérieur lisse <strong>réduisent la friction et les dépôts</strong>, et gardent davantage de fleur là où elle doit être. La conception 3 pièces <strong>sans grille</strong> laisse les trichomes mélangés à la matière effritée au lieu de les séparer, et le profil fin se glisse dans une poche ou un sac.",
-        "Usiné dans un <strong>aluminium anodisé 6063 de qualité aéronautique</strong>, il offre une rotation douce, une vraie durabilité et de la précision. Lors de tests indépendants menés par <strong>Orange Photonics</strong>, la denture micro-arrondie a montré la meilleure rétention de THC après effritage parmi les types de grinders testés.",
+        "Usiné dans un <strong>aluminium anodisé 6063 de qualité aéronautique</strong>, il offre une rotation douce, une vraie durabilité et de la précision. Lors de tests indépendants menés par <strong>Independent Testing Labs</strong>, la denture micro-arrondie a montré la meilleure rétention de THC après effritage parmi les types de grinders testés.",
         "L’effritage régulier qu’il produit est idéal pour la vaporisation : il s’associe naturellement au <strong>G&nbsp;Pen Dash II</strong> et au <strong>G&nbsp;Pen Dash+</strong>, pour un tassement régulier et plus de goût à chaque fois.",
       ],
       highlights: [

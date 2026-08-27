@@ -337,7 +337,7 @@ window.GPEN_I18N = {
       description: [
         "Toda boa sessão começa por uma trituração melhor. O G&nbsp;Pen Slim 3-Piece Grinder foi concebido com <strong>dentes micro-arredondados</strong> que separam a flor com suavidade num grão uniforme, ajudando a preservar os canabinoides e terpenos que tornam cada variedade única.",
         "Ao contrário dos grinders de dentes afiados, a geometria arredondada e o interior liso <strong>reduzem o atrito e a acumulação</strong>, mantendo mais flor onde deve estar. O design de 3 peças <strong>sem peneira</strong> mantém os tricomas misturados no material triturado em vez de os separar, e o perfil fino cabe num bolso ou numa mochila.",
-        "Fabricado em <strong>alumínio anodizado 6063 de grau aeronáutico</strong>, oferece rotação suave, durabilidade e precisão. Em testes independentes da <strong>Orange Photonics</strong>, o design de dentes micro-arredondados apresentou a maior retenção de THC após a trituração entre os tipos de grinder testados.",
+        "Fabricado em <strong>alumínio anodizado 6063 de grau aeronáutico</strong>, oferece rotação suave, durabilidade e precisão. Em testes independentes da <strong>Independent Testing Labs</strong>, o design de dentes micro-arredondados apresentou a maior retenção de THC após a trituração entre os tipos de grinder testados.",
         "O grão uniforme que produz é ideal para vaporização, por isso combina naturalmente com o <strong>G&nbsp;Pen Dash II</strong> e o <strong>G&nbsp;Pen Dash+</strong>: enchimento uniforme e mais sabor em cada sessão.",
       ],
       highlights: [

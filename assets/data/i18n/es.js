@@ -352,7 +352,7 @@ window.GPEN_I18N = {
       description: [
         "Toda buena sesión empieza por un buen molido. El G&nbsp;Pen Slim 3-Piece Grinder está diseñado con <strong>dientes microrredondeados</strong> que separan la flor con suavidad hasta un molido uniforme, ayudando a preservar los cannabinoides y terpenos que hacen única a cada variedad.",
         "A diferencia de los grinders de dientes afilados, la geometría redondeada y el interior liso <strong>reducen la fricción y la acumulación</strong>, de modo que queda más flor donde debe estar. El diseño de 3 piezas <strong>sin filtro</strong> mantiene los tricomas mezclados con el material molido en lugar de separarlos, y su perfil delgado cabe en un bolsillo o en un bolso.",
-        "Fabricado en <strong>aluminio anodizado 6063 de grado aeronáutico</strong>, ofrece un giro suave, durabilidad y precisión. En pruebas independientes de <strong>Orange Photonics</strong>, el diseño de dientes microrredondeados mostró la mayor retención de THC tras el molido entre los tipos de grinder evaluados.",
+        "Fabricado en <strong>aluminio anodizado 6063 de grado aeronáutico</strong>, ofrece un giro suave, durabilidad y precisión. En pruebas independientes de <strong>Independent Testing Labs</strong>, el diseño de dientes microrredondeados mostró la mayor retención de THC tras el molido entre los tipos de grinder evaluados.",
         "El molido uniforme que produce es ideal para vaporizar, así que combina de forma natural con el <strong>G&nbsp;Pen Dash II</strong> y el <strong>G&nbsp;Pen Dash+</strong>: una carga pareja y más sabor en cada sesión.",
       ],
       highlights: [
