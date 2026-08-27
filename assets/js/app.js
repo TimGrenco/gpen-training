@@ -677,7 +677,7 @@
      `name`, `msrp` and the media keys are refused: product names, prices, photos
      and discount codes are identical in every language. */
   var I18N_NEVER = { quiz: 1, slug: 1, name: 1, msrp: 1, family: 1, accent: 1, cover: 1, heroImg: 1, videos: 1, gallery: 1, productUrl: 1, faqUrl: 1, passPct: 1,
-                     box: 1, pop: 1, perDisplay: 1, heroPos: 1, heroSplit: 1 };
+                     box: 1, pop: 1, perDisplay: 1, heroPos: 1, heroSplit: 1, noHealthRule: 1 };
   // Objects whose keys merge rather than replace wholesale.
   var NESTED = { howToSell: 1, packaging: 1 };
   /* Which fields a locale actually replaced, per slug. dt() below reads this so a
@@ -1661,6 +1661,15 @@
          The health rule is UNCONDITIONAL on every product: it lived inside each product's
          `trap` string once and only the Dash II's carried it, so on five of six courses the
          instruction that matters most appeared nowhere on the page. */
+      /* THE HEALTH PAIR IS STILL UNCONDITIONAL BY DEFAULT, and opt-out rather than opt-in on
+         purpose: it used to live inside each product's `trap` string, only the Dash II
+         actually carried it, and five of six courses shipped without the one rule that
+         matters most. Default-on is what fixed that, so a course has to say explicitly that
+         it does not apply.
+         The Grinder is the first to. It is a mechanical accessory — nothing heats, nothing is
+         inhaled — and the permitted-ground line ("it heats instead of burns") is written for
+         a dry herb vaporizer, so it rendered as nonsense on a page about teeth. */
+      (c.noHealthRule ? "" :
       '<div class="sell-never">' +
         '<em>' + ic("spark") + t("Never") + "</em>" +
         "<ul>" +
@@ -1673,7 +1682,7 @@
       '<div class="sell-can">' +
         "<em>" + t("You can say") + "</em>" +
         "<span>" + t("it heats instead of burns, and tastes better.") + "</span>" +
-      "</div>" +
+      "</div>") +
       (h.aov ? '<p class="sell-aov">' + ic("tag") + "<span>" + esc(h.aov) + "</span></p>" : "") +
     "</div>";
   }

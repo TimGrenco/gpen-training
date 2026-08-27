@@ -278,6 +278,9 @@ window.GPEN_COURSES = [
     cover: "assets/img/grinder-cover.png",
     heroImg: LIFE + "slim-3-piece-grinder/0fbb1f8d492eb9a3230da10082b02e5dbce938d37a055f7945e5ac7080e2dd90.jpg",
     heroSplit: true,
+    // Mechanical accessory: nothing heats and nothing is inhaled, so the health-claim
+    // pair does not apply. Client decision, and the only course that opts out.
+    noHealthRule: true,
     packaging: {
       box: LIFE + "slim-3-piece-grinder/af9109ac9d7ac666346e4454bf5f71f02e4fccd6ab69228928184991885a9d10.jpg",
       pop: LIFE + "slim-3-piece-grinder/1d36eb3de3fe085fd7d75671701db97d24e1a7741e0af7488ba2d8d93d75dc29.jpg",
@@ -360,7 +363,7 @@ window.GPEN_COURSES = [
       keyFacts: ["Micro-rounded teeth gently break up flower instead of shredding it", "Highest THC & Terpene retention in independent testing", "Aluminum 3 Piece Grinder for only $19.95"],
       talkTrack: { say: "Do you have a grinder? This new grinder tech has rounded teeth to separate it instead of shredding it, and it's proven to retain more of your THC and terpenes." },
       objections: [
-        { says: "I already have a grinder.", say: "Most free ones are plastic with sharp teeth, so they shred the flower and shed plastic into it. This is machined aluminum with rounded teeth \u2014 proven to retain more of your THC and terpenes." },
+        { says: "I already have a grinder.", say: "Is it plastic? If so, those shred the flower and shed plastic into it. This is machined aluminum." },
         { says: "Where does the kief go?", say: "It stays in your grind. There is no screen, so the trichomes go in the bowl with everything else instead of collecting in a chamber." },
       ],
     },
