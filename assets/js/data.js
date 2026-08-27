@@ -265,7 +265,7 @@ window.GPEN_COURSES = [
        is this thing and what is it for", shown at the top of the course above
        the price. Not marketing and not positioning — a rep who has never seen
        the category should be able to read one line and be right. */
-    whatItIs: "Grinder with micro-rounded teeth gently break up flower instead of shredding it",
+    whatItIs: "Grinder with micro-rounded teeth gently breaks up flower instead of shredding it",
     differentiator: "The $19.95 add-on for any flower sale.",
     minutes: 6, passPct: 80, msrp: "$19.95", accent: "#5E8C61",
     /* Locally cut out, not a CDN render: every stashgrinder_* asset on the CDN and in
