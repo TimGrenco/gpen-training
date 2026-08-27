@@ -639,6 +639,15 @@ a.linklike.backdash { display: grid; place-items: center; min-height: 44px; widt
    two things too narrow to read. */
 .cx-hero.split { display: block; min-height: 0; }
 .cx-hero.split .cx-hero-media { position: relative; inset: auto; aspect-ratio: 4 / 3; }
+/* CONTAIN, not cover, and on a light ground. These heroes are studio product shots — the
+   device held in a hand on white — not lifestyle photography. Cover crops them, and cropping
+   a product shot cuts the product, which is the one thing the client asked not to happen. A
+   scrim is wrong for the same reason: darkening a white studio background to make white text
+   readable would leave a grey box, and there is no text over the photo here anyway.
+   Contain shows the whole device at every viewport regardless of the source ratio, which
+   matters because these five arrived as four squares and one portrait. */
+.cx-hero.split .cx-hero-media { background: #fff; }
+.cx-hero.split .cx-hero-media img { object-fit: contain; padding: 16px; }
 .cx-hero.split::after { display: none; }
 .cx-hero.split .cx-hero-body { background: #141414; }
 @media (min-width: 840px) {

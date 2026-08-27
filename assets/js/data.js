@@ -61,8 +61,8 @@ window.GPEN_COURSES = [
     differentiator: "The entry dry herb vaporizer. Simple to use.",
     minutes: 7, passPct: 80, msrp: "$49.95", accent: "#FEC870",
     cover: CDN + "Dash2_thumb_01.png?v=1782936076",
-    heroImg: LIFE + "dash-ii/fa7d18dfeb95a3e64c1463c8b71f8a14fda9385f98cac0edf10939e3f33446c8.jpg",
-    heroPos: "50% 100%",
+    heroImg: LIFE + "dash-ii/c9266bf083319a954ee1773b4a2486080fefcc51ffbdabda737a81257ea25bdb.jpg",
+    heroSplit: true,
     /* Packaging, from the asset portal's synced "Packaging" folder. `perDisplay`
        is the inner-pack count on the SKU sheet — what a store actually receives. */
     packaging: {
@@ -166,7 +166,7 @@ window.GPEN_COURSES = [
     differentiator: "Titanium chamber and hybrid heating. The step-up model.",
     minutes: 6, passPct: 80, msrp: "$99.95", accent: "#D75D43",
     cover: CDN + "dash__vape_thumb_5e14bcb4-a63a-4cc3-8078-e57fc572e4da.png?v=1729247649",
-    heroImg: LIFE + "dash-plus/fa2c8251f87a6c51f5caeff6928ee01dee048a936682e1ea2f72746a142b7c47.jpg",
+    heroImg: LIFE + "dash-plus/6743d30cc6b543bd2b0e37255049d0f7d5067a2a6f76dda6b10d5e03d762213f.jpg",
     heroSplit: true,
     /* No POP display for the Dash+ — it ships as a single unit only, which is why
        the SKU sheet lists its inner pack as N/A. The section renders one card. */
@@ -400,7 +400,8 @@ window.GPEN_COURSES = [
     differentiator: "Electric hot knife. Scoops and releases without residue.",
     minutes: 9, passPct: 80, msrp: "$24.95", accent: "#E8833A",
     cover: CDN + "Melt_thumbA.png?v=1772813232",
-    heroImg: LIFE + "melt/b1cac7548cacc2f2b15e0b9385e6ff04e8a8168f7dbec9e1be8f8354dc506aea.jpg",
+    heroImg: LIFE + "melt/36a00c4baa0a4b96dd224a762191ef5cbc67b80afeb954c54cf79e5c5c90f594.jpg",
+    heroSplit: true,
     packaging: {
       box: LIFE + "melt/a831957ad756e42f0d8b13053463f621777b42649d01b141e0b3e9ede7c3417a.jpg",
       pop: LIFE + "melt/628e9f284fb810bfa05a760c85834f37860f0b0a153fa722d0be65289bf9df26.jpg",
@@ -506,7 +507,8 @@ window.GPEN_COURSES = [
     differentiator: "510 battery with the mouthpiece hidden inside.",
     minutes: 9, passPct: 80, msrp: "$24.95", accent: "#7E8AA2",
     cover: CDN + "Hydout_vape_01.png?v=1762467078",
-    heroImg: LIFE + "hydout/ad92f94cf68885a5ecb0b673ca262349a3f7c0476bf1762cbb375d2289bf39b1.jpg",
+    heroImg: LIFE + "hydout/64110ae4840bd115e2d36096765440b068af3225e2896ae80b51f2d4ec6b3d75.jpg",
+    heroSplit: true,
     packaging: {
       box: LIFE + "hydout/4439b92f07acc9f80b7aa5899b8819efaf6f5d7366b04341efb7fda07dbd1056.jpg",
       pop: LIFE + "hydout/9a919bb3e6e6f6073f0dc9936df41d2811a88782290ef8451f3f1f8b18858e6d.jpg",
@@ -616,7 +618,8 @@ window.GPEN_COURSES = [
     differentiator: "The smallest and lowest-priced G Pen 510 battery.",
     minutes: 9, passPct: 80, msrp: "$12.95", accent: "#A9A296",
     cover: CDN + "510_on_white_01.png?v=1767045174",
-    heroImg: LIFE + "510-original/058259adc75c62d0fe69f23e94cbb694621854da02665759ab93ad284e329267.jpg",
+    heroImg: LIFE + "510-original/fee78eb478029ce3fda7a2a847d8021905b47e0ce6e3710333b608a1258cc9ce.jpg",
+    heroSplit: true,
     packaging: {
       box: LIFE + "510-original/70b73f25507013009c2fad970c5725efb2bff1e0cf615335f82ca988f6798ff0.jpg",
       pop: LIFE + "510-original/97c99ee846af2e0ff3833804d029f130dec0f2af58cd246443fa8a5494b48f55.jpg",
